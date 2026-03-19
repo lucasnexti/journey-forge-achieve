@@ -192,6 +192,124 @@ export type Database = {
           },
         ]
       }
+      lesson_materials: {
+        Row: {
+          created_at: string | null
+          id: string
+          lesson_id: string
+          title: string
+          type: string | null
+          url: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          lesson_id: string
+          title: string
+          type?: string | null
+          url: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          lesson_id?: string
+          title?: string
+          type?: string | null
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_materials_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lesson_notes: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          lesson_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          lesson_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          lesson_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_notes_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lesson_progress: {
+        Row: {
+          completed: boolean | null
+          created_at: string | null
+          id: string
+          last_watched_at: string | null
+          lesson_id: string
+          track_id: string
+          user_id: string
+          watched_seconds: number | null
+        }
+        Insert: {
+          completed?: boolean | null
+          created_at?: string | null
+          id?: string
+          last_watched_at?: string | null
+          lesson_id: string
+          track_id: string
+          user_id: string
+          watched_seconds?: number | null
+        }
+        Update: {
+          completed?: boolean | null
+          created_at?: string | null
+          id?: string
+          last_watched_at?: string | null
+          lesson_id?: string
+          track_id?: string
+          user_id?: string
+          watched_seconds?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_progress_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_progress_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lessons: {
         Row: {
           created_at: string | null
@@ -289,34 +407,40 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_url: string | null
           cargo: string | null
           cpf: string | null
           created_at: string
           empresa: string | null
           id: string
           is_active: boolean | null
+          last_active_at: string | null
           nome: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          avatar_url?: string | null
           cargo?: string | null
           cpf?: string | null
           created_at?: string
           empresa?: string | null
           id?: string
           is_active?: boolean | null
+          last_active_at?: string | null
           nome: string
           updated_at?: string
           user_id: string
         }
         Update: {
+          avatar_url?: string | null
           cargo?: string | null
           cpf?: string | null
           created_at?: string
           empresa?: string | null
           id?: string
           is_active?: boolean | null
+          last_active_at?: string | null
           nome?: string
           updated_at?: string
           user_id?: string
@@ -421,6 +545,41 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "quizzes_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      track_ratings: {
+        Row: {
+          comment: string | null
+          created_at: string | null
+          id: string
+          rating: number
+          track_id: string
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          rating: number
+          track_id: string
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          rating?: number
+          track_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "track_ratings_track_id_fkey"
             columns: ["track_id"]
             isOneToOne: false
             referencedRelation: "tracks"

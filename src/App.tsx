@@ -29,6 +29,7 @@ import AdminGamificacao from "./pages/admin/AdminGamificacao.tsx";
 import AdminNotificacoes from "./pages/admin/AdminNotificacoes.tsx";
 import AdminForumGestao from "./pages/admin/AdminForumGestao.tsx";
 import AdminPersonalizacao from "./pages/admin/AdminPersonalizacao.tsx";
+import ProfilePage from "./pages/ProfilePage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -46,6 +47,7 @@ const App = () => (
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/trilha/:trackId" element={<ProtectedRoute><TrackPage /></ProtectedRoute>} />
             <Route path="/relatorios" element={<ProtectedRoute><ReportPage /></ProtectedRoute>} />
+            <Route path="/perfil" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
 
             {/* Admin routes */}
             <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
