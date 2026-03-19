@@ -12,10 +12,13 @@ import TrackRating from "@/components/TrackRating";
 import LessonForum from "@/components/LessonForum";
 import QuizForm from "@/components/QuizForm";
 import Certificate from "@/components/Certificate";
-import { ArrowLeft, ArrowRight, ClipboardCheck } from "lucide-react";
+import { ArrowLeft, ClipboardCheck, BookOpen, Clock, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 
 interface LessonRow {
   id: string;
@@ -77,14 +80,14 @@ const TrackPage = () => {
     setLoading(false);
   }, [trackId, user]);
 
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
+  useEffect(() => { loadData(); }, [loadData]);
 
   const currentLesson = lessons.find((l) => l.id === currentLessonId);
   const currentIndex = lessons.findIndex((l) => l.id === currentLessonId);
   const allLessonsComplete = lessons.length > 0 && lessons.every((l) => progress[l.id]?.completed);
-  const quiz = quizzes[0]; // primary quiz
+  const completedLessons = Object.values(progress).filter((p) => p.completed).length;
+  const overallPercent = lessons.length > 0 ? Math.round((completedLessons / lessons.length) * 100) : 0;
+  const quiz = quizzes[0];
 
   const handleLessonComplete = async (watchedSeconds: number) => {
     if (!user || !trackId) return;
@@ -97,17 +100,11 @@ const TrackPage = () => {
 
   const handleQuizSubmit = async (score: number, passed: boolean) => {
     if (!user || !quiz) return;
-    await supabase.from("quiz_attempts").insert({
-      user_id: user.id,
-      quiz_id: quiz.id,
-      score,
-      passed,
-    });
+    await supabase.from("quiz_attempts").insert({ user_id: user.id, quiz_id: quiz.id, score, passed });
     setQuizScore(score);
     setQuizPassed(passed);
     if (passed) {
       setCompletedAt(new Date().toISOString());
-      // Update enrollment
       await supabase
         .from("enrollments")
         .update({ status: "completed", completed_at: new Date().toISOString() })
@@ -123,6 +120,20 @@ const TrackPage = () => {
       setShowQuiz(false);
     }
   };
+
+  const quizForForm = quiz
+    ? {
+        passingScore: quiz.passing_score || 70,
+        questions: quiz.quiz_questions
+          .sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
+          .map((q) => ({
+            id: q.id,
+            text: q.question,
+            options: Array.isArray(q.options) ? q.options as string[] : [],
+            correctIndex: q.correct_answer,
+          })),
+      }
+    : null;
 
   if (loading) {
     return (
@@ -147,40 +158,46 @@ const TrackPage = () => {
     );
   }
 
-  // Build quiz in the format QuizForm expects
-  const quizForForm = quiz
-    ? {
-        passingScore: quiz.passing_score || 70,
-        questions: quiz.quiz_questions
-          .sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
-          .map((q) => ({
-            id: q.id,
-            text: q.question,
-            options: Array.isArray(q.options) ? q.options as string[] : [],
-            correctIndex: q.correct_answer,
-          })),
-      }
-    : null;
-
   return (
     <div className="min-h-screen bg-background">
       <Header />
 
-      <div className="bg-gradient-nexti">
-        <div className="container py-6">
-          <Link to="/dashboard" className="mb-3 inline-flex items-center gap-2 text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors">
-            <ArrowLeft className="h-4 w-4" />
-            Voltar às trilhas
-          </Link>
-          <p className="text-xs font-bold uppercase tracking-wider text-primary-foreground/70">{track.category}</p>
-          <h1 className="mt-1 font-display text-2xl font-extrabold text-primary-foreground">{track.title}</h1>
-          <p className="mt-1 text-sm text-primary-foreground/80">{track.description}</p>
+      {/* Track header — compact */}
+      <div className="border-b border-border/50 bg-card">
+        <div className="container py-4">
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <Link to="/dashboard" className="mb-2 inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
+                <ArrowLeft className="h-3 w-3" />
+                Voltar às trilhas
+              </Link>
+              <div className="flex items-center gap-2 mt-1">
+                <Badge variant="secondary" className="text-[10px]">{track.category}</Badge>
+                <h1 className="font-display text-xl font-bold text-foreground truncate">{track.title}</h1>
+              </div>
+              <div className="mt-2 flex items-center gap-4 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <BookOpen className="h-3.5 w-3.5" />
+                  {lessons.length} aulas
+                </span>
+                <span className="flex items-center gap-1">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  {completedLessons}/{lessons.length} concluídas
+                </span>
+              </div>
+            </div>
+            <div className="shrink-0 text-right hidden sm:block">
+              <p className="text-2xl font-display font-extrabold text-gradient-nexti tabular-nums">{overallPercent}%</p>
+              <Progress value={overallPercent} className="h-1.5 w-32 mt-1" />
+            </div>
+          </div>
         </div>
       </div>
 
       <main className="container py-6">
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2 space-y-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
+          {/* Main content */}
+          <div className="space-y-5 min-w-0">
             <AnimatePresence mode="wait">
               {!showQuiz ? (
                 <motion.div
@@ -189,6 +206,7 @@ const TrackPage = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -8 }}
                   transition={{ duration: 0.2 }}
+                  className="space-y-5"
                 >
                   {currentLesson && (
                     <>
@@ -199,17 +217,40 @@ const TrackPage = () => {
                         onPrev={currentIndex > 0 ? () => goToLesson(currentIndex - 1) : undefined}
                         onNext={currentIndex < lessons.length - 1 ? () => goToLesson(currentIndex + 1) : undefined}
                       />
-                      <div className="card-surface p-5">
-                        <h2 className="font-display text-lg font-semibold text-foreground">
-                          {currentLesson.title}
-                        </h2>
-                        <p className="mt-1 text-sm text-muted-foreground">{currentLesson.description}</p>
-                      </div>
 
-                      {/* Notes & Materials */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <LessonNotes lessonId={currentLessonId} />
-                        <LessonMaterials lessonId={currentLessonId} />
+                      {/* Lesson info + tabs */}
+                      <div className="card-surface overflow-hidden">
+                        <div className="p-5 border-b border-border/50">
+                          <h2 className="font-display text-lg font-semibold text-foreground">
+                            {currentLesson.title}
+                          </h2>
+                          {currentLesson.description && (
+                            <p className="mt-1 text-sm text-muted-foreground">{currentLesson.description}</p>
+                          )}
+                        </div>
+
+                        <Tabs defaultValue="notas" className="w-full">
+                          <TabsList className="w-full justify-start rounded-none border-b border-border/50 bg-transparent px-5 h-auto py-0">
+                            <TabsTrigger value="notas" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent py-3 text-xs">
+                              Anotações
+                            </TabsTrigger>
+                            <TabsTrigger value="materiais" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent py-3 text-xs">
+                              Materiais
+                            </TabsTrigger>
+                            <TabsTrigger value="forum" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent py-3 text-xs">
+                              Fórum
+                            </TabsTrigger>
+                          </TabsList>
+                          <TabsContent value="notas" className="p-5 mt-0">
+                            <LessonNotes lessonId={currentLessonId} />
+                          </TabsContent>
+                          <TabsContent value="materiais" className="p-5 mt-0">
+                            <LessonMaterials lessonId={currentLessonId} />
+                          </TabsContent>
+                          <TabsContent value="forum" className="p-5 mt-0">
+                            {trackId && <LessonForum lessonId={currentLessonId} trackId={trackId} />}
+                          </TabsContent>
+                        </Tabs>
                       </div>
                     </>
                   )}
@@ -217,10 +258,10 @@ const TrackPage = () => {
                   {allLessonsComplete && !quizPassed && quizForForm && (
                     <Button
                       onClick={() => setShowQuiz(true)}
-                      className="w-full gap-2 bg-gradient-nexti text-primary-foreground hover:opacity-90"
+                      className="w-full gap-2 bg-gradient-nexti text-primary-foreground hover:opacity-90 h-12"
                     >
                       <ClipboardCheck className="h-4 w-4" />
-                      Iniciar Avaliação
+                      Iniciar Avaliação Final
                     </Button>
                   )}
                 </motion.div>
@@ -233,11 +274,7 @@ const TrackPage = () => {
                   transition={{ duration: 0.2 }}
                 >
                   {quizForForm && (
-                    <QuizForm
-                      quiz={quizForForm}
-                      onSubmit={handleQuizSubmit}
-                      previousScore={quizScore}
-                    />
+                    <QuizForm quiz={quizForForm} onSubmit={handleQuizSubmit} previousScore={quizScore} />
                   )}
                 </motion.div>
               )}
@@ -245,23 +282,14 @@ const TrackPage = () => {
 
             {quizPassed && completedAt && (
               <div className="space-y-4">
-                <Certificate
-                  userName={profileName}
-                  trackTitle={track.title}
-                  completedAt={completedAt}
-                  score={quizScore || 0}
-                />
+                <Certificate userName={profileName} trackTitle={track.title} completedAt={completedAt} score={quizScore || 0} />
                 <TrackRating trackId={track.id} />
               </div>
             )}
-
-            {/* Forum */}
-            {trackId && (
-              <LessonForum lessonId={currentLessonId} trackId={trackId} />
-            )}
           </div>
 
-          <div className="lg:col-span-1 space-y-4">
+          {/* Sidebar */}
+          <div className="space-y-4">
             <LessonSidebar
               lessons={lessons.map((l) => ({
                 id: l.id,
@@ -275,10 +303,7 @@ const TrackPage = () => {
               progress={Object.fromEntries(
                 Object.entries(progress).map(([k, v]) => [k, { completed: v.completed, watchedSeconds: v.watched_seconds }])
               )}
-              onSelectLesson={(id) => {
-                setCurrentLessonId(id);
-                setShowQuiz(false);
-              }}
+              onSelectLesson={(id) => { setCurrentLessonId(id); setShowQuiz(false); }}
             />
           </div>
         </div>

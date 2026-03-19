@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, CheckCircle2, PlayCircle, Heart } from "lucide-react";
+import { CheckCircle2, PlayCircle, Heart, BookOpen, Clock, ArrowRight } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import CircularProgress from "./CircularProgress";
+import { motion } from "framer-motion";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 interface TrackCardProps {
   trackId: string;
@@ -20,17 +23,8 @@ interface TrackCardProps {
 }
 
 const TrackCard = ({
-  trackId,
-  title,
-  description,
-  category,
-  totalLessons,
-  estimatedHours,
-  index,
-  isEnrolled,
-  isCompleted,
-  isFavorite = false,
-  onToggleFavorite,
+  trackId, title, description, category, totalLessons, estimatedHours,
+  index, isEnrolled, isCompleted, isFavorite = false, onToggleFavorite,
 }: TrackCardProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -60,63 +54,89 @@ const TrackCard = ({
     navigate(`/trilha/${trackId}`);
   };
 
+  const categoryColors: Record<string, string> = {
+    default: "bg-primary/10 text-primary",
+  };
+  const catClass = categoryColors[category] || categoryColors.default;
+
   return (
-    <div
-      onClick={() => isEnrolled ? navigate(`/trilha/${trackId}`) : handleEnroll()}
-      className="card-surface-hover flex items-center gap-6 p-6 group cursor-pointer"
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.05, duration: 0.3 }}
     >
-      <div className="shrink-0">
-        {isEnrolled ? (
-          <CircularProgress percent={percent} />
-        ) : (
-          <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10">
-            <PlayCircle className="h-6 w-6 text-primary" />
+      <div
+        onClick={() => isEnrolled ? navigate(`/trilha/${trackId}`) : handleEnroll()}
+        className="group card-surface-hover flex flex-col h-full cursor-pointer overflow-hidden"
+      >
+        {/* Top accent */}
+        <div className={cn("h-1 w-full", isCompleted ? "bg-success" : isEnrolled ? "bg-primary" : "bg-border")} />
+
+        <div className="flex flex-col flex-1 p-5">
+          {/* Category & favorite */}
+          <div className="flex items-center justify-between mb-3">
+            <Badge variant="secondary" className={cn("text-[10px] font-semibold", catClass)}>
+              {category || "Geral"}
+            </Badge>
+            {onToggleFavorite && (
+              <button
+                onClick={(e) => { e.stopPropagation(); onToggleFavorite(); }}
+                className="p-1 rounded-md hover:bg-secondary transition-colors"
+              >
+                <Heart className={cn("h-4 w-4", isFavorite ? "fill-destructive text-destructive" : "text-muted-foreground")} />
+              </button>
+            )}
           </div>
-        )}
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-          Trilha {index + 1} · {category}
-        </p>
-        <h3 className="mt-1 font-display text-lg font-semibold text-foreground">
-          {title}
-        </h3>
-        <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{description}</p>
-        <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
-          <span>{totalLessons} aulas</span>
-          <span>·</span>
-          <span>{estimatedHours}h estimadas</span>
-          {isEnrolled && completedLessons > 0 && (
-            <>
-              <span>·</span>
-              <span className="text-primary font-medium">{completedLessons}/{totalLessons} concluídas</span>
-            </>
-          )}
+
+          {/* Title & description */}
+          <h3 className="font-display text-base font-semibold text-foreground leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+            {title}
+          </h3>
+          <p className="mt-2 text-sm text-muted-foreground line-clamp-2 flex-1">{description}</p>
+
+          {/* Meta */}
+          <div className="mt-4 flex items-center gap-3 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1">
+              <BookOpen className="h-3.5 w-3.5" />
+              {totalLessons} aulas
+            </span>
+            <span className="flex items-center gap-1">
+              <Clock className="h-3.5 w-3.5" />
+              {estimatedHours}h
+            </span>
+          </div>
+
+          {/* Progress or CTA */}
+          <div className="mt-4 pt-4 border-t border-border/50">
+            {isCompleted ? (
+              <div className="flex items-center justify-between">
+                <span className="flex items-center gap-1.5 text-xs font-semibold text-success">
+                  <CheckCircle2 className="h-4 w-4" />
+                  Concluída
+                </span>
+                <span className="text-xs text-muted-foreground">100%</span>
+              </div>
+            ) : isEnrolled ? (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">{completedLessons}/{totalLessons} aulas</span>
+                  <span className="font-semibold text-foreground tabular-nums">{percent}%</span>
+                </div>
+                <Progress value={percent} className="h-1.5" />
+              </div>
+            ) : (
+              <div className="flex items-center justify-between">
+                <span className="flex items-center gap-1.5 text-xs font-semibold text-primary">
+                  <PlayCircle className="h-4 w-4" />
+                  Começar trilha
+                </span>
+                <ArrowRight className="h-4 w-4 text-primary transition-transform group-hover:translate-x-1" />
+              </div>
+            )}
+          </div>
         </div>
       </div>
-      <div className="shrink-0 flex items-center gap-2">
-        {onToggleFavorite && (
-          <button
-            onClick={(e) => { e.stopPropagation(); onToggleFavorite(); }}
-            className="p-1.5 rounded-lg hover:bg-secondary transition-colors"
-          >
-            <Heart className={`h-4 w-4 ${isFavorite ? "fill-destructive text-destructive" : "text-muted-foreground"}`} />
-          </button>
-        )}
-        {isCompleted ? (
-          <span className="flex items-center gap-1.5 rounded-md bg-success/10 px-3 py-1.5 text-xs font-medium text-success">
-            <CheckCircle2 className="h-3.5 w-3.5" />
-            Concluída
-          </span>
-        ) : !isEnrolled ? (
-          <span className="rounded-md bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary">
-            Iniciar
-          </span>
-        ) : (
-          <ArrowRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1" />
-        )}
-      </div>
-    </div>
+    </motion.div>
   );
 };
 
