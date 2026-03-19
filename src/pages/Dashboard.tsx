@@ -44,6 +44,7 @@ const Dashboard = () => {
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [profileName, setProfileName] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const { pendingSurvey, showSurvey, dismissSurvey } = useSurveyTrigger("periodic");
 
   useEffect(() => {
     if (!user) return;
