@@ -244,6 +244,9 @@ const Dashboard = () => {
                     <Award className={`h-3.5 w-3.5 ${badge.earned ? "text-warning" : "text-muted-foreground"}`} />
                   </div>
                   <span className="text-xs font-medium text-foreground whitespace-nowrap">{badge.name}</span>
+                  {badge.earned && (
+                    <LinkedInShare type="badge" title={badge.name} compact />
+                  )}
                 </div>
               ))}
             </div>
