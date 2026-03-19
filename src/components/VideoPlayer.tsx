@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { Play, Pause, Volume2, VolumeX, Maximize, SkipForward, SkipBack } from "lucide-react";
 
 interface VideoPlayerProps {
@@ -11,8 +11,27 @@ interface VideoPlayerProps {
 
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
 
+const isVimeoUrl = (url: string) =>
+  url.includes("vimeo.com") || url.includes("player.vimeo.com");
+
+const getVimeoEmbedUrl = (url: string) => {
+  // Already an embed URL
+  if (url.includes("player.vimeo.com/video/")) return url;
+  // Regular vimeo URL: https://vimeo.com/1172338146/fd77ec3af4
+  const match = url.match(/vimeo\.com\/(\d+)(?:\/([a-zA-Z0-9]+))?/);
+  if (match) {
+    const videoId = match[1];
+    const hash = match[2];
+    return hash
+      ? `https://player.vimeo.com/video/${videoId}?h=${hash}`
+      : `https://player.vimeo.com/video/${videoId}`;
+  }
+  return url;
+};
+
 const VideoPlayer = ({ videoUrl, onComplete, lessonTitle, onNext, onPrev }: VideoPlayerProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -20,6 +39,8 @@ const VideoPlayer = ({ videoUrl, onComplete, lessonTitle, onNext, onPrev }: Vide
   const [completed, setCompleted] = useState(false);
   const [speed, setSpeed] = useState(1);
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
+  const vimeo = isVimeoUrl(videoUrl);
+  const vimeoTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     setPlaying(false);
@@ -27,9 +48,52 @@ const VideoPlayer = ({ videoUrl, onComplete, lessonTitle, onNext, onPrev }: Vide
     setCompleted(false);
     setSpeed(1);
     if (videoRef.current) videoRef.current.playbackRate = 1;
+    // Reset vimeo timer
+    if (vimeoTimerRef.current) clearInterval(vimeoTimerRef.current);
   }, [videoUrl]);
 
+  // For Vimeo: track time via a simple counter since we can't access the iframe API easily without the Vimeo SDK
+  useEffect(() => {
+    if (!vimeo) return;
+    // We'll use a simple approach: start a timer when user "plays"
+    // and mark complete after 90% of estimated duration
+    return () => {
+      if (vimeoTimerRef.current) clearInterval(vimeoTimerRef.current);
+    };
+  }, [vimeo]);
+
+  const startVimeoTimer = useCallback(() => {
+    if (vimeoTimerRef.current) clearInterval(vimeoTimerRef.current);
+    vimeoTimerRef.current = setInterval(() => {
+      setCurrentTime((prev) => {
+        const next = prev + 1;
+        // Auto-complete at 90% if we have a duration estimate
+        if (duration > 0 && next >= duration * 0.9 && !completed) {
+          setCompleted(true);
+          onComplete(Math.round(next));
+        }
+        return next;
+      });
+    }, 1000);
+  }, [duration, completed, onComplete]);
+
+  const stopVimeoTimer = () => {
+    if (vimeoTimerRef.current) {
+      clearInterval(vimeoTimerRef.current);
+      vimeoTimerRef.current = null;
+    }
+  };
+
   const togglePlay = () => {
+    if (vimeo) {
+      if (playing) {
+        stopVimeoTimer();
+      } else {
+        startVimeoTimer();
+      }
+      setPlaying(!playing);
+      return;
+    }
     if (!videoRef.current) return;
     if (playing) videoRef.current.pause();
     else videoRef.current.play();
@@ -64,6 +128,69 @@ const VideoPlayer = ({ videoUrl, onComplete, lessonTitle, onNext, onPrev }: Vide
 
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 
+  // Vimeo embed
+  if (vimeo) {
+    const embedUrl = getVimeoEmbedUrl(videoUrl) + (getVimeoEmbedUrl(videoUrl).includes("?") ? "&" : "?") + "autoplay=0&title=0&byline=0&portrait=0";
+
+    return (
+      <div className="overflow-hidden rounded-xl bg-foreground/5">
+        <div className="relative aspect-video bg-foreground/10">
+          <iframe
+            ref={iframeRef}
+            src={embedUrl}
+            className="h-full w-full"
+            allow="autoplay; fullscreen; picture-in-picture"
+            allowFullScreen
+            title={lessonTitle}
+          />
+        </div>
+
+        {/* Simple controls for navigation */}
+        <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 sm:py-3">
+          {onPrev && (
+            <button onClick={onPrev} className="p-2 text-muted-foreground hover:text-foreground touch-manipulation">
+              <SkipBack className="h-4 w-4" />
+            </button>
+          )}
+          {onNext && (
+            <button onClick={onNext} className="p-2 text-muted-foreground hover:text-foreground touch-manipulation">
+              <SkipForward className="h-4 w-4" />
+            </button>
+          )}
+
+          <span className="text-[10px] sm:text-xs text-muted-foreground ml-2">
+            Use os controles do player Vimeo acima
+          </span>
+
+          <div className="flex-1" />
+
+          <button
+            onClick={() => {
+              if (!completed) {
+                setCompleted(true);
+                onComplete(Math.round(currentTime || 60));
+              }
+            }}
+            className={`rounded-md border px-3 py-1.5 text-xs font-medium transition-colors touch-manipulation ${
+              completed
+                ? "border-green-300 bg-green-50 text-green-700 dark:border-green-700 dark:bg-green-900/20 dark:text-green-400"
+                : "border-border bg-secondary text-foreground hover:bg-muted"
+            }`}
+          >
+            {completed ? "✓ Concluída" : "Marcar como assistida"}
+          </button>
+        </div>
+
+        {completed && (
+          <div className="border-t border-border/50 bg-green-50 dark:bg-green-900/10 px-4 py-2 text-center text-xs font-medium text-green-700 dark:text-green-400">
+            ✓ Aula assistida — "{lessonTitle}" concluída
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Native video player
   return (
     <div className="overflow-hidden rounded-xl bg-foreground/5">
       <div className="relative aspect-video bg-foreground/10">
@@ -89,7 +216,7 @@ const VideoPlayer = ({ videoUrl, onComplete, lessonTitle, onNext, onPrev }: Vide
         </button>
       </div>
 
-      {/* Progress bar — taller on mobile for easier touch */}
+      {/* Progress bar */}
       <div className="relative h-2 sm:h-1 bg-border cursor-pointer touch-manipulation" onClick={(e) => {
         if (!videoRef.current || !duration) return;
         const rect = e.currentTarget.getBoundingClientRect();
@@ -156,7 +283,7 @@ const VideoPlayer = ({ videoUrl, onComplete, lessonTitle, onNext, onPrev }: Vide
       </div>
 
       {completed && (
-        <div className="border-t border-border/50 bg-success/5 px-4 py-2 text-center text-xs font-medium text-success">
+        <div className="border-t border-border/50 bg-green-50 dark:bg-green-900/10 px-4 py-2 text-center text-xs font-medium text-green-700 dark:text-green-400">
           ✓ Aula assistida — "{lessonTitle}" concluída
         </div>
       )}
