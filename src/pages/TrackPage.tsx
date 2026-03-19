@@ -254,6 +254,11 @@ const TrackPage = () => {
                 <TrackRating trackId={track.id} />
               </div>
             )}
+
+            {/* Forum */}
+            {trackId && (
+              <LessonForum lessonId={currentLessonId} trackId={trackId} />
+            )}
           </div>
 
           <div className="lg:col-span-1 space-y-4">
