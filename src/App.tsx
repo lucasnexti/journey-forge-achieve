@@ -32,6 +32,7 @@ import AdminPersonalizacao from "./pages/admin/AdminPersonalizacao.tsx";
 import ProfilePage from "./pages/ProfilePage.tsx";
 import LeaderboardPage from "./pages/LeaderboardPage.tsx";
 import QuizHistoryPage from "./pages/QuizHistoryPage.tsx";
+import KnowledgeBasePage from "./pages/KnowledgeBasePage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -52,6 +53,7 @@ const App = () => (
             <Route path="/perfil" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
             <Route path="/ranking" element={<ProtectedRoute><LeaderboardPage /></ProtectedRoute>} />
             <Route path="/historico-avaliacoes" element={<ProtectedRoute><QuizHistoryPage /></ProtectedRoute>} />
+            <Route path="/base-conhecimento" element={<ProtectedRoute><KnowledgeBasePage /></ProtectedRoute>} />
 
             {/* Admin routes */}
             <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
