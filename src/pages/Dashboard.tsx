@@ -6,7 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { getUserStats, getLastWatchedLesson } from "@/lib/progressDB";
 import Header from "@/components/Header";
 import TrackCard from "@/components/TrackCard";
-import { BookOpen, Clock, Trophy, Play, Search, Filter, Star, Users } from "lucide-react";
+import OnboardingWizard from "@/components/OnboardingWizard";
+import { BookOpen, Clock, Trophy, Play, Search, Filter, Star, Users, Heart } from "lucide-react";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,9 @@ const Dashboard = () => {
   const [stats, setStats] = useState({ enrollments: 0, totalWatched: 0, avgScore: 0 });
   const [lastLesson, setLastLesson] = useState<Awaited<ReturnType<typeof getLastWatchedLesson>>>(null);
   const [badges, setBadges] = useState<{ name: string; icon: string }[]>([]);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
   useEffect(() => {
     if (!user) return;
