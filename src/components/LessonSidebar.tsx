@@ -34,8 +34,7 @@ const LessonSidebar = ({ lessons, currentLessonId, progress, onSelectLesson, tra
         </div>
       </div>
       <div className="space-y-0.5">
-        {lessons.map((lesson) => {
-          const isActive = lesson.id === currentLessonId;
+        {lessons.filter((lesson) => lesson.id === currentLessonId).map((lesson) => {
           const isComplete = progress[lesson.id]?.completed;
           const watchedSecs = progress[lesson.id]?.watchedSeconds || 0;
           const lessonDuration = lesson.duration || 1;
@@ -45,11 +44,7 @@ const LessonSidebar = ({ lessons, currentLessonId, progress, onSelectLesson, tra
             <button
               key={lesson.id}
               onClick={() => onSelectLesson(lesson.id)}
-              className={`flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left transition-colors ${
-                isActive
-                  ? "bg-primary/5 text-foreground"
-                  : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-              }`}
+              className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left bg-primary/5 text-foreground"
             >
               <div className="shrink-0">
                 {isComplete ? (
@@ -61,7 +56,7 @@ const LessonSidebar = ({ lessons, currentLessonId, progress, onSelectLesson, tra
                     <Check className="h-4 w-4 text-success" />
                   </motion.div>
                 ) : (
-                  <PlayCircle className={`h-4 w-4 ${isActive ? "text-accent" : ""}`} />
+                  <PlayCircle className="h-4 w-4 text-accent" />
                 )}
               </div>
               <div className="flex-1 min-w-0">
