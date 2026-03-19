@@ -343,8 +343,10 @@ const TrackPage = () => {
           </div>
 
           {/* Desktop sidebar */}
-          <div className="hidden lg:block space-y-4">
-            <LessonSidebar {...lessonSidebarProps} />
+          <div className="hidden lg:block">
+            <div className="sticky top-4 space-y-4 max-h-[calc(100vh-6rem)] overflow-y-auto">
+              <LessonSidebar {...lessonSidebarProps} />
+            </div>
           </div>
 
           {/* Mobile sidebar sheet */}
