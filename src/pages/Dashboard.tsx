@@ -7,11 +7,12 @@ import { getUserStats, getLastWatchedLesson } from "@/lib/progressDB";
 import Header from "@/components/Header";
 import TrackCard from "@/components/TrackCard";
 import OnboardingWizard from "@/components/OnboardingWizard";
-import { BookOpen, Clock, Trophy, Play, Search, Filter, Star, Users, Heart } from "lucide-react";
+import { BookOpen, Clock, Trophy, Play, Search, Filter, Star, Heart, TrendingUp, Target } from "lucide-react";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 
 interface TrackRow {
   id: string;
@@ -38,6 +39,8 @@ const Dashboard = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [profileName, setProfileName] = useState("");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   useEffect(() => {
     if (!user) return;
@@ -51,19 +54,9 @@ const Dashboard = () => {
           .order("order_index"),
         getUserStats(user.id),
         getLastWatchedLesson(user.id),
-        supabase
-          .from("user_badges")
-          .select("badges(name, icon)")
-          .eq("user_id", user.id),
-        supabase
-          .from("profiles")
-          .select("onboarding_completed")
-          .eq("user_id", user.id)
-          .maybeSingle(),
-        supabase
-          .from("track_favorites")
-          .select("track_id")
-          .eq("user_id", user.id),
+        supabase.from("user_badges").select("badges(name, icon)").eq("user_id", user.id),
+        supabase.from("profiles").select("onboarding_completed, nome").eq("user_id", user.id).maybeSingle(),
+        supabase.from("track_favorites").select("track_id").eq("user_id", user.id),
       ]);
 
       setTracks((trackData as unknown as TrackRow[]) || []);
@@ -76,8 +69,8 @@ const Dashboard = () => {
         }))
       );
       setFavorites(new Set((favData || []).map((f: any) => f.track_id)));
+      setProfileName(profileData?.nome?.split(" ")[0] || "");
 
-      // Show onboarding if not completed
       if (profileData && !profileData.onboarding_completed) {
         setShowOnboarding(true);
       }
@@ -91,10 +84,7 @@ const Dashboard = () => {
   const categories = [...new Set(tracks.map((t) => t.category).filter(Boolean))] as string[];
 
   const filtered = tracks.filter((t) => {
-    const matchSearch =
-      !search ||
-      t.title.toLowerCase().includes(search.toLowerCase()) ||
-      t.description?.toLowerCase().includes(search.toLowerCase());
+    const matchSearch = !search || t.title.toLowerCase().includes(search.toLowerCase()) || t.description?.toLowerCase().includes(search.toLowerCase());
     const matchCategory = !categoryFilter || t.category === categoryFilter;
     const matchFavorite = !showFavoritesOnly || favorites.has(t.id);
     return matchSearch && matchCategory && matchFavorite;
@@ -111,9 +101,9 @@ const Dashboard = () => {
     }
   };
 
-  const completedCount = tracks.filter((t) =>
-    t.enrollments?.some((e) => e.status === "completed")
-  ).length;
+  const completedCount = tracks.filter((t) => t.enrollments?.some((e) => e.status === "completed")).length;
+  const enrolledCount = tracks.filter((t) => t.enrollments?.length > 0).length;
+  const overallProgress = tracks.length > 0 ? Math.round((completedCount / tracks.length) * 100) : 0;
 
   const formatTime = (secs: number) => {
     if (secs < 60) return `${secs}s`;
@@ -121,11 +111,12 @@ const Dashboard = () => {
     return `${(secs / 3600).toFixed(1)}h`;
   };
 
-  const statCards = [
-    { icon: BookOpen, label: "Trilhas Concluídas", value: `${completedCount}/${tracks.length}` },
-    { icon: Clock, label: "Tempo Assistido", value: formatTime(stats.totalWatched) },
-    { icon: Trophy, label: "Nota Média", value: stats.avgScore > 0 ? `${stats.avgScore}%` : "—" },
-  ];
+  const greeting = () => {
+    const h = new Date().getHours();
+    if (h < 12) return "Bom dia";
+    if (h < 18) return "Boa tarde";
+    return "Boa noite";
+  };
 
   if (loading) {
     return (
@@ -143,90 +134,105 @@ const Dashboard = () => {
       {showOnboarding && <OnboardingWizard onComplete={() => setShowOnboarding(false)} />}
       <Header />
 
-      <div className="bg-gradient-nexti">
-        <div className="container py-10">
-          <h1 className="font-display text-3xl font-extrabold text-primary-foreground">
-            Minhas Trilhas
-          </h1>
-          <p className="mt-2 text-primary-foreground/80">
-            Desenvolva suas competências em trilhas estruturadas.
-          </p>
+      <div className="container py-8">
+        {/* Welcome & Continue */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          {/* Welcome card */}
+          <div className="lg:col-span-2">
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+              <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-foreground">
+                {greeting()}{profileName ? `, ${profileName}` : ""} 👋
+              </h1>
+              <p className="mt-1 text-muted-foreground">
+                {completedCount === 0
+                  ? "Comece sua jornada de aprendizado explorando as trilhas disponíveis."
+                  : `Você completou ${completedCount} de ${tracks.length} trilhas. Continue assim!`}
+              </p>
+            </motion.div>
 
-          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
-            {statCards.map(({ icon: Icon, label, value }) => (
-              <div key={label} className="flex items-center gap-4 rounded-xl bg-primary-foreground/10 backdrop-blur-sm p-4 border border-primary-foreground/10">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-foreground/20">
-                  <Icon className="h-5 w-5 text-primary-foreground" />
-                </div>
-                <div>
-                  <p className="tabular-nums font-display text-xl font-bold text-primary-foreground">{value}</p>
-                  <p className="text-xs text-primary-foreground/70">{label}</p>
-                </div>
-              </div>
-            ))}
+            {/* Continue learning */}
+            {lastLesson && (
+              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mt-4">
+                <button
+                  onClick={() => navigate(`/trilha/${lastLesson.track_id}`)}
+                  className="w-full card-surface-hover flex items-center gap-4 p-4 text-left group"
+                >
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-nexti shadow-md shadow-primary/20">
+                    <Play className="h-5 w-5 text-primary-foreground" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-primary">
+                      Continuar aprendendo
+                    </p>
+                    <p className="mt-0.5 font-display text-sm font-semibold text-foreground truncate">
+                      {lastLesson.lesson_title}
+                    </p>
+                    <p className="text-xs text-muted-foreground">{lastLesson.track_title}</p>
+                  </div>
+                  <Play className="h-4 w-4 text-primary shrink-0 transition-transform group-hover:translate-x-1" />
+                </button>
+              </motion.div>
+            )}
           </div>
 
-          {/* Badges earned */}
-          {badges.length > 0 && (
-            <div className="mt-4 flex items-center gap-2 flex-wrap">
-              <Star className="h-4 w-4 text-primary-foreground/70" />
-              {badges.map((b, i) => (
-                <Badge key={i} variant="secondary" className="bg-primary-foreground/15 text-primary-foreground border-primary-foreground/20 text-xs">
-                  {b.name}
-                </Badge>
+          {/* Stats card */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="card-surface p-5"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <Target className="h-4 w-4 text-primary" />
+                Meu Progresso
+              </h3>
+              <span className="text-2xl font-display font-extrabold text-gradient-nexti">{overallProgress}%</span>
+            </div>
+            <Progress value={overallProgress} className="h-2 mb-4" />
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { icon: BookOpen, label: "Concluídas", value: `${completedCount}/${tracks.length}` },
+                { icon: Clock, label: "Assistido", value: formatTime(stats.totalWatched) },
+                { icon: Trophy, label: "Nota Média", value: stats.avgScore > 0 ? `${stats.avgScore}%` : "—" },
+              ].map(({ icon: Icon, label, value }) => (
+                <div key={label} className="text-center">
+                  <Icon className="mx-auto h-4 w-4 text-muted-foreground mb-1" />
+                  <p className="text-sm font-bold tabular-nums text-foreground">{value}</p>
+                  <p className="text-[10px] text-muted-foreground">{label}</p>
+                </div>
               ))}
             </div>
-          )}
-        </div>
-      </div>
 
-      <main className="container py-8">
-        {/* Continue where you left off */}
-        {lastLesson && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-6"
-          >
-            <button
-              onClick={() => navigate(`/trilha/${lastLesson.track_id}`)}
-              className="w-full card-surface-hover flex items-center gap-4 p-5 text-left group"
-            >
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-nexti">
-                <Play className="h-5 w-5 text-primary-foreground" />
+            {/* Badges */}
+            {badges.length > 0 && (
+              <div className="mt-4 pt-4 border-t border-border/50">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">Conquistas</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {badges.map((b, i) => (
+                    <Badge key={i} variant="secondary" className="text-[10px] gap-1">
+                      <Star className="h-2.5 w-2.5" />
+                      {b.name}
+                    </Badge>
+                  ))}
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Continuar de onde parou
-                </p>
-                <p className="mt-0.5 font-display text-base font-semibold text-foreground truncate">
-                  {lastLesson.lesson_title}
-                </p>
-                <p className="text-sm text-muted-foreground">{lastLesson.track_title}</p>
-              </div>
-              <Play className="h-5 w-5 text-primary shrink-0 transition-transform group-hover:translate-x-1" />
-            </button>
+            )}
           </motion.div>
-        )}
+        </div>
 
         {/* Search & Filters */}
         <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-3">
           <div className="relative flex-1 w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar trilha..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9"
-            />
+            <Input placeholder="Buscar trilha..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 h-9" />
           </div>
           <div className="flex items-center gap-2 flex-wrap">
-            <Filter className="h-4 w-4 text-muted-foreground" />
             <Button
-              variant={categoryFilter === null ? "default" : "outline"}
+              variant={categoryFilter === null && !showFavoritesOnly ? "default" : "outline"}
               size="sm"
-              onClick={() => setCategoryFilter(null)}
-              className={categoryFilter === null ? "bg-gradient-nexti text-primary-foreground hover:opacity-90" : ""}
+              onClick={() => { setCategoryFilter(null); setShowFavoritesOnly(false); }}
+              className={categoryFilter === null && !showFavoritesOnly ? "bg-gradient-nexti text-primary-foreground hover:opacity-90 h-8" : "h-8"}
             >
               Todas
             </Button>
@@ -235,8 +241,8 @@ const Dashboard = () => {
                 key={cat}
                 variant={categoryFilter === cat ? "default" : "outline"}
                 size="sm"
-                onClick={() => setCategoryFilter(cat)}
-                className={categoryFilter === cat ? "bg-gradient-nexti text-primary-foreground hover:opacity-90" : ""}
+                onClick={() => { setCategoryFilter(cat); setShowFavoritesOnly(false); }}
+                className={categoryFilter === cat ? "bg-gradient-nexti text-primary-foreground hover:opacity-90 h-8" : "h-8"}
               >
                 {cat}
               </Button>
@@ -244,8 +250,8 @@ const Dashboard = () => {
             <Button
               variant={showFavoritesOnly ? "default" : "outline"}
               size="sm"
-              onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-              className={showFavoritesOnly ? "bg-gradient-nexti text-primary-foreground hover:opacity-90" : ""}
+              onClick={() => { setShowFavoritesOnly(!showFavoritesOnly); setCategoryFilter(null); }}
+              className={showFavoritesOnly ? "bg-gradient-nexti text-primary-foreground hover:opacity-90 h-8" : "h-8"}
             >
               <Heart className="h-3.5 w-3.5 mr-1" />
               Favoritas
@@ -253,14 +259,14 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Track list */}
-        <div className="space-y-3">
-          {filtered.length === 0 ? (
-            <div className="card-surface p-12 text-center text-muted-foreground">
-              Nenhuma trilha encontrada.
-            </div>
-          ) : (
-            filtered.map((track, i) => (
+        {/* Track grid */}
+        {filtered.length === 0 ? (
+          <div className="card-surface p-12 text-center text-muted-foreground">
+            Nenhuma trilha encontrada.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {filtered.map((track, i) => (
               <TrackCard
                 key={track.id}
                 trackId={track.id}
@@ -275,10 +281,10 @@ const Dashboard = () => {
                 isFavorite={favorites.has(track.id)}
                 onToggleFavorite={() => toggleFavorite(track.id)}
               />
-            ))
-          )}
-        </div>
-      </main>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
