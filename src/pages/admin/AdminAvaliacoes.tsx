@@ -132,16 +132,24 @@ const AdminAvaliacoes = () => {
 
   const handleCreate = async () => {
     if (!form.title || !form.question) { toast.error("Preencha todos os campos."); return; }
+    const isNps = form.type === "nps";
     const { error } = await supabase.from("surveys").insert({
       title: form.title,
       type: form.type,
-      trigger_type: form.trigger_type,
+      trigger_type: isNps ? "manual" : "track_completion",
       question: form.question,
+      is_active: isNps ? false : true, // NPS starts inactive until admin sends it
     });
     if (error) { toast.error("Erro ao criar pesquisa."); return; }
-    toast.success("Pesquisa criada!");
+    toast.success(isNps ? "Pesquisa NPS criada! Use o botão 'Enviar' para disparar aos alunos." : "Pesquisa CSAT criada! Será exibida ao final de cada trilha.");
     setShowCreate(false);
-    setForm({ title: "", type: "nps", trigger_type: "periodic", question: "" });
+    setForm({ title: "", type: "nps", question: "" });
+    fetchData();
+  };
+
+  const sendNpsSurvey = async (id: string) => {
+    await supabase.from("surveys").update({ is_active: true }).eq("id", id);
+    toast.success("Pesquisa NPS enviada para os alunos!");
     fetchData();
   };
 
