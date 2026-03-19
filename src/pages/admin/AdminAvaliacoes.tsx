@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import {
   BarChart3, Plus, Star, TrendingUp, TrendingDown, Users, MessageSquare,
-  ToggleLeft, ToggleRight, Trash2, Eye, ThumbsUp, ThumbsDown, Minus
+  ToggleLeft, ToggleRight, Trash2, Eye, ThumbsUp, ThumbsDown, Minus, Send
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import AdminLayout from "@/components/admin/AdminLayout";
