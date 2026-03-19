@@ -1,13 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "@/components/Header";
-import { FileText, ExternalLink, Search, ChevronDown, ChevronRight, BookOpen } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { motion, AnimatePresence } from "framer-motion";
+import { FileText, ExternalLink, Loader2, BookOpen } from "lucide-react";
+import { playbookSupabase } from "@/lib/playbookClient";
 
 type KBArticle = { label: string; href: string };
 type KBSection = { title: string; articles: KBArticle[] };
 
-const sections: KBSection[] = [
+// Fallback hardcoded data — used only if the live fetch fails
+const fallbackSections: KBSection[] = [
   { title: "APRESENTAÇÃO NEXTI", articles: [{ label: "Apresentação Nexti", href: "https://nexti.octadesk.com/kb/article/apresentacao-nexti" }] },
   { title: "AJUSTE DE PONTO COLABORADOR", articles: [{ label: "Solicitação Ajuste ponto Colaborador", href: "https://nexti.octadesk.com/kb/article/solicitacao-ajuste-ponto-colaborador" }] },
   { title: "CADASTROS", articles: [
@@ -39,12 +39,8 @@ const sections: KBSection[] = [
     { label: "Guia Avisos e Convocações", href: "https://nexti.octadesk.com/kb/article/guia-avisos-e-convocacoes" },
     { label: "Guia Checklist", href: "https://nexti.octadesk.com/kb/article/guia-checklist" },
   ]},
-  { title: "DASHBOARD", articles: [
-    { label: "Guia Dashboard Completo", href: "https://nexti.octadesk.com/kb/article/guia-dashboard-completo" },
-  ]},
-  { title: "NEXTI ANALYTICS", articles: [
-    { label: "Guia Rápido — Nexti Analytics", href: "https://nexti.octadesk.com/kb/article/nexti-analytics" },
-  ]},
+  { title: "DASHBOARD", articles: [{ label: "Guia Dashboard Completo", href: "https://nexti.octadesk.com/kb/article/guia-dashboard-completo" }] },
+  { title: "NEXTI ANALYTICS", articles: [{ label: "Guia Rápido — Nexti Analytics", href: "https://nexti.octadesk.com/kb/article/nexti-analytics" }] },
   { title: "TERMINAIS", articles: [
     { label: "Guia Cadastro Terminal e Vincular Biometria", href: "https://nexti.octadesk.com/kb/article/guia-cadastro-terminal-e-vincular-biometria" },
     { label: "Manual Configuração APN", href: "https://nexti.octadesk.com/kb/article/manual-configuracao-apn" },
@@ -67,143 +63,108 @@ const sections: KBSection[] = [
     { label: "Guia — Reconhecimento Facial", href: "https://nexti.octadesk.com/kb/article/guia-reconhecimento-facial" },
   ]},
   { title: "ESCOPO INICIAL DE INTEGRAÇÃO", articles: [{ label: "Escopo Inicial de Integração", href: "https://nexti.octadesk.com/kb/article/escopo-inicial-de-integracao" }] },
+  { title: "NEXTI CLUB", articles: [{ label: "Manual Nexti Club", href: "https://nexti.octadesk.com/kb/article/nexti-club" }] },
   { title: "NEXTI TALENT — RECRUTAMENTO E SELEÇÃO", articles: [
     { label: "Guia Admissão Digital", href: "https://docs.google.com/presentation/d/1CedC-mG5uSfrbz80_q-QSYCT0O0BXjmO/edit" },
   ]},
+  { title: "DATA LAKE", articles: [{ label: "DataLake", href: "https://nexti.octadesk.com/kb/article/datalake" }] },
 ];
 
-const totalArticles = sections.reduce((sum, s) => sum + s.articles.length, 0);
-
 const KnowledgeBasePage = () => {
-  const [search, setSearch] = useState("");
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
+  const [sections, setSections] = useState<KBSection[]>(fallbackSections);
+  const [loading, setLoading] = useState(true);
 
-  const toggleSection = (title: string) => {
-    setExpandedSections((prev) => {
-      const next = new Set(prev);
-      if (next.has(title)) next.delete(title);
-      else next.add(title);
-      return next;
-    });
-  };
+  useEffect(() => {
+    const fetchKB = async () => {
+      try {
+        const { data: secs, error: secErr } = await playbookSupabase
+          .from("kb_sections")
+          .select("id, title, sort_order")
+          .order("sort_order");
 
-  const filteredSections = search.trim()
-    ? sections
-        .map((s) => ({
-          ...s,
-          articles: s.articles.filter(
-            (a) =>
-              a.label.toLowerCase().includes(search.toLowerCase()) ||
-              s.title.toLowerCase().includes(search.toLowerCase())
-          ),
-        }))
-        .filter((s) => s.articles.length > 0)
-    : sections;
+        if (secErr || !secs || secs.length === 0) {
+          setLoading(false);
+          return;
+        }
 
-  const isSearching = search.trim().length > 0;
+        const { data: arts, error: artErr } = await playbookSupabase
+          .from("kb_articles")
+          .select("section_id, label, href, sort_order")
+          .order("sort_order");
+
+        if (artErr || !arts) {
+          setLoading(false);
+          return;
+        }
+
+        const articlesBySection = new Map<string, KBArticle[]>();
+        for (const a of arts) {
+          if (!articlesBySection.has(a.section_id)) articlesBySection.set(a.section_id, []);
+          articlesBySection.get(a.section_id)!.push({ label: a.label, href: a.href });
+        }
+
+        const result = secs.map((s: any) => ({
+          title: s.title,
+          articles: articlesBySection.get(s.id) || [],
+        }));
+
+        if (result.length > 0) setSections(result);
+      } catch {
+        // fallback stays
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchKB();
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
 
-      {/* Hero */}
-      <section className="border-b border-border bg-gradient-to-b from-primary/5 to-transparent py-10">
-        <div className="container text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-nexti shadow-lg shadow-primary/20 mb-4">
-            <BookOpen className="h-7 w-7 text-primary-foreground" />
-          </div>
-          <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-foreground">
-            Base de Conhecimento
-          </h1>
-          <p className="mt-2 text-muted-foreground max-w-lg mx-auto">
-            Manuais, guias e documentações do sistema Nexti — {sections.length} categorias · {totalArticles} artigos
-          </p>
-
-          {/* Search */}
-          <div className="relative mt-6 max-w-md mx-auto">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar artigo ou categoria..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 h-10"
-            />
-          </div>
+      {/* Hero — same style as Playbook */}
+      <section className="bg-muted/50 border-b border-border py-10">
+        <div className="max-w-6xl mx-auto px-4 text-center">
+          <h1 className="text-3xl font-bold text-foreground mb-2">Base de Conhecimento</h1>
+          <p className="text-muted-foreground">Manuais, guias e documentações do sistema Nexti</p>
         </div>
       </section>
 
-      {/* Content */}
-      <section className="container py-8 max-w-4xl">
-        {filteredSections.length === 0 ? (
-          <div className="text-center py-16 text-muted-foreground">
-            <FileText className="mx-auto h-10 w-10 mb-3 opacity-40" />
-            <p>Nenhum resultado encontrado para "{search}"</p>
+      {/* Content — masonry 2 columns like Playbook */}
+      <main className="max-w-6xl mx-auto px-4 py-10">
+        {loading ? (
+          <div className="flex justify-center py-20">
+            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
           </div>
         ) : (
-          <div className="space-y-2">
-            {filteredSections.map((section) => {
-              const isOpen = isSearching || expandedSections.has(section.title);
-              return (
-                <motion.div
-                  key={section.title}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="card-surface overflow-hidden"
-                >
-                  <button
-                    onClick={() => toggleSection(section.title)}
-                    className="w-full flex items-center justify-between p-4 text-left group hover:bg-muted/30 transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-                        <FileText className="h-4 w-4 text-primary" />
-                      </div>
-                      <div>
-                        <h3 className="text-sm font-semibold text-foreground">{section.title}</h3>
-                        <p className="text-xs text-muted-foreground">{section.articles.length} artigo{section.articles.length !== 1 ? "s" : ""}</p>
-                      </div>
-                    </div>
-                    {isOpen ? (
-                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                    )}
-                  </button>
-
-                  <AnimatePresence>
-                    {isOpen && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="overflow-hidden"
-                      >
-                        <div className="border-t border-border px-4 py-2">
-                          {section.articles.map((article) => (
-                            <a
-                              key={article.label}
-                              href={article.href}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center gap-3 px-2 py-2.5 rounded-md hover:bg-muted/50 transition-colors group/link"
-                            >
-                              <ExternalLink className="h-3.5 w-3.5 text-muted-foreground shrink-0 group-hover/link:text-primary transition-colors" />
-                              <span className="text-sm text-foreground group-hover/link:text-primary transition-colors">
-                                {article.label}
-                              </span>
-                            </a>
-                          ))}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
-              );
-            })}
+          <div className="columns-1 md:columns-2 gap-6 space-y-6">
+            {sections.map((section) => (
+              <div key={section.title} className="border border-border rounded-lg overflow-hidden break-inside-avoid">
+                <div className="bg-muted/60 px-5 py-3 border-b border-border">
+                  <h2 className="text-sm font-bold text-foreground tracking-wide uppercase">
+                    {section.title}
+                  </h2>
+                </div>
+                <div className="divide-y divide-border">
+                  {section.articles.map((article) => (
+                    <a
+                      key={article.href}
+                      href={article.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 px-5 py-3 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors group"
+                    >
+                      <FileText className="w-4 h-4 shrink-0 text-primary/60" />
+                      <span className="flex-1">{article.label}</span>
+                      <ExternalLink className="w-3.5 h-3.5 opacity-0 group-hover:opacity-60 transition-opacity shrink-0" />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         )}
-      </section>
+      </main>
     </div>
   );
 };
