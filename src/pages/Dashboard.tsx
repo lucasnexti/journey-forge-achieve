@@ -46,7 +46,7 @@ const Dashboard = () => {
     if (!user) return;
 
     const load = async () => {
-      const [{ data: trackData }, statsData, lastData, { data: userBadges }, { data: profileData }, { data: favData }] = await Promise.all([
+      const [{ data: trackData }, statsData, lastData, { data: userBadges }, { data: allBadges }, { data: profileData }, { data: favData }] = await Promise.all([
         supabase
           .from("tracks")
           .select("id, title, description, category, estimated_hours, is_active, order_index, lessons(id), enrollments(id, status)")
@@ -55,6 +55,7 @@ const Dashboard = () => {
         getUserStats(user.id),
         getLastWatchedLesson(user.id),
         supabase.from("user_badges").select("badges(name, icon)").eq("user_id", user.id),
+        supabase.from("badges").select("name, icon, description, criteria_type, criteria_value"),
         supabase.from("profiles").select("onboarding_completed, nome").eq("user_id", user.id).maybeSingle(),
         supabase.from("track_favorites").select("track_id").eq("user_id", user.id),
       ]);
@@ -62,10 +63,13 @@ const Dashboard = () => {
       setTracks((trackData as unknown as TrackRow[]) || []);
       setStats(statsData);
       setLastLesson(lastData);
+
+      const earnedNames = new Set((userBadges || []).map((ub: any) => ub.badges?.name));
       setBadges(
-        (userBadges || []).map((ub: any) => ({
-          name: ub.badges?.name || "",
-          icon: ub.badges?.icon || "award",
+        (allBadges || []).map((b: any) => ({
+          name: b.name || "",
+          icon: b.icon || "award",
+          earned: earnedNames.has(b.name),
         }))
       );
       setFavorites(new Set((favData || []).map((f: any) => f.track_id)));
