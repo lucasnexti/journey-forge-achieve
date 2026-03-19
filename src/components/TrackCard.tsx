@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight, CheckCircle2, PlayCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { ArrowRight, CheckCircle2, PlayCircle, Heart } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import CircularProgress from "./CircularProgress";
@@ -15,6 +15,8 @@ interface TrackCardProps {
   index: number;
   isEnrolled: boolean;
   isCompleted: boolean;
+  isFavorite?: boolean;
+  onToggleFavorite?: () => void;
 }
 
 const TrackCard = ({
@@ -27,6 +29,8 @@ const TrackCard = ({
   index,
   isEnrolled,
   isCompleted,
+  isFavorite = false,
+  onToggleFavorite,
 }: TrackCardProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -90,7 +94,15 @@ const TrackCard = ({
           )}
         </div>
       </div>
-      <div className="shrink-0">
+      <div className="shrink-0 flex items-center gap-2">
+        {onToggleFavorite && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onToggleFavorite(); }}
+            className="p-1.5 rounded-lg hover:bg-secondary transition-colors"
+          >
+            <Heart className={`h-4 w-4 ${isFavorite ? "fill-destructive text-destructive" : "text-muted-foreground"}`} />
+          </button>
+        )}
         {isCompleted ? (
           <span className="flex items-center gap-1.5 rounded-md bg-success/10 px-3 py-1.5 text-xs font-medium text-success">
             <CheckCircle2 className="h-3.5 w-3.5" />

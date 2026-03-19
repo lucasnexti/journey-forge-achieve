@@ -6,7 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { getUserStats, getLastWatchedLesson } from "@/lib/progressDB";
 import Header from "@/components/Header";
 import TrackCard from "@/components/TrackCard";
-import { BookOpen, Clock, Trophy, Play, Search, Filter, Star, Users } from "lucide-react";
+import OnboardingWizard from "@/components/OnboardingWizard";
+import { BookOpen, Clock, Trophy, Play, Search, Filter, Star, Users, Heart } from "lucide-react";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -34,12 +35,15 @@ const Dashboard = () => {
   const [stats, setStats] = useState({ enrollments: 0, totalWatched: 0, avgScore: 0 });
   const [lastLesson, setLastLesson] = useState<Awaited<ReturnType<typeof getLastWatchedLesson>>>(null);
   const [badges, setBadges] = useState<{ name: string; icon: string }[]>([]);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
   useEffect(() => {
     if (!user) return;
 
     const load = async () => {
-      const [{ data: trackData }, statsData, lastData, { data: userBadges }] = await Promise.all([
+      const [{ data: trackData }, statsData, lastData, { data: userBadges }, { data: profileData }, { data: favData }] = await Promise.all([
         supabase
           .from("tracks")
           .select("id, title, description, category, estimated_hours, is_active, order_index, lessons(id), enrollments(id, status)")
@@ -50,6 +54,15 @@ const Dashboard = () => {
         supabase
           .from("user_badges")
           .select("badges(name, icon)")
+          .eq("user_id", user.id),
+        supabase
+          .from("profiles")
+          .select("onboarding_completed")
+          .eq("user_id", user.id)
+          .maybeSingle(),
+        supabase
+          .from("track_favorites")
+          .select("track_id")
           .eq("user_id", user.id),
       ]);
 
@@ -62,6 +75,13 @@ const Dashboard = () => {
           icon: ub.badges?.icon || "award",
         }))
       );
+      setFavorites(new Set((favData || []).map((f: any) => f.track_id)));
+
+      // Show onboarding if not completed
+      if (profileData && !profileData.onboarding_completed) {
+        setShowOnboarding(true);
+      }
+
       setLoading(false);
     };
 
@@ -76,8 +96,20 @@ const Dashboard = () => {
       t.title.toLowerCase().includes(search.toLowerCase()) ||
       t.description?.toLowerCase().includes(search.toLowerCase());
     const matchCategory = !categoryFilter || t.category === categoryFilter;
-    return matchSearch && matchCategory;
+    const matchFavorite = !showFavoritesOnly || favorites.has(t.id);
+    return matchSearch && matchCategory && matchFavorite;
   });
+
+  const toggleFavorite = async (trackId: string) => {
+    if (!user) return;
+    if (favorites.has(trackId)) {
+      await supabase.from("track_favorites").delete().eq("user_id", user.id).eq("track_id", trackId);
+      setFavorites((prev) => { const n = new Set(prev); n.delete(trackId); return n; });
+    } else {
+      await supabase.from("track_favorites").insert({ user_id: user.id, track_id: trackId });
+      setFavorites((prev) => new Set(prev).add(trackId));
+    }
+  };
 
   const completedCount = tracks.filter((t) =>
     t.enrollments?.some((e) => e.status === "completed")
@@ -108,6 +140,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {showOnboarding && <OnboardingWizard onComplete={() => setShowOnboarding(false)} />}
       <Header />
 
       <div className="bg-gradient-nexti">
@@ -208,6 +241,15 @@ const Dashboard = () => {
                 {cat}
               </Button>
             ))}
+            <Button
+              variant={showFavoritesOnly ? "default" : "outline"}
+              size="sm"
+              onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+              className={showFavoritesOnly ? "bg-gradient-nexti text-primary-foreground hover:opacity-90" : ""}
+            >
+              <Heart className="h-3.5 w-3.5 mr-1" />
+              Favoritas
+            </Button>
           </div>
         </div>
 
@@ -230,6 +272,8 @@ const Dashboard = () => {
                 index={i}
                 isEnrolled={track.enrollments?.length > 0}
                 isCompleted={track.enrollments?.some((e) => e.status === "completed") || false}
+                isFavorite={favorites.has(track.id)}
+                onToggleFavorite={() => toggleFavorite(track.id)}
               />
             ))
           )}
