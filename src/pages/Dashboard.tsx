@@ -96,8 +96,20 @@ const Dashboard = () => {
       t.title.toLowerCase().includes(search.toLowerCase()) ||
       t.description?.toLowerCase().includes(search.toLowerCase());
     const matchCategory = !categoryFilter || t.category === categoryFilter;
-    return matchSearch && matchCategory;
+    const matchFavorite = !showFavoritesOnly || favorites.has(t.id);
+    return matchSearch && matchCategory && matchFavorite;
   });
+
+  const toggleFavorite = async (trackId: string) => {
+    if (!user) return;
+    if (favorites.has(trackId)) {
+      await supabase.from("track_favorites").delete().eq("user_id", user.id).eq("track_id", trackId);
+      setFavorites((prev) => { const n = new Set(prev); n.delete(trackId); return n; });
+    } else {
+      await supabase.from("track_favorites").insert({ user_id: user.id, track_id: trackId });
+      setFavorites((prev) => new Set(prev).add(trackId));
+    }
+  };
 
   const completedCount = tracks.filter((t) =>
     t.enrollments?.some((e) => e.status === "completed")
