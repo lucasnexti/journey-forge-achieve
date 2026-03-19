@@ -25,7 +25,7 @@ const CircularProgress = ({ percent, size = 56, strokeWidth = 4 }: CircularProgr
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke={percent === 100 ? "hsl(var(--success))" : "hsl(var(--accent))"}
+          stroke={percent === 100 ? "hsl(var(--success))" : "hsl(var(--primary))"}
           strokeWidth={strokeWidth}
           strokeDasharray={circumference}
           strokeDashoffset={offset}

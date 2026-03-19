@@ -23,11 +23,8 @@ const VideoPlayer = ({ videoUrl, onComplete, lessonTitle }: VideoPlayerProps) =>
 
   const togglePlay = () => {
     if (!videoRef.current) return;
-    if (playing) {
-      videoRef.current.pause();
-    } else {
-      videoRef.current.play();
-    }
+    if (playing) videoRef.current.pause();
+    else videoRef.current.play();
     setPlaying(!playing);
   };
 
@@ -76,31 +73,17 @@ const VideoPlayer = ({ videoUrl, onComplete, lessonTitle }: VideoPlayerProps) =>
       </div>
 
       <div className="flex items-center gap-3 px-4 py-3">
-        <button onClick={togglePlay} className="text-foreground transition-colors hover:text-accent">
+        <button onClick={togglePlay} className="text-foreground transition-colors hover:text-primary">
           {playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
         </button>
-
         <span className="tabular-nums text-xs text-muted-foreground w-20">
           {formatTime(currentTime)} / {formatTime(duration)}
         </span>
-
-        <input
-          type="range"
-          min={0}
-          max={duration || 0}
-          value={currentTime}
-          onChange={handleSeek}
-          className="flex-1 h-1 cursor-pointer accent-accent"
-        />
-
+        <input type="range" min={0} max={duration || 0} value={currentTime} onChange={handleSeek} className="flex-1 h-1 cursor-pointer accent-primary" />
         <button onClick={() => setMuted(!muted)} className="text-muted-foreground hover:text-foreground">
           {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
         </button>
-
-        <button
-          onClick={() => videoRef.current?.requestFullscreen()}
-          className="text-muted-foreground hover:text-foreground"
-        >
+        <button onClick={() => videoRef.current?.requestFullscreen()} className="text-muted-foreground hover:text-foreground">
           <Maximize className="h-4 w-4" />
         </button>
       </div>

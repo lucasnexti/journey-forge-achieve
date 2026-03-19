@@ -73,7 +73,7 @@ const QuizForm = ({ quiz, onSubmit, previousScore }: QuizFormProps) => {
                         : isWrong
                         ? "border-destructive/30 bg-destructive/5 text-foreground"
                         : selected
-                        ? "border-accent bg-accent/5 text-foreground"
+                        ? "border-primary/50 bg-primary/5 text-foreground"
                         : "border-border/50 text-muted-foreground hover:bg-secondary"
                     } ${submitted ? "pointer-events-none" : ""}`}
                   >
@@ -87,10 +87,10 @@ const QuizForm = ({ quiz, onSubmit, previousScore }: QuizFormProps) => {
                     />
                     <div
                       className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${
-                        selected ? "border-accent bg-accent" : "border-border"
+                        selected ? "border-primary bg-primary" : "border-border"
                       }`}
                     >
-                      {selected && <div className="h-2 w-2 rounded-full bg-card" />}
+                      {selected && <div className="h-2 w-2 rounded-full bg-primary-foreground" />}
                     </div>
                     {opt}
                   </label>
@@ -129,7 +129,7 @@ const QuizForm = ({ quiz, onSubmit, previousScore }: QuizFormProps) => {
           <Button
             onClick={handleSubmit}
             disabled={!allAnswered}
-            className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+            className="w-full bg-gradient-nexti text-primary-foreground hover:opacity-90"
           >
             Enviar Respostas
           </Button>
