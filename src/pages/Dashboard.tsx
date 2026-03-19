@@ -7,7 +7,7 @@ import { getUserStats, getLastWatchedLesson } from "@/lib/progressDB";
 import Header from "@/components/Header";
 import TrackCard from "@/components/TrackCard";
 import OnboardingWizard from "@/components/OnboardingWizard";
-import { BookOpen, Clock, Trophy, Play, Search, Filter, Star, Heart, TrendingUp, Target } from "lucide-react";
+import { BookOpen, Clock, Trophy, Play, Search, Filter, Star, Heart, TrendingUp, Target, Award } from "lucide-react";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
