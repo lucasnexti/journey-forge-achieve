@@ -19,6 +19,8 @@ import { Progress } from "@/components/ui/progress";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { useSurveyTrigger } from "@/hooks/useSurveyTrigger";
+import SurveyModal from "@/components/SurveyModal";
 
 interface LessonRow {
   id: string;
