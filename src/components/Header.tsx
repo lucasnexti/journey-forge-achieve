@@ -5,7 +5,7 @@ const Header = () => {
   const location = useLocation();
 
   const links = [
-    { to: "/", label: "Trilhas", icon: BookOpen },
+    { to: "/dashboard", label: "Trilhas", icon: BookOpen },
     { to: "/relatorios", label: "Relatórios", icon: BarChart3 },
   ];
 

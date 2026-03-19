@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Lock, ArrowRight, CheckCircle2 } from "lucide-react";
 import { Track } from "@/lib/data";
 import { getTrackCompletionPercent, isTrackUnlocked, getTrackProgress } from "@/lib/progress";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import CircularProgress from "./CircularProgress";
 
 interface TrackCardProps {
