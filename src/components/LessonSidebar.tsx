@@ -8,6 +8,7 @@ interface LessonSidebarProps {
   currentLessonId: string;
   progress: Record<string, LessonProgress>;
   onSelectLesson: (lessonId: string) => void;
+  trackTitle?: string;
 }
 
 const LessonSidebar = ({ lessons, currentLessonId, progress, onSelectLesson }: LessonSidebarProps) => {
