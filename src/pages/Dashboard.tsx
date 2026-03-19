@@ -318,13 +318,6 @@ const Dashboard = () => {
           </div>
         )}
       </div>
-      {pendingSurvey && (
-        <SurveyModal
-          open={showSurvey}
-          onClose={dismissSurvey}
-          survey={pendingSurvey}
-        />
-      )}
     </div>
   );
 };
