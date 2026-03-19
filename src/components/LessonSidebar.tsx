@@ -20,7 +20,7 @@ const LessonSidebar = ({ lessons, currentLessonId, progress, onSelectLesson, tra
     <div className="card-surface p-1">
       <div className="px-4 py-3">
         <div className="flex items-center justify-between">
-          <h3 className="font-display text-sm font-semibold text-foreground">Conteúdo</h3>
+          <h3 className="font-display text-sm font-semibold text-foreground truncate">{trackTitle || "Conteúdo"}</h3>
           <span className="text-xs text-muted-foreground tabular-nums">{completedLessons}/{totalLessons}</span>
         </div>
         {/* Overall progress bar */}
