@@ -30,30 +30,33 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      <main className="container py-8">
-        <div className="mb-8">
-          <h1 className="font-display text-3xl font-bold text-foreground">
+      {/* Hero banner with Nexti gradient */}
+      <div className="bg-gradient-nexti">
+        <div className="container py-10">
+          <h1 className="font-display text-3xl font-extrabold text-primary-foreground">
             Minhas Trilhas
           </h1>
-          <p className="mt-2 text-muted-foreground">
+          <p className="mt-2 text-primary-foreground/80">
             Desenvolva suas competências cooperativistas em trilhas estruturadas.
           </p>
-        </div>
 
-        <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-          {stats.map(({ icon: Icon, label, value }) => (
-            <div key={label} className="card-surface flex items-center gap-4 p-5">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/5">
-                <Icon className="h-5 w-5 text-primary" />
+          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+            {stats.map(({ icon: Icon, label, value }) => (
+              <div key={label} className="flex items-center gap-4 rounded-xl bg-primary-foreground/10 backdrop-blur-sm p-4 border border-primary-foreground/10">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-foreground/20">
+                  <Icon className="h-5 w-5 text-primary-foreground" />
+                </div>
+                <div>
+                  <p className="tabular-nums font-display text-xl font-bold text-primary-foreground">{value}</p>
+                  <p className="text-xs text-primary-foreground/70">{label}</p>
+                </div>
               </div>
-              <div>
-                <p className="tabular-nums font-display text-xl font-bold text-foreground">{value}</p>
-                <p className="text-xs text-muted-foreground">{label}</p>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
+      </div>
 
+      <main className="container py-8">
         <div className="space-y-3">
           {tracks.map((track, i) => (
             <TrackCard key={track.id} track={track} index={i} />

@@ -43,7 +43,7 @@ const TrackPage = () => {
         <Header />
         <div className="container py-16 text-center">
           <p className="text-muted-foreground">Trilha não encontrada.</p>
-          <Link to="/" className="mt-4 inline-block text-sm text-accent underline">Voltar</Link>
+          <Link to="/" className="mt-4 inline-block text-sm text-primary underline">Voltar</Link>
         </div>
       </div>
     );
@@ -55,18 +55,20 @@ const TrackPage = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      <main className="container py-6">
-        <Link to="/" className="mb-4 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-          <ArrowLeft className="h-4 w-4" />
-          Voltar às trilhas
-        </Link>
-
-        <div className="mb-6">
-          <p className="text-xs font-medium uppercase tracking-wider text-accent">{track.category}</p>
-          <h1 className="mt-1 font-display text-2xl font-bold text-foreground">{track.title}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{track.description}</p>
+      {/* Track header with Nexti gradient */}
+      <div className="bg-gradient-nexti">
+        <div className="container py-6">
+          <Link to="/" className="mb-3 inline-flex items-center gap-2 text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors">
+            <ArrowLeft className="h-4 w-4" />
+            Voltar às trilhas
+          </Link>
+          <p className="text-xs font-bold uppercase tracking-wider text-primary-foreground/70">{track.category}</p>
+          <h1 className="mt-1 font-display text-2xl font-extrabold text-primary-foreground">{track.title}</h1>
+          <p className="mt-1 text-sm text-primary-foreground/80">{track.description}</p>
         </div>
+      </div>
 
+      <main className="container py-6">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-6">
             <AnimatePresence mode="wait">
@@ -97,7 +99,7 @@ const TrackPage = () => {
                   {allLessonsComplete && !progress.quizPassed && (
                     <Button
                       onClick={() => setShowQuiz(true)}
-                      className="w-full gap-2 bg-accent text-accent-foreground hover:bg-accent/90"
+                      className="w-full gap-2 bg-gradient-nexti text-primary-foreground hover:opacity-90"
                     >
                       <ClipboardCheck className="h-4 w-4" />
                       Iniciar Avaliação
@@ -133,7 +135,7 @@ const TrackPage = () => {
                 {nextTrack && (
                   <Button
                     onClick={() => navigate(`/trilha/${nextTrack.id}`)}
-                    className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+                    className="w-full gap-2 bg-gradient-nexti text-primary-foreground hover:opacity-90"
                   >
                     Próxima Trilha: {nextTrack.title}
                     <ArrowRight className="h-4 w-4" />
