@@ -33,6 +33,8 @@ import ProfilePage from "./pages/ProfilePage.tsx";
 import LeaderboardPage from "./pages/LeaderboardPage.tsx";
 import QuizHistoryPage from "./pages/QuizHistoryPage.tsx";
 import KnowledgeBasePage from "./pages/KnowledgeBasePage.tsx";
+import QuizNextiPage from "./pages/QuizNextiPage.tsx";
+import AdminQuizNexti from "./pages/admin/AdminQuizNexti.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
