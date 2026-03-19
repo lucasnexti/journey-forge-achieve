@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import LinkedInShare from "@/components/LinkedInShare";
 
 interface CertificateProps {
   userName: string;
