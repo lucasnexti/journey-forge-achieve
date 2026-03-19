@@ -34,7 +34,7 @@ const LandingPage = () => {
               A Universidade NEXTI oferece cursos de capacitação sobre produtos e fundamentos relacionados ao que a empresa desenvolve.
             </p>
             <Link
-              to="/dashboard"
+              to="/auth"
               className="mt-8 inline-flex items-center justify-center rounded-full bg-primary px-8 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
             >
               Acessar
