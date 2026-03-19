@@ -241,6 +241,15 @@ const Dashboard = () => {
                 {cat}
               </Button>
             ))}
+            <Button
+              variant={showFavoritesOnly ? "default" : "outline"}
+              size="sm"
+              onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+              className={showFavoritesOnly ? "bg-gradient-nexti text-primary-foreground hover:opacity-90" : ""}
+            >
+              <Heart className="h-3.5 w-3.5 mr-1" />
+              Favoritas
+            </Button>
           </div>
         </div>
 
