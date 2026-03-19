@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import {
   BarChart3, Plus, Star, TrendingUp, TrendingDown, Users, MessageSquare,
-  ToggleLeft, ToggleRight, Trash2, Eye, ThumbsUp, ThumbsDown, Minus
+  ToggleLeft, ToggleRight, Trash2, Eye, ThumbsUp, ThumbsDown, Minus, Send
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import AdminLayout from "@/components/admin/AdminLayout";
@@ -61,7 +61,7 @@ const AdminAvaliacoes = () => {
   const [selectedSurvey, setSelectedSurvey] = useState<string | null>(null);
 
   // Create form state
-  const [form, setForm] = useState({ title: "", type: "nps" as "nps" | "csat", trigger_type: "periodic", question: "" });
+  const [form, setForm] = useState({ title: "", type: "nps" as "nps" | "csat", question: "" });
 
   const fetchData = async () => {
     setLoading(true);
@@ -132,16 +132,24 @@ const AdminAvaliacoes = () => {
 
   const handleCreate = async () => {
     if (!form.title || !form.question) { toast.error("Preencha todos os campos."); return; }
+    const isNps = form.type === "nps";
     const { error } = await supabase.from("surveys").insert({
       title: form.title,
       type: form.type,
-      trigger_type: form.trigger_type,
+      trigger_type: isNps ? "manual" : "track_completion",
       question: form.question,
+      is_active: isNps ? false : true, // NPS starts inactive until admin sends it
     });
     if (error) { toast.error("Erro ao criar pesquisa."); return; }
-    toast.success("Pesquisa criada!");
+    toast.success(isNps ? "Pesquisa NPS criada! Use o botão 'Enviar' para disparar aos alunos." : "Pesquisa CSAT criada! Será exibida ao final de cada trilha.");
     setShowCreate(false);
-    setForm({ title: "", type: "nps", trigger_type: "periodic", question: "" });
+    setForm({ title: "", type: "nps", question: "" });
+    fetchData();
+  };
+
+  const sendNpsSurvey = async (id: string) => {
+    await supabase.from("surveys").update({ is_active: true }).eq("id", id);
+    toast.success("Pesquisa NPS enviada para os alunos!");
     fetchData();
   };
 
@@ -381,6 +389,11 @@ const AdminAvaliacoes = () => {
                           <Button size="sm" variant="ghost" onClick={() => setSelectedSurvey(s.id)}>
                             <Eye className="w-4 h-4" />
                           </Button>
+                          {s.type === "nps" && !s.is_active && (
+                            <Button size="sm" variant="default" onClick={() => sendNpsSurvey(s.id)} className="gap-1 text-xs">
+                              <Send className="w-3 h-3" /> Enviar
+                            </Button>
+                          )}
                           <Button size="sm" variant="ghost" onClick={() => toggleActive(s.id, s.is_active)}>
                             {s.is_active ? <ToggleRight className="w-4 h-4 text-green-500" /> : <ToggleLeft className="w-4 h-4 text-muted-foreground" />}
                           </Button>
@@ -450,29 +463,20 @@ const AdminAvaliacoes = () => {
                 <Label>Título</Label>
                 <Input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder="Ex: NPS Q1 2026" />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Tipo</Label>
-                  <Select value={form.type} onValueChange={v => setForm({ ...form, type: v as "nps" | "csat" })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="nps">NPS (0-10)</SelectItem>
-                      <SelectItem value="csat">CSAT (1-5 ★)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Gatilho</Label>
-                  <Select value={form.trigger_type} onValueChange={v => setForm({ ...form, trigger_type: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="periodic">Periódica</SelectItem>
-                      <SelectItem value="track_completion">Conclusão de Trilha</SelectItem>
-                      <SelectItem value="login_milestone">Marco de Login</SelectItem>
-                      <SelectItem value="manual">Manual</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div>
+                <Label>Tipo</Label>
+                <Select value={form.type} onValueChange={v => setForm({ ...form, type: v as "nps" | "csat" })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="nps">NPS (0-10) — Envio manual</SelectItem>
+                    <SelectItem value="csat">CSAT (1-5 ★) — Ao final de cada trilha</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {form.type === "nps"
+                    ? "A pesquisa NPS será criada inativa. Use o botão 'Enviar' para dispará-la aos alunos."
+                    : "A pesquisa CSAT será exibida automaticamente quando o aluno concluir uma trilha."}
+                </p>
               </div>
               <div>
                 <Label>Pergunta</Label>

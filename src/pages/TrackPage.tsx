@@ -19,6 +19,8 @@ import { Progress } from "@/components/ui/progress";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { useSurveyTrigger } from "@/hooks/useSurveyTrigger";
+import SurveyModal from "@/components/SurveyModal";
 
 interface LessonRow {
   id: string;
@@ -52,6 +54,10 @@ const TrackPage = () => {
   const [completedAt, setCompletedAt] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [profileName, setProfileName] = useState("Cooperado(a)");
+  const { pendingSurvey, showSurvey, dismissSurvey } = useSurveyTrigger(
+    quizPassed ? "track_completion" : undefined,
+    trackId
+  );
 
   const loadData = useCallback(async () => {
     if (!trackId || !user) return;
@@ -285,6 +291,15 @@ const TrackPage = () => {
                 <Certificate userName={profileName} trackTitle={track.title} completedAt={completedAt} score={quizScore || 0} />
                 <TrackRating trackId={track.id} />
               </div>
+            )}
+
+            {pendingSurvey && (
+              <SurveyModal
+                open={showSurvey}
+                onClose={dismissSurvey}
+                survey={pendingSurvey}
+                context={{ track_id: trackId || "", track_title: track.title }}
+              />
             )}
           </div>
 
