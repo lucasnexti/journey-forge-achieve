@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight, CheckCircle2, PlayCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { ArrowRight, CheckCircle2, PlayCircle, Heart } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import CircularProgress from "./CircularProgress";
@@ -15,6 +15,8 @@ interface TrackCardProps {
   index: number;
   isEnrolled: boolean;
   isCompleted: boolean;
+  isFavorite?: boolean;
+  onToggleFavorite?: () => void;
 }
 
 const TrackCard = ({
@@ -27,6 +29,8 @@ const TrackCard = ({
   index,
   isEnrolled,
   isCompleted,
+  isFavorite = false,
+  onToggleFavorite,
 }: TrackCardProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
