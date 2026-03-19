@@ -35,7 +35,7 @@ const Dashboard = () => {
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [stats, setStats] = useState({ enrollments: 0, totalWatched: 0, avgScore: 0 });
   const [lastLesson, setLastLesson] = useState<Awaited<ReturnType<typeof getLastWatchedLesson>>>(null);
-  const [badges, setBadges] = useState<{ name: string; icon: string }[]>([]);
+  const [badges, setBadges] = useState<{ name: string; icon: string; earned: boolean }[]>([]);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
