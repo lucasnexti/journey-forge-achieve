@@ -161,6 +161,7 @@ const TrackPage = () => {
       Object.entries(progress).map(([k, v]) => [k, { completed: v.completed, watchedSeconds: v.watched_seconds }])
     ),
     onSelectLesson: (id: string) => { setCurrentLessonId(id); setShowQuiz(false); },
+    trackTitle: track?.title,
   };
 
   if (loading) {

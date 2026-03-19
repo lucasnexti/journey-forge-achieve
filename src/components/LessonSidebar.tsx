@@ -8,9 +8,10 @@ interface LessonSidebarProps {
   currentLessonId: string;
   progress: Record<string, LessonProgress>;
   onSelectLesson: (lessonId: string) => void;
+  trackTitle?: string;
 }
 
-const LessonSidebar = ({ lessons, currentLessonId, progress, onSelectLesson }: LessonSidebarProps) => {
+const LessonSidebar = ({ lessons, currentLessonId, progress, onSelectLesson, trackTitle }: LessonSidebarProps) => {
   const totalLessons = lessons.length;
   const completedLessons = Object.values(progress).filter((p) => p.completed).length;
   const overallPercent = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
@@ -19,7 +20,7 @@ const LessonSidebar = ({ lessons, currentLessonId, progress, onSelectLesson }: L
     <div className="card-surface p-1">
       <div className="px-4 py-3">
         <div className="flex items-center justify-between">
-          <h3 className="font-display text-sm font-semibold text-foreground">Conteúdo</h3>
+          <h3 className="font-display text-sm font-semibold text-foreground truncate">{trackTitle || "Conteúdo"}</h3>
           <span className="text-xs text-muted-foreground tabular-nums">{completedLessons}/{totalLessons}</span>
         </div>
         {/* Overall progress bar */}
