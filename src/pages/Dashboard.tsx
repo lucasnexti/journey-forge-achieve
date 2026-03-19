@@ -272,6 +272,8 @@ const Dashboard = () => {
                 index={i}
                 isEnrolled={track.enrollments?.length > 0}
                 isCompleted={track.enrollments?.some((e) => e.status === "completed") || false}
+                isFavorite={favorites.has(track.id)}
+                onToggleFavorite={() => toggleFavorite(track.id)}
               />
             ))
           )}
