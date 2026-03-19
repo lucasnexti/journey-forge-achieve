@@ -11,6 +11,8 @@ import { BookOpen, Clock, Trophy, Play, Search, Filter, Star, Heart, TrendingUp,
 import LinkedInShare from "@/components/LinkedInShare";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
+import { useSurveyTrigger } from "@/hooks/useSurveyTrigger";
+import SurveyModal from "@/components/SurveyModal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -42,6 +44,7 @@ const Dashboard = () => {
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [profileName, setProfileName] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const { pendingSurvey, showSurvey, dismissSurvey } = useSurveyTrigger("periodic");
 
   useEffect(() => {
     if (!user) return;
@@ -317,6 +320,13 @@ const Dashboard = () => {
           </div>
         )}
       </div>
+      {pendingSurvey && (
+        <SurveyModal
+          open={showSurvey}
+          onClose={dismissSurvey}
+          survey={pendingSurvey}
+        />
+      )}
     </div>
   );
 };

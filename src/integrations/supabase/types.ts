@@ -676,6 +676,83 @@ export type Database = {
           },
         ]
       }
+      survey_responses: {
+        Row: {
+          comment: string | null
+          context: Json | null
+          created_at: string | null
+          id: string
+          score: number
+          survey_id: string
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          context?: Json | null
+          created_at?: string | null
+          id?: string
+          score: number
+          survey_id: string
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          context?: Json | null
+          created_at?: string | null
+          id?: string
+          score?: number
+          survey_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "survey_responses_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
+            referencedRelation: "surveys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      surveys: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          id: string
+          is_active: boolean | null
+          question: string
+          title: string
+          trigger_config: Json | null
+          trigger_type: string
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          question: string
+          title: string
+          trigger_config?: Json | null
+          trigger_type?: string
+          type?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          question?: string
+          title?: string
+          trigger_config?: Json | null
+          trigger_type?: string
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       track_favorites: {
         Row: {
           created_at: string | null
