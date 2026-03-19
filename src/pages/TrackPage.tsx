@@ -54,6 +54,10 @@ const TrackPage = () => {
   const [completedAt, setCompletedAt] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [profileName, setProfileName] = useState("Cooperado(a)");
+  const { pendingSurvey, showSurvey, dismissSurvey } = useSurveyTrigger(
+    quizPassed ? "track_completion" : undefined,
+    trackId
+  );
 
   const loadData = useCallback(async () => {
     if (!trackId || !user) return;
