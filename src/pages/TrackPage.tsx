@@ -9,6 +9,7 @@ import LessonSidebar from "@/components/LessonSidebar";
 import LessonNotes from "@/components/LessonNotes";
 import LessonMaterials from "@/components/LessonMaterials";
 import TrackRating from "@/components/TrackRating";
+import LessonForum from "@/components/LessonForum";
 import QuizForm from "@/components/QuizForm";
 import Certificate from "@/components/Certificate";
 import { ArrowLeft, ArrowRight, ClipboardCheck } from "lucide-react";
