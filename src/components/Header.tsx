@@ -23,6 +23,7 @@ const Header = () => {
   const links = [
     { to: "/dashboard", label: "Trilhas", icon: BookOpen },
     { to: "/relatorios", label: "Relatórios", icon: BarChart3 },
+    { to: "/base-conhecimento", label: "Base de Conhecimento", icon: Library },
   ];
 
   const handleLogout = async () => {
