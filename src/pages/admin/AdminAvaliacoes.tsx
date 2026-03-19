@@ -463,29 +463,20 @@ const AdminAvaliacoes = () => {
                 <Label>Título</Label>
                 <Input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder="Ex: NPS Q1 2026" />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Tipo</Label>
-                  <Select value={form.type} onValueChange={v => setForm({ ...form, type: v as "nps" | "csat" })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="nps">NPS (0-10)</SelectItem>
-                      <SelectItem value="csat">CSAT (1-5 ★)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Gatilho</Label>
-                  <Select value={form.trigger_type} onValueChange={v => setForm({ ...form, trigger_type: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="periodic">Periódica</SelectItem>
-                      <SelectItem value="track_completion">Conclusão de Trilha</SelectItem>
-                      <SelectItem value="login_milestone">Marco de Login</SelectItem>
-                      <SelectItem value="manual">Manual</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div>
+                <Label>Tipo</Label>
+                <Select value={form.type} onValueChange={v => setForm({ ...form, type: v as "nps" | "csat" })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="nps">NPS (0-10) — Envio manual</SelectItem>
+                    <SelectItem value="csat">CSAT (1-5 ★) — Ao final de cada trilha</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {form.type === "nps"
+                    ? "A pesquisa NPS será criada inativa. Use o botão 'Enviar' para dispará-la aos alunos."
+                    : "A pesquisa CSAT será exibida automaticamente quando o aluno concluir uma trilha."}
+                </p>
               </div>
               <div>
                 <Label>Pergunta</Label>

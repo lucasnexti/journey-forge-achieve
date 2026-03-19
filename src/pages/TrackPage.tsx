@@ -292,6 +292,15 @@ const TrackPage = () => {
                 <TrackRating trackId={track.id} />
               </div>
             )}
+
+            {pendingSurvey && (
+              <SurveyModal
+                open={showSurvey}
+                onClose={dismissSurvey}
+                survey={pendingSurvey}
+                context={{ track_id: trackId || "", track_title: track.title }}
+              />
+            )}
           </div>
 
           {/* Sidebar */}
