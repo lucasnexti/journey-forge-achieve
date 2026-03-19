@@ -43,7 +43,7 @@ const Dashboard = () => {
     if (!user) return;
 
     const load = async () => {
-      const [{ data: trackData }, statsData, lastData, { data: userBadges }] = await Promise.all([
+      const [{ data: trackData }, statsData, lastData, { data: userBadges }, { data: profileData }, { data: favData }] = await Promise.all([
         supabase
           .from("tracks")
           .select("id, title, description, category, estimated_hours, is_active, order_index, lessons(id), enrollments(id, status)")
@@ -54,6 +54,15 @@ const Dashboard = () => {
         supabase
           .from("user_badges")
           .select("badges(name, icon)")
+          .eq("user_id", user.id),
+        supabase
+          .from("profiles")
+          .select("onboarding_completed")
+          .eq("user_id", user.id)
+          .maybeSingle(),
+        supabase
+          .from("track_favorites")
+          .select("track_id")
           .eq("user_id", user.id),
       ]);
 
@@ -66,6 +75,13 @@ const Dashboard = () => {
           icon: ub.badges?.icon || "award",
         }))
       );
+      setFavorites(new Set((favData || []).map((f: any) => f.track_id)));
+
+      // Show onboarding if not completed
+      if (profileData && !profileData.onboarding_completed) {
+        setShowOnboarding(true);
+      }
+
       setLoading(false);
     };
 
