@@ -17,7 +17,6 @@ const Header = () => {
   const links = [
     { to: "/dashboard", label: "Trilhas", icon: BookOpen },
     { to: "/relatorios", label: "Relatórios", icon: BarChart3 },
-    { to: "/ranking", label: "Ranking", icon: Trophy },
     { to: "/historico-avaliacoes", label: "Avaliações", icon: History },
     { to: "/perfil", label: "Perfil", icon: User },
   ];
