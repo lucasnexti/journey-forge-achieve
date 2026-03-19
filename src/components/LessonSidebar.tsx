@@ -11,7 +11,7 @@ interface LessonSidebarProps {
   trackTitle?: string;
 }
 
-const LessonSidebar = ({ lessons, currentLessonId, progress, onSelectLesson }: LessonSidebarProps) => {
+const LessonSidebar = ({ lessons, currentLessonId, progress, onSelectLesson, trackTitle }: LessonSidebarProps) => {
   const totalLessons = lessons.length;
   const completedLessons = Object.values(progress).filter((p) => p.completed).length;
   const overallPercent = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
