@@ -61,7 +61,7 @@ const AdminAvaliacoes = () => {
   const [selectedSurvey, setSelectedSurvey] = useState<string | null>(null);
 
   // Create form state
-  const [form, setForm] = useState({ title: "", type: "nps" as "nps" | "csat", trigger_type: "periodic", question: "" });
+  const [form, setForm] = useState({ title: "", type: "nps" as "nps" | "csat", question: "" });
 
   const fetchData = async () => {
     setLoading(true);
