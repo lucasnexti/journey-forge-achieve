@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutGrid, Route, BookOpen, Star, GraduationCap, Users as UsersIcon,
   Layers, BarChart3, FileText, LogOut, Award, ShieldCheck, Bell, Palette,
-  ClipboardCheck, MessageSquare, ChevronDown, X
+  ClipboardCheck, MessageSquare, ChevronDown, X, Zap
 } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -38,6 +38,7 @@ const navGroups: NavGroup[] = [
       { to: "/admin/cursos-ead", label: "Cursos EAD", icon: BookOpen },
       { to: "/admin/trilhas-gestao", label: "Trilhas", icon: Route },
       { to: "/admin/quizzes", label: "Quizzes", icon: ClipboardCheck },
+      { to: "/admin/quiz-nexti", label: "Quiz Nexti", icon: Zap },
       { to: "/admin/treinamentos", label: "Trein. Presenciais", icon: Layers },
     ],
   },

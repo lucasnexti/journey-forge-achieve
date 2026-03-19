@@ -33,6 +33,8 @@ import ProfilePage from "./pages/ProfilePage.tsx";
 import LeaderboardPage from "./pages/LeaderboardPage.tsx";
 import QuizHistoryPage from "./pages/QuizHistoryPage.tsx";
 import KnowledgeBasePage from "./pages/KnowledgeBasePage.tsx";
+import QuizNextiPage from "./pages/QuizNextiPage.tsx";
+import AdminQuizNexti from "./pages/admin/AdminQuizNexti.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -54,6 +56,7 @@ const App = () => (
             <Route path="/ranking" element={<ProtectedRoute><LeaderboardPage /></ProtectedRoute>} />
             <Route path="/historico-avaliacoes" element={<ProtectedRoute><QuizHistoryPage /></ProtectedRoute>} />
             <Route path="/base-conhecimento" element={<ProtectedRoute><KnowledgeBasePage /></ProtectedRoute>} />
+            <Route path="/quiz-nexti" element={<ProtectedRoute><QuizNextiPage /></ProtectedRoute>} />
 
             {/* Admin routes */}
             <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
@@ -74,6 +77,7 @@ const App = () => (
             <Route path="/admin/usuarios" element={<AdminRoute><AdminUsuarios /></AdminRoute>} />
             <Route path="/admin/personalizacao" element={<AdminRoute><AdminPersonalizacao /></AdminRoute>} />
             <Route path="/admin/logs" element={<AdminRoute><AdminLogs /></AdminRoute>} />
+            <Route path="/admin/quiz-nexti" element={<AdminRoute><AdminQuizNexti /></AdminRoute>} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>

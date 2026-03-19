@@ -192,6 +192,124 @@ export type Database = {
           },
         ]
       }
+      kb_quiz_attempts: {
+        Row: {
+          answers: Json | null
+          attempted_at: string | null
+          id: string
+          module_id: string
+          passed: boolean | null
+          score: number
+          total_questions: number
+          user_id: string
+        }
+        Insert: {
+          answers?: Json | null
+          attempted_at?: string | null
+          id?: string
+          module_id: string
+          passed?: boolean | null
+          score?: number
+          total_questions?: number
+          user_id: string
+        }
+        Update: {
+          answers?: Json | null
+          attempted_at?: string | null
+          id?: string
+          module_id?: string
+          passed?: boolean | null
+          score?: number
+          total_questions?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kb_quiz_attempts_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "kb_quiz_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kb_quiz_modules: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          order_index: number | null
+          playbook_section_title: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          order_index?: number | null
+          playbook_section_title?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          order_index?: number | null
+          playbook_section_title?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
+      kb_quiz_questions: {
+        Row: {
+          correct_answer: number
+          created_at: string | null
+          explanation: string | null
+          id: string
+          module_id: string
+          options: Json
+          order_index: number | null
+          question: string
+          type: string
+        }
+        Insert: {
+          correct_answer?: number
+          created_at?: string | null
+          explanation?: string | null
+          id?: string
+          module_id: string
+          options?: Json
+          order_index?: number | null
+          question: string
+          type?: string
+        }
+        Update: {
+          correct_answer?: number
+          created_at?: string | null
+          explanation?: string | null
+          id?: string
+          module_id?: string
+          options?: Json
+          order_index?: number | null
+          question?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kb_quiz_questions_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "kb_quiz_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lesson_materials: {
         Row: {
           created_at: string | null
