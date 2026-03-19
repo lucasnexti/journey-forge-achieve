@@ -216,42 +216,33 @@ const Dashboard = () => {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="mb-8"
+            className="mb-6"
           >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-display text-lg font-bold text-foreground flex items-center gap-2">
-                <Award className="h-5 w-5 text-warning" />
-                Minhas Insígnias
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                <span className="font-semibold text-foreground">{badges.filter(b => b.earned).length}</span>
-                /{badges.length} conquistadas
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+                <Award className="h-4 w-4 text-warning" />
+                Insígnias
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                {badges.filter(b => b.earned).length}/{badges.length}
               </p>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            <div className="flex gap-2 overflow-x-auto pb-1">
               {badges.map((badge, i) => (
                 <div
                   key={i}
-                  className={`card-surface flex flex-col items-center gap-2 p-4 text-center transition-all ${
+                  className={`flex items-center gap-2 shrink-0 rounded-lg border px-3 py-2 transition-all ${
                     badge.earned
-                      ? "ring-2 ring-warning/30 shadow-md shadow-warning/10"
-                      : "opacity-40 grayscale"
+                      ? "border-warning/30 bg-warning/5"
+                      : "border-border/50 bg-card opacity-50 grayscale"
                   }`}
                 >
-                  <div className={`flex h-12 w-12 items-center justify-center rounded-full ${
+                  <div className={`flex h-7 w-7 items-center justify-center rounded-full ${
                     badge.earned ? "bg-warning/15" : "bg-muted"
                   }`}>
-                    <Award className={`h-6 w-6 ${badge.earned ? "text-warning" : "text-muted-foreground"}`} />
+                    <Award className={`h-3.5 w-3.5 ${badge.earned ? "text-warning" : "text-muted-foreground"}`} />
                   </div>
-                  <p className="text-xs font-semibold text-foreground leading-tight">{badge.name}</p>
-                  {badge.earned && (
-                    <Badge variant="secondary" className="text-[9px] bg-warning/10 text-warning border-warning/20">
-                      Conquistada ✓
-                    </Badge>
-                  )}
-                  {!badge.earned && (
-                    <p className="text-[10px] text-muted-foreground">Bloqueada</p>
-                  )}
+                  <span className="text-xs font-medium text-foreground whitespace-nowrap">{badge.name}</span>
                 </div>
               ))}
             </div>
