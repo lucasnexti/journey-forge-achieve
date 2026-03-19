@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import AdminRoute from "@/components/AdminRoute";
 import LandingPage from "./pages/LandingPage.tsx";
 import AuthPage from "./pages/AuthPage.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
@@ -40,19 +41,19 @@ const App = () => (
             <Route path="/trilha/:trackId" element={<ProtectedRoute><TrackPage /></ProtectedRoute>} />
             <Route path="/relatorios" element={<ProtectedRoute><ReportPage /></ProtectedRoute>} />
 
-            {/* Admin routes */}
-            <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-            <Route path="/admin/trilhas" element={<ProtectedRoute><AdminTrilhas /></ProtectedRoute>} />
-            <Route path="/admin/anotacoes" element={<ProtectedRoute><AdminAnotacoes /></ProtectedRoute>} />
-            <Route path="/admin/foruns" element={<ProtectedRoute><AdminForuns /></ProtectedRoute>} />
-            <Route path="/admin/cursos-ead" element={<ProtectedRoute><AdminCursosEad /></ProtectedRoute>} />
-            <Route path="/admin/avaliacoes" element={<ProtectedRoute><AdminAvaliacoes /></ProtectedRoute>} />
-            <Route path="/admin/matriculas" element={<ProtectedRoute><AdminMatriculas /></ProtectedRoute>} />
-            <Route path="/admin/treinamentos" element={<ProtectedRoute><AdminTreinamentos /></ProtectedRoute>} />
-            <Route path="/admin/trilhas-gestao" element={<ProtectedRoute><AdminTrilhasGestao /></ProtectedRoute>} />
-            <Route path="/admin/relatorio-progresso" element={<ProtectedRoute><AdminRelatorioProgresso /></ProtectedRoute>} />
-            <Route path="/admin/usuarios" element={<ProtectedRoute><AdminUsuarios /></ProtectedRoute>} />
-            <Route path="/admin/logs" element={<ProtectedRoute><AdminLogs /></ProtectedRoute>} />
+            {/* Admin routes — only accessible by admin role */}
+            <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+            <Route path="/admin/trilhas" element={<AdminRoute><AdminTrilhas /></AdminRoute>} />
+            <Route path="/admin/anotacoes" element={<AdminRoute><AdminAnotacoes /></AdminRoute>} />
+            <Route path="/admin/foruns" element={<AdminRoute><AdminForuns /></AdminRoute>} />
+            <Route path="/admin/cursos-ead" element={<AdminRoute><AdminCursosEad /></AdminRoute>} />
+            <Route path="/admin/avaliacoes" element={<AdminRoute><AdminAvaliacoes /></AdminRoute>} />
+            <Route path="/admin/matriculas" element={<AdminRoute><AdminMatriculas /></AdminRoute>} />
+            <Route path="/admin/treinamentos" element={<AdminRoute><AdminTreinamentos /></AdminRoute>} />
+            <Route path="/admin/trilhas-gestao" element={<AdminRoute><AdminTrilhasGestao /></AdminRoute>} />
+            <Route path="/admin/relatorio-progresso" element={<AdminRoute><AdminRelatorioProgresso /></AdminRoute>} />
+            <Route path="/admin/usuarios" element={<AdminRoute><AdminUsuarios /></AdminRoute>} />
+            <Route path="/admin/logs" element={<AdminRoute><AdminLogs /></AdminRoute>} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>

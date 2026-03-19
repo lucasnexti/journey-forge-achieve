@@ -1,11 +1,13 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { BookOpen, BarChart3, LogOut } from "lucide-react";
+import { BookOpen, BarChart3, LogOut, Shield } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut } = useAuth();
+  const { isAdmin } = useIsAdmin();
 
   const links = [
     { to: "/dashboard", label: "Trilhas", icon: BookOpen },
@@ -52,6 +54,20 @@ const Header = () => {
               </Link>
             );
           })}
+
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                location.pathname.startsWith("/admin")
+                  ? "bg-gradient-nexti text-primary-foreground"
+                  : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+              }`}
+            >
+              <Shield className="h-4 w-4" />
+              Admin
+            </Link>
+          )}
 
           <button
             onClick={handleLogout}
