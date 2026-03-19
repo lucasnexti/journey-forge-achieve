@@ -7,7 +7,7 @@ import { getUserStats, getLastWatchedLesson } from "@/lib/progressDB";
 import Header from "@/components/Header";
 import TrackCard from "@/components/TrackCard";
 import OnboardingWizard from "@/components/OnboardingWizard";
-import { BookOpen, Clock, Trophy, Play, Search, Filter, Star, Heart, TrendingUp, Target } from "lucide-react";
+import { BookOpen, Clock, Trophy, Play, Search, Filter, Star, Heart, TrendingUp, Target, Award } from "lucide-react";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -35,7 +35,7 @@ const Dashboard = () => {
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [stats, setStats] = useState({ enrollments: 0, totalWatched: 0, avgScore: 0 });
   const [lastLesson, setLastLesson] = useState<Awaited<ReturnType<typeof getLastWatchedLesson>>>(null);
-  const [badges, setBadges] = useState<{ name: string; icon: string }[]>([]);
+  const [badges, setBadges] = useState<{ name: string; icon: string; earned: boolean }[]>([]);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
@@ -46,7 +46,7 @@ const Dashboard = () => {
     if (!user) return;
 
     const load = async () => {
-      const [{ data: trackData }, statsData, lastData, { data: userBadges }, { data: profileData }, { data: favData }] = await Promise.all([
+      const [{ data: trackData }, statsData, lastData, { data: userBadges }, { data: allBadges }, { data: profileData }, { data: favData }] = await Promise.all([
         supabase
           .from("tracks")
           .select("id, title, description, category, estimated_hours, is_active, order_index, lessons(id), enrollments(id, status)")
@@ -55,6 +55,7 @@ const Dashboard = () => {
         getUserStats(user.id),
         getLastWatchedLesson(user.id),
         supabase.from("user_badges").select("badges(name, icon)").eq("user_id", user.id),
+        supabase.from("badges").select("name, icon, description, criteria_type, criteria_value"),
         supabase.from("profiles").select("onboarding_completed, nome").eq("user_id", user.id).maybeSingle(),
         supabase.from("track_favorites").select("track_id").eq("user_id", user.id),
       ]);
@@ -62,10 +63,13 @@ const Dashboard = () => {
       setTracks((trackData as unknown as TrackRow[]) || []);
       setStats(statsData);
       setLastLesson(lastData);
+
+      const earnedNames = new Set((userBadges || []).map((ub: any) => ub.badges?.name));
       setBadges(
-        (userBadges || []).map((ub: any) => ({
-          name: ub.badges?.name || "",
-          icon: ub.badges?.icon || "award",
+        (allBadges || []).map((b: any) => ({
+          name: b.name || "",
+          icon: b.icon || "award",
+          earned: earnedNames.has(b.name),
         }))
       );
       setFavorites(new Set((favData || []).map((f: any) => f.track_id)));
@@ -203,23 +207,56 @@ const Dashboard = () => {
                 </div>
               ))}
             </div>
-
-            {/* Badges */}
-            {badges.length > 0 && (
-              <div className="mt-4 pt-4 border-t border-border/50">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">Conquistas</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {badges.map((b, i) => (
-                    <Badge key={i} variant="secondary" className="text-[10px] gap-1">
-                      <Star className="h-2.5 w-2.5" />
-                      {b.name}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
           </motion.div>
         </div>
+
+        {/* Gamification — Insígnias */}
+        {badges.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mb-8"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-display text-lg font-bold text-foreground flex items-center gap-2">
+                <Award className="h-5 w-5 text-warning" />
+                Minhas Insígnias
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                <span className="font-semibold text-foreground">{badges.filter(b => b.earned).length}</span>
+                /{badges.length} conquistadas
+              </p>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+              {badges.map((badge, i) => (
+                <div
+                  key={i}
+                  className={`card-surface flex flex-col items-center gap-2 p-4 text-center transition-all ${
+                    badge.earned
+                      ? "ring-2 ring-warning/30 shadow-md shadow-warning/10"
+                      : "opacity-40 grayscale"
+                  }`}
+                >
+                  <div className={`flex h-12 w-12 items-center justify-center rounded-full ${
+                    badge.earned ? "bg-warning/15" : "bg-muted"
+                  }`}>
+                    <Award className={`h-6 w-6 ${badge.earned ? "text-warning" : "text-muted-foreground"}`} />
+                  </div>
+                  <p className="text-xs font-semibold text-foreground leading-tight">{badge.name}</p>
+                  {badge.earned && (
+                    <Badge variant="secondary" className="text-[9px] bg-warning/10 text-warning border-warning/20">
+                      Conquistada ✓
+                    </Badge>
+                  )}
+                  {!badge.earned && (
+                    <p className="text-[10px] text-muted-foreground">Bloqueada</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
 
         {/* Search & Filters */}
         <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-3">
