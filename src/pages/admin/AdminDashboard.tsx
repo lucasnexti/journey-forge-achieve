@@ -1,20 +1,51 @@
 import { useState, useEffect } from "react";
-import { BookOpen, GraduationCap, Users, FileText, ChevronRight, TrendingUp, Clock, AlertTriangle } from "lucide-react";
+import { BookOpen, GraduationCap, Users, ChevronRight, TrendingUp, Clock, AlertTriangle, Wifi, Building2, Circle } from "lucide-react";
 import { Link } from "react-router-dom";
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import AdminLayout from "@/components/admin/AdminLayout";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+interface OnlineUser {
+  user_id: string;
+  nome: string;
+  empresa: string | null;
+  cargo: string | null;
+  last_active_at: string;
+  avatar_url: string | null;
+}
+
+const ONLINE_THRESHOLD_MINUTES = 5;
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({ tracks: 0, enrollments: 0, users: 0, activeEnrollments: 0, completedEnrollments: 0, certificates: 0 });
   const [recentEnrollments, setRecentEnrollments] = useState<any[]>([]);
   const [enrollmentsByDay, setEnrollmentsByDay] = useState<any[]>([]);
   const [inactiveUsers, setInactiveUsers] = useState(0);
+  const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchDashboardData();
+    fetchOnlineUsers();
+
+    // Refresh online users every 30 seconds
+    const interval = setInterval(fetchOnlineUsers, 30_000);
+    return () => clearInterval(interval);
   }, []);
+
+  const fetchOnlineUsers = async () => {
+    const threshold = new Date(Date.now() - ONLINE_THRESHOLD_MINUTES * 60 * 1000).toISOString();
+    const { data } = await supabase
+      .from("profiles")
+      .select("user_id, nome, empresa, cargo, last_active_at, avatar_url")
+      .gte("last_active_at", threshold)
+      .order("last_active_at", { ascending: false });
+
+    setOnlineUsers((data as OnlineUser[]) || []);
+  };
 
   const fetchDashboardData = async () => {
     setLoading(true);
@@ -30,7 +61,6 @@ const AdminDashboard = () => {
     const active = enrollments.filter(e => e.status === "active").length;
     const completed = enrollments.filter(e => e.status === "completed").length;
 
-    // Inactive users (no enrollment)
     const enrolledUserIds = new Set(enrollments.map(e => e.user_id));
     const inactive = profiles.filter(p => !enrolledUserIds.has(p.id)).length;
     setInactiveUsers(inactive);
@@ -44,7 +74,6 @@ const AdminDashboard = () => {
       certificates: certsRes.count || 0,
     });
 
-    // Enrollments by day (last 7 days)
     const days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
     const last7 = Array.from({ length: 7 }, (_, i) => {
       const d = new Date();
@@ -58,7 +87,6 @@ const AdminDashboard = () => {
     });
     setEnrollmentsByDay(byDay);
 
-    // Recent enrollments
     const recent = enrollments
       .sort((a: any, b: any) => new Date(b.enrolled_at).getTime() - new Date(a.enrolled_at).getTime())
       .slice(0, 5);
@@ -66,6 +94,21 @@ const AdminDashboard = () => {
 
     setLoading(false);
   };
+
+  const getTimeSince = (dateStr: string) => {
+    const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
+    if (diff < 60) return "agora";
+    if (diff < 120) return "1 min atrás";
+    return `${Math.floor(diff / 60)} min atrás`;
+  };
+
+  // Group online users by empresa
+  const empresaGroups = onlineUsers.reduce<Record<string, OnlineUser[]>>((acc, u) => {
+    const key = u.empresa || "Sem empresa";
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(u);
+    return acc;
+  }, {});
 
   const statCards = [
     { value: stats.tracks, label: "Trilhas ativas", icon: BookOpen, color: "text-primary", link: "/admin/trilhas-gestao" },
@@ -108,6 +151,103 @@ const AdminDashboard = () => {
             </Link>
           </div>
         ))}
+      </div>
+
+      {/* Online Users Panel */}
+      <div className="mt-6 card-surface p-5">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <Wifi className="h-5 w-5 text-green-500" />
+              <Circle className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 fill-green-500 text-green-500 animate-pulse" />
+            </div>
+            <h3 className="text-sm font-semibold text-foreground">Usuários Online Agora</h3>
+            <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs">
+              {onlineUsers.length} online
+            </Badge>
+          </div>
+          <p className="text-xs text-muted-foreground">Atualiza a cada 30s</p>
+        </div>
+
+        {onlineUsers.length === 0 ? (
+          <div className="text-center py-8">
+            <Users className="h-8 w-8 mx-auto text-muted-foreground/40 mb-2" />
+            <p className="text-sm text-muted-foreground">Nenhum usuário online no momento</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Users list */}
+            <ScrollArea className="max-h-72">
+              <div className="space-y-2">
+                {onlineUsers.map((u) => (
+                  <div key={u.user_id} className="flex items-center gap-3 rounded-lg border border-border/50 px-4 py-3 hover:bg-muted/30 transition-colors">
+                    <div className="relative">
+                      <Avatar className="h-9 w-9 border border-border">
+                        <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
+                          {u.nome?.slice(0, 2).toUpperCase() || "?"}
+                        </AvatarFallback>
+                      </Avatar>
+                      <Circle className="absolute -bottom-0.5 -right-0.5 h-3 w-3 fill-green-500 text-green-500 border-2 border-card rounded-full" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">{u.nome}</p>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        {u.empresa && (
+                          <span className="flex items-center gap-1">
+                            <Building2 className="h-3 w-3" />
+                            {u.empresa}
+                          </span>
+                        )}
+                        {u.cargo && (
+                          <span>• {u.cargo}</span>
+                        )}
+                      </div>
+                    </div>
+                    <span className="text-xs text-green-600 dark:text-green-400 font-medium whitespace-nowrap">
+                      {getTimeSince(u.last_active_at)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+
+            {/* By company breakdown */}
+            <div>
+              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Por Empresa</h4>
+              <div className="space-y-2">
+                {Object.entries(empresaGroups)
+                  .sort((a, b) => b[1].length - a[1].length)
+                  .map(([empresa, users]) => (
+                    <div key={empresa} className="flex items-center justify-between rounded-lg border border-border/50 px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <Building2 className="h-4 w-4 text-primary" />
+                        <span className="text-sm font-medium text-foreground">{empresa}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="flex -space-x-2">
+                          {users.slice(0, 4).map((u) => (
+                            <Avatar key={u.user_id} className="h-6 w-6 border-2 border-card">
+                              <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-bold">
+                                {u.nome?.slice(0, 2).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                          ))}
+                          {users.length > 4 && (
+                            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted border-2 border-card text-[10px] font-bold text-muted-foreground">
+                              +{users.length - 4}
+                            </div>
+                          )}
+                        </div>
+                        <Badge variant="outline" className="text-xs">
+                          {users.length} {users.length === 1 ? "usuário" : "usuários"}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Alert: Inactive users */}
@@ -161,7 +301,7 @@ const AdminDashboard = () => {
                     </p>
                   </div>
                   <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                    e.status === "active" ? "bg-success/10 text-success" :
+                    e.status === "active" ? "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400" :
                     e.status === "completed" ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive"
                   }`}>
                     {e.status === "active" ? "Ativa" : e.status === "completed" ? "Concluída" : "Cancelada"}
