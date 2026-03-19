@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 interface PendingSurvey {
   id: string;
-  type: "nps" | "csat";
+  type: "csat";
   question: string;
   title: string;
   trigger_type: string;
