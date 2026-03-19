@@ -1,10 +1,10 @@
-import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutGrid, Route, StickyNote, MessageSquare,
   BookOpen, Star, GraduationCap, Users as UsersIcon,
-  Layers, BarChart3, FileText, ChevronLeft, ChevronRight, LogOut
+  Layers, BarChart3, FileText, ChevronLeft, ChevronRight, LogOut,
+  Award, ShieldCheck, Bell, Palette, ClipboardCheck
 } from "lucide-react";
 
 const dashboardLinks = [
@@ -20,8 +20,14 @@ const managementLinks = [
   { to: "/admin/matriculas", label: "Matrículas EAD", icon: GraduationCap },
   { to: "/admin/treinamentos", label: "Trein. Presenciais", icon: Layers },
   { to: "/admin/trilhas-gestao", label: "Trilhas", icon: Route },
-  { to: "/admin/relatorio-progresso", label: "Relatório de Progresso", icon: BarChart3 },
+  { to: "/admin/quizzes", label: "Quizzes", icon: ClipboardCheck },
+  { to: "/admin/certificados", label: "Certificados", icon: ShieldCheck },
+  { to: "/admin/gamificacao", label: "Gamificação", icon: Award },
+  { to: "/admin/notificacoes", label: "Notificações", icon: Bell },
+  { to: "/admin/forum-gestao", label: "Fórum / Mural", icon: MessageSquare },
+  { to: "/admin/relatorio-progresso", label: "Relatórios", icon: BarChart3 },
   { to: "/admin/usuarios", label: "Usuários", icon: UsersIcon },
+  { to: "/admin/personalizacao", label: "Personalização", icon: Palette },
   { to: "/admin/logs", label: "Logs", icon: FileText },
 ];
 
@@ -64,7 +70,6 @@ const AdminSidebar = ({ collapsed, onToggle }: AdminSidebarProps) => {
         collapsed ? "w-16" : "w-60"
       }`}
     >
-      {/* Logo */}
       <div className="flex h-20 items-center justify-center px-4">
         {!collapsed ? (
           <span className="font-display text-3xl font-extrabold italic text-primary-foreground">nexti</span>
@@ -73,7 +78,6 @@ const AdminSidebar = ({ collapsed, onToggle }: AdminSidebarProps) => {
         )}
       </div>
 
-      {/* Toggle */}
       <button
         onClick={onToggle}
         className="absolute -right-3 top-20 flex h-6 w-6 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-sm hover:bg-secondary"
@@ -81,7 +85,6 @@ const AdminSidebar = ({ collapsed, onToggle }: AdminSidebarProps) => {
         {collapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
       </button>
 
-      {/* Navigation */}
       <nav className="flex-1 overflow-y-auto px-3 py-4">
         {!collapsed && (
           <p className="mb-2 px-4 text-[10px] font-bold uppercase tracking-[0.15em] text-primary-foreground/40">
@@ -108,7 +111,6 @@ const AdminSidebar = ({ collapsed, onToggle }: AdminSidebarProps) => {
         </div>
       </nav>
 
-      {/* Logout */}
       <div className="border-t border-primary-foreground/10 p-3">
         <button
           onClick={handleLogout}

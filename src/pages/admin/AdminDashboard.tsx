@@ -1,211 +1,175 @@
-import { BookOpen, GraduationCap, Users, FileText, ChevronRight } from "lucide-react";
+import { useState, useEffect } from "react";
+import { BookOpen, GraduationCap, Users, FileText, ChevronRight, TrendingUp, Clock, AlertTriangle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { supabase } from "@/integrations/supabase/client";
 import AdminLayout from "@/components/admin/AdminLayout";
-import { tracks } from "@/lib/data";
-
-const matriculasData = [
-  { day: "Qui", value: 5 },
-  { day: "Sex", value: 8 },
-  { day: "Sáb", value: 3 },
-  { day: "Dom", value: 220 },
-  { day: "Seg", value: 15 },
-  { day: "Ter", value: 10 },
-  { day: "Qua", value: 12 },
-];
-
-const certificadosData = [
-  { day: "Qui", value: 4 },
-  { day: "Sex", value: 0 },
-  { day: "Sáb", value: 8 },
-  { day: "Dom", value: 5 },
-  { day: "Seg", value: 8 },
-  { day: "Ter", value: 12 },
-  { day: "Qua", value: 12 },
-];
-
-const stats = [
-  {
-    value: "41",
-    label: "Cursos ativos no total",
-    icon: BookOpen,
-    color: "text-primary",
-    link: "/admin/cursos-ead",
-  },
-  {
-    value: "82",
-    label: "Alunos ativos, sendo",
-    sublabel: "1496 Matrículas ativas",
-    icon: GraduationCap,
-    color: "text-primary",
-    link: "/admin/matriculas",
-  },
-  {
-    value: "1679",
-    label: "Usuários ativos no total",
-    icon: Users,
-    color: "text-primary",
-    link: "/admin/usuarios",
-  },
-];
-
-const RightPanel = () => (
-  <div>
-    <h2 className="font-display text-lg font-bold text-primary">Minhas Trilhas</h2>
-    <div className="mt-1 h-1 w-12 rounded-full bg-gradient-nexti" />
-
-    <div className="mt-6 card-surface p-5">
-      <h3 className="font-display text-base font-bold text-foreground">
-        Conheça suas trilhas disponíveis!
-      </h3>
-      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-        Promover conhecimento é o lema de nossa empresa, conheça os treinamentos disponíveis em sua área de atuação e setores diversos.
-      </p>
-    </div>
-
-    <div className="mt-4 card-surface p-4">
-      <div className="flex gap-3">
-        <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-secondary">
-          <div className="flex h-full w-full items-center justify-center bg-primary/10">
-            <FileText className="h-6 w-6 text-primary" />
-          </div>
-        </div>
-        <div className="flex-1 min-w-0">
-          <h4 className="font-display text-sm font-bold text-primary">NEXTI - LIDERANÇAS</h4>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Data início: 23/12/2025
-          </p>
-          <p className="mt-1 text-xs text-muted-foreground flex items-center gap-1">
-            <BookOpen className="h-3 w-3" /> Seleção de cursos
-          </p>
-        </div>
-      </div>
-      <Link
-        to="/admin/trilhas"
-        className="mt-3 flex w-full items-center justify-center rounded-full border-2 border-primary px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
-      >
-        Acessar trilha
-      </Link>
-    </div>
-  </div>
-);
 
 const AdminDashboard = () => {
+  const [stats, setStats] = useState({ tracks: 0, enrollments: 0, users: 0, activeEnrollments: 0, completedEnrollments: 0, certificates: 0 });
+  const [recentEnrollments, setRecentEnrollments] = useState<any[]>([]);
+  const [enrollmentsByDay, setEnrollmentsByDay] = useState<any[]>([]);
+  const [inactiveUsers, setInactiveUsers] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    setLoading(true);
+    const [tracksRes, profilesRes, enrollmentsRes, certsRes] = await Promise.all([
+      supabase.from("tracks").select("id", { count: "exact", head: true }).eq("is_active", true),
+      supabase.from("profiles").select("id, created_at, is_active", { count: "exact" }),
+      supabase.from("enrollments").select("id, status, enrolled_at, track_id, tracks(title)"),
+      supabase.from("certificates").select("id", { count: "exact", head: true }),
+    ]);
+
+    const enrollments = (enrollmentsRes.data || []) as any[];
+    const profiles = (profilesRes.data || []) as any[];
+    const active = enrollments.filter(e => e.status === "active").length;
+    const completed = enrollments.filter(e => e.status === "completed").length;
+
+    // Inactive users (no enrollment)
+    const enrolledUserIds = new Set(enrollments.map(e => e.user_id));
+    const inactive = profiles.filter(p => !enrolledUserIds.has(p.id)).length;
+    setInactiveUsers(inactive);
+
+    setStats({
+      tracks: tracksRes.count || 0,
+      enrollments: enrollments.length,
+      users: profilesRes.count || 0,
+      activeEnrollments: active,
+      completedEnrollments: completed,
+      certificates: certsRes.count || 0,
+    });
+
+    // Enrollments by day (last 7 days)
+    const days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+    const last7 = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (6 - i));
+      return d;
+    });
+    const byDay = last7.map(date => {
+      const dayStr = date.toISOString().split('T')[0];
+      const count = enrollments.filter(e => e.enrolled_at?.startsWith(dayStr)).length;
+      return { day: days[date.getDay()], value: count };
+    });
+    setEnrollmentsByDay(byDay);
+
+    // Recent enrollments
+    const recent = enrollments
+      .sort((a: any, b: any) => new Date(b.enrolled_at).getTime() - new Date(a.enrolled_at).getTime())
+      .slice(0, 5);
+    setRecentEnrollments(recent);
+
+    setLoading(false);
+  };
+
+  const statCards = [
+    { value: stats.tracks, label: "Trilhas ativas", icon: BookOpen, color: "text-primary", link: "/admin/trilhas-gestao" },
+    { value: stats.enrollments, label: "Matrículas totais", sublabel: `${stats.activeEnrollments} ativas`, icon: GraduationCap, color: "text-primary", link: "/admin/matriculas" },
+    { value: stats.users, label: "Usuários cadastrados", icon: Users, color: "text-primary", link: "/admin/usuarios" },
+    { value: stats.completedEnrollments, label: "Conclusões", sublabel: `${stats.certificates} certificados`, icon: TrendingUp, color: "text-primary", link: "/admin/relatorio-progresso" },
+  ];
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center py-24">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        </div>
+      </AdminLayout>
+    );
+  }
+
   return (
-    <AdminLayout rightPanel={<RightPanel />}>
-      {/* Title */}
-      <h1 className="font-display text-xl font-bold text-primary">Minha Dashboard</h1>
+    <AdminLayout>
+      <h1 className="font-display text-xl font-bold text-primary">Dashboard Administrativo</h1>
       <div className="mt-1 h-1 w-12 rounded-full bg-gradient-nexti" />
 
-      {/* Stats Cards */}
-      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {stats.map((stat) => (
+      {/* KPI Cards */}
+      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {statCards.map((stat) => (
           <div key={stat.label} className="card-surface p-5">
             <div className="flex items-start justify-between">
               <div>
-                <p className="font-display text-3xl font-light text-foreground/70">{stat.value}</p>
+                <p className="font-display text-3xl font-bold text-foreground">{stat.value}</p>
                 <p className={`mt-1 text-sm font-medium ${stat.color}`}>{stat.label}</p>
-                {stat.sublabel && (
-                  <p className={`text-sm font-medium ${stat.color}`}>{stat.sublabel}</p>
-                )}
+                {stat.sublabel && <p className="text-xs text-muted-foreground">{stat.sublabel}</p>}
               </div>
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
                 <stat.icon className="h-5 w-5 text-primary" />
               </div>
             </div>
-            <Link
-              to={stat.link}
-              className="mt-3 flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-            >
+            <Link to={stat.link} className="mt-3 flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
               Ver detalhes <ChevronRight className="h-3 w-3" />
             </Link>
           </div>
         ))}
       </div>
 
+      {/* Alert: Inactive users */}
+      {inactiveUsers > 0 && (
+        <div className="mt-6 card-surface border-warning/30 bg-warning/5 p-4 flex items-center gap-3">
+          <AlertTriangle className="h-5 w-5 text-warning shrink-0" />
+          <div>
+            <p className="text-sm font-medium text-foreground">{inactiveUsers} usuário(s) sem matrícula</p>
+            <p className="text-xs text-muted-foreground">Considere enviar notificações ou matriculá-los em trilhas.</p>
+          </div>
+          <Link to="/admin/notificacoes" className="ml-auto text-xs font-medium text-primary hover:underline shrink-0">
+            Enviar notificação
+          </Link>
+        </div>
+      )}
+
       {/* Charts */}
       <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Matrículas Chart */}
         <div className="card-surface p-5">
-          <h3 className="text-sm font-medium text-foreground">Matrículas realizadas nos últimos 07 dias</h3>
+          <h3 className="text-sm font-semibold text-foreground">Matrículas nos últimos 7 dias</h3>
           <div className="mt-4 h-56">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={matriculasData}>
+              <LineChart data={enrollmentsByDay}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="day" tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }} />
-                <YAxis tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }} />
-                <Tooltip
-                  contentStyle={{
-                    background: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                    fontSize: '12px',
-                  }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="value"
-                  stroke="hsl(var(--accent))"
-                  strokeWidth={2}
-                  dot={{ fill: 'hsl(var(--accent))', r: 4 }}
-                />
+                <YAxis tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }} allowDecimals={false} />
+                <Tooltip contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: '12px' }} />
+                <Line type="monotone" dataKey="value" stroke="hsl(var(--accent))" strokeWidth={2} dot={{ fill: 'hsl(var(--accent))', r: 4 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Certificados Chart */}
+        {/* Recent activity */}
         <div className="card-surface p-5">
-          <h3 className="text-sm font-medium text-foreground">Certificados emitidos nos últimos 07 dias</h3>
-          <div className="mt-4 h-56">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={certificadosData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="day" tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }} />
-                <YAxis tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }} />
-                <Tooltip
-                  contentStyle={{
-                    background: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                    fontSize: '12px',
-                  }}
-                />
-                <Bar dataKey="value" fill="hsl(var(--accent))" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-          <p className="mt-3 text-xs text-muted-foreground text-center">
-            Confira mais detalhes em{" "}
-            <Link to="/admin/relatorio-progresso" className="font-semibold text-foreground underline">
-              Relatórios
-            </Link>
-          </p>
-        </div>
-      </div>
-
-      {/* Meu Progresso */}
-      <div className="mt-8">
-        <h2 className="font-display text-lg font-bold text-primary">Meu Progresso</h2>
-        <div className="mt-1 h-1 w-12 rounded-full bg-gradient-nexti" />
-
-        <div className="mt-4 card-surface p-5">
-          <div className="space-y-4">
-            {tracks.map((track) => (
-              <div key={track.id} className="flex items-center gap-4">
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">{track.title}</p>
-                  <p className="text-xs text-muted-foreground">{track.totalLessons} aulas · {track.estimatedHours}h</p>
-                </div>
-                <div className="w-32">
-                  <div className="h-2 overflow-hidden rounded-full bg-secondary">
-                    <div className="h-full rounded-full bg-gradient-nexti" style={{ width: "0%" }} />
+          <h3 className="text-sm font-semibold text-foreground mb-4">Atividade Recente</h3>
+          {recentEnrollments.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-8">Nenhuma matrícula recente.</p>
+          ) : (
+            <div className="space-y-3">
+              {recentEnrollments.map((e: any) => (
+                <div key={e.id} className="flex items-center gap-3 py-2 border-b border-border/30 last:border-0">
+                  <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                    <GraduationCap className="h-4 w-4 text-primary" />
                   </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{e.tracks?.title || "Trilha"}</p>
+                    <p className="text-xs text-muted-foreground">
+                      <Clock className="inline h-3 w-3 mr-1" />
+                      {new Date(e.enrolled_at).toLocaleDateString("pt-BR")}
+                    </p>
+                  </div>
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                    e.status === "active" ? "bg-success/10 text-success" :
+                    e.status === "completed" ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive"
+                  }`}>
+                    {e.status === "active" ? "Ativa" : e.status === "completed" ? "Concluída" : "Cancelada"}
+                  </span>
                 </div>
-                <span className="tabular-nums text-xs font-medium text-muted-foreground w-10 text-right">0%</span>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </AdminLayout>
