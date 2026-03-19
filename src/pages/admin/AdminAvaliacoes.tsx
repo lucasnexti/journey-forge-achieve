@@ -389,6 +389,11 @@ const AdminAvaliacoes = () => {
                           <Button size="sm" variant="ghost" onClick={() => setSelectedSurvey(s.id)}>
                             <Eye className="w-4 h-4" />
                           </Button>
+                          {s.type === "nps" && !s.is_active && (
+                            <Button size="sm" variant="default" onClick={() => sendNpsSurvey(s.id)} className="gap-1 text-xs">
+                              <Send className="w-3 h-3" /> Enviar
+                            </Button>
+                          )}
                           <Button size="sm" variant="ghost" onClick={() => toggleActive(s.id, s.is_active)}>
                             {s.is_active ? <ToggleRight className="w-4 h-4 text-green-500" /> : <ToggleLeft className="w-4 h-4 text-muted-foreground" />}
                           </Button>
