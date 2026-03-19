@@ -11,8 +11,6 @@ import { BookOpen, Clock, Trophy, Play, Search, Filter, Star, Heart, TrendingUp,
 import LinkedInShare from "@/components/LinkedInShare";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
-import { useSurveyTrigger } from "@/hooks/useSurveyTrigger";
-import SurveyModal from "@/components/SurveyModal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
