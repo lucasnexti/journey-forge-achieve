@@ -75,21 +75,22 @@ const VideoPlayer = ({ videoUrl, onComplete, lessonTitle, onNext, onPrev }: Vide
           onLoadedMetadata={() => setDuration(videoRef.current?.duration || 0)}
           onEnded={() => setPlaying(false)}
           muted={muted}
+          playsInline
         />
         <button
           onClick={togglePlay}
-          className="absolute inset-0 flex items-center justify-center bg-foreground/5 opacity-0 transition-opacity hover:opacity-100"
+          className="absolute inset-0 flex items-center justify-center bg-foreground/5 opacity-0 transition-opacity hover:opacity-100 active:opacity-100 touch-manipulation"
         >
           {playing ? (
-            <Pause className="h-12 w-12 text-card" />
+            <Pause className="h-10 w-10 sm:h-12 sm:w-12 text-card" />
           ) : (
-            <Play className="h-12 w-12 text-card" />
+            <Play className="h-10 w-10 sm:h-12 sm:w-12 text-card" />
           )}
         </button>
       </div>
 
-      {/* Progress bar */}
-      <div className="relative h-1 bg-border cursor-pointer" onClick={(e) => {
+      {/* Progress bar — taller on mobile for easier touch */}
+      <div className="relative h-2 sm:h-1 bg-border cursor-pointer touch-manipulation" onClick={(e) => {
         if (!videoRef.current || !duration) return;
         const rect = e.currentTarget.getBoundingClientRect();
         const pct = (e.clientX - rect.left) / rect.width;
@@ -101,21 +102,21 @@ const VideoPlayer = ({ videoUrl, onComplete, lessonTitle, onNext, onPrev }: Vide
         />
       </div>
 
-      <div className="flex items-center gap-2 px-4 py-3">
+      <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 sm:py-3">
         {onPrev && (
-          <button onClick={onPrev} className="text-muted-foreground hover:text-foreground">
+          <button onClick={onPrev} className="p-2 text-muted-foreground hover:text-foreground touch-manipulation">
             <SkipBack className="h-4 w-4" />
           </button>
         )}
-        <button onClick={togglePlay} className="text-foreground transition-colors hover:text-primary">
+        <button onClick={togglePlay} className="p-2 text-foreground transition-colors hover:text-primary touch-manipulation">
           {playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
         </button>
         {onNext && (
-          <button onClick={onNext} className="text-muted-foreground hover:text-foreground">
+          <button onClick={onNext} className="p-2 text-muted-foreground hover:text-foreground touch-manipulation">
             <SkipForward className="h-4 w-4" />
           </button>
         )}
-        <span className="tabular-nums text-xs text-muted-foreground w-24">
+        <span className="tabular-nums text-[10px] sm:text-xs text-muted-foreground">
           {formatTime(currentTime)} / {formatTime(duration)}
         </span>
 
@@ -125,7 +126,7 @@ const VideoPlayer = ({ videoUrl, onComplete, lessonTitle, onNext, onPrev }: Vide
         <div className="relative">
           <button
             onClick={() => setShowSpeedMenu(!showSpeedMenu)}
-            className="rounded-md border border-border bg-secondary px-2 py-0.5 text-xs font-medium text-foreground hover:bg-muted tabular-nums"
+            className="rounded-md border border-border bg-secondary px-2 py-1 text-[10px] sm:text-xs font-medium text-foreground hover:bg-muted tabular-nums touch-manipulation"
           >
             {speed}x
           </button>
@@ -135,7 +136,7 @@ const VideoPlayer = ({ videoUrl, onComplete, lessonTitle, onNext, onPrev }: Vide
                 <button
                   key={s}
                   onClick={() => changeSpeed(s)}
-                  className={`block w-full px-4 py-1.5 text-xs text-left transition-colors ${
+                  className={`block w-full px-4 py-2 text-xs text-left transition-colors touch-manipulation ${
                     s === speed ? "bg-primary/10 text-primary font-semibold" : "text-foreground hover:bg-secondary"
                   }`}
                 >
@@ -146,10 +147,10 @@ const VideoPlayer = ({ videoUrl, onComplete, lessonTitle, onNext, onPrev }: Vide
           )}
         </div>
 
-        <button onClick={() => setMuted(!muted)} className="text-muted-foreground hover:text-foreground">
+        <button onClick={() => setMuted(!muted)} className="p-2 text-muted-foreground hover:text-foreground touch-manipulation">
           {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
         </button>
-        <button onClick={() => videoRef.current?.requestFullscreen()} className="text-muted-foreground hover:text-foreground">
+        <button onClick={() => videoRef.current?.requestFullscreen()} className="p-2 text-muted-foreground hover:text-foreground touch-manipulation">
           <Maximize className="h-4 w-4" />
         </button>
       </div>
