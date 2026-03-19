@@ -413,9 +413,11 @@ export type Database = {
           created_at: string
           empresa: string | null
           id: string
+          interests: string[] | null
           is_active: boolean | null
           last_active_at: string | null
           nome: string
+          onboarding_completed: boolean | null
           updated_at: string
           user_id: string
         }
@@ -426,9 +428,11 @@ export type Database = {
           created_at?: string
           empresa?: string | null
           id?: string
+          interests?: string[] | null
           is_active?: boolean | null
           last_active_at?: string | null
           nome: string
+          onboarding_completed?: boolean | null
           updated_at?: string
           user_id: string
         }
@@ -439,9 +443,11 @@ export type Database = {
           created_at?: string
           empresa?: string | null
           id?: string
+          interests?: string[] | null
           is_active?: boolean | null
           last_active_at?: string | null
           nome?: string
+          onboarding_completed?: boolean | null
           updated_at?: string
           user_id?: string
         }
@@ -552,6 +558,35 @@ export type Database = {
           },
         ]
       }
+      track_favorites: {
+        Row: {
+          created_at: string | null
+          id: string
+          track_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          track_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          track_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "track_favorites_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       track_ratings: {
         Row: {
           comment: string | null
@@ -596,6 +631,8 @@ export type Database = {
           id: string
           is_active: boolean | null
           order_index: number | null
+          prerequisite_track_id: string | null
+          published_at: string | null
           title: string
           updated_at: string | null
         }
@@ -607,6 +644,8 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           order_index?: number | null
+          prerequisite_track_id?: string | null
+          published_at?: string | null
           title: string
           updated_at?: string | null
         }
@@ -618,10 +657,20 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           order_index?: number | null
+          prerequisite_track_id?: string | null
+          published_at?: string | null
           title?: string
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "tracks_prerequisite_track_id_fkey"
+            columns: ["prerequisite_track_id"]
+            isOneToOne: false
+            referencedRelation: "tracks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_badges: {
         Row: {
