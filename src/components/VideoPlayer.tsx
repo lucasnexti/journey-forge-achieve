@@ -1,24 +1,32 @@
 import { useRef, useState, useEffect } from "react";
-import { Play, Pause, Volume2, VolumeX, Maximize } from "lucide-react";
+import { Play, Pause, Volume2, VolumeX, Maximize, SkipForward, SkipBack } from "lucide-react";
 
 interface VideoPlayerProps {
   videoUrl: string;
   onComplete: (watchedSeconds: number) => void;
   lessonTitle: string;
+  onNext?: () => void;
+  onPrev?: () => void;
 }
 
-const VideoPlayer = ({ videoUrl, onComplete, lessonTitle }: VideoPlayerProps) => {
+const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
+
+const VideoPlayer = ({ videoUrl, onComplete, lessonTitle, onNext, onPrev }: VideoPlayerProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [muted, setMuted] = useState(false);
   const [completed, setCompleted] = useState(false);
+  const [speed, setSpeed] = useState(1);
+  const [showSpeedMenu, setShowSpeedMenu] = useState(false);
 
   useEffect(() => {
     setPlaying(false);
     setCurrentTime(0);
     setCompleted(false);
+    setSpeed(1);
+    if (videoRef.current) videoRef.current.playbackRate = 1;
   }, [videoUrl]);
 
   const togglePlay = () => {
@@ -42,11 +50,19 @@ const VideoPlayer = ({ videoUrl, onComplete, lessonTitle }: VideoPlayerProps) =>
     videoRef.current.currentTime = Number(e.target.value);
   };
 
+  const changeSpeed = (s: number) => {
+    setSpeed(s);
+    if (videoRef.current) videoRef.current.playbackRate = s;
+    setShowSpeedMenu(false);
+  };
+
   const formatTime = (secs: number) => {
     const m = Math.floor(secs / 60);
     const s = Math.floor(secs % 60);
-    return `${m}:${s.toString().padStart(2, '0')}`;
+    return `${m}:${s.toString().padStart(2, "0")}`;
   };
+
+  const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
     <div className="overflow-hidden rounded-xl bg-foreground/5">
@@ -72,14 +88,64 @@ const VideoPlayer = ({ videoUrl, onComplete, lessonTitle }: VideoPlayerProps) =>
         </button>
       </div>
 
-      <div className="flex items-center gap-3 px-4 py-3">
+      {/* Progress bar */}
+      <div className="relative h-1 bg-border cursor-pointer" onClick={(e) => {
+        if (!videoRef.current || !duration) return;
+        const rect = e.currentTarget.getBoundingClientRect();
+        const pct = (e.clientX - rect.left) / rect.width;
+        videoRef.current.currentTime = pct * duration;
+      }}>
+        <div
+          className="h-full bg-primary transition-all"
+          style={{ width: `${progressPercent}%` }}
+        />
+      </div>
+
+      <div className="flex items-center gap-2 px-4 py-3">
+        {onPrev && (
+          <button onClick={onPrev} className="text-muted-foreground hover:text-foreground">
+            <SkipBack className="h-4 w-4" />
+          </button>
+        )}
         <button onClick={togglePlay} className="text-foreground transition-colors hover:text-primary">
           {playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
         </button>
-        <span className="tabular-nums text-xs text-muted-foreground w-20">
+        {onNext && (
+          <button onClick={onNext} className="text-muted-foreground hover:text-foreground">
+            <SkipForward className="h-4 w-4" />
+          </button>
+        )}
+        <span className="tabular-nums text-xs text-muted-foreground w-24">
           {formatTime(currentTime)} / {formatTime(duration)}
         </span>
-        <input type="range" min={0} max={duration || 0} value={currentTime} onChange={handleSeek} className="flex-1 h-1 cursor-pointer accent-primary" />
+
+        <div className="flex-1" />
+
+        {/* Speed control */}
+        <div className="relative">
+          <button
+            onClick={() => setShowSpeedMenu(!showSpeedMenu)}
+            className="rounded-md border border-border bg-secondary px-2 py-0.5 text-xs font-medium text-foreground hover:bg-muted tabular-nums"
+          >
+            {speed}x
+          </button>
+          {showSpeedMenu && (
+            <div className="absolute bottom-full mb-1 right-0 rounded-lg border border-border bg-card shadow-lg py-1 z-10">
+              {SPEEDS.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => changeSpeed(s)}
+                  className={`block w-full px-4 py-1.5 text-xs text-left transition-colors ${
+                    s === speed ? "bg-primary/10 text-primary font-semibold" : "text-foreground hover:bg-secondary"
+                  }`}
+                >
+                  {s}x
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
         <button onClick={() => setMuted(!muted)} className="text-muted-foreground hover:text-foreground">
           {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
         </button>
