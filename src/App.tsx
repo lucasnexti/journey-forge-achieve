@@ -32,6 +32,7 @@ import AdminPersonalizacao from "./pages/admin/AdminPersonalizacao.tsx";
 import ProfilePage from "./pages/ProfilePage.tsx";
 import LeaderboardPage from "./pages/LeaderboardPage.tsx";
 import QuizHistoryPage from "./pages/QuizHistoryPage.tsx";
+import KnowledgeBasePage from "./pages/KnowledgeBasePage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
