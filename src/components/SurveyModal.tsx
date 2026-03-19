@@ -14,34 +14,14 @@ interface SurveyModalProps {
   onClose: () => void;
   survey: {
     id: string;
-    type: "nps" | "csat";
+    type: "csat";
     question: string;
     title: string;
   };
   context?: Record<string, string>;
 }
 
-const NPS_LABELS: Record<number, string> = {
-  0: "Nada provável",
-  1: "Muito improvável",
-  2: "Improvável",
-  3: "Pouco improvável",
-  4: "Neutro",
-  5: "Neutro",
-  6: "Neutro",
-  7: "Provável",
-  8: "Muito provável",
-  9: "Extremamente provável",
-  10: "Com certeza!",
-};
-
 const CSAT_LABELS = ["Muito insatisfeito", "Insatisfeito", "Neutro", "Satisfeito", "Muito satisfeito"];
-
-const getNPSColor = (score: number) => {
-  if (score <= 6) return "bg-red-500 hover:bg-red-600 text-white";
-  if (score <= 8) return "bg-yellow-500 hover:bg-yellow-600 text-white";
-  return "bg-green-500 hover:bg-green-600 text-white";
-};
 
 export const SurveyModal = ({ open, onClose, survey, context }: SurveyModalProps) => {
   const { user } = useAuth();
@@ -117,7 +97,7 @@ export const SurveyModal = ({ open, onClose, survey, context }: SurveyModalProps
               {/* Header */}
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs font-semibold uppercase tracking-wider text-primary">
-                  {survey.type === "nps" ? "Pesquisa NPS" : "Pesquisa CSAT"}
+                  Pesquisa CSAT
                 </span>
                 <button onClick={handleClose} className="text-muted-foreground hover:text-foreground">
                   <X className="w-4 h-4" />
@@ -126,41 +106,7 @@ export const SurveyModal = ({ open, onClose, survey, context }: SurveyModalProps
               <h3 className="text-lg font-bold text-foreground mb-1">{survey.title}</h3>
               <p className="text-sm text-muted-foreground mb-6">{survey.question}</p>
 
-              {step === "score" && survey.type === "nps" && (
-                <div className="space-y-4">
-                  <div className="flex gap-1 justify-center flex-wrap">
-                    {Array.from({ length: 11 }, (_, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setScore(i)}
-                        className={cn(
-                          "w-10 h-10 rounded-lg text-sm font-bold transition-all duration-200",
-                          score === i
-                            ? getNPSColor(i) + " scale-110 shadow-lg"
-                            : "bg-muted text-muted-foreground hover:bg-muted/80"
-                        )}
-                      >
-                        {i}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="flex justify-between text-xs text-muted-foreground px-1">
-                    <span>Nada provável</span>
-                    <span>Extremamente provável</span>
-                  </div>
-                  {score !== null && (
-                    <motion.p
-                      initial={{ opacity: 0, y: 5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="text-center text-sm font-medium text-foreground"
-                    >
-                      {NPS_LABELS[score]}
-                    </motion.p>
-                  )}
-                </div>
-              )}
-
-              {step === "score" && survey.type === "csat" && (
+              {step === "score" && (
                 <div className="space-y-4">
                   <div className="flex gap-3 justify-center">
                     {[1, 2, 3, 4, 5].map((i) => (
