@@ -89,8 +89,8 @@ const LeaderboardPage = () => {
       <AppLayout>
         <div className="flex items-center justify-center py-32">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-        </AppLayout>
-      </div>
+        </div>
+      </AppLayout>
     );
   }
 
@@ -104,7 +104,7 @@ const LeaderboardPage = () => {
             <div>
               <h1 className="font-display text-xl sm:text-3xl font-extrabold text-primary-foreground">Ranking</h1>
               <p className="text-xs sm:text-sm text-primary-foreground/80">{empresa || "Sua Empresa"}</p>
-            </AppLayout>
+            </div>
           </div>
         </div>
       </div>
@@ -159,7 +159,7 @@ const LeaderboardPage = () => {
           </div>
         )}
       </main>
-    </div>
+    </AppLayout>
   );
 };
 

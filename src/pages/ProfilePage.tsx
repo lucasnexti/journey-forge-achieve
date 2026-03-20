@@ -150,8 +150,8 @@ const ProfilePage = () => {
       <AppLayout>
         <div className="flex items-center justify-center py-32">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-        </AppLayout>
-      </div>
+        </div>
+      </AppLayout>
     );
   }
 
@@ -169,7 +169,7 @@ const ProfilePage = () => {
                 ) : (
                   <User className="h-6 w-6 sm:h-8 sm:w-8 text-primary-foreground" />
                 )}
-              </AppLayout>
+              </div>
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploadingAvatar}
@@ -350,7 +350,7 @@ const ProfilePage = () => {
           </div>
         </div>
       </main>
-    </div>
+    </AppLayout>
   );
 };
 
