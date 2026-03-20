@@ -313,7 +313,7 @@ const TrainingPage = () => {
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                   <h3 className="text-sm font-bold text-foreground">
-                    Investimento Total — {modality === "remoto" ? "Remoto" : "Presencial"}
+                    Investimento Total
                   </h3>
                   <div className="flex items-center gap-4 mt-1.5 text-xs text-muted-foreground">
                     <span>{selectedModules.length} módulo{selectedModules.length !== 1 ? "s" : ""}</span>
