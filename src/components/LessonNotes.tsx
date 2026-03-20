@@ -65,14 +65,19 @@ const LessonNotes = ({ lessonId, currentTime = 0, onSeek }: LessonNotesProps) =>
       insertData.timestamp_seconds = Math.round(currentTime);
     }
 
-    const { data } = await supabase
+    const { data } = await (supabase
       .from("lesson_notes")
-      .insert(insertData)
-      .select("id, content, timestamp_seconds, created_at")
-      .single();
+      .insert(insertData as any)
+      .select("id, content, created_at")
+      .single());
 
     if (data) {
-      setNotes((prev) => [...prev, data as NoteRow]);
+      const row = data as any;
+      setNotes((prev) => [...prev, {
+        id: row.id, content: row.content,
+        timestamp_seconds: row.timestamp_seconds ?? insertData.timestamp_seconds ?? null,
+        created_at: row.created_at,
+      }]);
       setNewContent("");
     }
 
