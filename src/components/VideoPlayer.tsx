@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect, useCallback } from "react";
+import Player from "@vimeo/player";
 import { Play, Pause, Volume2, VolumeX, Maximize, SkipForward, SkipBack } from "lucide-react";
 
 interface VideoPlayerProps {
@@ -42,7 +43,7 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
   const [speed, setSpeed] = useState(1);
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
   const vimeo = isVimeoUrl(videoUrl);
-  const vimeoTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const vimeoPlayerRef = useRef<Player | null>(null);
   const lastSavedRef = useRef(0);
 
   useEffect(() => {
@@ -52,7 +53,11 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
     setSpeed(1);
     lastSavedRef.current = 0;
     if (videoRef.current) videoRef.current.playbackRate = 1;
-    if (vimeoTimerRef.current) clearInterval(vimeoTimerRef.current);
+
+    if (vimeoPlayerRef.current) {
+      vimeoPlayerRef.current.unload().catch(() => undefined);
+      vimeoPlayerRef.current = null;
+    }
   }, [videoUrl, initialWatchedSeconds]);
 
   // Periodic progress save for native video
@@ -66,7 +71,6 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
   // Save progress on unmount / lesson change
   useEffect(() => {
     return () => {
-      // Save current time on cleanup
       if (currentTime > 0 && onProgress) {
         onProgress(Math.round(currentTime));
       }
@@ -75,47 +79,73 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
   }, [videoUrl]);
 
   useEffect(() => {
-    if (!vimeo) return;
-    return () => {
-      if (vimeoTimerRef.current) clearInterval(vimeoTimerRef.current);
-    };
-  }, [vimeo]);
+    if (!vimeo || !iframeRef.current) return;
 
-  const startVimeoTimer = useCallback(() => {
-    if (vimeoTimerRef.current) clearInterval(vimeoTimerRef.current);
-    vimeoTimerRef.current = setInterval(() => {
-      setCurrentTime((prev) => {
-        const next = prev + 1;
-        // Periodic save
-        if (next - lastSavedRef.current >= PROGRESS_SAVE_INTERVAL) {
-          lastSavedRef.current = next;
-          onProgress?.(Math.round(next));
-        }
-        if (duration > 0 && next >= duration * 0.9 && !completed) {
-          setCompleted(true);
-          onComplete(Math.round(next));
-        }
-        return next;
-      });
-    }, 1000);
-  }, [duration, completed, onComplete, onProgress]);
+    const player = new Player(iframeRef.current);
+    vimeoPlayerRef.current = player;
+
+    const completionThreshold = lessonDuration > 0 ? lessonDuration * 0.9 : 0;
+
+    player.on("play", () => setPlaying(true));
+    player.on("pause", async () => {
+      setPlaying(false);
+      try {
+        const seconds = await player.getCurrentTime();
+        const clampedSeconds = lessonDuration > 0 ? Math.min(seconds, lessonDuration) : seconds;
+        setCurrentTime(clampedSeconds);
+        onProgress?.(Math.round(clampedSeconds));
+      } catch {
+        // ignore
+      }
+    });
+    player.on("timeupdate", ({ seconds, duration: playerDuration }) => {
+      const effectiveDuration = lessonDuration > 0 ? lessonDuration : playerDuration || 0;
+      const clampedSeconds = effectiveDuration > 0 ? Math.min(seconds, effectiveDuration) : seconds;
+      setCurrentTime(clampedSeconds);
+
+      if (clampedSeconds - lastSavedRef.current >= PROGRESS_SAVE_INTERVAL) {
+        lastSavedRef.current = clampedSeconds;
+        onProgress?.(Math.round(clampedSeconds));
+      }
+
+      if (!completed && effectiveDuration > 0 && clampedSeconds >= effectiveDuration * 0.9) {
+        setCompleted(true);
+        onComplete(Math.round(effectiveDuration));
+      } else if (!completed && completionThreshold > 0 && clampedSeconds >= completionThreshold) {
+        setCompleted(true);
+        onComplete(Math.round(effectiveDuration || clampedSeconds));
+      }
+    });
+    player.on("ended", () => {
+      const finalSeconds = lessonDuration > 0 ? lessonDuration : currentTime;
+      setPlaying(false);
+      setCompleted(true);
+      setCurrentTime(finalSeconds);
+      onProgress?.(Math.round(finalSeconds));
+      onComplete(Math.round(finalSeconds));
+    });
+
+    return () => {
+      player.unload().catch(() => undefined);
+      vimeoPlayerRef.current = null;
+    };
+  }, [vimeo, videoUrl, lessonDuration, completed, currentTime, onComplete, onProgress]);
 
   const stopVimeoTimer = () => {
-    if (vimeoTimerRef.current) {
-      clearInterval(vimeoTimerRef.current);
-      vimeoTimerRef.current = null;
-    }
+    setPlaying(false);
   };
 
   const togglePlay = () => {
     if (vimeo) {
+      const player = vimeoPlayerRef.current;
+      if (!player) return;
+
       if (playing) {
-        stopVimeoTimer();
+        player.pause().catch(() => undefined);
         onProgress?.(Math.round(currentTime));
       } else {
-        startVimeoTimer();
+        player.play().catch(() => undefined);
       }
-      setPlaying(!playing);
       return;
     }
     if (!videoRef.current) return;

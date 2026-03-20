@@ -60,7 +60,15 @@ const TrackPage = () => {
   const [completedAt, setCompletedAt] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [profileName, setProfileName] = useState("Cooperado(a)");
-  const allLessonsCompletedForSurvey = lessons.length > 0 && lessons.every((l) => progress[l.id]?.completed);
+  const isLessonComplete = (lesson: LessonRow) => {
+    const lessonProgress = progress[lesson.id];
+    if (!lessonProgress) return false;
+    if (lessonProgress.completed) return true;
+    const duration = lesson.duration || 0;
+    return duration > 0 && lessonProgress.watched_seconds >= duration * 0.9;
+  };
+
+  const allLessonsCompletedForSurvey = lessons.length > 0 && lessons.every(isLessonComplete);
   const isFullyComplete = allLessonsCompletedForSurvey && quizPassed;
   const { pendingSurvey, showSurvey, dismissSurvey } = useSurveyTrigger(
     isFullyComplete ? "track_completion" : undefined,
@@ -98,8 +106,8 @@ const TrackPage = () => {
 
   const currentLesson = lessons.find((l) => l.id === currentLessonId);
   const currentIndex = lessons.findIndex((l) => l.id === currentLessonId);
-  const allLessonsComplete = lessons.length > 0 && lessons.every((l) => progress[l.id]?.completed);
-  const completedLessons = Object.values(progress).filter((p) => p.completed).length;
+  const allLessonsComplete = lessons.length > 0 && lessons.every(isLessonComplete);
+  const completedLessons = lessons.filter(isLessonComplete).length;
 
   // Calculate progress based on watched_seconds / duration per lesson
   const overallPercent = lessons.length > 0
@@ -107,10 +115,9 @@ const TrackPage = () => {
         lessons.reduce((acc, lesson) => {
           const lp = progress[lesson.id];
           if (!lp) return acc;
-          if (lp.completed) return acc + 100;
+          if (isLessonComplete(lesson)) return acc + 100;
           const dur = lesson.duration || 0;
           if (dur <= 0) {
-            // No duration set: use watched_seconds > 0 as partial indicator
             return acc + (lp.watched_seconds > 0 ? Math.min(lp.watched_seconds / 60 * 10, 90) : 0);
           }
           return acc + Math.min((lp.watched_seconds / dur) * 100, 99);
