@@ -137,13 +137,15 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
 
   const togglePlay = () => {
     if (vimeo) {
+      const player = vimeoPlayerRef.current;
+      if (!player) return;
+
       if (playing) {
-        stopVimeoTimer();
+        player.pause().catch(() => undefined);
         onProgress?.(Math.round(currentTime));
       } else {
-        startVimeoTimer();
+        player.play().catch(() => undefined);
       }
-      setPlaying(!playing);
       return;
     }
     if (!videoRef.current) return;
