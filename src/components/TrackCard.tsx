@@ -23,7 +23,7 @@ interface TrackCardProps {
 }
 
 const TrackCard = ({
-  trackId, title, description, category, totalLessons, estimatedHours,
+  trackId, title, description, category, totalLessons, totalDurationSeconds,
   index, isEnrolled, isCompleted, isFavorite = false, onToggleFavorite,
 }: TrackCardProps) => {
   const { user } = useAuth();
