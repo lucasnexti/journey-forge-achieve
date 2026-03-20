@@ -10,7 +10,8 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Coins, Flame, TrendingUp, ShoppingBag, Gift, Clock,
-  Package, Star, Zap, Crown, ArrowRight, Sparkles,
+  Package, Star, Zap, Crown, ArrowRight, Sparkles, HelpCircle,
+  BookOpen, CheckCircle2, Target, MessageSquare,
 } from "lucide-react";
 
 interface Reward {
