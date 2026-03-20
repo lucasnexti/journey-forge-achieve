@@ -23,8 +23,8 @@ export const LEVELS = [
 ] as const;
 
 export function getLevelInfo(xp: number) {
-  let current = LEVELS[0];
-  let next = LEVELS[1];
+  let current = LEVELS[0] as (typeof LEVELS)[number];
+  let next: (typeof LEVELS)[number] | null = LEVELS[1];
   for (let i = LEVELS.length - 1; i >= 0; i--) {
     if (xp >= LEVELS[i].xp) {
       current = LEVELS[i];
