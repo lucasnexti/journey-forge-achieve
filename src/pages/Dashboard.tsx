@@ -307,7 +307,7 @@ const Dashboard = () => {
                 description={track.description || ""}
                 category={track.category || ""}
                 totalLessons={track.lessons?.length || 0}
-                estimatedHours={track.estimated_hours || 0}
+                totalDurationSeconds={track.lessons?.reduce((sum, l) => sum + (l.duration || 0), 0) || 0}
                 index={i}
                 isEnrolled={track.enrollments?.length > 0}
                 isCompleted={track.enrollments?.some((e) => e.status === "completed") || false}
