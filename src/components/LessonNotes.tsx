@@ -36,13 +36,19 @@ const LessonNotes = ({ lessonId, currentTime = 0, onSeek }: LessonNotesProps) =>
     if (!user) return;
     supabase
       .from("lesson_notes")
-      .select("id, content, timestamp_seconds, created_at")
+      .select("id, content, created_at")
       .eq("user_id", user.id)
       .eq("lesson_id", lessonId)
-      .order("timestamp_seconds", { ascending: true, nullsFirst: false })
       .order("created_at", { ascending: true })
       .then(({ data }) => {
-        setNotes((data as NoteRow[]) || []);
+        // Cast to include timestamp_seconds which may not be in types yet
+        setNotes(((data as any[]) || []).map((d: any) => ({
+          id: d.id,
+          content: d.content,
+          timestamp_seconds: d.timestamp_seconds ?? null,
+          created_at: d.created_at,
+        })));
+      });
       });
   }, [user, lessonId]);
 
