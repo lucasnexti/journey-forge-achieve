@@ -230,6 +230,19 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
 
           <div className="flex-1" />
 
+          {/* Fallback button only when no duration is configured */}
+          {!completed && lessonDuration <= 0 && (
+            <button
+              onClick={() => {
+                setCompleted(true);
+                onComplete(Math.round(currentTime || 60));
+              }}
+              className="rounded-md border border-border bg-secondary px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted touch-manipulation"
+            >
+              Marcar como assistida
+            </button>
+          )}
+
           {completed && (
             <span className="rounded-md border border-green-300 bg-green-50 px-3 py-1.5 text-xs font-medium text-green-700 dark:border-green-700 dark:bg-green-900/20 dark:text-green-400">
               ✓ Concluída
