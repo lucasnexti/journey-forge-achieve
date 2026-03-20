@@ -117,7 +117,7 @@ const TrainingPage = () => {
     setSubmitting(true);
     const inserts = selectedModules.map((mod) => ({
       user_id: user.id, module_id: mod.id, preferred_date: preferredDate || null,
-      participants, notes: notes.trim() || null, modality,
+      participants, notes: notes.trim() || null, modality: getModModality(mod),
     }));
     const { error } = await supabase.from("training_requests").insert(inserts);
     if (error) {
