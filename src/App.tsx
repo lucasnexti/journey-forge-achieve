@@ -19,7 +19,7 @@ import AdminForuns from "./pages/admin/AdminForuns.tsx";
 import AdminCursosEad from "./pages/admin/AdminCursosEad.tsx";
 import AdminAvaliacoes from "./pages/admin/AdminAvaliacoes.tsx";
 import AdminMatriculas from "./pages/admin/AdminMatriculas.tsx";
-import AdminTreinamentos from "./pages/admin/AdminTreinamentos.tsx";
+import AdminTreinamentos from "./pages/admin/AdminTreinamentoPresencial.tsx";
 import AdminTrilhasGestao from "./pages/admin/AdminTrilhasGestao.tsx";
 import AdminRelatorioProgresso from "./pages/admin/AdminRelatorioProgresso.tsx";
 import AdminUsuarios from "./pages/admin/AdminUsuarios.tsx";
