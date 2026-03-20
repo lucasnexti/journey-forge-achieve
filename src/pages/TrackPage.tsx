@@ -100,7 +100,20 @@ const TrackPage = () => {
   const currentIndex = lessons.findIndex((l) => l.id === currentLessonId);
   const allLessonsComplete = lessons.length > 0 && lessons.every((l) => progress[l.id]?.completed);
   const completedLessons = Object.values(progress).filter((p) => p.completed).length;
-  const overallPercent = lessons.length > 0 ? Math.round((completedLessons / lessons.length) * 100) : 0;
+
+  // Calculate progress based on watched_seconds / duration per lesson
+  const overallPercent = lessons.length > 0
+    ? Math.round(
+        lessons.reduce((acc, lesson) => {
+          const lp = progress[lesson.id];
+          if (!lp) return acc;
+          if (lp.completed) return acc + 100;
+          const dur = lesson.duration || 0;
+          if (dur <= 0) return acc;
+          return acc + Math.min((lp.watched_seconds / dur) * 100, 99);
+        }, 0) / lessons.length
+      )
+    : 0;
   const quiz = quizzes[0];
 
   const handleLessonComplete = async (watchedSeconds: number) => {
