@@ -39,6 +39,7 @@ import AdminQuizNexti from "./pages/admin/AdminQuizNexti.tsx";
 import ResetPasswordPage from "./pages/ResetPasswordPage.tsx";
 import RewardsStorePage from "./pages/RewardsStorePage.tsx";
 import AdminRewards from "./pages/admin/AdminRewards.tsx";
+import BadgesPage from "./pages/BadgesPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
