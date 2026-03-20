@@ -14,7 +14,7 @@ interface TrackCardProps {
   description: string;
   category: string;
   totalLessons: number;
-  estimatedHours: number;
+  totalDurationSeconds: number;
   index: number;
   isEnrolled: boolean;
   isCompleted: boolean;
