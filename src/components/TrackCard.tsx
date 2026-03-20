@@ -104,8 +104,14 @@ const TrackCard = ({
       transition={{ delay: index * 0.05, duration: 0.3 }}
     >
       <div
-        onClick={() => isEnrolled ? navigate(`/trilha/${trackId}`) : handleEnroll()}
-        className="group card-surface-hover flex flex-col h-full cursor-pointer overflow-hidden"
+        onClick={() => {
+          if (isLocked) return;
+          isEnrolled ? navigate(`/trilha/${trackId}`) : handleEnroll();
+        }}
+        className={cn(
+          "group card-surface-hover flex flex-col h-full overflow-hidden",
+          isLocked ? "opacity-60 cursor-not-allowed" : "cursor-pointer"
+        )}
       >
         {/* Top accent */}
         <div className={cn("h-1 w-full", isCompleted ? "bg-success" : isEnrolled ? "bg-primary" : "bg-border")} />
