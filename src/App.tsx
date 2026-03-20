@@ -39,6 +39,7 @@ import AdminQuizNexti from "./pages/admin/AdminQuizNexti.tsx";
 import ResetPasswordPage from "./pages/ResetPasswordPage.tsx";
 import RewardsStorePage from "./pages/RewardsStorePage.tsx";
 import AdminRewards from "./pages/admin/AdminRewards.tsx";
+import BadgesPage from "./pages/BadgesPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -64,6 +65,7 @@ const App = () => (
             <Route path="/base-conhecimento" element={<ProtectedRoute><KnowledgeBasePage /></ProtectedRoute>} />
             <Route path="/quiz-nexti" element={<ProtectedRoute><QuizNextiPage /></ProtectedRoute>} />
             <Route path="/loja" element={<ProtectedRoute><RewardsStorePage /></ProtectedRoute>} />
+            <Route path="/insignias" element={<ProtectedRoute><BadgesPage /></ProtectedRoute>} />
 
             {/* Admin routes */}
             <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
