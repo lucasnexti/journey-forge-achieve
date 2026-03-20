@@ -354,7 +354,7 @@ const TrainingPage = () => {
                     <span>{readyModules.length} módulo{readyModules.length !== 1 ? "s" : ""}</span>
                     <span>{totalHours}h total</span>
                   </div>
-                  {autoDiscount > 0 && selectedModules.length > 0 && (
+                  {autoDiscount > 0 && readyModules.length > 0 && (
                     <div className="mt-2 flex items-center gap-2">
                       <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 text-xs">
                         Desconto pacote: {(autoDiscount * 100).toFixed(0)}%
