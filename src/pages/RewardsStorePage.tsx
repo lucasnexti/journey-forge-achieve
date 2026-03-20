@@ -217,8 +217,8 @@ const RewardsStorePage = () => {
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            <HelpCircle className="h-4 w-4" />
-            Como funciona
+            <Coins className="h-4 w-4" />
+            Como ganhar NextCoins?
           </button>
         </div>
 
