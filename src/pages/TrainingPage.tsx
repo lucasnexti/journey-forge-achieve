@@ -369,7 +369,7 @@ const TrainingPage = () => {
                 <div className="text-right">
                   <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Total</p>
                   <p className="font-display text-2xl font-extrabold text-primary tabular-nums">
-                    {selectedModules.length > 0 ? fmt(grandTotalFinal) : "—"}
+                    {readyModules.length > 0 ? fmt(grandTotalFinal) : "—"}
                   </p>
                 </div>
               </div>
