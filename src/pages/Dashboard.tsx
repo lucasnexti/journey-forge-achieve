@@ -219,6 +219,27 @@ const Dashboard = () => {
           </motion.div>
         </div>
 
+        {/* Gamification — Coins, Streak, Level */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }} className="mb-4 sm:mb-6">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
+            <Link to="/loja" className="card-surface-hover p-3 sm:p-4 text-center group">
+              <Coins className="h-5 w-5 mx-auto text-yellow-500 mb-1" />
+              <p className="text-lg sm:text-xl font-display font-extrabold text-foreground tabular-nums">{gamification.coins}</p>
+              <p className="text-[9px] sm:text-[10px] text-muted-foreground">Nexti Coins</p>
+            </Link>
+            <div className="card-surface p-3 sm:p-4 text-center">
+              <Flame className="h-5 w-5 mx-auto text-orange-500 mb-1" />
+              <p className="text-lg sm:text-xl font-display font-extrabold text-foreground tabular-nums">{gamification.streak}</p>
+              <p className="text-[9px] sm:text-[10px] text-muted-foreground">Dias seguidos</p>
+            </div>
+            <div className="card-surface p-3 sm:p-4 text-center">
+              <TrendingUp className="h-5 w-5 mx-auto text-primary mb-1" />
+              <p className="text-lg sm:text-xl font-display font-extrabold text-foreground">Nv. {gamification.level}</p>
+              <p className="text-[9px] sm:text-[10px] text-muted-foreground">{getLevelInfo(gamification.xp).title}</p>
+            </div>
+          </div>
+        </motion.div>
+
         {/* Gamification — Insígnias */}
         {badges.length > 0 && (
           <motion.div
