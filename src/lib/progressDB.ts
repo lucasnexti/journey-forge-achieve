@@ -84,7 +84,7 @@ export async function savePartialProgressDB(
   lessonId: string,
   watchedSeconds: number
 ) {
-  await supabase.from("lesson_progress").upsert(
+  const { error } = await supabase.from("lesson_progress").upsert(
     {
       user_id: userId,
       track_id: trackId,
@@ -94,6 +94,7 @@ export async function savePartialProgressDB(
     },
     { onConflict: "user_id,lesson_id" }
   );
+  if (error) console.error("savePartialProgressDB error:", error);
 }
 
 export async function markLessonCompleteDB(
@@ -102,7 +103,7 @@ export async function markLessonCompleteDB(
   lessonId: string,
   watchedSeconds: number
 ) {
-  await supabase.from("lesson_progress").upsert(
+  const { error } = await supabase.from("lesson_progress").upsert(
     {
       user_id: userId,
       track_id: trackId,
@@ -113,6 +114,7 @@ export async function markLessonCompleteDB(
     },
     { onConflict: "user_id,lesson_id" }
   );
+  if (error) console.error("markLessonCompleteDB error:", error);
 
   // Update last_active_at on profile
   await supabase

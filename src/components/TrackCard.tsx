@@ -63,8 +63,11 @@ const TrackCard = ({
           completed++;
         } else {
           const dur = lesson.duration || 0;
+          const ws = lp.watched_seconds || 0;
           if (dur > 0) {
-            totalPercent += Math.min(((lp.watched_seconds || 0) / dur) * 100, 99);
+            totalPercent += Math.min((ws / dur) * 100, 99);
+          } else if (ws > 0) {
+            totalPercent += Math.min(ws / 60 * 10, 90);
           }
         }
       });

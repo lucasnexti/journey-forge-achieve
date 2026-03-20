@@ -109,7 +109,10 @@ const TrackPage = () => {
           if (!lp) return acc;
           if (lp.completed) return acc + 100;
           const dur = lesson.duration || 0;
-          if (dur <= 0) return acc;
+          if (dur <= 0) {
+            // No duration set: use watched_seconds > 0 as partial indicator
+            return acc + (lp.watched_seconds > 0 ? Math.min(lp.watched_seconds / 60 * 10, 90) : 0);
+          }
           return acc + Math.min((lp.watched_seconds / dur) * 100, 99);
         }, 0) / lessons.length
       )
@@ -118,11 +121,13 @@ const TrackPage = () => {
 
   const handleLessonComplete = async (watchedSeconds: number) => {
     if (!user || !trackId) return;
+    console.log("handleLessonComplete called:", { userId: user.id, trackId, lessonId: currentLessonId, watchedSeconds });
     await markLessonCompleteDB(user.id, trackId, currentLessonId, watchedSeconds);
     setProgress((prev) => ({
       ...prev,
       [currentLessonId]: { completed: true, watched_seconds: watchedSeconds },
     }));
+    console.log("Lesson marked complete, progress updated");
   };
 
   const handleProgress = useCallback(async (watchedSeconds: number) => {
