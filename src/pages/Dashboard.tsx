@@ -111,7 +111,14 @@ const Dashboard = () => {
   const enrolledTracks = tracks.filter((t) => t.enrollments?.length > 0 && !t.enrollments?.some((e) => e.status === "completed"));
   const notStartedTracks = tracks.filter((t) => !t.enrollments || t.enrollments.length === 0);
   const completedTracks = tracks.filter((t) => t.enrollments?.some((e) => e.status === "completed"));
-  const overallProgress = tracks.length > 0 ? Math.round((completedCount / tracks.length) * 100) : 0;
+
+  // Calculate progress based on completed lessons across enrolled tracks
+  const enrolledOrCompletedTracks = tracks.filter((t) => t.enrollments?.length > 0);
+  const totalLessonsInEnrolled = enrolledOrCompletedTracks.reduce((sum, t) => sum + (t.lessons?.length || 0), 0);
+  const completedLessonsInEnrolled = enrolledOrCompletedTracks.reduce((sum, t) => {
+    return sum + (t.lessons?.filter((l) => completedLessonIds.has(l.id)).length || 0);
+  }, 0);
+  const overallProgress = totalLessonsInEnrolled > 0 ? Math.round((completedLessonsInEnrolled / totalLessonsInEnrolled) * 100) : 0;
 
   const formatTime = (secs: number) => {
     if (secs < 60) return `${secs}s`;
