@@ -157,7 +157,23 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
 
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 
-  // Vimeo embed
+  // Vimeo embed - auto-start timer to track time spent on page
+  useEffect(() => {
+    if (!vimeo) return;
+    // Auto-start a timer assuming the user is watching the Vimeo video
+    const timer = setInterval(() => {
+      setCurrentTime((prev) => {
+        const next = prev + 1;
+        if (next - lastSavedRef.current >= PROGRESS_SAVE_INTERVAL) {
+          lastSavedRef.current = next;
+          onProgress?.(Math.round(next));
+        }
+        return next;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [vimeo, videoUrl, onProgress]);
+
   if (vimeo) {
     const embedUrl = getVimeoEmbedUrl(videoUrl) + (getVimeoEmbedUrl(videoUrl).includes("?") ? "&" : "?") + "autoplay=0&title=0&byline=0&portrait=0";
 
@@ -187,8 +203,8 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
             </button>
           )}
 
-          <span className="text-[10px] sm:text-xs text-muted-foreground ml-2">
-            Use os controles do player Vimeo acima
+          <span className="tabular-nums text-[10px] sm:text-xs text-muted-foreground ml-2">
+            ⏱ {formatTime(currentTime)}
           </span>
 
           <div className="flex-1" />
