@@ -134,7 +134,7 @@ const AdminTreinamentoPresencial = () => {
   }
 
   return (
-    <AdminLayout title="Treinamento Presencial">
+    <AdminLayout>
       {/* Tabs */}
       <div className="flex gap-2 mb-6">
         <Button variant={tab === "modules" ? "default" : "outline"} size="sm" onClick={() => setTab("modules")}>
