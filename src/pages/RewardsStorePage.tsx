@@ -1,14 +1,17 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { getUserGamificationData, getLevelInfo, LEVELS } from "@/lib/gamification";
+import { getUserGamificationData, getLevelInfo } from "@/lib/gamification";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
-import { Coins, Flame, TrendingUp, ShoppingBag, Gift, Clock, CheckCircle2, Package } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Coins, Flame, TrendingUp, ShoppingBag, Gift, Clock,
+  Package, Star, Zap, Crown, ArrowRight, Sparkles,
+} from "lucide-react";
 
 interface Reward {
   id: string;
@@ -37,6 +40,7 @@ const RewardsStorePage = () => {
   const [loading, setLoading] = useState(true);
   const [redeeming, setRedeeming] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"store" | "history">("store");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -62,30 +66,17 @@ const RewardsStorePage = () => {
       toast.error("Moedas insuficientes para este prêmio.");
       return;
     }
-
     setRedeeming(reward.id);
-
-    // Deduct coins
     await supabase.from("coin_transactions").insert({
-      user_id: user.id,
-      amount: -reward.cost,
-      reason: `Resgate: ${reward.name}`,
-      reference_type: "redemption",
-      reference_id: reward.id,
+      user_id: user.id, amount: -reward.cost,
+      reason: `Resgate: ${reward.name}`, reference_type: "redemption", reference_id: reward.id,
     });
-
-    // Create redemption
     await supabase.from("reward_redemptions").insert({
-      user_id: user.id,
-      reward_id: reward.id,
-      cost: reward.cost,
+      user_id: user.id, reward_id: reward.id, cost: reward.cost,
     });
-
     setGamification((prev) => ({ ...prev, coins: prev.coins - reward.cost }));
     toast.success(`🎉 Prêmio "${reward.name}" resgatado! Aguarde a aprovação.`);
     setRedeeming(null);
-
-    // Refresh redemptions
     const { data: newRedemptions } = await supabase
       .from("reward_redemptions")
       .select("id, cost, status, created_at, reward_id")
@@ -95,11 +86,16 @@ const RewardsStorePage = () => {
   };
 
   const levelInfo = getLevelInfo(gamification.xp);
-  const statusLabels: Record<string, { label: string; color: string }> = {
-    pending: { label: "Pendente", color: "bg-warning/10 text-warning" },
-    approved: { label: "Aprovado", color: "bg-primary/10 text-primary" },
-    delivered: { label: "Entregue", color: "bg-green-500/10 text-green-600" },
-    rejected: { label: "Recusado", color: "bg-destructive/10 text-destructive" },
+  const categories = [...new Set(rewards.map((r) => r.category).filter(Boolean))] as string[];
+  const filteredRewards = selectedCategory
+    ? rewards.filter((r) => r.category === selectedCategory)
+    : rewards;
+
+  const statusLabels: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
+    pending: { label: "Pendente", icon: <Clock className="h-3.5 w-3.5" />, color: "bg-warning/10 text-warning border-warning/20" },
+    approved: { label: "Aprovado", icon: <Star className="h-3.5 w-3.5" />, color: "bg-primary/10 text-primary border-primary/20" },
+    delivered: { label: "Entregue", icon: <Package className="h-3.5 w-3.5" />, color: "bg-success/10 text-success border-success/20" },
+    rejected: { label: "Recusado", icon: <Zap className="h-3.5 w-3.5" />, color: "bg-destructive/10 text-destructive border-destructive/20" },
   };
 
   if (loading) {
@@ -117,176 +113,361 @@ const RewardsStorePage = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      <div className="container py-4 sm:py-8">
-        {/* Gamification Stats */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
-          {/* Coins */}
-          <div className="card-surface p-4 text-center">
-            <Coins className="h-6 w-6 mx-auto text-yellow-500 mb-1" />
-            <p className="text-2xl font-display font-extrabold text-foreground tabular-nums">{gamification.coins}</p>
-            <p className="text-[10px] text-muted-foreground">Nexti Coins</p>
-          </div>
-          {/* Level */}
-          <div className="card-surface p-4 text-center">
-            <TrendingUp className="h-6 w-6 mx-auto text-primary mb-1" />
-            <p className="text-2xl font-display font-extrabold text-foreground">{levelInfo.level}</p>
-            <p className="text-[10px] text-muted-foreground">{levelInfo.title}</p>
-            <Progress value={levelInfo.progressToNext} className="h-1 mt-2" />
-          </div>
-          {/* Streak */}
-          <div className="card-surface p-4 text-center">
-            <Flame className="h-6 w-6 mx-auto text-orange-500 mb-1" />
-            <p className="text-2xl font-display font-extrabold text-foreground tabular-nums">{gamification.streak}</p>
-            <p className="text-[10px] text-muted-foreground">Dias seguidos</p>
-          </div>
-          {/* XP */}
-          <div className="card-surface p-4 text-center">
-            <Gift className="h-6 w-6 mx-auto text-purple-500 mb-1" />
-            <p className="text-2xl font-display font-extrabold text-foreground tabular-nums">{gamification.xp}</p>
-            <p className="text-[10px] text-muted-foreground">XP Total</p>
-          </div>
-        </motion.div>
+      {/* Hero Banner */}
+      <div className="relative overflow-hidden bg-gradient-nexti">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-white/20 blur-3xl" />
+          <div className="absolute -bottom-10 -left-10 h-48 w-48 rounded-full bg-white/15 blur-2xl" />
+        </div>
+        <div className="container relative py-6 sm:py-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <h1 className="font-display text-xl sm:text-2xl font-extrabold text-primary-foreground flex items-center gap-2">
+                <Sparkles className="h-6 w-6" />
+                Loja Nexti
+              </h1>
+              <p className="text-primary-foreground/80 text-sm mt-1">
+                Troque suas moedas por prêmios exclusivos
+              </p>
+            </div>
 
-        {/* Tabs */}
-        <div className="flex gap-2 mb-4">
-          <Button
-            variant={activeTab === "store" ? "default" : "outline"}
-            size="sm"
+            {/* Coin Balance Pill */}
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="flex items-center gap-3 rounded-2xl bg-white/15 backdrop-blur-md border border-white/20 px-5 py-3"
+            >
+              <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-white/20">
+                <Coins className="h-5 w-5 text-primary-foreground" />
+              </div>
+              <div>
+                <p className="text-2xl font-display font-extrabold text-primary-foreground tabular-nums leading-none">
+                  {gamification.coins.toLocaleString("pt-BR")}
+                </p>
+                <p className="text-[11px] text-primary-foreground/70 font-medium">Nexti Coins</p>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Stats Row */}
+          <div className="grid grid-cols-3 gap-3 mt-5">
+            <div className="rounded-xl bg-white/10 backdrop-blur-sm border border-white/10 p-3 text-center">
+              <div className="flex items-center justify-center gap-1.5 mb-1">
+                <Crown className="h-4 w-4 text-primary-foreground/80" />
+                <span className="text-xs font-semibold text-primary-foreground/80">Nível</span>
+              </div>
+              <p className="text-lg font-display font-extrabold text-primary-foreground leading-none">{levelInfo.level}</p>
+              <p className="text-[10px] text-primary-foreground/60 mt-0.5">{levelInfo.title}</p>
+              <Progress value={levelInfo.progressToNext} className="h-1 mt-2 bg-white/20 [&>div]:bg-white" />
+            </div>
+            <div className="rounded-xl bg-white/10 backdrop-blur-sm border border-white/10 p-3 text-center">
+              <div className="flex items-center justify-center gap-1.5 mb-1">
+                <Flame className="h-4 w-4 text-primary-foreground/80" />
+                <span className="text-xs font-semibold text-primary-foreground/80">Streak</span>
+              </div>
+              <p className="text-lg font-display font-extrabold text-primary-foreground leading-none tabular-nums">{gamification.streak}</p>
+              <p className="text-[10px] text-primary-foreground/60 mt-0.5">dias seguidos</p>
+            </div>
+            <div className="rounded-xl bg-white/10 backdrop-blur-sm border border-white/10 p-3 text-center">
+              <div className="flex items-center justify-center gap-1.5 mb-1">
+                <TrendingUp className="h-4 w-4 text-primary-foreground/80" />
+                <span className="text-xs font-semibold text-primary-foreground/80">XP</span>
+              </div>
+              <p className="text-lg font-display font-extrabold text-primary-foreground leading-none tabular-nums">{gamification.xp.toLocaleString("pt-BR")}</p>
+              <p className="text-[10px] text-primary-foreground/60 mt-0.5">experiência total</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="container py-5 sm:py-8">
+        {/* Tab Bar */}
+        <div className="flex items-center gap-1 p-1 rounded-xl bg-muted/60 w-fit mb-6">
+          <button
             onClick={() => setActiveTab("store")}
-            className={activeTab === "store" ? "bg-gradient-nexti text-primary-foreground" : ""}
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+              activeTab === "store"
+                ? "bg-card text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
           >
-            <ShoppingBag className="h-4 w-4 mr-1.5" />
-            Loja de Prêmios
-          </Button>
-          <Button
-            variant={activeTab === "history" ? "default" : "outline"}
-            size="sm"
+            <ShoppingBag className="h-4 w-4" />
+            Prêmios
+          </button>
+          <button
             onClick={() => setActiveTab("history")}
-            className={activeTab === "history" ? "bg-gradient-nexti text-primary-foreground" : ""}
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+              activeTab === "history"
+                ? "bg-card text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
           >
-            <Clock className="h-4 w-4 mr-1.5" />
+            <Clock className="h-4 w-4" />
             Histórico
-          </Button>
+            {redemptions.length > 0 && (
+              <span className="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
+                {redemptions.length}
+              </span>
+            )}
+          </button>
         </div>
 
-        {activeTab === "store" ? (
-          <>
-            {rewards.length === 0 ? (
-              <div className="card-surface p-12 text-center">
-                <Gift className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-                <p className="text-muted-foreground">Nenhum prêmio disponível no momento.</p>
-                <p className="text-xs text-muted-foreground mt-1">Continue acumulando moedas!</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                {rewards.map((reward, i) => {
-                  const canAfford = gamification.coins >= reward.cost;
-                  const outOfStock = reward.stock !== null && reward.stock <= 0;
-                  return (
-                    <motion.div
-                      key={reward.id}
-                      initial={{ opacity: 0, y: 16 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.05 }}
-                      className="card-surface overflow-hidden flex flex-col"
+        <AnimatePresence mode="wait">
+          {activeTab === "store" ? (
+            <motion.div
+              key="store"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+            >
+              {/* Category Filter */}
+              {categories.length > 0 && (
+                <div className="flex items-center gap-2 mb-5 overflow-x-auto pb-1 scrollbar-hide">
+                  <button
+                    onClick={() => setSelectedCategory(null)}
+                    className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all border ${
+                      !selectedCategory
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-card text-muted-foreground border-border hover:border-primary/30 hover:text-foreground"
+                    }`}
+                  >
+                    Todos
+                  </button>
+                  {categories.map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => setSelectedCategory(cat)}
+                      className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all border ${
+                        selectedCategory === cat
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-card text-muted-foreground border-border hover:border-primary/30 hover:text-foreground"
+                      }`}
                     >
-                      {/* Image placeholder */}
-                      <div className="h-32 sm:h-40 bg-gradient-to-br from-primary/5 to-primary/10 flex items-center justify-center">
-                        {reward.image_url ? (
-                          <img src={reward.image_url} alt={reward.name} className="h-full w-full object-cover" />
-                        ) : (
-                          <Gift className="h-12 w-12 text-primary/30" />
-                        )}
-                      </div>
-                      <div className="p-4 flex flex-col flex-1">
-                        {reward.category && (
-                          <Badge variant="secondary" className="text-[10px] w-fit mb-2">{reward.category}</Badge>
-                        )}
-                        <h3 className="font-display text-sm font-semibold text-foreground">{reward.name}</h3>
-                        {reward.description && (
-                          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{reward.description}</p>
-                        )}
-                        <div className="mt-auto pt-3 flex items-center justify-between">
-                          <span className="flex items-center gap-1 text-sm font-bold text-yellow-600 dark:text-yellow-400">
-                            <Coins className="h-4 w-4" />
-                            {reward.cost}
-                          </span>
-                          <Button
-                            size="sm"
-                            disabled={!canAfford || outOfStock || redeeming === reward.id}
-                            onClick={() => handleRedeem(reward)}
-                            className={canAfford && !outOfStock ? "bg-gradient-nexti text-primary-foreground hover:opacity-90" : ""}
-                          >
-                            {outOfStock ? "Esgotado" : redeeming === reward.id ? "..." : canAfford ? "Resgatar" : "Moedas insuf."}
-                          </Button>
-                        </div>
-                        {reward.stock !== null && (
-                          <p className="text-[10px] text-muted-foreground mt-1 text-right">{reward.stock} restantes</p>
-                        )}
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            )}
-          </>
-        ) : (
-          <div className="space-y-4">
-            {/* Redemptions */}
-            {redemptions.length > 0 && (
-              <div className="card-surface p-4 sm:p-6">
-                <h3 className="font-display text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-                  <Package className="h-4 w-4 text-primary" />
-                  Meus Resgates
-                </h3>
-                <div className="space-y-2">
-                  {redemptions.map((r) => {
-                    const reward = rewards.find((rw) => rw.id === r.reward_id);
-                    const st = statusLabels[r.status] || statusLabels.pending;
-                    return (
-                      <div key={r.id} className="flex items-center justify-between rounded-lg border border-border/50 p-3 gap-2">
-                        <div className="min-w-0">
-                          <p className="text-sm font-medium text-foreground truncate">{reward?.name || "Prêmio"}</p>
-                          <p className="text-[10px] text-muted-foreground">
-                            {new Date(r.created_at).toLocaleDateString("pt-BR")} · {r.cost} moedas
-                          </p>
-                        </div>
-                        <Badge variant="secondary" className={`text-[10px] shrink-0 ${st.color}`}>
-                          {st.label}
-                        </Badge>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Transaction history */}
-            <div className="card-surface p-4 sm:p-6">
-              <h3 className="font-display text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-                <Coins className="h-4 w-4 text-yellow-500" />
-                Histórico de Moedas
-              </h3>
-              {transactions.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Nenhuma transação ainda.</p>
-              ) : (
-                <div className="space-y-1">
-                  {transactions.map((tx, i) => (
-                    <div key={i} className="flex items-center justify-between py-2 border-b border-border/30 last:border-0">
-                      <div>
-                        <p className="text-sm text-foreground">{tx.reason}</p>
-                        <p className="text-[10px] text-muted-foreground">{new Date(tx.created_at).toLocaleDateString("pt-BR")}</p>
-                      </div>
-                      <span className={`text-sm font-bold tabular-nums ${tx.amount > 0 ? "text-green-600 dark:text-green-400" : "text-destructive"}`}>
-                        {tx.amount > 0 ? "+" : ""}{tx.amount}
-                      </span>
-                    </div>
+                      {cat}
+                    </button>
                   ))}
                 </div>
               )}
-            </div>
-          </div>
-        )}
+
+              {filteredRewards.length === 0 ? (
+                <div className="card-surface p-16 text-center">
+                  <div className="mx-auto w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
+                    <Gift className="h-8 w-8 text-primary/40" />
+                  </div>
+                  <p className="text-foreground font-semibold">Nenhum prêmio disponível</p>
+                  <p className="text-sm text-muted-foreground mt-1">Continue acumulando moedas! Novos prêmios em breve.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredRewards.map((reward, i) => {
+                    const canAfford = gamification.coins >= reward.cost;
+                    const outOfStock = reward.stock !== null && reward.stock <= 0;
+                    const affordPercent = Math.min(100, (gamification.coins / reward.cost) * 100);
+
+                    return (
+                      <motion.div
+                        key={reward.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.04 }}
+                        className="group card-surface-hover overflow-hidden flex flex-col"
+                      >
+                        {/* Image */}
+                        <div className="relative h-40 sm:h-44 bg-gradient-to-br from-muted/80 to-muted flex items-center justify-center overflow-hidden">
+                          {reward.image_url ? (
+                            <img
+                              src={reward.image_url}
+                              alt={reward.name}
+                              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            />
+                          ) : (
+                            <div className="flex flex-col items-center gap-2">
+                              <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+                                <Gift className="h-8 w-8 text-primary/30" />
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Stock badge */}
+                          {reward.stock !== null && reward.stock > 0 && reward.stock <= 5 && (
+                            <div className="absolute top-3 left-3">
+                              <Badge className="bg-destructive/90 text-destructive-foreground text-[10px] border-0 shadow-sm">
+                                Últimas {reward.stock} unidades!
+                              </Badge>
+                            </div>
+                          )}
+                          {outOfStock && (
+                            <div className="absolute inset-0 bg-background/60 backdrop-blur-sm flex items-center justify-center">
+                              <Badge className="bg-muted text-muted-foreground text-xs border-0">Esgotado</Badge>
+                            </div>
+                          )}
+
+                          {/* Category pill */}
+                          {reward.category && (
+                            <div className="absolute top-3 right-3">
+                              <Badge variant="secondary" className="text-[10px] bg-card/80 backdrop-blur-sm border-0 shadow-sm">
+                                {reward.category}
+                              </Badge>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Content */}
+                        <div className="p-4 flex flex-col flex-1">
+                          <h3 className="font-display text-sm font-bold text-foreground leading-snug">{reward.name}</h3>
+                          {reward.description && (
+                            <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2 leading-relaxed">{reward.description}</p>
+                          )}
+
+                          <div className="mt-auto pt-4 space-y-3">
+                            {/* Price & afford progress */}
+                            <div>
+                              <div className="flex items-center justify-between mb-1.5">
+                                <span className="flex items-center gap-1.5 text-sm font-extrabold text-foreground">
+                                  <Coins className="h-4 w-4 text-warning" />
+                                  {reward.cost.toLocaleString("pt-BR")}
+                                </span>
+                                {!canAfford && (
+                                  <span className="text-[10px] text-muted-foreground">
+                                    faltam {(reward.cost - gamification.coins).toLocaleString("pt-BR")}
+                                  </span>
+                                )}
+                              </div>
+                              {!canAfford && (
+                                <Progress value={affordPercent} className="h-1.5 bg-muted [&>div]:bg-gradient-nexti" />
+                              )}
+                            </div>
+
+                            <Button
+                              size="sm"
+                              disabled={!canAfford || outOfStock || redeeming === reward.id}
+                              onClick={() => handleRedeem(reward)}
+                              className={`w-full h-9 text-xs font-bold ${
+                                canAfford && !outOfStock
+                                  ? "bg-gradient-nexti text-primary-foreground hover:opacity-90 shadow-sm"
+                                  : ""
+                              }`}
+                            >
+                              {outOfStock ? (
+                                "Esgotado"
+                              ) : redeeming === reward.id ? (
+                                <span className="flex items-center gap-1.5">
+                                  <div className="h-3 w-3 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+                                  Resgatando...
+                                </span>
+                              ) : canAfford ? (
+                                <span className="flex items-center gap-1.5">
+                                  Resgatar
+                                  <ArrowRight className="h-3.5 w-3.5" />
+                                </span>
+                              ) : (
+                                "Moedas insuficientes"
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              )}
+            </motion.div>
+          ) : (
+            <motion.div
+              key="history"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+              className="space-y-6"
+            >
+              {/* Redemptions */}
+              {redemptions.length > 0 && (
+                <div className="card-surface p-5 sm:p-6">
+                  <h3 className="font-display text-sm font-bold text-foreground mb-4 flex items-center gap-2">
+                    <Package className="h-4 w-4 text-primary" />
+                    Meus Resgates
+                  </h3>
+                  <div className="space-y-2.5">
+                    {redemptions.map((r, i) => {
+                      const reward = rewards.find((rw) => rw.id === r.reward_id);
+                      const st = statusLabels[r.status] || statusLabels.pending;
+                      return (
+                        <motion.div
+                          key={r.id}
+                          initial={{ opacity: 0, x: -8 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: i * 0.03 }}
+                          className="flex items-center gap-3 rounded-xl border border-border/50 p-3.5 bg-card hover:bg-muted/30 transition-colors"
+                        >
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+                            <Gift className="h-5 w-5 text-primary" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-semibold text-foreground truncate">{reward?.name || "Prêmio"}</p>
+                            <p className="text-[11px] text-muted-foreground mt-0.5">
+                              {new Date(r.created_at).toLocaleDateString("pt-BR")} · {r.cost.toLocaleString("pt-BR")} moedas
+                            </p>
+                          </div>
+                          <Badge variant="outline" className={`text-[10px] shrink-0 gap-1 ${st.color}`}>
+                            {st.icon}
+                            {st.label}
+                          </Badge>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Transaction history */}
+              <div className="card-surface p-5 sm:p-6">
+                <h3 className="font-display text-sm font-bold text-foreground mb-4 flex items-center gap-2">
+                  <Coins className="h-4 w-4 text-warning" />
+                  Histórico de Moedas
+                </h3>
+                {transactions.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Coins className="h-8 w-8 mx-auto text-muted-foreground/30 mb-2" />
+                    <p className="text-sm text-muted-foreground">Nenhuma transação ainda.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-0.5">
+                    {transactions.map((tx, i) => (
+                      <motion.div
+                        key={i}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: i * 0.02 }}
+                        className="flex items-center gap-3 py-3 border-b border-border/30 last:border-0"
+                      >
+                        <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
+                          tx.amount > 0 ? "bg-success/10" : "bg-destructive/10"
+                        }`}>
+                          {tx.amount > 0 ? (
+                            <TrendingUp className="h-4 w-4 text-success" />
+                          ) : (
+                            <ShoppingBag className="h-4 w-4 text-destructive" />
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm text-foreground truncate">{tx.reason}</p>
+                          <p className="text-[10px] text-muted-foreground">{new Date(tx.created_at).toLocaleDateString("pt-BR")}</p>
+                        </div>
+                        <span className={`text-sm font-bold tabular-nums shrink-0 ${
+                          tx.amount > 0 ? "text-success" : "text-destructive"
+                        }`}>
+                          {tx.amount > 0 ? "+" : ""}{tx.amount.toLocaleString("pt-BR")}
+                        </span>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
