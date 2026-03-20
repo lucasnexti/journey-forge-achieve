@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import Header from "@/components/Header";
+import AppLayout from "@/components/AppLayout";
 import { motion, AnimatePresence } from "framer-motion";
 import { BookOpen, Trophy, CheckCircle2, XCircle, ArrowRight, RotateCcw, Award, Zap, Target, ChevronRight, Clock, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -256,8 +256,7 @@ const QuizNextiPage = () => {
   const progress = questions.length > 0 ? ((currentIdx + 1) / questions.length) * 100 : 0;
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <AppLayout>
 
       <div className="container py-8 max-w-4xl">
         <AnimatePresence mode="wait">
@@ -269,7 +268,7 @@ const QuizNextiPage = () => {
                 <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-semibold mb-4">
                   <Zap className="h-4 w-4" />
                   Quiz Nexti
-                </div>
+                </AppLayout>
                 <h1 className="font-display text-3xl font-extrabold text-foreground mb-2">
                   Teste seus conhecimentos
                 </h1>

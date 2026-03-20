@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import Header from "@/components/Header";
+import AppLayout from "@/components/AppLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Clock, Trophy, BookOpen, Users, Building2, Search } from "lucide-react";
@@ -113,18 +113,16 @@ const ReportPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
+      <AppLayout>
         <div className="flex items-center justify-center py-32">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-        </div>
+        </AppLayout>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <AppLayout>
 
       <div className="bg-gradient-nexti">
         <div className="container py-6 sm:py-10">
@@ -133,7 +131,7 @@ const ReportPage = () => {
             <h1 className="font-display text-lg sm:text-3xl font-extrabold text-primary-foreground truncate">
               Relatórios — {empresa || "Sua Empresa"}
             </h1>
-          </div>
+          </AppLayout>
           <p className="mt-1 text-xs sm:text-sm text-primary-foreground/80">
             Acompanhe o progresso de todos os colaboradores.
           </p>

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import Header from "@/components/Header";
+import AppLayout from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -147,18 +147,16 @@ const ProfilePage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
+      <AppLayout>
         <div className="flex items-center justify-center py-32">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-        </div>
+        </AppLayout>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <AppLayout>
 
       <div className="bg-gradient-nexti">
         <div className="container py-6 sm:py-10">
@@ -171,7 +169,7 @@ const ProfilePage = () => {
                 ) : (
                   <User className="h-6 w-6 sm:h-8 sm:w-8 text-primary-foreground" />
                 )}
-              </div>
+              </AppLayout>
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploadingAvatar}

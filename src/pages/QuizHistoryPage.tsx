@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import Header from "@/components/Header";
+import AppLayout from "@/components/AppLayout";
 import { History, CheckCircle2, XCircle, Clock } from "lucide-react";
 
 interface Attempt {
@@ -48,25 +48,23 @@ const QuizHistoryPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
+      <AppLayout>
         <div className="flex items-center justify-center py-32">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-        </div>
+        </AppLayout>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <AppLayout>
 
       <div className="bg-gradient-nexti">
         <div className="container py-10">
           <div className="flex items-center gap-3">
             <History className="h-6 w-6 text-primary-foreground" />
             <h1 className="font-display text-3xl font-extrabold text-primary-foreground">Histórico de Avaliações</h1>
-          </div>
+          </AppLayout>
           <p className="mt-2 text-primary-foreground/80">Todas as suas tentativas de avaliações.</p>
         </div>
       </div>

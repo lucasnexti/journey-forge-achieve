@@ -5,10 +5,10 @@ import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { supabase } from "@/integrations/supabase/client";
 import { getUserStats, getLastWatchedLesson } from "@/lib/progressDB";
 import { getUserGamificationData, updateStreak, getLevelInfo } from "@/lib/gamification";
-import Header from "@/components/Header";
+import AppLayout from "@/components/AppLayout";
 import TrackCard from "@/components/TrackCard";
 import OnboardingWizard from "@/components/OnboardingWizard";
-import { BookOpen, Clock, Trophy, Play, Search, Filter, Star, Heart, TrendingUp, Target, Award, Coins, Flame } from "lucide-react";
+import { BookOpen, Clock, Trophy, Play, Search, Heart, TrendingUp, Target, Award, Coins, Flame, ArrowRight, Sparkles } from "lucide-react";
 import LinkedInShare from "@/components/LinkedInShare";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
@@ -43,8 +43,6 @@ const Dashboard = () => {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [profileName, setProfileName] = useState("");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  
 
   useEffect(() => {
     if (!user) return;
@@ -58,39 +56,31 @@ const Dashboard = () => {
           .order("order_index"),
         getUserStats(user.id),
         getLastWatchedLesson(user.id),
-        supabase.from("user_badges").select("badges(name, icon)").eq("user_id", user.id),
-        supabase.from("badges").select("name, icon, description, criteria_type, criteria_value"),
-        supabase.from("profiles").select("onboarding_completed, nome").eq("user_id", user.id).maybeSingle(),
+        supabase.from("user_badges").select("badge_id").eq("user_id", user.id),
+        supabase.from("badges").select("id, name, icon"),
+        supabase.from("profiles").select("nome, onboarding_completed").eq("user_id", user.id).maybeSingle(),
         supabase.from("track_favorites").select("track_id").eq("user_id", user.id),
         getUserGamificationData(user.id),
       ]);
-
-      // Update streak on dashboard load
-      updateStreak(user.id).catch(console.error);
 
       setTracks((trackData as unknown as TrackRow[]) || []);
       setStats(statsData);
       setLastLesson(lastData);
       setGamification(gData);
 
-      const earnedNames = new Set((userBadges || []).map((ub: any) => ub.badges?.name));
-      setBadges(
-        (allBadges || []).map((b: any) => ({
-          name: b.name || "",
-          icon: b.icon || "award",
-          earned: earnedNames.has(b.name),
-        }))
-      );
-      setFavorites(new Set((favData || []).map((f: any) => f.track_id)));
-      setProfileName(profileData?.nome?.split(" ")[0] || "");
+      const earnedSet = new Set((userBadges || []).map((b: any) => b.badge_id));
+      setBadges((allBadges || []).map((b: any) => ({ name: b.name, icon: b.icon || "award", earned: earnedSet.has(b.id) })));
 
-      if (profileData && !profileData.onboarding_completed) {
-        setShowOnboarding(true);
+      if (profileData) {
+        setProfileName(profileData.nome || "");
+        if (!profileData.onboarding_completed) setShowOnboarding(true);
       }
 
+      setFavorites(new Set((favData || []).map((f: any) => f.track_id)));
       setLoading(false);
-    };
 
+      updateStreak(user.id).catch(() => {});
+    };
     load();
   }, [user]);
 
@@ -115,7 +105,9 @@ const Dashboard = () => {
   };
 
   const completedCount = tracks.filter((t) => t.enrollments?.some((e) => e.status === "completed")).length;
-  const enrolledCount = tracks.filter((t) => t.enrollments?.length > 0).length;
+  const enrolledTracks = tracks.filter((t) => t.enrollments?.length > 0 && !t.enrollments?.some((e) => e.status === "completed"));
+  const notStartedTracks = tracks.filter((t) => !t.enrollments || t.enrollments.length === 0);
+  const completedTracks = tracks.filter((t) => t.enrollments?.some((e) => e.status === "completed"));
   const overallProgress = tracks.length > 0 ? Math.round((completedCount / tracks.length) * 100) : 0;
 
   const formatTime = (secs: number) => {
@@ -131,124 +123,137 @@ const Dashboard = () => {
     return "Boa noite";
   };
 
+  const levelInfo = getLevelInfo(gamification.xp);
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
+      <AppLayout>
         <div className="flex items-center justify-center py-32">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
         </div>
-      </div>
+      </AppLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <AppLayout>
       {showOnboarding && <OnboardingWizard onComplete={() => setShowOnboarding(false)} />}
-      <Header />
 
-      <div className="container py-4 sm:py-8">
-        {/* Welcome & Continue */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
-          {/* Welcome card */}
-          <div className="lg:col-span-2">
+      {/* Hero Banner */}
+      <div className="relative overflow-hidden bg-gradient-nexti">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-white/20 blur-3xl" />
+          <div className="absolute -bottom-10 -left-10 h-48 w-48 rounded-full bg-white/15 blur-2xl" />
+        </div>
+        <div className="relative px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
-              <h1 className="font-display text-xl sm:text-2xl lg:text-3xl font-extrabold text-foreground">
+              <h1 className="font-display text-xl sm:text-2xl lg:text-3xl font-extrabold text-primary-foreground">
                 {greeting()}{profileName ? `, ${profileName}` : ""} 👋
               </h1>
-              <p className="mt-1 text-sm text-muted-foreground">
+              <p className="mt-1 text-sm text-primary-foreground/80">
                 {completedCount === 0
                   ? "Comece sua jornada de aprendizado explorando as trilhas disponíveis."
                   : `Você completou ${completedCount} de ${tracks.length} trilhas. Continue assim!`}
               </p>
             </motion.div>
 
-            {/* Continue learning */}
-            {lastLesson && (
-              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mt-4">
-                <button
-                  onClick={() => navigate(`/trilha/${lastLesson.track_id}`)}
-                  className="w-full card-surface-hover flex items-center gap-3 sm:gap-4 p-3 sm:p-4 text-left group"
-                >
-                  <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-nexti shadow-md shadow-primary/20">
-                    <Play className="h-4 w-4 sm:h-5 sm:w-5 text-primary-foreground" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-primary">
-                      Continuar aprendendo
-                    </p>
-                    <p className="mt-0.5 font-display text-sm font-semibold text-foreground truncate">
-                      {lastLesson.lesson_title}
-                    </p>
-                    <p className="text-xs text-muted-foreground truncate">{lastLesson.track_title}</p>
-                  </div>
-                  <Play className="h-4 w-4 text-primary shrink-0 transition-transform group-hover:translate-x-1" />
-                </button>
-              </motion.div>
-            )}
+            {/* Stats pills */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.1 }}
+              className="flex items-center gap-2 flex-wrap"
+            >
+              <Link to="/loja" className="flex items-center gap-2 rounded-xl bg-white/15 backdrop-blur-md border border-white/20 px-4 py-2.5 hover:bg-white/20 transition-colors">
+                <Coins className="h-4 w-4 text-primary-foreground" />
+                <span className="text-sm font-bold text-primary-foreground tabular-nums">{gamification.coins.toLocaleString("pt-BR")}</span>
+              </Link>
+              <div className="flex items-center gap-2 rounded-xl bg-white/15 backdrop-blur-md border border-white/20 px-4 py-2.5">
+                <Flame className="h-4 w-4 text-primary-foreground" />
+                <span className="text-sm font-bold text-primary-foreground tabular-nums">{gamification.streak}d</span>
+              </div>
+              <div className="flex items-center gap-2 rounded-xl bg-white/15 backdrop-blur-md border border-white/20 px-4 py-2.5">
+                <TrendingUp className="h-4 w-4 text-primary-foreground" />
+                <span className="text-sm font-bold text-primary-foreground">Nv.{levelInfo.level}</span>
+              </div>
+            </motion.div>
           </div>
 
-          {/* Stats card */}
+          {/* Progress bar in hero */}
           <motion.div
-            initial={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="card-surface p-4 sm:p-5"
+            className="mt-5 flex items-center gap-3"
           >
-            <div className="flex items-center justify-between mb-3 sm:mb-4">
-              <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                <Target className="h-4 w-4 text-primary" />
-                Meu Progresso
-              </h3>
-              <span className="text-xl sm:text-2xl font-display font-extrabold text-gradient-nexti">{overallProgress}%</span>
+            <div className="flex-1">
+              <Progress value={overallProgress} className="h-2 bg-white/20 [&>div]:bg-white" />
             </div>
-            <Progress value={overallProgress} className="h-2 mb-3 sm:mb-4" />
-            <div className="grid grid-cols-3 gap-2 sm:gap-3">
-              {[
-                { icon: BookOpen, label: "Concluídas", value: `${completedCount}/${tracks.length}` },
-                { icon: Clock, label: "Assistido", value: formatTime(stats.totalWatched) },
-                { icon: Trophy, label: "Nota Média", value: stats.avgScore > 0 ? `${stats.avgScore}%` : "—" },
-              ].map(({ icon: Icon, label, value }) => (
-                <div key={label} className="text-center">
-                  <Icon className="mx-auto h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground mb-1" />
-                  <p className="text-xs sm:text-sm font-bold tabular-nums text-foreground">{value}</p>
-                  <p className="text-[9px] sm:text-[10px] text-muted-foreground">{label}</p>
-                </div>
-              ))}
-            </div>
+            <span className="text-sm font-bold text-primary-foreground tabular-nums">{overallProgress}%</span>
           </motion.div>
         </div>
+      </div>
 
-        {/* Gamification — Coins, Streak, Level */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }} className="mb-4 sm:mb-6">
-          <div className="grid grid-cols-3 gap-2 sm:gap-3">
-            <Link to="/loja" className="card-surface-hover p-3 sm:p-4 text-center group">
-              <Coins className="h-5 w-5 mx-auto text-yellow-500 mb-1" />
-              <p className="text-lg sm:text-xl font-display font-extrabold text-foreground tabular-nums">{gamification.coins}</p>
-              <p className="text-[9px] sm:text-[10px] text-muted-foreground">Nexti Coins</p>
-            </Link>
-            <div className="card-surface p-3 sm:p-4 text-center">
-              <Flame className="h-5 w-5 mx-auto text-orange-500 mb-1" />
-              <p className="text-lg sm:text-xl font-display font-extrabold text-foreground tabular-nums">{gamification.streak}</p>
-              <p className="text-[9px] sm:text-[10px] text-muted-foreground">Dias seguidos</p>
+      <div className="px-4 sm:px-6 lg:px-8 py-5 sm:py-6">
+        {/* Continue Learning — prominent card */}
+        {lastLesson && (
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-6">
+            <button
+              onClick={() => navigate(`/trilha/${lastLesson.track_id}`)}
+              className="w-full card-surface-hover flex items-center gap-4 p-4 sm:p-5 text-left group"
+            >
+              <div className="flex h-12 w-12 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-nexti shadow-lg shadow-primary/20">
+                <Play className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[11px] font-bold uppercase tracking-widest text-primary mb-0.5">
+                  Continuar aprendendo
+                </p>
+                <p className="font-display text-sm sm:text-base font-semibold text-foreground truncate">
+                  {lastLesson.lesson_title}
+                </p>
+                <p className="text-xs text-muted-foreground truncate">{lastLesson.track_title}</p>
+              </div>
+              <ArrowRight className="h-5 w-5 text-primary shrink-0 transition-transform group-hover:translate-x-1" />
+            </button>
+          </motion.div>
+        )}
+
+        {/* Quick stats row */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6"
+        >
+          {[
+            { icon: Target, label: "Progresso", value: `${overallProgress}%`, color: "text-primary" },
+            { icon: BookOpen, label: "Concluídas", value: `${completedCount}/${tracks.length}`, color: "text-success" },
+            { icon: Clock, label: "Tempo", value: formatTime(stats.totalWatched), color: "text-muted-foreground" },
+            { icon: Trophy, label: "Nota Média", value: stats.avgScore > 0 ? `${stats.avgScore}%` : "—", color: "text-warning" },
+          ].map(({ icon: Icon, label, value, color }) => (
+            <div key={label} className="card-surface p-3 sm:p-4 flex items-center gap-3">
+              <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-muted ${color}`}>
+                <Icon className="h-4 w-4" />
+              </div>
+              <div>
+                <p className="text-sm sm:text-base font-bold tabular-nums text-foreground">{value}</p>
+                <p className="text-[10px] text-muted-foreground">{label}</p>
+              </div>
             </div>
-            <div className="card-surface p-3 sm:p-4 text-center">
-              <TrendingUp className="h-5 w-5 mx-auto text-primary mb-1" />
-              <p className="text-lg sm:text-xl font-display font-extrabold text-foreground">Nv. {gamification.level}</p>
-              <p className="text-[9px] sm:text-[10px] text-muted-foreground">{getLevelInfo(gamification.xp).title}</p>
-            </div>
-          </div>
+          ))}
         </motion.div>
 
-        {/* Gamification — Insígnias */}
+        {/* Badges */}
         {badges.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="mb-4 sm:mb-6"
+            className="mb-6"
           >
-            <div className="flex items-center justify-between mb-2 sm:mb-3">
+            <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
                 <Award className="h-4 w-4 text-warning" />
                 Insígnias
@@ -261,21 +266,19 @@ const Dashboard = () => {
               {badges.map((badge, i) => (
                 <div
                   key={i}
-                  className={`flex items-center gap-2 shrink-0 rounded-lg border px-2.5 sm:px-3 py-1.5 sm:py-2 transition-all ${
+                  className={`flex items-center gap-2 shrink-0 rounded-lg border px-3 py-2 transition-all ${
                     badge.earned
                       ? "border-warning/30 bg-warning/5"
                       : "border-border/50 bg-card opacity-50 grayscale"
                   }`}
                 >
-                  <div className={`flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full ${
+                  <div className={`flex h-7 w-7 items-center justify-center rounded-full ${
                     badge.earned ? "bg-warning/15" : "bg-muted"
                   }`}>
-                    <Award className={`h-3 w-3 sm:h-3.5 sm:w-3.5 ${badge.earned ? "text-warning" : "text-muted-foreground"}`} />
+                    <Award className={`h-3.5 w-3.5 ${badge.earned ? "text-warning" : "text-muted-foreground"}`} />
                   </div>
-                  <span className="text-[11px] sm:text-xs font-medium text-foreground whitespace-nowrap">{badge.name}</span>
-                  {badge.earned && (
-                    <LinkedInShare type="badge" title={badge.name} compact />
-                  )}
+                  <span className="text-xs font-medium text-foreground whitespace-nowrap">{badge.name}</span>
+                  {badge.earned && <LinkedInShare type="badge" title={badge.name} compact />}
                 </div>
               ))}
             </div>
@@ -283,17 +286,17 @@ const Dashboard = () => {
         )}
 
         {/* Search & Filters */}
-        <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+        <div className="mb-5 flex flex-col sm:flex-row items-start sm:items-center gap-3">
           <div className="relative flex-1 w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input placeholder="Buscar trilha..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 h-9" />
           </div>
-          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+          <div className="flex items-center gap-1.5 flex-wrap">
             <Button
               variant={categoryFilter === null && !showFavoritesOnly ? "default" : "outline"}
               size="sm"
               onClick={() => { setCategoryFilter(null); setShowFavoritesOnly(false); }}
-              className={categoryFilter === null && !showFavoritesOnly ? "bg-gradient-nexti text-primary-foreground hover:opacity-90 h-7 sm:h-8 text-xs" : "h-7 sm:h-8 text-xs"}
+              className={categoryFilter === null && !showFavoritesOnly ? "bg-gradient-nexti text-primary-foreground hover:opacity-90 h-7 text-xs" : "h-7 text-xs"}
             >
               Todas
             </Button>
@@ -303,7 +306,7 @@ const Dashboard = () => {
                 variant={categoryFilter === cat ? "default" : "outline"}
                 size="sm"
                 onClick={() => { setCategoryFilter(cat); setShowFavoritesOnly(false); }}
-                className={categoryFilter === cat ? "bg-gradient-nexti text-primary-foreground hover:opacity-90 h-7 sm:h-8 text-xs" : "h-7 sm:h-8 text-xs"}
+                className={categoryFilter === cat ? "bg-gradient-nexti text-primary-foreground hover:opacity-90 h-7 text-xs" : "h-7 text-xs"}
               >
                 {cat}
               </Button>
@@ -312,41 +315,140 @@ const Dashboard = () => {
               variant={showFavoritesOnly ? "default" : "outline"}
               size="sm"
               onClick={() => { setShowFavoritesOnly(!showFavoritesOnly); setCategoryFilter(null); }}
-              className={showFavoritesOnly ? "bg-gradient-nexti text-primary-foreground hover:opacity-90 h-7 sm:h-8 text-xs" : "h-7 sm:h-8 text-xs"}
+              className={showFavoritesOnly ? "bg-gradient-nexti text-primary-foreground hover:opacity-90 h-7 text-xs" : "h-7 text-xs"}
             >
-              <Heart className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1" />
+              <Heart className="h-3 w-3 mr-1" />
               Favoritas
             </Button>
           </div>
         </div>
 
-        {/* Track grid */}
-        {filtered.length === 0 ? (
-          <div className="card-surface p-8 sm:p-12 text-center text-muted-foreground">
-            Nenhuma trilha encontrada.
-          </div>
+        {/* Tracks by section */}
+        {search || categoryFilter || showFavoritesOnly ? (
+          // Filtered view
+          filtered.length === 0 ? (
+            <div className="card-surface p-12 text-center text-muted-foreground">
+              Nenhuma trilha encontrada.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+              {filtered.map((track, i) => (
+                <TrackCard
+                  key={track.id}
+                  trackId={track.id}
+                  title={track.title}
+                  description={track.description || ""}
+                  category={track.category || ""}
+                  totalLessons={track.lessons?.length || 0}
+                  totalDurationSeconds={track.lessons?.reduce((sum, l) => sum + (l.duration || 0), 0) || 0}
+                  index={i}
+                  isEnrolled={track.enrollments?.length > 0}
+                  isCompleted={track.enrollments?.some((e) => e.status === "completed") || false}
+                  isFavorite={favorites.has(track.id)}
+                  onToggleFavorite={() => toggleFavorite(track.id)}
+                />
+              ))}
+            </div>
+          )
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
-            {filtered.map((track, i) => (
-              <TrackCard
-                key={track.id}
-                trackId={track.id}
-                title={track.title}
-                description={track.description || ""}
-                category={track.category || ""}
-                totalLessons={track.lessons?.length || 0}
-                totalDurationSeconds={track.lessons?.reduce((sum, l) => sum + (l.duration || 0), 0) || 0}
-                index={i}
-                isEnrolled={track.enrollments?.length > 0}
-                isCompleted={track.enrollments?.some((e) => e.status === "completed") || false}
-                isFavorite={favorites.has(track.id)}
-                onToggleFavorite={() => toggleFavorite(track.id)}
-              />
-            ))}
+          // Sectioned view
+          <div className="space-y-8">
+            {/* In Progress */}
+            {enrolledTracks.length > 0 && (
+              <section>
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="h-6 w-6 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Play className="h-3 w-3 text-primary" />
+                  </div>
+                  <h2 className="font-display text-base font-bold text-foreground">Em andamento</h2>
+                  <Badge variant="secondary" className="text-[10px]">{enrolledTracks.length}</Badge>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                  {enrolledTracks.map((track, i) => (
+                    <TrackCard
+                      key={track.id}
+                      trackId={track.id}
+                      title={track.title}
+                      description={track.description || ""}
+                      category={track.category || ""}
+                      totalLessons={track.lessons?.length || 0}
+                      totalDurationSeconds={track.lessons?.reduce((sum, l) => sum + (l.duration || 0), 0) || 0}
+                      index={i}
+                      isEnrolled
+                      isCompleted={false}
+                      isFavorite={favorites.has(track.id)}
+                      onToggleFavorite={() => toggleFavorite(track.id)}
+                    />
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Available */}
+            {notStartedTracks.length > 0 && (
+              <section>
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="h-6 w-6 rounded-lg bg-muted flex items-center justify-center">
+                    <Sparkles className="h-3 w-3 text-muted-foreground" />
+                  </div>
+                  <h2 className="font-display text-base font-bold text-foreground">Disponíveis</h2>
+                  <Badge variant="secondary" className="text-[10px]">{notStartedTracks.length}</Badge>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                  {notStartedTracks.map((track, i) => (
+                    <TrackCard
+                      key={track.id}
+                      trackId={track.id}
+                      title={track.title}
+                      description={track.description || ""}
+                      category={track.category || ""}
+                      totalLessons={track.lessons?.length || 0}
+                      totalDurationSeconds={track.lessons?.reduce((sum, l) => sum + (l.duration || 0), 0) || 0}
+                      index={i}
+                      isEnrolled={false}
+                      isCompleted={false}
+                      isFavorite={favorites.has(track.id)}
+                      onToggleFavorite={() => toggleFavorite(track.id)}
+                    />
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Completed */}
+            {completedTracks.length > 0 && (
+              <section>
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="h-6 w-6 rounded-lg bg-success/10 flex items-center justify-center">
+                    <Trophy className="h-3 w-3 text-success" />
+                  </div>
+                  <h2 className="font-display text-base font-bold text-foreground">Concluídas</h2>
+                  <Badge variant="secondary" className="text-[10px]">{completedTracks.length}</Badge>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                  {completedTracks.map((track, i) => (
+                    <TrackCard
+                      key={track.id}
+                      trackId={track.id}
+                      title={track.title}
+                      description={track.description || ""}
+                      category={track.category || ""}
+                      totalLessons={track.lessons?.length || 0}
+                      totalDurationSeconds={track.lessons?.reduce((sum, l) => sum + (l.duration || 0), 0) || 0}
+                      index={i}
+                      isEnrolled
+                      isCompleted
+                      isFavorite={favorites.has(track.id)}
+                      onToggleFavorite={() => toggleFavorite(track.id)}
+                    />
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
         )}
       </div>
-    </div>
+    </AppLayout>
   );
 };
 

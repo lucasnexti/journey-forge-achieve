@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import Header from "@/components/Header";
+import AppLayout from "@/components/AppLayout";
 import { Trophy, Medal, Crown, User } from "lucide-react";
 
 interface RankEntry {
@@ -86,18 +86,16 @@ const LeaderboardPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
+      <AppLayout>
         <div className="flex items-center justify-center py-32">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-        </div>
+        </AppLayout>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <AppLayout>
 
       <div className="bg-gradient-nexti">
         <div className="container py-6 sm:py-10">
@@ -106,7 +104,7 @@ const LeaderboardPage = () => {
             <div>
               <h1 className="font-display text-xl sm:text-3xl font-extrabold text-primary-foreground">Ranking</h1>
               <p className="text-xs sm:text-sm text-primary-foreground/80">{empresa || "Sua Empresa"}</p>
-            </div>
+            </AppLayout>
           </div>
         </div>
       </div>

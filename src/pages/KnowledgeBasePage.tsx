@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import Header from "@/components/Header";
+import AppLayout from "@/components/AppLayout";
 import { FileText, ExternalLink, Loader2, BookOpen } from "lucide-react";
 import { playbookSupabase } from "@/lib/playbookClient";
 
@@ -119,15 +119,14 @@ const KnowledgeBasePage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <AppLayout>
 
       {/* Hero — same style as Playbook */}
       <section className="bg-muted/50 border-b border-border py-10">
         <div className="max-w-6xl mx-auto px-4 text-center">
           <h1 className="text-3xl font-bold text-foreground mb-2">Base de Conhecimento</h1>
           <p className="text-muted-foreground">Manuais, guias e documentações do sistema Nexti</p>
-        </div>
+        </AppLayout>
       </section>
 
       {/* Content — masonry 2 columns like Playbook */}
