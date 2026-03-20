@@ -158,10 +158,12 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
 
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 
+  // Vimeo: determine completion threshold
+  const vimeoCompletionThreshold = lessonDuration > 0 ? Math.floor(lessonDuration * 0.9) : 0;
+
   // Vimeo embed - auto-start timer to track time spent on page
   useEffect(() => {
     if (!vimeo) return;
-    // Auto-start a timer assuming the user is watching the Vimeo video
     const timer = setInterval(() => {
       setCurrentTime((prev) => {
         const next = prev + 1;
@@ -169,14 +171,23 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
           lastSavedRef.current = next;
           onProgress?.(Math.round(next));
         }
+        // Auto-complete when 90% of lesson duration is reached
+        if (vimeoCompletionThreshold > 0 && next >= vimeoCompletionThreshold && !completed) {
+          setCompleted(true);
+          onComplete(Math.round(next));
+        }
         return next;
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [vimeo, videoUrl, onProgress]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vimeo, videoUrl, onProgress, vimeoCompletionThreshold]);
 
   if (vimeo) {
     const embedUrl = getVimeoEmbedUrl(videoUrl) + (getVimeoEmbedUrl(videoUrl).includes("?") ? "&" : "?") + "autoplay=0&title=0&byline=0&portrait=0";
+    const vimeoPercent = lessonDuration > 0
+      ? Math.min(Math.round((currentTime / lessonDuration) * 100), 100)
+      : 0;
 
     return (
       <div className="overflow-hidden rounded-xl bg-foreground/5">
@@ -191,7 +202,16 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
           />
         </div>
 
-        {/* Simple controls for navigation */}
+        {/* Progress bar for Vimeo */}
+        {lessonDuration > 0 && (
+          <div className="relative h-2 sm:h-1 bg-border">
+            <div
+              className="h-full bg-primary transition-all"
+              style={{ width: `${vimeoPercent}%` }}
+            />
+          </div>
+        )}
+
         <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 sm:py-3">
           {onPrev && (
             <button onClick={onPrev} className="p-2 text-muted-foreground hover:text-foreground touch-manipulation">
@@ -205,26 +225,16 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
           )}
 
           <span className="tabular-nums text-[10px] sm:text-xs text-muted-foreground ml-2">
-            ⏱ {formatTime(currentTime)}
+            ⏱ {formatTime(currentTime)}{lessonDuration > 0 ? ` / ${formatTime(lessonDuration)}` : ""}
           </span>
 
           <div className="flex-1" />
 
-          <button
-            onClick={() => {
-              if (!completed) {
-                setCompleted(true);
-                onComplete(Math.round(currentTime || 60));
-              }
-            }}
-            className={`rounded-md border px-3 py-1.5 text-xs font-medium transition-colors touch-manipulation ${
-              completed
-                ? "border-green-300 bg-green-50 text-green-700 dark:border-green-700 dark:bg-green-900/20 dark:text-green-400"
-                : "border-border bg-secondary text-foreground hover:bg-muted"
-            }`}
-          >
-            {completed ? "✓ Concluída" : "Marcar como assistida"}
-          </button>
+          {completed && (
+            <span className="rounded-md border border-green-300 bg-green-50 px-3 py-1.5 text-xs font-medium text-green-700 dark:border-green-700 dark:bg-green-900/20 dark:text-green-400">
+              ✓ Concluída
+            </span>
+          )}
         </div>
 
         {completed && (
