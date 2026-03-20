@@ -553,7 +553,7 @@ const QuizNextiPage = () => {
           )}
         </AnimatePresence>
       </div>
-    </div>
+    </AppLayout>
   );
 };
 

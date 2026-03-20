@@ -164,7 +164,7 @@ const KnowledgeBasePage = () => {
           </div>
         )}
       </main>
-    </div>
+    </AppLayout>
   );
 };
 
