@@ -21,6 +21,8 @@ interface TrackCardProps {
   isCompleted: boolean;
   isFavorite?: boolean;
   onToggleFavorite?: () => void;
+  isLocked?: boolean;
+  prerequisiteTitle?: string;
 }
 
 const TrackCard = ({
