@@ -351,7 +351,7 @@ const TrainingPage = () => {
                     Investimento Total
                   </h3>
                   <div className="flex items-center gap-4 mt-1.5 text-xs text-muted-foreground">
-                    <span>{selectedModules.length} módulo{selectedModules.length !== 1 ? "s" : ""}</span>
+                    <span>{readyModules.length} módulo{readyModules.length !== 1 ? "s" : ""}</span>
                     <span>{totalHours}h total</span>
                   </div>
                   {autoDiscount > 0 && selectedModules.length > 0 && (
