@@ -116,7 +116,7 @@ const ReportPage = () => {
       <AppLayout>
         <div className="flex items-center justify-center py-32">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-        </div>
+        </AppLayout>
       </div>
     );
   }
@@ -131,7 +131,7 @@ const ReportPage = () => {
             <h1 className="font-display text-lg sm:text-3xl font-extrabold text-primary-foreground truncate">
               Relatórios — {empresa || "Sua Empresa"}
             </h1>
-          </div>
+          </AppLayout>
           <p className="mt-1 text-xs sm:text-sm text-primary-foreground/80">
             Acompanhe o progresso de todos os colaboradores.
           </p>

@@ -126,7 +126,7 @@ const KnowledgeBasePage = () => {
         <div className="max-w-6xl mx-auto px-4 text-center">
           <h1 className="text-3xl font-bold text-foreground mb-2">Base de Conhecimento</h1>
           <p className="text-muted-foreground">Manuais, guias e documentações do sistema Nexti</p>
-        </div>
+        </AppLayout>
       </section>
 
       {/* Content — masonry 2 columns like Playbook */}

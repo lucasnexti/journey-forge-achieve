@@ -103,7 +103,7 @@ const RewardsStorePage = () => {
       <AppLayout>
         <div className="flex items-center justify-center py-32">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-        </div>
+        </AppLayout>
       </div>
     );
   }
@@ -116,7 +116,7 @@ const RewardsStorePage = () => {
         <div className="absolute inset-0 opacity-10">
           <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-white/20 blur-3xl" />
           <div className="absolute -bottom-10 -left-10 h-48 w-48 rounded-full bg-white/15 blur-2xl" />
-        </div>
+        </AppLayout>
         <div className="container relative py-6 sm:py-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
