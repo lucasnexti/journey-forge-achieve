@@ -170,6 +170,20 @@ const TrackCard = ({
                 </div>
                 <Progress value={percent} className="h-1.5" />
               </div>
+            ) : isLocked ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
+                      <Lock className="h-4 w-4" />
+                      Bloqueada
+                    </span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  Complete "{prerequisiteTitle}" primeiro
+                </TooltipContent>
+              </Tooltip>
             ) : (
               <div className="flex items-center justify-between">
                 <span className="flex items-center gap-1.5 text-xs font-semibold text-primary">
