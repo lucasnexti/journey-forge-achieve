@@ -125,6 +125,18 @@ const TrackPage = () => {
     }));
   };
 
+  const handleProgress = useCallback(async (watchedSeconds: number) => {
+    if (!user || !trackId) return;
+    await savePartialProgressDB(user.id, trackId, currentLessonId, watchedSeconds);
+    setProgress((prev) => ({
+      ...prev,
+      [currentLessonId]: {
+        completed: prev[currentLessonId]?.completed || false,
+        watched_seconds: Math.max(watchedSeconds, prev[currentLessonId]?.watched_seconds || 0),
+      },
+    }));
+  }, [user, trackId, currentLessonId]);
+
   const handleQuizSubmit = async (score: number, passed: boolean) => {
     if (!user || !quiz) return;
     await supabase.from("quiz_attempts").insert({ user_id: user.id, quiz_id: quiz.id, score, passed });
