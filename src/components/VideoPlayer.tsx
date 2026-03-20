@@ -31,7 +31,7 @@ const getVimeoEmbedUrl = (url: string) => {
   return url;
 };
 
-const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, onPrev, initialWatchedSeconds = 0 }: VideoPlayerProps) => {
+const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, onPrev, initialWatchedSeconds = 0, lessonDuration = 0 }: VideoPlayerProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [playing, setPlaying] = useState(false);
