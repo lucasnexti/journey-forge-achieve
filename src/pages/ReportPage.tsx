@@ -131,7 +131,7 @@ const ReportPage = () => {
             <h1 className="font-display text-lg sm:text-3xl font-extrabold text-primary-foreground truncate">
               Relatórios — {empresa || "Sua Empresa"}
             </h1>
-          </AppLayout>
+          </div>
           <p className="mt-1 text-xs sm:text-sm text-primary-foreground/80">
             Acompanhe o progresso de todos os colaboradores.
           </p>
