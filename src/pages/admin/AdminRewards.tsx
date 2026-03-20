@@ -139,8 +139,7 @@ const AdminRewards = () => {
   return (
     <AdminPageShell
       title="Prêmios & Resgates"
-      subtitle={`${rewards.filter((r) => r.is_active).length} prêmios ativos · ${pendingCount} resgates pendentes`}
-      icon={Gift}
+      description={`${rewards.filter((r) => r.is_active).length} prêmios ativos · ${pendingCount} resgates pendentes`}
     >
       {/* Rewards Management */}
       <div className="card-surface p-4 sm:p-6 mb-6">
