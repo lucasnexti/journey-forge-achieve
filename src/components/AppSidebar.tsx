@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { BookOpen, BarChart3, LogOut, Shield, User, Sun, Moon, Coins, Library, Zap, ChevronDown, Award } from "lucide-react";
+import { BookOpen, BarChart3, LogOut, Shield, User, Sun, Moon, Coins, Library, Zap, ChevronDown, Award, GraduationCap } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useTheme } from "@/hooks/useTheme";
