@@ -327,6 +327,8 @@ const Dashboard = () => {
                   isCompleted={track.enrollments?.some((e) => e.status === "completed") || false}
                   isFavorite={favorites.has(track.id)}
                   onToggleFavorite={() => toggleFavorite(track.id)}
+                  isLocked={isTrackLocked(track)}
+                  prerequisiteTitle={prerequisiteTitle(track)}
                 />
               ))}
             </div>
