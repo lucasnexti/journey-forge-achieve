@@ -131,8 +131,9 @@ const TrackPage = () => {
       ...prev,
       [currentLessonId]: { completed: true, watched_seconds: watchedSeconds },
     }));
-    // Persist to DB in background
+    // Persist to DB + award coins in background
     markLessonCompleteDB(user.id, trackId, currentLessonId, watchedSeconds).catch(console.error);
+    awardCoins(user.id, COIN_REWARDS.lesson_complete, "Aula concluída", "lesson", currentLessonId).catch(console.error);
   };
 
   const handleProgress = useCallback(async (watchedSeconds: number) => {
