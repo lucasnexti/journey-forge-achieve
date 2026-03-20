@@ -254,28 +254,10 @@ const TrainingPage = () => {
       <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {tab === "modules" && !showRequestForm && (
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
-            {/* Modality selector */}
+            {/* Info bar */}
             <div className="flex items-center gap-4 mb-6">
-              <Label className="text-sm font-semibold text-foreground">Modalidade:</Label>
-              <div className="inline-flex rounded-lg border border-border bg-card p-1 gap-1">
-                {([
-                  { key: "presencial" as const, label: "Presencial", icon: MapPin },
-                  { key: "remoto" as const, label: "Remoto", icon: Monitor },
-                ] as const).map(({ key, label, icon: Icon }) => (
-                  <button key={key} onClick={() => setModality(key)}
-                    className={cn(
-                      "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all",
-                      modality === key ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    <Icon className="h-3.5 w-3.5" />
-                    {label}
-                  </button>
-                ))}
-              </div>
-
               {totalHours > 0 && (
-                <Badge variant="outline" className="ml-auto text-xs gap-1">
+                <Badge variant="outline" className="text-xs gap-1">
                   <Package className="h-3 w-3" />
                   {totalHours}h selecionada{totalHours > 1 ? "s" : ""} — desconto {(autoDiscount * 100).toFixed(0)}%
                 </Badge>
