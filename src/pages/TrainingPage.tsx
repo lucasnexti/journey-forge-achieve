@@ -113,7 +113,11 @@ const TrainingPage = () => {
   const grandTotalOriginal = readyModules.reduce((s, m) => s + getOriginalPrice(m) * m.duration_hours, 0);
   const grandTotalFinal = readyModules.reduce((s, m) => s + getModuleTotal(m), 0);
 
-  const handleToggle = (id: string) => setSelected((prev) => ({ ...prev, [id]: !prev[id] }));
+  const handleToggle = (id: string) => {
+    const next = !selected[id];
+    setSelected((prev) => ({ ...prev, [id]: next }));
+    if (!next) setModalities((prev) => { const n = { ...prev }; delete n[id]; return n; });
+  };
 
   const handleSubmit = async () => {
     if (!user || selectedModules.length === 0) return;
