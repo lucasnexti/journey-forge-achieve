@@ -225,10 +225,10 @@ const TrainingPage = () => {
                   )}
                 </TableCell>
                 <TableCell className="text-right tabular-nums text-sm text-muted-foreground">
-                  {fmt(origPrice)}
+                  {isOn && hasModality(mod) ? fmt(origPrice) : <span className="text-muted-foreground/40">—</span>}
                 </TableCell>
                 <TableCell className="text-right tabular-nums text-sm">
-                  {isOn ? (
+                  {isOn && hasModality(mod) ? (
                     <span className="font-bold text-foreground">{fmt(total)}</span>
                   ) : (
                     <span className="text-muted-foreground/40">—</span>
