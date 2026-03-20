@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Bell, Send, Plus, X, Users, Mail, CheckCircle } from "lucide-react";
+import { Bell, Send, Plus, X, Users, Mail, CheckCircle, Search } from "lucide-react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { z } from "zod";
 import { motion } from "framer-motion";
