@@ -368,7 +368,7 @@ const TrackPage = () => {
                             </TabsTrigger>
                           </TabsList>
                           <TabsContent value="notas" className="p-4 sm:p-5 mt-0">
-                            <LessonNotes lessonId={currentLessonId} />
+                            <LessonNotes lessonId={currentLessonId} currentTime={0} />
                           </TabsContent>
                           <TabsContent value="materiais" className="p-4 sm:p-5 mt-0">
                             <LessonMaterials lessonId={currentLessonId} />
