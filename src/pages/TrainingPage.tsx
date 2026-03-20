@@ -166,6 +166,7 @@ const TrainingPage = () => {
           <TableRow className="bg-muted/30 hover:bg-muted/30">
             <TableHead className="text-xs font-semibold text-muted-foreground">Módulo</TableHead>
             <TableHead className="text-xs font-semibold text-muted-foreground text-center w-[100px]">Contratado?</TableHead>
+            <TableHead className="text-xs font-semibold text-muted-foreground text-center w-[140px]">Modalidade</TableHead>
             <TableHead className="text-xs font-semibold text-muted-foreground text-right w-[110px]">Valor/hora</TableHead>
             <TableHead className="text-xs font-semibold text-muted-foreground text-right w-[110px]">Total</TableHead>
           </TableRow>
@@ -173,6 +174,7 @@ const TrainingPage = () => {
         <TableBody>
           {mods.map((mod) => {
             const isOn = !!selected[mod.id];
+            const modMod = getModModality(mod);
             const origPrice = getOriginalPrice(mod);
             const total = getModuleTotal(mod);
             return (
@@ -188,6 +190,32 @@ const TrainingPage = () => {
                 </TableCell>
                 <TableCell className="text-center">
                   <Switch checked={isOn} onCheckedChange={() => handleToggle(mod.id)} />
+                </TableCell>
+                <TableCell className="text-center">
+                  {isOn ? (
+                    <div className="inline-flex rounded-md border border-border bg-muted/30 p-0.5 gap-0.5">
+                      {([
+                        { key: "presencial" as const, label: "Presencial", icon: MapPin },
+                        { key: "remoto" as const, label: "Remoto", icon: Monitor },
+                      ]).map(({ key, label, icon: Icon }) => (
+                        <button
+                          key={key}
+                          onClick={() => setModalities((prev) => ({ ...prev, [mod.id]: key }))}
+                          className={cn(
+                            "flex items-center gap-1 px-2 py-1 rounded text-[11px] font-medium transition-all",
+                            modMod === key
+                              ? "bg-primary text-primary-foreground shadow-sm"
+                              : "text-muted-foreground hover:text-foreground"
+                          )}
+                        >
+                          <Icon className="h-3 w-3" />
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="text-muted-foreground/40">—</span>
+                  )}
                 </TableCell>
                 <TableCell className="text-right tabular-nums text-sm text-muted-foreground">
                   {fmt(origPrice)}
