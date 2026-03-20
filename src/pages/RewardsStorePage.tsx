@@ -223,7 +223,7 @@ const RewardsStorePage = () => {
         </div>
 
         <AnimatePresence mode="wait">
-          {activeTab === "store" ? (
+          {activeTab === "store" && (
             <motion.div
               key="store"
               initial={{ opacity: 0, y: 8 }}
@@ -383,7 +383,9 @@ const RewardsStorePage = () => {
                 </div>
               )}
             </motion.div>
-          ) : (
+          )}
+
+          {activeTab === "history" && (
             <motion.div
               key="history"
               initial={{ opacity: 0, y: 8 }}
@@ -474,6 +476,161 @@ const RewardsStorePage = () => {
                     ))}
                   </div>
                 )}
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === "how" && (
+            <motion.div
+              key="how"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+              className="space-y-6 max-w-3xl"
+            >
+              {/* Intro */}
+              <div className="card-surface p-5 sm:p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-warning/10">
+                    <Coins className="h-5 w-5 text-warning" />
+                  </div>
+                  <div>
+                    <h3 className="font-display text-base font-bold text-foreground">O que são Nexti Coins?</h3>
+                    <p className="text-xs text-muted-foreground">Moeda virtual da plataforma Nexti</p>
+                  </div>
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Nexti Coins são a moeda virtual da plataforma de aprendizado. Você conquista moedas ao participar ativamente das trilhas de conhecimento, completar aulas, passar em quizzes e manter uma rotina de estudos. As moedas acumuladas podem ser trocadas por prêmios exclusivos na Loja Nexti.
+                </p>
+              </div>
+
+              {/* Earning ways */}
+              <div className="card-surface p-5 sm:p-6">
+                <h3 className="font-display text-sm font-bold text-foreground mb-4 flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4 text-success" />
+                  Como ganhar Nexti Coins
+                </h3>
+                <div className="space-y-3">
+                  {[
+                    { icon: CheckCircle2, color: "text-success bg-success/10", label: "Completar uma aula", coins: 10, desc: "Assista pelo menos 90% do vídeo para marcar como concluída" },
+                    { icon: Target, color: "text-primary bg-primary/10", label: "Passar no quiz da trilha", coins: 25, desc: "Atinja a nota mínima de 70% na avaliação final" },
+                    { icon: Star, color: "text-warning bg-warning/10", label: "Nota máxima no quiz", coins: 40, desc: "Acerte 100% das questões e ganhe um bônus extra" },
+                    { icon: Crown, color: "text-primary bg-primary/10", label: "Concluir uma trilha completa", coins: 50, desc: "Complete todas as aulas e passe no quiz final" },
+                    { icon: Flame, color: "text-destructive bg-destructive/10", label: "Streak de 3 dias", coins: 15, desc: "Acesse a plataforma por 3 dias consecutivos" },
+                    { icon: Flame, color: "text-destructive bg-destructive/10", label: "Streak de 7 dias", coins: 50, desc: "Acesse a plataforma por 7 dias consecutivos" },
+                    { icon: Zap, color: "text-warning bg-warning/10", label: "Login diário", coins: 5, desc: "Acesse a plataforma todos os dias e ganhe moedas" },
+                    { icon: MessageSquare, color: "text-muted-foreground bg-muted", label: "Postar no fórum", coins: 5, desc: "Contribua com discussões e ajude colegas" },
+                  ].map(({ icon: Icon, color, label, coins, desc }, i) => (
+                    <motion.div
+                      key={label}
+                      initial={{ opacity: 0, x: -8 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.04 }}
+                      className="flex items-start gap-3 rounded-xl border border-border/50 p-3.5 bg-card"
+                    >
+                      <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${color}`}>
+                        <Icon className="h-4 w-4" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-sm font-semibold text-foreground">{label}</p>
+                          <span className="flex items-center gap-1 text-sm font-extrabold text-warning shrink-0 tabular-nums">
+                            <Coins className="h-3.5 w-3.5" />
+                            +{coins}
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-0.5">{desc}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Spending */}
+              <div className="card-surface p-5 sm:p-6">
+                <h3 className="font-display text-sm font-bold text-foreground mb-4 flex items-center gap-2">
+                  <ShoppingBag className="h-4 w-4 text-primary" />
+                  Como usar suas moedas
+                </h3>
+                <div className="space-y-3 text-sm text-muted-foreground leading-relaxed">
+                  <p>
+                    Na aba <strong className="text-foreground">Prêmios</strong>, você encontra todos os itens disponíveis para resgate. Cada prêmio tem um custo em Nexti Coins exibido no card.
+                  </p>
+                  <div className="rounded-xl bg-muted/50 border border-border/50 p-4 space-y-2">
+                    <p className="font-semibold text-foreground text-xs uppercase tracking-wider">Passo a passo do resgate:</p>
+                    <ol className="list-decimal list-inside space-y-1.5 text-xs">
+                      <li>Acesse a aba <strong className="text-foreground">Prêmios</strong> nesta página</li>
+                      <li>Escolha o prêmio desejado e clique em <strong className="text-foreground">Resgatar</strong></li>
+                      <li>As moedas serão debitadas automaticamente do seu saldo</li>
+                      <li>Acompanhe o status do resgate na aba <strong className="text-foreground">Histórico</strong></li>
+                      <li>O time Nexti irá aprovar e providenciar a entrega do prêmio</li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
+
+              {/* Levels & XP */}
+              <div className="card-surface p-5 sm:p-6">
+                <h3 className="font-display text-sm font-bold text-foreground mb-4 flex items-center gap-2">
+                  <Crown className="h-4 w-4 text-primary" />
+                  Níveis e Experiência (XP)
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                  Além das moedas, você acumula XP (experiência) que determina seu nível na plataforma. Quanto mais ativo, maior seu nível!
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {[
+                    { level: 1, xp: "0", title: "Iniciante" },
+                    { level: 2, xp: "100", title: "Aprendiz" },
+                    { level: 3, xp: "300", title: "Dedicado" },
+                    { level: 4, xp: "600", title: "Avançado" },
+                    { level: 5, xp: "1.000", title: "Expert" },
+                    { level: 6, xp: "2.000", title: "Mestre Nexti" },
+                  ].map(({ level, xp, title }) => (
+                    <div
+                      key={level}
+                      className={`rounded-xl border p-3 text-center ${
+                        levelInfo.level === level
+                          ? "border-primary bg-primary/5"
+                          : "border-border/50 bg-card"
+                      }`}
+                    >
+                      <p className="text-lg font-display font-extrabold text-foreground">Nv.{level}</p>
+                      <p className="text-xs font-semibold text-primary mt-0.5">{title}</p>
+                      <p className="text-[10px] text-muted-foreground mt-1">{xp} XP</p>
+                      {levelInfo.level === level && (
+                        <Badge className="mt-1.5 text-[9px] bg-primary/10 text-primary border-0">Você está aqui</Badge>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Tips */}
+              <div className="card-surface p-5 sm:p-6 border-primary/20">
+                <h3 className="font-display text-sm font-bold text-foreground mb-3 flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-warning" />
+                  Dicas para ganhar mais moedas
+                </h3>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-success shrink-0 mt-0.5" />
+                    <span>Acesse a plataforma <strong className="text-foreground">todos os dias</strong> para acumular streak e ganhar bônus</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-success shrink-0 mt-0.5" />
+                    <span>Estude para os quizzes — <strong className="text-foreground">nota máxima</strong> rende 60% mais moedas</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-success shrink-0 mt-0.5" />
+                    <span>Complete trilhas inteiras para ganhar o <strong className="text-foreground">bônus de conclusão de 50 moedas</strong></span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-success shrink-0 mt-0.5" />
+                    <span>Participe do <strong className="text-foreground">fórum</strong> ajudando colegas para ganhar moedas extras</span>
+                  </li>
+                </ul>
               </div>
             </motion.div>
           )}
