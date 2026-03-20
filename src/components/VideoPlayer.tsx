@@ -4,20 +4,21 @@ import { Play, Pause, Volume2, VolumeX, Maximize, SkipForward, SkipBack } from "
 interface VideoPlayerProps {
   videoUrl: string;
   onComplete: (watchedSeconds: number) => void;
+  onProgress?: (watchedSeconds: number) => void;
   lessonTitle: string;
   onNext?: () => void;
   onPrev?: () => void;
+  initialWatchedSeconds?: number;
 }
 
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
+const PROGRESS_SAVE_INTERVAL = 15; // save every 15 seconds
 
 const isVimeoUrl = (url: string) =>
   url.includes("vimeo.com") || url.includes("player.vimeo.com");
 
 const getVimeoEmbedUrl = (url: string) => {
-  // Already an embed URL
   if (url.includes("player.vimeo.com/video/")) return url;
-  // Regular vimeo URL: https://vimeo.com/1172338146/fd77ec3af4
   const match = url.match(/vimeo\.com\/(\d+)(?:\/([a-zA-Z0-9]+))?/);
   if (match) {
     const videoId = match[1];
@@ -29,11 +30,11 @@ const getVimeoEmbedUrl = (url: string) => {
   return url;
 };
 
-const VideoPlayer = ({ videoUrl, onComplete, lessonTitle, onNext, onPrev }: VideoPlayerProps) => {
+const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, onPrev, initialWatchedSeconds = 0 }: VideoPlayerProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [playing, setPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
+  const [currentTime, setCurrentTime] = useState(initialWatchedSeconds);
   const [duration, setDuration] = useState(0);
   const [muted, setMuted] = useState(false);
   const [completed, setCompleted] = useState(false);
@@ -41,22 +42,39 @@ const VideoPlayer = ({ videoUrl, onComplete, lessonTitle, onNext, onPrev }: Vide
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
   const vimeo = isVimeoUrl(videoUrl);
   const vimeoTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const lastSavedRef = useRef(0);
 
   useEffect(() => {
     setPlaying(false);
-    setCurrentTime(0);
+    setCurrentTime(initialWatchedSeconds);
     setCompleted(false);
     setSpeed(1);
+    lastSavedRef.current = 0;
     if (videoRef.current) videoRef.current.playbackRate = 1;
-    // Reset vimeo timer
     if (vimeoTimerRef.current) clearInterval(vimeoTimerRef.current);
+  }, [videoUrl, initialWatchedSeconds]);
+
+  // Periodic progress save for native video
+  const saveProgressIfNeeded = useCallback((time: number) => {
+    if (time - lastSavedRef.current >= PROGRESS_SAVE_INTERVAL) {
+      lastSavedRef.current = time;
+      onProgress?.(Math.round(time));
+    }
+  }, [onProgress]);
+
+  // Save progress on unmount / lesson change
+  useEffect(() => {
+    return () => {
+      // Save current time on cleanup
+      if (currentTime > 0 && onProgress) {
+        onProgress(Math.round(currentTime));
+      }
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [videoUrl]);
 
-  // For Vimeo: track time via a simple counter since we can't access the iframe API easily without the Vimeo SDK
   useEffect(() => {
     if (!vimeo) return;
-    // We'll use a simple approach: start a timer when user "plays"
-    // and mark complete after 90% of estimated duration
     return () => {
       if (vimeoTimerRef.current) clearInterval(vimeoTimerRef.current);
     };
@@ -67,7 +85,11 @@ const VideoPlayer = ({ videoUrl, onComplete, lessonTitle, onNext, onPrev }: Vide
     vimeoTimerRef.current = setInterval(() => {
       setCurrentTime((prev) => {
         const next = prev + 1;
-        // Auto-complete at 90% if we have a duration estimate
+        // Periodic save
+        if (next - lastSavedRef.current >= PROGRESS_SAVE_INTERVAL) {
+          lastSavedRef.current = next;
+          onProgress?.(Math.round(next));
+        }
         if (duration > 0 && next >= duration * 0.9 && !completed) {
           setCompleted(true);
           onComplete(Math.round(next));
@@ -75,7 +97,7 @@ const VideoPlayer = ({ videoUrl, onComplete, lessonTitle, onNext, onPrev }: Vide
         return next;
       });
     }, 1000);
-  }, [duration, completed, onComplete]);
+  }, [duration, completed, onComplete, onProgress]);
 
   const stopVimeoTimer = () => {
     if (vimeoTimerRef.current) {
@@ -88,6 +110,7 @@ const VideoPlayer = ({ videoUrl, onComplete, lessonTitle, onNext, onPrev }: Vide
     if (vimeo) {
       if (playing) {
         stopVimeoTimer();
+        onProgress?.(Math.round(currentTime));
       } else {
         startVimeoTimer();
       }
@@ -95,17 +118,23 @@ const VideoPlayer = ({ videoUrl, onComplete, lessonTitle, onNext, onPrev }: Vide
       return;
     }
     if (!videoRef.current) return;
-    if (playing) videoRef.current.pause();
-    else videoRef.current.play();
+    if (playing) {
+      videoRef.current.pause();
+      onProgress?.(Math.round(videoRef.current.currentTime));
+    } else {
+      videoRef.current.play();
+    }
     setPlaying(!playing);
   };
 
   const handleTimeUpdate = () => {
     if (!videoRef.current) return;
-    setCurrentTime(videoRef.current.currentTime);
-    if (videoRef.current.currentTime >= videoRef.current.duration * 0.9 && !completed) {
+    const time = videoRef.current.currentTime;
+    setCurrentTime(time);
+    saveProgressIfNeeded(time);
+    if (time >= videoRef.current.duration * 0.9 && !completed) {
       setCompleted(true);
-      onComplete(Math.round(videoRef.current.currentTime));
+      onComplete(Math.round(time));
     }
   };
 
@@ -200,7 +229,7 @@ const VideoPlayer = ({ videoUrl, onComplete, lessonTitle, onNext, onPrev }: Vide
           className="h-full w-full object-cover"
           onTimeUpdate={handleTimeUpdate}
           onLoadedMetadata={() => setDuration(videoRef.current?.duration || 0)}
-          onEnded={() => setPlaying(false)}
+          onEnded={() => { setPlaying(false); onProgress?.(Math.round(currentTime)); }}
           muted={muted}
           playsInline
         />

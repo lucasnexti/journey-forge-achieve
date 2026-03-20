@@ -78,6 +78,24 @@ export async function getLastWatchedLesson(userId: string): Promise<{
 
 // ──────── Write ────────
 
+export async function savePartialProgressDB(
+  userId: string,
+  trackId: string,
+  lessonId: string,
+  watchedSeconds: number
+) {
+  await supabase.from("lesson_progress").upsert(
+    {
+      user_id: userId,
+      track_id: trackId,
+      lesson_id: lessonId,
+      watched_seconds: watchedSeconds,
+      last_watched_at: new Date().toISOString(),
+    },
+    { onConflict: "user_id,lesson_id" }
+  );
+}
+
 export async function markLessonCompleteDB(
   userId: string,
   trackId: string,

@@ -28,22 +28,53 @@ const TrackCard = ({
 }: TrackCardProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [percent, setPercent] = useState(0);
   const [completedLessons, setCompletedLessons] = useState(0);
 
   useEffect(() => {
     if (!user) return;
-    supabase
-      .from("lesson_progress")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", user.id)
-      .eq("track_id", trackId)
-      .eq("completed", true)
-      .then(({ count }) => setCompletedLessons(count || 0));
-  }, [user, trackId]);
+    // Fetch lesson progress with watched_seconds AND lesson durations
+    const fetchProgress = async () => {
+      const [{ data: progressData }, { data: lessonsData }] = await Promise.all([
+        supabase
+          .from("lesson_progress")
+          .select("lesson_id, completed, watched_seconds")
+          .eq("user_id", user.id)
+          .eq("track_id", trackId),
+        supabase
+          .from("lessons")
+          .select("id, duration")
+          .eq("track_id", trackId),
+      ]);
 
-  const percent = totalLessons > 0
-    ? Math.round(((completedLessons / totalLessons) * 80) + (isCompleted ? 20 : 0))
-    : 0;
+      const lessons = lessonsData || [];
+      const progressMap = new Map(
+        (progressData || []).map((p) => [p.lesson_id, p])
+      );
+
+      let totalPercent = 0;
+      let completed = 0;
+
+      lessons.forEach((lesson) => {
+        const lp = progressMap.get(lesson.id);
+        if (!lp) return;
+        if (lp.completed) {
+          totalPercent += 100;
+          completed++;
+        } else {
+          const dur = lesson.duration || 0;
+          if (dur > 0) {
+            totalPercent += Math.min(((lp.watched_seconds || 0) / dur) * 100, 99);
+          }
+        }
+      });
+
+      setCompletedLessons(completed);
+      setPercent(lessons.length > 0 ? Math.round(totalPercent / lessons.length) : 0);
+    };
+
+    fetchProgress();
+  }, [user, trackId]);
 
   const handleEnroll = async () => {
     if (!user) return;

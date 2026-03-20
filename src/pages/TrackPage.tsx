@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
-import { markLessonCompleteDB, getTrackProgressDB } from "@/lib/progressDB";
+import { markLessonCompleteDB, getTrackProgressDB, savePartialProgressDB } from "@/lib/progressDB";
 import Header from "@/components/Header";
 import VideoPlayer from "@/components/VideoPlayer";
 import LessonSidebar from "@/components/LessonSidebar";
@@ -100,7 +100,20 @@ const TrackPage = () => {
   const currentIndex = lessons.findIndex((l) => l.id === currentLessonId);
   const allLessonsComplete = lessons.length > 0 && lessons.every((l) => progress[l.id]?.completed);
   const completedLessons = Object.values(progress).filter((p) => p.completed).length;
-  const overallPercent = lessons.length > 0 ? Math.round((completedLessons / lessons.length) * 100) : 0;
+
+  // Calculate progress based on watched_seconds / duration per lesson
+  const overallPercent = lessons.length > 0
+    ? Math.round(
+        lessons.reduce((acc, lesson) => {
+          const lp = progress[lesson.id];
+          if (!lp) return acc;
+          if (lp.completed) return acc + 100;
+          const dur = lesson.duration || 0;
+          if (dur <= 0) return acc;
+          return acc + Math.min((lp.watched_seconds / dur) * 100, 99);
+        }, 0) / lessons.length
+      )
+    : 0;
   const quiz = quizzes[0];
 
   const handleLessonComplete = async (watchedSeconds: number) => {
@@ -111,6 +124,18 @@ const TrackPage = () => {
       [currentLessonId]: { completed: true, watched_seconds: watchedSeconds },
     }));
   };
+
+  const handleProgress = useCallback(async (watchedSeconds: number) => {
+    if (!user || !trackId) return;
+    await savePartialProgressDB(user.id, trackId, currentLessonId, watchedSeconds);
+    setProgress((prev) => ({
+      ...prev,
+      [currentLessonId]: {
+        completed: prev[currentLessonId]?.completed || false,
+        watched_seconds: Math.max(watchedSeconds, prev[currentLessonId]?.watched_seconds || 0),
+      },
+    }));
+  }, [user, trackId, currentLessonId]);
 
   const handleQuizSubmit = async (score: number, passed: boolean) => {
     if (!user || !quiz) return;
@@ -261,7 +286,9 @@ const TrackPage = () => {
                       <VideoPlayer
                         videoUrl={currentLesson.video_url || ""}
                         onComplete={handleLessonComplete}
+                        onProgress={handleProgress}
                         lessonTitle={currentLesson.title}
+                        initialWatchedSeconds={progress[currentLessonId]?.watched_seconds || 0}
                         onPrev={currentIndex > 0 ? () => goToLesson(currentIndex - 1) : undefined}
                         onNext={currentIndex < lessons.length - 1 ? () => goToLesson(currentIndex + 1) : undefined}
                       />
