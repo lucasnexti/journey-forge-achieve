@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { markLessonCompleteDB, getTrackProgressDB, savePartialProgressDB } from "@/lib/progressDB";
+import { awardCoins, COIN_REWARDS } from "@/lib/gamification";
 import Header from "@/components/Header";
 import VideoPlayer from "@/components/VideoPlayer";
 import LessonSidebar from "@/components/LessonSidebar";
