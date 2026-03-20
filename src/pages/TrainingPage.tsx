@@ -77,10 +77,6 @@ const TrainingPage = () => {
 
   // Selection state: which modules are "contracted"
   const [selected, setSelected] = useState<Record<string, boolean>>({});
-  // Per-module custom discount override (optional)
-  const [customDiscount, setCustomDiscount] = useState<Record<string, string>>({});
-  // Per-module bonus days
-  const [bonusDays, setBonusDays] = useState<Record<string, string>>({});
 
   // Modality for the whole package
   const [modality, setModality] = useState<"presencial" | "remoto">("presencial");
