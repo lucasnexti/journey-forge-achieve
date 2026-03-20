@@ -40,7 +40,7 @@ const RewardsStorePage = () => {
   const [transactions, setTransactions] = useState<{ amount: number; reason: string; created_at: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [redeeming, setRedeeming] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"store" | "history">("store");
+  const [activeTab, setActiveTab] = useState<"store" | "history" | "how">("store");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   useEffect(() => {
