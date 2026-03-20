@@ -14,7 +14,7 @@ interface TrackCardProps {
   description: string;
   category: string;
   totalLessons: number;
-  estimatedHours: number;
+  totalDurationSeconds: number;
   index: number;
   isEnrolled: boolean;
   isCompleted: boolean;
@@ -23,7 +23,7 @@ interface TrackCardProps {
 }
 
 const TrackCard = ({
-  trackId, title, description, category, totalLessons, estimatedHours,
+  trackId, title, description, category, totalLessons, totalDurationSeconds,
   index, isEnrolled, isCompleted, isFavorite = false, onToggleFavorite,
 }: TrackCardProps) => {
   const { user } = useAuth();
@@ -136,7 +136,9 @@ const TrackCard = ({
             </span>
             <span className="flex items-center gap-1">
               <Clock className="h-3.5 w-3.5" />
-              {estimatedHours}h
+              {totalDurationSeconds >= 3600
+                ? `${(totalDurationSeconds / 3600).toFixed(1)}h`
+                : `${Math.round(totalDurationSeconds / 60)}min`}
             </span>
           </div>
 

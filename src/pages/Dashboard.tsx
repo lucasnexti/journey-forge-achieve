@@ -23,7 +23,7 @@ interface TrackRow {
   estimated_hours: number | null;
   is_active: boolean | null;
   order_index: number | null;
-  lessons: { id: string }[];
+  lessons: { id: string; duration: number | null }[];
   enrollments: { id: string; status: string | null }[];
 }
 
@@ -51,7 +51,7 @@ const Dashboard = () => {
       const [{ data: trackData }, statsData, lastData, { data: userBadges }, { data: allBadges }, { data: profileData }, { data: favData }] = await Promise.all([
         supabase
           .from("tracks")
-          .select("id, title, description, category, estimated_hours, is_active, order_index, lessons(id), enrollments(id, status)")
+          .select("id, title, description, category, estimated_hours, is_active, order_index, lessons(id, duration), enrollments(id, status)")
           .eq("is_active", true)
           .order("order_index"),
         getUserStats(user.id),
@@ -307,7 +307,7 @@ const Dashboard = () => {
                 description={track.description || ""}
                 category={track.category || ""}
                 totalLessons={track.lessons?.length || 0}
-                estimatedHours={track.estimated_hours || 0}
+                totalDurationSeconds={track.lessons?.reduce((sum, l) => sum + (l.duration || 0), 0) || 0}
                 index={i}
                 isEnrolled={track.enrollments?.length > 0}
                 isCompleted={track.enrollments?.some((e) => e.status === "completed") || false}
