@@ -120,11 +120,11 @@ const TrainingPage = () => {
   };
 
   const handleSubmit = async () => {
-    if (!user || selectedModules.length === 0) return;
+    if (!user || readyModules.length === 0) return;
     setSubmitting(true);
-    const inserts = selectedModules.map((mod) => ({
+    const inserts = readyModules.map((mod) => ({
       user_id: user.id, module_id: mod.id, preferred_date: preferredDate || null,
-      participants, notes: notes.trim() || null, modality: getModModality(mod),
+      participants, notes: notes.trim() || null, modality: modalities[mod.id],
     }));
     const { error } = await supabase.from("training_requests").insert(inserts);
     if (error) {
