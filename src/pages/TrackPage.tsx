@@ -153,14 +153,22 @@ const TrackPage = () => {
     await supabase.from("quiz_attempts").insert({ user_id: user.id, quiz_id: quiz.id, score, passed });
     setQuizScore(score);
     setQuizPassed(passed);
+
     if (passed) {
+      // Award coins for quiz
+      const coinAmount = score === 100 ? COIN_REWARDS.quiz_perfect : COIN_REWARDS.quiz_pass;
+      awardCoins(user.id, coinAmount, score === 100 ? "Quiz nota máxima" : "Quiz aprovado", "quiz", quiz.id).catch(console.error);
+      // Award coins for track completion
+      awardCoins(user.id, COIN_REWARDS.track_complete, "Trilha concluída", "track", trackId!).catch(console.error);
+
       setCompletedAt(new Date().toISOString());
       await supabase
         .from("enrollments")
         .update({ status: "completed", completed_at: new Date().toISOString() })
         .eq("user_id", user.id)
         .eq("track_id", trackId);
-      toast.success("Parabéns! Trilha concluída!");
+      toast.success("Parabéns! Trilha concluída! 🪙 Moedas adicionadas!");
+    }
     }
   };
 
