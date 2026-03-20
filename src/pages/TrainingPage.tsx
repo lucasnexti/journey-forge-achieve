@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -19,6 +18,7 @@ interface TrainingModule {
   description: string | null;
   duration_hours: number;
   cost_per_hour: number;
+  cost_per_hour_remote: number;
   category: string | null;
   is_active: boolean;
 }
@@ -32,6 +32,7 @@ interface TrainingRequest {
   status: string;
   admin_note: string | null;
   created_at: string;
+  modality: string;
 }
 
 const statusConfig: Record<string, { label: string; icon: React.ElementType; color: string }> = {
@@ -54,6 +55,7 @@ const TrainingPage = () => {
   const [preferredDate, setPreferredDate] = useState("");
   const [participants, setParticipants] = useState(1);
   const [notes, setNotes] = useState("");
+  const [modality, setModality] = useState<"presencial" | "remoto">("presencial");
 
   useEffect(() => {
     if (!user) return;
@@ -82,32 +84,35 @@ const TrainingPage = () => {
       preferred_date: preferredDate || null,
       participants,
       notes: notes.trim() || null,
+      modality,
     });
     if (error) {
       toast.error("Erro ao enviar solicitação: " + error.message);
     } else {
       toast.success("Solicitação enviada com sucesso! O time Nexti entrará em contato.");
-      // Notify admins
       const { data: adminRoles } = await supabase.from("user_roles").select("user_id").eq("role", "admin");
       if (adminRoles) {
         const notifications = adminRoles.map((r: any) => ({
           user_id: r.user_id,
-          title: "Nova solicitação de treinamento presencial",
-          message: `${user.email} solicitou treinamento: ${selectedModule.title} (${participants} participantes)`,
+          title: "Nova solicitação de treinamento",
+          message: `${user.email} solicitou: ${selectedModule.title} (${modality}, ${participants} participantes)`,
           type: "training",
         }));
         await supabase.from("notifications").insert(notifications);
       }
-      // Refresh requests
       const { data: reqData } = await supabase.from("training_requests").select("*").eq("user_id", user.id).order("created_at", { ascending: false });
       setRequests((reqData as TrainingRequest[]) || []);
       setSelectedModule(null);
       setPreferredDate("");
       setParticipants(1);
       setNotes("");
+      setModality("presencial");
     }
     setSubmitting(false);
   };
+
+  const getPrice = (mod: TrainingModule, mod_modality: string) =>
+    mod_modality === "remoto" ? Number(mod.cost_per_hour_remote) : Number(mod.cost_per_hour);
 
   const categories = [...new Set(modules.map((m) => m.category).filter(Boolean))] as string[];
 
@@ -138,11 +143,10 @@ const TrainingPage = () => {
               </h1>
             </div>
             <p className="text-sm text-primary-foreground/80 max-w-xl">
-              Solicite treinamento presencial com a equipe Nexti. Escolha o módulo, informe os detalhes e nossa equipe entrará em contato.
+              Solicite treinamento presencial ou remoto com a equipe Nexti. Escolha o módulo, a modalidade e nossa equipe entrará em contato.
             </p>
           </motion.div>
 
-          {/* Tab switcher */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -178,11 +182,9 @@ const TrainingPage = () => {
 
       <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <AnimatePresence mode="wait">
-          {/* ====== MODULES TAB ====== */}
           {tab === "modules" && (
             <motion.div key="modules" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
               {selectedModule ? (
-                /* ---- REQUEST FORM ---- */
                 <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl mx-auto">
                   <button
                     onClick={() => setSelectedModule(null)}
@@ -206,24 +208,48 @@ const TrainingPage = () => {
                             <Clock className="h-3.5 w-3.5" />
                             {selectedModule.duration_hours}h de duração
                           </span>
-                          <span className="flex items-center gap-1 font-semibold text-foreground">
-                            <DollarSign className="h-3.5 w-3.5" />
-                            R$ {Number(selectedModule.cost_per_hour).toFixed(2)}/hora
-                          </span>
                         </div>
                       </div>
                     </div>
 
                     <div className="border-t border-border/50 pt-5 space-y-4">
+                      {/* Modality selector */}
+                      <div>
+                        <Label className="text-sm font-medium mb-2 block">Modalidade</Label>
+                        <div className="grid grid-cols-2 gap-3">
+                          {([
+                            { key: "presencial" as const, label: "Presencial", price: Number(selectedModule.cost_per_hour) },
+                            { key: "remoto" as const, label: "Remoto", price: Number(selectedModule.cost_per_hour_remote) },
+                          ]).map(({ key, label, price }) => (
+                            <button
+                              key={key}
+                              type="button"
+                              onClick={() => setModality(key)}
+                              className={cn(
+                                "rounded-xl border-2 p-3 text-left transition-all",
+                                modality === key
+                                  ? "border-primary bg-primary/5 shadow-sm"
+                                  : "border-border hover:border-primary/40"
+                              )}
+                            >
+                              <span className="text-sm font-semibold text-foreground">{label}</span>
+                              <p className="text-xs text-muted-foreground mt-0.5">
+                                R$ {price.toFixed(2)}/hora
+                              </p>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
                       <div className="bg-muted/50 rounded-xl p-4 border border-border/50">
                         <div className="flex items-center justify-between mb-1">
                           <span className="text-sm font-semibold text-foreground">Custo estimado</span>
                           <span className="font-display text-lg font-extrabold text-primary">
-                            R$ {(Number(selectedModule.cost_per_hour) * selectedModule.duration_hours * participants).toFixed(2)}
+                            R$ {(getPrice(selectedModule, modality) * selectedModule.duration_hours * participants).toFixed(2)}
                           </span>
                         </div>
                         <p className="text-[11px] text-muted-foreground">
-                          {selectedModule.duration_hours}h × R$ {Number(selectedModule.cost_per_hour).toFixed(2)}/h × {participants} participante{participants > 1 ? "s" : ""}
+                          {selectedModule.duration_hours}h × R$ {getPrice(selectedModule, modality).toFixed(2)}/h × {participants} participante{participants > 1 ? "s" : ""} ({modality})
                         </p>
                       </div>
 
@@ -282,7 +308,6 @@ const TrainingPage = () => {
                   </div>
                 </motion.div>
               ) : (
-                /* ---- MODULE LIST ---- */
                 <>
                   {modules.length === 0 ? (
                     <div className="text-center py-20">
@@ -308,7 +333,6 @@ const TrainingPage = () => {
                           </div>
                         );
                       })}
-                      {/* Modules without category */}
                       {modules.filter((m) => !m.category || !categories.includes(m.category)).length > 0 && (
                         <div className="mb-8">
                           {categories.length > 0 && (
@@ -330,7 +354,6 @@ const TrainingPage = () => {
             </motion.div>
           )}
 
-          {/* ====== REQUESTS TAB ====== */}
           {tab === "requests" && (
             <motion.div key="requests" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
               {requests.length === 0 ? (
@@ -338,7 +361,7 @@ const TrainingPage = () => {
                   <Send className="h-16 w-16 text-muted-foreground/30 mx-auto mb-4" />
                   <h3 className="text-lg font-semibold text-foreground">Nenhuma solicitação</h3>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Você ainda não solicitou nenhum treinamento presencial.
+                    Você ainda não solicitou nenhum treinamento.
                   </p>
                   <Button onClick={() => setTab("modules")} className="mt-4" variant="outline">
                     Ver módulos disponíveis
@@ -372,6 +395,9 @@ const TrainingPage = () => {
                                 <Users className="h-3 w-3" />
                                 {req.participants} participante{req.participants > 1 ? "s" : ""}
                               </span>
+                              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                                {req.modality === "remoto" ? "Remoto" : "Presencial"}
+                              </Badge>
                               <span className="text-muted-foreground/60">
                                 {new Date(req.created_at).toLocaleDateString("pt-BR")}
                               </span>
@@ -409,7 +435,6 @@ function ModuleCard({
   index: number;
   onSelect: (m: TrainingModule) => void;
 }) {
-  const totalCost = Number(module.cost_per_hour) * module.duration_hours;
   return (
     <motion.button
       initial={{ opacity: 0, y: 12 }}
@@ -438,10 +463,15 @@ function ModuleCard({
           <Clock className="h-3.5 w-3.5" />
           {module.duration_hours}h
         </span>
-        <span className="flex items-center gap-1 font-bold text-foreground">
-          <DollarSign className="h-3.5 w-3.5 text-primary" />
-          R$ {totalCost.toFixed(2)}
-        </span>
+        <div className="flex items-center gap-2 text-[11px]">
+          <span className="text-muted-foreground">
+            Presencial <strong className="text-foreground">R$ {(Number(module.cost_per_hour) * module.duration_hours).toFixed(2)}</strong>
+          </span>
+          <span className="text-muted-foreground/40">|</span>
+          <span className="text-muted-foreground">
+            Remoto <strong className="text-foreground">R$ {(Number(module.cost_per_hour_remote) * module.duration_hours).toFixed(2)}</strong>
+          </span>
+        </div>
       </div>
     </motion.button>
   );
