@@ -48,12 +48,35 @@ interface TrackStats {
   completionCount: number;
 }
 
+// Helper: fetch Vimeo video duration via oEmbed API
+const fetchVimeoDuration = async (url: string): Promise<number | null> => {
+  try {
+    // Clean URL for oEmbed (remove query params like share=copy)
+    const match = url.match(/vimeo\.com\/(\d+)(?:\/([a-zA-Z0-9]+))?/);
+    if (!match) return null;
+    const videoId = match[1];
+    const hash = match[2];
+    const cleanUrl = hash
+      ? `https://vimeo.com/${videoId}/${hash}`
+      : `https://vimeo.com/${videoId}`;
+    const res = await fetch(`https://vimeo.com/api/oembed.json?url=${encodeURIComponent(cleanUrl)}`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.duration || null; // duration in seconds
+  } catch {
+    return null;
+  }
+};
+
+const isVimeoUrl = (url: string) => url.includes("vimeo.com");
+
 const AdminTrilhasGestao = () => {
   const [tracks, setTracks] = useState<Track[]>([]);
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
   const [trackStats, setTrackStats] = useState<Record<string, TrackStats>>({});
+  const [fetchingDuration, setFetchingDuration] = useState(false);
 
   // Dialogs
   const [trackDialogOpen, setTrackDialogOpen] = useState(false);
