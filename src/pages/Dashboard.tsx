@@ -24,6 +24,7 @@ interface TrackRow {
   estimated_hours: number | null;
   is_active: boolean | null;
   order_index: number | null;
+  prerequisite_track_id: string | null;
   lessons: { id: string; duration: number | null }[];
   enrollments: { id: string; status: string | null }[];
 }
