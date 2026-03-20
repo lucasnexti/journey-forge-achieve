@@ -99,8 +99,10 @@ const TrainingPage = () => {
   const totalHours = useMemo(() => selectedModules.reduce((sum, m) => sum + m.duration_hours, 0), [selectedModules]);
   const autoDiscount = getDiscountForHours(totalHours);
 
+  const getModModality = (mod: TrainingModule) => modalities[mod.id] || "presencial";
+
   const getOriginalPrice = (mod: TrainingModule) =>
-    modality === "remoto" ? Number(mod.cost_per_hour_remote) : Number(mod.cost_per_hour);
+    getModModality(mod) === "remoto" ? Number(mod.cost_per_hour_remote) : Number(mod.cost_per_hour);
 
   const getUnitPrice = (mod: TrainingModule) => getOriginalPrice(mod) * (1 - autoDiscount);
   const getModuleTotal = (mod: TrainingModule) => getUnitPrice(mod) * mod.duration_hours;
