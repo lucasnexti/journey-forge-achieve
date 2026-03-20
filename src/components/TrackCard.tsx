@@ -136,7 +136,9 @@ const TrackCard = ({
             </span>
             <span className="flex items-center gap-1">
               <Clock className="h-3.5 w-3.5" />
-              {estimatedHours}h
+              {totalDurationSeconds >= 3600
+                ? `${(totalDurationSeconds / 3600).toFixed(1)}h`
+                : `${Math.round(totalDurationSeconds / 60)}min`}
             </span>
           </div>
 
