@@ -31,6 +31,7 @@ const navItems = [
   { to: "/relatorios", label: "Relatórios", icon: BarChart3 },
   { to: "/base-conhecimento", label: "Base de Conhecimento", icon: Library },
   { to: "/quiz-nexti", label: "Quiz Nexti", icon: Zap },
+  { to: "/ranking", label: "Insígnias", icon: Award },
 ];
 
 const iconMap: Record<string, string> = {
