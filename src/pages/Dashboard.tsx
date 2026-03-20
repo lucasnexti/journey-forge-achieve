@@ -24,6 +24,7 @@ interface TrackRow {
   estimated_hours: number | null;
   is_active: boolean | null;
   order_index: number | null;
+  prerequisite_track_id: string | null;
   lessons: { id: string; duration: number | null }[];
   enrollments: { id: string; status: string | null }[];
 }
@@ -52,7 +53,7 @@ const Dashboard = () => {
       const [{ data: trackData }, statsData, lastData, { data: userBadges }, { data: allBadges }, { data: profileData }, { data: favData }, gData, { data: lessonProgressData }] = await Promise.all([
         supabase
           .from("tracks")
-          .select("id, title, description, category, estimated_hours, is_active, order_index, lessons(id, duration), enrollments(id, status)")
+          .select("id, title, description, category, estimated_hours, is_active, order_index, prerequisite_track_id, lessons(id, duration), enrollments(id, status)")
           .eq("is_active", true)
           .order("order_index"),
         getUserStats(user.id),
@@ -107,7 +108,16 @@ const Dashboard = () => {
     }
   };
 
-  const completedCount = tracks.filter((t) => t.enrollments?.some((e) => e.status === "completed")).length;
+  const completedTrackIds = new Set(tracks.filter((t) => t.enrollments?.some((e) => e.status === "completed")).map(t => t.id));
+  const completedCount = completedTrackIds.size;
+  const isTrackLocked = (track: TrackRow) => {
+    if (!track.prerequisite_track_id) return false;
+    return !completedTrackIds.has(track.prerequisite_track_id);
+  };
+  const prerequisiteTitle = (track: TrackRow) => {
+    if (!track.prerequisite_track_id) return undefined;
+    return tracks.find(t => t.id === track.prerequisite_track_id)?.title;
+  };
   const enrolledTracks = tracks.filter((t) => t.enrollments?.length > 0 && !t.enrollments?.some((e) => e.status === "completed"));
   const notStartedTracks = tracks.filter((t) => !t.enrollments || t.enrollments.length === 0);
   const completedTracks = tracks.filter((t) => t.enrollments?.some((e) => e.status === "completed"));
@@ -317,6 +327,8 @@ const Dashboard = () => {
                   isCompleted={track.enrollments?.some((e) => e.status === "completed") || false}
                   isFavorite={favorites.has(track.id)}
                   onToggleFavorite={() => toggleFavorite(track.id)}
+                  isLocked={isTrackLocked(track)}
+                  prerequisiteTitle={prerequisiteTitle(track)}
                 />
               ))}
             </div>
@@ -380,6 +392,8 @@ const Dashboard = () => {
                       isCompleted={false}
                       isFavorite={favorites.has(track.id)}
                       onToggleFavorite={() => toggleFavorite(track.id)}
+                      isLocked={isTrackLocked(track)}
+                      prerequisiteTitle={prerequisiteTitle(track)}
                     />
                   ))}
                 </div>

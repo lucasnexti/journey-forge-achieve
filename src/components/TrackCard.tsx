@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle2, PlayCircle, Heart, BookOpen, Clock, ArrowRight } from "lucide-react";
+import { CheckCircle2, PlayCircle, Heart, BookOpen, Clock, ArrowRight, Lock } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface TrackCardProps {
   trackId: string;
@@ -20,11 +21,14 @@ interface TrackCardProps {
   isCompleted: boolean;
   isFavorite?: boolean;
   onToggleFavorite?: () => void;
+  isLocked?: boolean;
+  prerequisiteTitle?: string;
 }
 
 const TrackCard = ({
   trackId, title, description, category, totalLessons, totalDurationSeconds,
   index, isEnrolled, isCompleted, isFavorite = false, onToggleFavorite,
+  isLocked = false, prerequisiteTitle,
 }: TrackCardProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -100,8 +104,14 @@ const TrackCard = ({
       transition={{ delay: index * 0.05, duration: 0.3 }}
     >
       <div
-        onClick={() => isEnrolled ? navigate(`/trilha/${trackId}`) : handleEnroll()}
-        className="group card-surface-hover flex flex-col h-full cursor-pointer overflow-hidden"
+        onClick={() => {
+          if (isLocked) return;
+          isEnrolled ? navigate(`/trilha/${trackId}`) : handleEnroll();
+        }}
+        className={cn(
+          "group card-surface-hover flex flex-col h-full overflow-hidden",
+          isLocked ? "opacity-60 cursor-not-allowed" : "cursor-pointer"
+        )}
       >
         {/* Top accent */}
         <div className={cn("h-1 w-full", isCompleted ? "bg-success" : isEnrolled ? "bg-primary" : "bg-border")} />
@@ -160,6 +170,20 @@ const TrackCard = ({
                 </div>
                 <Progress value={percent} className="h-1.5" />
               </div>
+            ) : isLocked ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
+                      <Lock className="h-4 w-4" />
+                      Bloqueada
+                    </span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  Complete "{prerequisiteTitle}" primeiro
+                </TooltipContent>
+              </Tooltip>
             ) : (
               <div className="flex items-center justify-between">
                 <span className="flex items-center gap-1.5 text-xs font-semibold text-primary">
