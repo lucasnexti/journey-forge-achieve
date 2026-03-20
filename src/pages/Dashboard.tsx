@@ -392,6 +392,8 @@ const Dashboard = () => {
                       isCompleted={false}
                       isFavorite={favorites.has(track.id)}
                       onToggleFavorite={() => toggleFavorite(track.id)}
+                      isLocked={isTrackLocked(track)}
+                      prerequisiteTitle={prerequisiteTitle(track)}
                     />
                   ))}
                 </div>
