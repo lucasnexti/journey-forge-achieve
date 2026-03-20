@@ -104,7 +104,7 @@ const LeaderboardPage = () => {
             <div>
               <h1 className="font-display text-xl sm:text-3xl font-extrabold text-primary-foreground">Ranking</h1>
               <p className="text-xs sm:text-sm text-primary-foreground/80">{empresa || "Sua Empresa"}</p>
-            </AppLayout>
+            </div>
           </div>
         </div>
       </div>
