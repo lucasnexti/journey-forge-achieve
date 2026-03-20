@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
-import { markLessonCompleteDB, getTrackProgressDB } from "@/lib/progressDB";
+import { markLessonCompleteDB, getTrackProgressDB, savePartialProgressDB } from "@/lib/progressDB";
 import Header from "@/components/Header";
 import VideoPlayer from "@/components/VideoPlayer";
 import LessonSidebar from "@/components/LessonSidebar";
