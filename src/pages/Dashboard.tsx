@@ -49,7 +49,7 @@ const Dashboard = () => {
     if (!user) return;
 
     const load = async () => {
-      const [{ data: trackData }, statsData, lastData, { data: userBadges }, { data: allBadges }, { data: profileData }, { data: favData }, gData] = await Promise.all([
+      const [{ data: trackData }, statsData, lastData, { data: userBadges }, { data: allBadges }, { data: profileData }, { data: favData }, gData, { data: lessonProgressData }] = await Promise.all([
         supabase
           .from("tracks")
           .select("id, title, description, category, estimated_hours, is_active, order_index, lessons(id, duration), enrollments(id, status)")
@@ -62,6 +62,7 @@ const Dashboard = () => {
         supabase.from("profiles").select("nome, onboarding_completed").eq("user_id", user.id).maybeSingle(),
         supabase.from("track_favorites").select("track_id").eq("user_id", user.id),
         getUserGamificationData(user.id),
+        supabase.from("lesson_progress").select("lesson_id, completed").eq("user_id", user.id).eq("completed", true),
       ]);
 
       setTracks((trackData as unknown as TrackRow[]) || []);
