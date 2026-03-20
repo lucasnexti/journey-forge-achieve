@@ -159,7 +159,7 @@ const LeaderboardPage = () => {
           </div>
         )}
       </main>
-    </div>
+    </AppLayout>
   );
 };
 

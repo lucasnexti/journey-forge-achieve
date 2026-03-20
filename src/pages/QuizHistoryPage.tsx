@@ -117,7 +117,7 @@ const QuizHistoryPage = () => {
           </div>
         )}
       </main>
-    </div>
+    </AppLayout>
   );
 };
 

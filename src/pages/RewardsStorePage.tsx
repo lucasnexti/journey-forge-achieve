@@ -467,7 +467,7 @@ const RewardsStorePage = () => {
           )}
         </AnimatePresence>
       </div>
-    </div>
+    </AppLayout>
   );
 };
 

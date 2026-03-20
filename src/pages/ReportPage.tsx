@@ -255,7 +255,7 @@ const ReportPage = () => {
           )}
         </div>
       </main>
-    </div>
+    </AppLayout>
   );
 };
 
