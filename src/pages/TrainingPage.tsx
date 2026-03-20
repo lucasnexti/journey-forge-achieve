@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow
 } from "@/components/ui/table";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -49,7 +49,6 @@ const statusConfig: Record<string, { label: string; icon: React.ElementType; col
   completed: { label: "Concluído", icon: CheckCircle2, color: "text-primary", bg: "bg-primary/10" },
 };
 
-// Discount tiers based on total contracted hours
 const discountTiers = [
   { minHours: 2, discount: 0.10, label: "10% off" },
   { minHours: 3, discount: 0.15, label: "15% off" },
@@ -74,14 +73,8 @@ const TrainingPage = () => {
   const [requests, setRequests] = useState<TrainingRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"modules" | "requests">("modules");
-
-  // Selection state: which modules are "contracted"
   const [selected, setSelected] = useState<Record<string, boolean>>({});
-
-  // Modality for the whole package
   const [modality, setModality] = useState<"presencial" | "remoto">("presencial");
-
-  // Request form
   const [showRequestForm, setShowRequestForm] = useState(false);
   const [preferredDate, setPreferredDate] = useState("");
   const [participants, setParticipants] = useState(1);
@@ -102,59 +95,28 @@ const TrainingPage = () => {
     load();
   }, [user]);
 
-  const selectedModules = useMemo(
-    () => modules.filter((m) => selected[m.id]),
-    [modules, selected]
-  );
-
-  const totalHours = useMemo(
-    () => selectedModules.reduce((sum, m) => sum + m.duration_hours, 0),
-    [selectedModules]
-  );
-
+  const selectedModules = useMemo(() => modules.filter((m) => selected[m.id]), [modules, selected]);
+  const totalHours = useMemo(() => selectedModules.reduce((sum, m) => sum + m.duration_hours, 0), [selectedModules]);
   const autoDiscount = getDiscountForHours(totalHours);
 
   const getOriginalPrice = (mod: TrainingModule) =>
     modality === "remoto" ? Number(mod.cost_per_hour_remote) : Number(mod.cost_per_hour);
 
-  const getUnitPrice = (mod: TrainingModule) => {
-    const original = getOriginalPrice(mod);
-    return original * (1 - autoDiscount);
-  };
+  const getUnitPrice = (mod: TrainingModule) => getOriginalPrice(mod) * (1 - autoDiscount);
+  const getModuleTotal = (mod: TrainingModule) => getUnitPrice(mod) * mod.duration_hours;
 
-  const getModuleTotal = (mod: TrainingModule) => {
-    return getUnitPrice(mod) * mod.duration_hours;
-  };
+  const grandTotalOriginal = selectedModules.reduce((s, m) => s + getOriginalPrice(m) * m.duration_hours, 0);
+  const grandTotalFinal = selectedModules.reduce((s, m) => s + getModuleTotal(m), 0);
 
-  const grandTotalOriginal = selectedModules.reduce(
-    (sum, m) => sum + getOriginalPrice(m) * m.duration_hours,
-    0
-  );
-  const grandTotalFinal = selectedModules.reduce(
-    (sum, m) => sum + getModuleTotal(m),
-    0
-  );
-  const grandTotalUnitAvg = selectedModules.length > 0
-    ? selectedModules.reduce((sum, m) => sum + getUnitPrice(m), 0) / selectedModules.length
-    : 0;
-
-  const handleToggle = (id: string) => {
-    setSelected((prev) => ({ ...prev, [id]: !prev[id] }));
-  };
+  const handleToggle = (id: string) => setSelected((prev) => ({ ...prev, [id]: !prev[id] }));
 
   const handleSubmit = async () => {
     if (!user || selectedModules.length === 0) return;
     setSubmitting(true);
-
     const inserts = selectedModules.map((mod) => ({
-      user_id: user.id,
-      module_id: mod.id,
-      preferred_date: preferredDate || null,
-      participants,
-      notes: notes.trim() || null,
-      modality,
+      user_id: user.id, module_id: mod.id, preferred_date: preferredDate || null,
+      participants, notes: notes.trim() || null, modality,
     }));
-
     const { error } = await supabase.from("training_requests").insert(inserts);
     if (error) {
       toast.error("Erro ao enviar: " + error.message);
@@ -162,23 +124,17 @@ const TrainingPage = () => {
       toast.success(`${selectedModules.length} módulo(s) solicitado(s) com sucesso!`);
       const { data: adminRoles } = await supabase.from("user_roles").select("user_id").eq("role", "admin");
       if (adminRoles) {
-        const notifications = adminRoles.map((r: any) => ({
-          user_id: r.user_id,
-          title: "Nova solicitação de treinamento",
-          message: `${user.email} solicitou ${selectedModules.length} módulo(s) — ${modality}, ${participants} participantes, total ${fmt(grandTotalFinal)}`,
-          type: "training",
-        }));
-        await supabase.from("notifications").insert(notifications);
+        await supabase.from("notifications").insert(
+          adminRoles.map((r: any) => ({
+            user_id: r.user_id, title: "Nova solicitação de treinamento",
+            message: `${user.email} solicitou ${selectedModules.length} módulo(s) — ${modality}, ${participants} participantes, total ${fmt(grandTotalFinal)}`,
+            type: "training",
+          }))
+        );
       }
-      const { data: reqData } = await supabase
-        .from("training_requests")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+      const { data: reqData } = await supabase.from("training_requests").select("*").eq("user_id", user.id).order("created_at", { ascending: false });
       setRequests((reqData as TrainingRequest[]) || []);
       setSelected({});
-      setCustomDiscount({});
-      setBonusDays({});
       setShowRequestForm(false);
       setPreferredDate("");
       setParticipants(1);
@@ -199,6 +155,54 @@ const TrainingPage = () => {
       </AppLayout>
     );
   }
+
+  const renderModuleTable = (mods: TrainingModule[]) => (
+    <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+      <Table>
+        <TableHeader>
+          <TableRow className="bg-muted/30 hover:bg-muted/30">
+            <TableHead className="text-xs font-semibold text-muted-foreground">Módulo</TableHead>
+            <TableHead className="text-xs font-semibold text-muted-foreground text-center w-[100px]">Contratado?</TableHead>
+            <TableHead className="text-xs font-semibold text-muted-foreground text-right w-[110px]">Valor/hora</TableHead>
+            <TableHead className="text-xs font-semibold text-muted-foreground text-right w-[110px]">Total</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {mods.map((mod) => {
+            const isOn = !!selected[mod.id];
+            const origPrice = getOriginalPrice(mod);
+            const total = getModuleTotal(mod);
+            return (
+              <TableRow key={mod.id} className={cn("transition-colors", isOn && "bg-primary/[0.03]")}>
+                <TableCell className="py-3">
+                  <p className={cn("text-sm font-semibold leading-snug", isOn ? "text-foreground" : "text-muted-foreground")}>
+                    {mod.title}
+                  </p>
+                  {mod.description && (
+                    <p className="text-[11px] text-muted-foreground/70 mt-0.5 line-clamp-1">{mod.description}</p>
+                  )}
+                  <span className="text-[10px] text-muted-foreground/50 mt-0.5 inline-block">{mod.duration_hours}h de duração</span>
+                </TableCell>
+                <TableCell className="text-center">
+                  <Switch checked={isOn} onCheckedChange={() => handleToggle(mod.id)} />
+                </TableCell>
+                <TableCell className="text-right tabular-nums text-sm text-muted-foreground">
+                  {fmt(origPrice)}
+                </TableCell>
+                <TableCell className="text-right tabular-nums text-sm">
+                  {isOn ? (
+                    <span className="font-bold text-foreground">{fmt(total)}</span>
+                  ) : (
+                    <span className="text-muted-foreground/40">—</span>
+                  )}
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </div>
+  );
 
   return (
     <AppLayout>
@@ -224,25 +228,17 @@ const TrainingPage = () => {
             </div>
           </motion.div>
 
-          {/* Tab switcher */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.1 }}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}
             className="mt-5 inline-flex rounded-xl bg-white/10 backdrop-blur-sm p-1 border border-white/10"
           >
-            {[
+            {([
               { key: "modules" as const, label: "Montar Pacote" },
               { key: "requests" as const, label: "Minhas Solicitações" },
-            ].map(({ key, label }) => (
-              <button
-                key={key}
-                onClick={() => { setTab(key); setShowRequestForm(false); }}
+            ]).map(({ key, label }) => (
+              <button key={key} onClick={() => { setTab(key); setShowRequestForm(false); }}
                 className={cn(
                   "px-4 py-2 rounded-lg text-sm font-semibold transition-all",
-                  tab === key
-                    ? "bg-white text-primary shadow-sm"
-                    : "text-primary-foreground/70 hover:text-primary-foreground"
+                  tab === key ? "bg-white text-primary shadow-sm" : "text-primary-foreground/70 hover:text-primary-foreground"
                 )}
               >
                 {label}
@@ -263,14 +259,10 @@ const TrainingPage = () => {
                   { key: "presencial" as const, label: "Presencial", icon: MapPin },
                   { key: "remoto" as const, label: "Remoto", icon: Monitor },
                 ] as const).map(({ key, label, icon: Icon }) => (
-                  <button
-                    key={key}
-                    onClick={() => setModality(key)}
+                  <button key={key} onClick={() => setModality(key)}
                     className={cn(
                       "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all",
-                      modality === key
-                        ? "bg-primary text-primary-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground"
+                      modality === key ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
                     )}
                   >
                     <Icon className="h-3.5 w-3.5" />
@@ -287,11 +279,10 @@ const TrainingPage = () => {
               )}
             </div>
 
-            {/* Discount tiers info */}
+            {/* Discount tiers */}
             <div className="flex flex-wrap gap-2 mb-5">
               {discountTiers.map((tier) => (
-                <div
-                  key={tier.minHours}
+                <div key={tier.minHours}
                   className={cn(
                     "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium border transition-colors",
                     totalHours >= tier.minHours
@@ -305,219 +296,33 @@ const TrainingPage = () => {
               ))}
             </div>
 
-            {/* Module Table */}
+            {/* Tables by category */}
             {categories.map((cat, ci) => {
               const catModules = modules.filter((m) => m.category === cat);
               if (catModules.length === 0) return null;
               return (
-                <motion.div
-                  key={cat}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: ci * 0.06, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                  className="mb-8"
+                <motion.div key={cat} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: ci * 0.06, duration: 0.5, ease: [0.16, 1, 0.3, 1] }} className="mb-8"
                 >
                   <div className="flex items-center gap-2 mb-3">
                     <Package className="h-4 w-4 text-muted-foreground" />
-                    <h2 className="text-sm font-bold uppercase tracking-wider text-foreground">
-                      {cat}
-                    </h2>
+                    <h2 className="text-sm font-bold uppercase tracking-wider text-foreground">{cat}</h2>
                   </div>
-
-                  <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
-                    <Table>
-                      <TableHeader>
-                        <TableRow className="bg-muted/30 hover:bg-muted/30">
-                          <TableHead className="text-xs font-semibold text-muted-foreground w-[40%]">Módulo</TableHead>
-                          <TableHead className="text-xs font-semibold text-muted-foreground text-center w-[100px]">Contratado?</TableHead>
-                          <TableHead className="text-xs font-semibold text-muted-foreground text-right w-[90px]">Original</TableHead>
-                          <TableHead className="text-xs font-semibold text-muted-foreground text-center w-[90px]">Desconto %</TableHead>
-                          <TableHead className="text-xs font-semibold text-muted-foreground text-center w-[90px]">Bonif. (dias)</TableHead>
-                          <TableHead className="text-xs font-semibold text-muted-foreground text-right w-[90px]">Unitário</TableHead>
-                          <TableHead className="text-xs font-semibold text-muted-foreground text-right w-[110px]">Total</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {catModules.map((mod) => {
-                          const isOn = !!selected[mod.id];
-                          const origPrice = getOriginalPrice(mod);
-                          const disc = getModuleDiscount(mod);
-                          const unitPrice = getUnitPrice(mod);
-                          const total = getModuleTotal(mod);
-
-                          return (
-                            <TableRow
-                              key={mod.id}
-                              className={cn(
-                                "transition-colors",
-                                isOn && "bg-primary/[0.03]"
-                              )}
-                            >
-                              <TableCell className="py-3">
-                                <div>
-                                  <p className={cn(
-                                    "text-sm font-semibold leading-snug",
-                                    isOn ? "text-foreground" : "text-muted-foreground"
-                                  )}>
-                                    {mod.title}
-                                  </p>
-                                  {mod.description && (
-                                    <p className="text-[11px] text-muted-foreground/70 mt-0.5 line-clamp-1">
-                                      {mod.description}
-                                    </p>
-                                  )}
-                                  <span className="text-[10px] text-muted-foreground/50 mt-0.5 inline-block">
-                                    {mod.duration_hours}h de duração
-                                  </span>
-                                </div>
-                              </TableCell>
-                              <TableCell className="text-center">
-                                <Switch
-                                  checked={isOn}
-                                  onCheckedChange={() => handleToggle(mod.id)}
-                                />
-                              </TableCell>
-                              <TableCell className="text-right tabular-nums text-sm text-muted-foreground">
-                                {fmt(origPrice)}
-                              </TableCell>
-                              <TableCell className="text-center">
-                                {isOn ? (
-                                  <Input
-                                    type="number"
-                                    min={0}
-                                    max={50}
-                                    className="h-8 w-16 mx-auto text-center text-xs tabular-nums"
-                                    value={customDiscount[mod.id] ?? (autoDiscount * 100).toFixed(0)}
-                                    onChange={(e) =>
-                                      setCustomDiscount((prev) => ({
-                                        ...prev,
-                                        [mod.id]: e.target.value,
-                                      }))
-                                    }
-                                  />
-                                ) : (
-                                  <span className="text-muted-foreground/40">—</span>
-                                )}
-                              </TableCell>
-                              <TableCell className="text-center">
-                                {isOn ? (
-                                  <Input
-                                    type="number"
-                                    min={0}
-                                    max={365}
-                                    className="h-8 w-16 mx-auto text-center text-xs tabular-nums"
-                                    value={bonusDays[mod.id] ?? ""}
-                                    placeholder="0"
-                                    onChange={(e) =>
-                                      setBonusDays((prev) => ({
-                                        ...prev,
-                                        [mod.id]: e.target.value,
-                                      }))
-                                    }
-                                  />
-                                ) : (
-                                  <span className="text-muted-foreground/40">—</span>
-                                )}
-                              </TableCell>
-                              <TableCell className="text-right tabular-nums text-sm">
-                                {isOn ? (
-                                  <span className="font-medium text-foreground">{fmt(unitPrice)}</span>
-                                ) : (
-                                  <span className="text-muted-foreground/40">—</span>
-                                )}
-                              </TableCell>
-                              <TableCell className="text-right tabular-nums text-sm">
-                                {isOn ? (
-                                  <span className="font-bold text-foreground">{fmt(total)}</span>
-                                ) : (
-                                  <span className="text-muted-foreground/40">—</span>
-                                )}
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })}
-                      </TableBody>
-                    </Table>
-                  </div>
+                  {renderModuleTable(catModules)}
                 </motion.div>
               );
             })}
 
-            {/* Uncategorized modules */}
+            {/* Uncategorized */}
             {modules.filter((m) => !m.category || !categories.includes(m.category)).length > 0 && (
               <div className="mb-8">
                 <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-3">Outros</h2>
-                <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="bg-muted/30 hover:bg-muted/30">
-                        <TableHead className="text-xs font-semibold text-muted-foreground w-[40%]">Módulo</TableHead>
-                        <TableHead className="text-xs font-semibold text-muted-foreground text-center w-[100px]">Contratado?</TableHead>
-                        <TableHead className="text-xs font-semibold text-muted-foreground text-right w-[90px]">Original</TableHead>
-                        <TableHead className="text-xs font-semibold text-muted-foreground text-center w-[90px]">Desconto %</TableHead>
-                        <TableHead className="text-xs font-semibold text-muted-foreground text-center w-[90px]">Bonif. (dias)</TableHead>
-                        <TableHead className="text-xs font-semibold text-muted-foreground text-right w-[90px]">Unitário</TableHead>
-                        <TableHead className="text-xs font-semibold text-muted-foreground text-right w-[110px]">Total</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {modules
-                        .filter((m) => !m.category || !categories.includes(m.category))
-                        .map((mod) => {
-                          const isOn = !!selected[mod.id];
-                          const origPrice = getOriginalPrice(mod);
-                          const unitPrice = getUnitPrice(mod);
-                          const total = getModuleTotal(mod);
-                          return (
-                            <TableRow key={mod.id} className={cn(isOn && "bg-primary/[0.03]")}>
-                              <TableCell className="py-3">
-                                <p className={cn("text-sm font-semibold", isOn ? "text-foreground" : "text-muted-foreground")}>
-                                  {mod.title}
-                                </p>
-                                {mod.description && (
-                                  <p className="text-[11px] text-muted-foreground/70 mt-0.5 line-clamp-1">{mod.description}</p>
-                                )}
-                              </TableCell>
-                              <TableCell className="text-center">
-                                <Switch checked={isOn} onCheckedChange={() => handleToggle(mod.id)} />
-                              </TableCell>
-                              <TableCell className="text-right tabular-nums text-sm text-muted-foreground">{fmt(origPrice)}</TableCell>
-                              <TableCell className="text-center">
-                                {isOn ? (
-                                  <Input type="number" min={0} max={50} className="h-8 w-16 mx-auto text-center text-xs tabular-nums"
-                                    value={customDiscount[mod.id] ?? (autoDiscount * 100).toFixed(0)}
-                                    onChange={(e) => setCustomDiscount((prev) => ({ ...prev, [mod.id]: e.target.value }))}
-                                  />
-                                ) : <span className="text-muted-foreground/40">—</span>}
-                              </TableCell>
-                              <TableCell className="text-center">
-                                {isOn ? (
-                                  <Input type="number" min={0} max={365} className="h-8 w-16 mx-auto text-center text-xs tabular-nums"
-                                    value={bonusDays[mod.id] ?? ""} placeholder="0"
-                                    onChange={(e) => setBonusDays((prev) => ({ ...prev, [mod.id]: e.target.value }))}
-                                  />
-                                ) : <span className="text-muted-foreground/40">—</span>}
-                              </TableCell>
-                              <TableCell className="text-right tabular-nums text-sm">
-                                {isOn ? <span className="font-medium text-foreground">{fmt(unitPrice)}</span> : <span className="text-muted-foreground/40">—</span>}
-                              </TableCell>
-                              <TableCell className="text-right tabular-nums text-sm">
-                                {isOn ? <span className="font-bold text-foreground">{fmt(total)}</span> : <span className="text-muted-foreground/40">—</span>}
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })}
-                    </TableBody>
-                  </Table>
-                </div>
+                {renderModuleTable(modules.filter((m) => !m.category || !categories.includes(m.category)))}
               </div>
             )}
 
-            {/* Footer summary */}
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+            {/* Footer summary with discount */}
+            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
               className="rounded-xl border-2 border-primary/20 bg-primary/[0.03] p-5 sm:p-6"
             >
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -528,38 +333,30 @@ const TrainingPage = () => {
                   <div className="flex items-center gap-4 mt-1.5 text-xs text-muted-foreground">
                     <span>{selectedModules.length} módulo{selectedModules.length !== 1 ? "s" : ""}</span>
                     <span>{totalHours}h total</span>
-                    <span>Desconto pacote: {(autoDiscount * 100).toFixed(0)}%</span>
                   </div>
-                  {grandTotalOriginal > grandTotalFinal && grandTotalFinal > 0 && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      De <span className="line-through">{fmt(grandTotalOriginal)}</span> por{" "}
-                      <span className="font-bold text-primary">{fmt(grandTotalFinal)}</span>
-                    </p>
+                  {autoDiscount > 0 && selectedModules.length > 0 && (
+                    <div className="mt-2 flex items-center gap-2">
+                      <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 text-xs">
+                        Desconto pacote: {(autoDiscount * 100).toFixed(0)}%
+                      </Badge>
+                      <span className="text-xs text-muted-foreground">
+                        De <span className="line-through">{fmt(grandTotalOriginal)}</span> por{" "}
+                        <span className="font-bold text-primary">{fmt(grandTotalFinal)}</span>
+                      </span>
+                    </div>
                   )}
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="text-right">
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Unitário médio</p>
-                    <p className="font-display text-lg font-extrabold text-foreground tabular-nums">
-                      {selectedModules.length > 0 ? fmt(grandTotalUnitAvg) : "—"}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Total</p>
-                    <p className="font-display text-2xl font-extrabold text-primary tabular-nums">
-                      {selectedModules.length > 0 ? fmt(grandTotalFinal) : "—"}
-                    </p>
-                  </div>
+                <div className="text-right">
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Total</p>
+                  <p className="font-display text-2xl font-extrabold text-primary tabular-nums">
+                    {selectedModules.length > 0 ? fmt(grandTotalFinal) : "—"}
+                  </p>
                 </div>
               </div>
 
               {selectedModules.length > 0 && (
                 <div className="mt-4 pt-4 border-t border-primary/10">
-                  <Button
-                    onClick={() => setShowRequestForm(true)}
-                    className="w-full sm:w-auto"
-                    size="lg"
-                  >
+                  <Button onClick={() => setShowRequestForm(true)} className="w-full sm:w-auto" size="lg">
                     <Send className="h-4 w-4 mr-2" />
                     Solicitar {selectedModules.length} módulo{selectedModules.length !== 1 ? "s" : ""}
                   </Button>
@@ -569,11 +366,10 @@ const TrainingPage = () => {
           </motion.div>
         )}
 
-        {/* Request form overlay */}
+        {/* Request form */}
         {tab === "modules" && showRequestForm && (
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="max-w-xl mx-auto">
-            <button
-              onClick={() => setShowRequestForm(false)}
+            <button onClick={() => setShowRequestForm(false)}
               className="text-sm text-muted-foreground font-medium mb-5 hover:text-primary flex items-center gap-1.5 transition-colors"
             >
               ← Voltar ao pacote
@@ -581,12 +377,11 @@ const TrainingPage = () => {
 
             <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
               <div className="bg-gradient-nexti p-5">
-                <h2 className="font-display text-lg font-bold text-primary-foreground">
-                  Confirmar Solicitação
-                </h2>
+                <h2 className="font-display text-lg font-bold text-primary-foreground">Confirmar Solicitação</h2>
                 <p className="text-sm text-primary-foreground/70 mt-0.5">
                   {selectedModules.length} módulo{selectedModules.length !== 1 ? "s" : ""} • {totalHours}h •{" "}
                   {modality === "remoto" ? "Remoto" : "Presencial"} • {fmt(grandTotalFinal)}
+                  {autoDiscount > 0 && ` (${(autoDiscount * 100).toFixed(0)}% desc.)`}
                 </p>
               </div>
 
@@ -610,8 +405,7 @@ const TrainingPage = () => {
                   </div>
                   <div>
                     <Label className="text-sm font-medium">Participantes</Label>
-                    <Input
-                      type="number" min={1} max={100} value={participants}
+                    <Input type="number" min={1} max={100} value={participants}
                       onChange={(e) => setParticipants(Math.max(1, Math.min(100, parseInt(e.target.value) || 1)))}
                       className="mt-1"
                     />
@@ -620,13 +414,8 @@ const TrainingPage = () => {
 
                 <div>
                   <Label className="text-sm font-medium">Observações (opcional)</Label>
-                  <Textarea
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value.slice(0, 500))}
-                    placeholder="Informações adicionais..."
-                    className="mt-1"
-                    rows={3}
-                    maxLength={500}
+                  <Textarea value={notes} onChange={(e) => setNotes(e.target.value.slice(0, 500))}
+                    placeholder="Informações adicionais..." className="mt-1" rows={3} maxLength={500}
                   />
                 </div>
 
@@ -658,34 +447,21 @@ const TrainingPage = () => {
                   const st = statusConfig[req.status] || statusConfig.pending;
                   const StIcon = st.icon;
                   return (
-                    <motion.div
-                      key={req.id}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
+                    <motion.div key={req.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.04, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                       className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-sm"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-sm text-foreground truncate">
-                            {mod?.title || "Módulo removido"}
-                          </h3>
+                          <h3 className="font-semibold text-sm text-foreground truncate">{mod?.title || "Módulo removido"}</h3>
                           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5 text-xs text-muted-foreground">
-                            <span className="flex items-center gap-1">
-                              <CalendarDays className="h-3 w-3" />
-                              {req.preferred_date || "Sem data"}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Users className="h-3 w-3" />
-                              {req.participants}
-                            </span>
+                            <span className="flex items-center gap-1"><CalendarDays className="h-3 w-3" />{req.preferred_date || "Sem data"}</span>
+                            <span className="flex items-center gap-1"><Users className="h-3 w-3" />{req.participants}</span>
                             <span className="flex items-center gap-1">
                               {req.modality === "remoto" ? <Monitor className="h-3 w-3" /> : <MapPin className="h-3 w-3" />}
                               {req.modality === "remoto" ? "Remoto" : "Presencial"}
                             </span>
-                            <span className="text-muted-foreground/50">
-                              {new Date(req.created_at).toLocaleDateString("pt-BR")}
-                            </span>
+                            <span className="text-muted-foreground/50">{new Date(req.created_at).toLocaleDateString("pt-BR")}</span>
                           </div>
                           {req.admin_note && (
                             <p className="mt-2 text-xs bg-muted/50 rounded-lg p-2.5 text-muted-foreground border border-border/50">
