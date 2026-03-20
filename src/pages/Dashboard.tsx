@@ -239,7 +239,7 @@ const Dashboard = () => {
         >
           {[
             { icon: Target, label: "Progresso", value: `${overallProgress}%`, color: "text-primary" },
-            { icon: BookOpen, label: "Concluídas", value: `${completedCount}/${tracks.length}`, color: "text-success" },
+            { icon: BookOpen, label: "Concluídas", value: `${completedLessonsInEnrolled}/${totalLessonsInEnrolled}`, color: "text-success" },
             { icon: Clock, label: "Tempo", value: formatTime(stats.totalWatched), color: "text-muted-foreground" },
             { icon: Trophy, label: "Nota Média", value: stats.avgScore > 0 ? `${stats.avgScore}%` : "—", color: "text-warning" },
           ].map(({ icon: Icon, label, value, color }) => (
