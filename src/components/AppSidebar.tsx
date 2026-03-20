@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { BookOpen, BarChart3, LogOut, Shield, User, Sun, Moon, Coins, Library, Zap, ChevronDown, Award } from "lucide-react";
+import { BookOpen, BarChart3, LogOut, Shield, User, Sun, Moon, Coins, Library, Zap, ChevronDown, Award, GraduationCap } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useTheme } from "@/hooks/useTheme";
@@ -32,6 +32,7 @@ const navItems = [
   { to: "/base-conhecimento", label: "Base de Conhecimento", icon: Library },
   { to: "/quiz-nexti", label: "Quiz Nexti", icon: Zap },
   { to: "/insignias", label: "Insígnias", icon: Award },
+  { to: "/treinamento-presencial", label: "Treinamento Presencial", icon: GraduationCap },
 ];
 
 const iconMap: Record<string, string> = {

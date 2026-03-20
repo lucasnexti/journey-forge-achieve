@@ -19,7 +19,7 @@ import AdminForuns from "./pages/admin/AdminForuns.tsx";
 import AdminCursosEad from "./pages/admin/AdminCursosEad.tsx";
 import AdminAvaliacoes from "./pages/admin/AdminAvaliacoes.tsx";
 import AdminMatriculas from "./pages/admin/AdminMatriculas.tsx";
-import AdminTreinamentos from "./pages/admin/AdminTreinamentos.tsx";
+import AdminTreinamentos from "./pages/admin/AdminTreinamentoPresencial.tsx";
 import AdminTrilhasGestao from "./pages/admin/AdminTrilhasGestao.tsx";
 import AdminRelatorioProgresso from "./pages/admin/AdminRelatorioProgresso.tsx";
 import AdminUsuarios from "./pages/admin/AdminUsuarios.tsx";
@@ -40,6 +40,7 @@ import ResetPasswordPage from "./pages/ResetPasswordPage.tsx";
 import RewardsStorePage from "./pages/RewardsStorePage.tsx";
 import AdminRewards from "./pages/admin/AdminRewards.tsx";
 import BadgesPage from "./pages/BadgesPage.tsx";
+import TrainingPage from "./pages/TrainingPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -66,6 +67,7 @@ const App = () => (
             <Route path="/quiz-nexti" element={<ProtectedRoute><QuizNextiPage /></ProtectedRoute>} />
             <Route path="/loja" element={<ProtectedRoute><RewardsStorePage /></ProtectedRoute>} />
             <Route path="/insignias" element={<ProtectedRoute><BadgesPage /></ProtectedRoute>} />
+            <Route path="/treinamento-presencial" element={<ProtectedRoute><TrainingPage /></ProtectedRoute>} />
 
             {/* Admin routes */}
             <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />

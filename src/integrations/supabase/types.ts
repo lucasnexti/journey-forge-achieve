@@ -977,6 +977,92 @@ export type Database = {
           },
         ]
       }
+      training_modules: {
+        Row: {
+          category: string | null
+          cost_per_hour: number
+          created_at: string
+          description: string | null
+          duration_hours: number
+          id: string
+          is_active: boolean
+          order_index: number | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          cost_per_hour?: number
+          created_at?: string
+          description?: string | null
+          duration_hours?: number
+          id?: string
+          is_active?: boolean
+          order_index?: number | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          cost_per_hour?: number
+          created_at?: string
+          description?: string | null
+          duration_hours?: number
+          id?: string
+          is_active?: boolean
+          order_index?: number | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      training_requests: {
+        Row: {
+          admin_note: string | null
+          created_at: string
+          id: string
+          module_id: string
+          notes: string | null
+          participants: number | null
+          preferred_date: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_note?: string | null
+          created_at?: string
+          id?: string
+          module_id: string
+          notes?: string | null
+          participants?: number | null
+          preferred_date?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_note?: string | null
+          created_at?: string
+          id?: string
+          module_id?: string
+          notes?: string | null
+          participants?: number | null
+          preferred_date?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_requests_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "training_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_badges: {
         Row: {
           badge_id: string
