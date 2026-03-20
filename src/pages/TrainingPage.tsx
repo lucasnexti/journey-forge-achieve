@@ -74,7 +74,7 @@ const TrainingPage = () => {
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"modules" | "requests">("modules");
   const [selected, setSelected] = useState<Record<string, boolean>>({});
-  const [modality, setModality] = useState<"presencial" | "remoto">("presencial");
+  const [modalities, setModalities] = useState<Record<string, "presencial" | "remoto">>({});
   const [showRequestForm, setShowRequestForm] = useState(false);
   const [preferredDate, setPreferredDate] = useState("");
   const [participants, setParticipants] = useState(1);
