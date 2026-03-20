@@ -268,7 +268,7 @@ const QuizNextiPage = () => {
                 <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-semibold mb-4">
                   <Zap className="h-4 w-4" />
                   Quiz Nexti
-                </AppLayout>
+                </div>
                 <h1 className="font-display text-3xl font-extrabold text-foreground mb-2">
                   Teste seus conhecimentos
                 </h1>
