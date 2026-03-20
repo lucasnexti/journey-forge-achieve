@@ -64,7 +64,7 @@ const QuizHistoryPage = () => {
           <div className="flex items-center gap-3">
             <History className="h-6 w-6 text-primary-foreground" />
             <h1 className="font-display text-3xl font-extrabold text-primary-foreground">Histórico de Avaliações</h1>
-          </AppLayout>
+          </div>
           <p className="mt-2 text-primary-foreground/80">Todas as suas tentativas de avaliações.</p>
         </div>
       </div>
