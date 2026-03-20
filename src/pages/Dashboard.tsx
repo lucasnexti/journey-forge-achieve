@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { supabase } from "@/integrations/supabase/client";
 import { getUserStats, getLastWatchedLesson } from "@/lib/progressDB";
+import { getUserGamificationData, updateStreak, getLevelInfo } from "@/lib/gamification";
 import Header from "@/components/Header";
 import TrackCard from "@/components/TrackCard";
 import OnboardingWizard from "@/components/OnboardingWizard";
