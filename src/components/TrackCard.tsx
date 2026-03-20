@@ -152,7 +152,7 @@ const TrackCard = ({
                 </span>
                 <span className="text-xs text-muted-foreground">100%</span>
               </div>
-            ) : isEnrolled ? (
+            ) : percent > 0 || completedLessons > 0 ? (
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground">{completedLessons}/{totalLessons} aulas</span>
