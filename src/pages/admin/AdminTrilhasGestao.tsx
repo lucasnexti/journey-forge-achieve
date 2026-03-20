@@ -261,6 +261,19 @@ const AdminTrilhasGestao = () => {
     setLessonDialogOpen(true);
   };
 
+  const handleVideoUrlChange = useCallback(async (url: string) => {
+    setLessonForm((prev) => ({ ...prev, video_url: url }));
+    if (isVimeoUrl(url)) {
+      setFetchingDuration(true);
+      const dur = await fetchVimeoDuration(url);
+      if (dur) {
+        setLessonForm((prev) => ({ ...prev, duration: dur }));
+        toast.success(`Duração detectada: ${Math.floor(dur / 60)}min ${dur % 60}s`);
+      }
+      setFetchingDuration(false);
+    }
+  }, []);
+
   const handleSaveLesson = async () => {
     if (!selectedTrackId || !lessonForm.title.trim()) { toast.error("Informe o título da aula."); return; }
 
