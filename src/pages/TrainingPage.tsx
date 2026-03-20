@@ -129,7 +129,7 @@ const TrainingPage = () => {
         await supabase.from("notifications").insert(
           adminRoles.map((r: any) => ({
             user_id: r.user_id, title: "Nova solicitação de treinamento",
-            message: `${user.email} solicitou ${selectedModules.length} módulo(s) — ${modality}, ${participants} participantes, total ${fmt(grandTotalFinal)}`,
+            message: `${user.email} solicitou ${selectedModules.length} módulo(s) — ${participants} participantes, total ${fmt(grandTotalFinal)}`,
             type: "training",
           }))
         );
