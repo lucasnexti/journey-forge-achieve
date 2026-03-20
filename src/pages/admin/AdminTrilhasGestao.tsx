@@ -741,11 +741,30 @@ const AdminTrilhasGestao = () => {
             </div>
             <div className="space-y-2">
               <Label>URL do vídeo</Label>
-              <Input value={lessonForm.video_url} onChange={(e) => setLessonForm({ ...lessonForm, video_url: e.target.value })} placeholder="https://..." />
+              <Input
+                value={lessonForm.video_url}
+                onChange={(e) => handleVideoUrlChange(e.target.value)}
+                placeholder="https://vimeo.com/..."
+              />
             </div>
             <div className="space-y-2 max-w-[200px]">
-              <Label>Duração (segundos)</Label>
-              <Input type="number" value={lessonForm.duration} onChange={(e) => setLessonForm({ ...lessonForm, duration: Number(e.target.value) })} />
+              <Label className="flex items-center gap-2">
+                Duração (segundos)
+                {fetchingDuration && (
+                  <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                )}
+              </Label>
+              <Input
+                type="number"
+                value={lessonForm.duration}
+                onChange={(e) => setLessonForm({ ...lessonForm, duration: Number(e.target.value) })}
+                className={fetchingDuration ? "opacity-50" : ""}
+              />
+              {lessonForm.duration > 0 && (
+                <p className="text-[11px] text-muted-foreground">
+                  ≈ {Math.floor(lessonForm.duration / 60)}min {lessonForm.duration % 60}s
+                </p>
+              )}
             </div>
           </div>
           <DialogFooter className="mt-4">
