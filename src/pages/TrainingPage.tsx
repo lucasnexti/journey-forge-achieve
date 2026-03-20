@@ -130,7 +130,7 @@ const TrainingPage = () => {
     if (error) {
       toast.error("Erro ao enviar: " + error.message);
     } else {
-      toast.success(`${selectedModules.length} módulo(s) solicitado(s) com sucesso!`);
+      toast.success(`${readyModules.length} módulo(s) solicitado(s) com sucesso!`);
       const { data: adminRoles } = await supabase.from("user_roles").select("user_id").eq("role", "admin");
       if (adminRoles) {
         await supabase.from("notifications").insert(
