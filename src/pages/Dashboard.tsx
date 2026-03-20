@@ -50,7 +50,7 @@ const Dashboard = () => {
     if (!user) return;
 
     const load = async () => {
-      const [{ data: trackData }, statsData, lastData, { data: userBadges }, { data: allBadges }, { data: profileData }, { data: favData }] = await Promise.all([
+      const [{ data: trackData }, statsData, lastData, { data: userBadges }, { data: allBadges }, { data: profileData }, { data: favData }, gData] = await Promise.all([
         supabase
           .from("tracks")
           .select("id, title, description, category, estimated_hours, is_active, order_index, lessons(id, duration), enrollments(id, status)")
@@ -62,11 +62,16 @@ const Dashboard = () => {
         supabase.from("badges").select("name, icon, description, criteria_type, criteria_value"),
         supabase.from("profiles").select("onboarding_completed, nome").eq("user_id", user.id).maybeSingle(),
         supabase.from("track_favorites").select("track_id").eq("user_id", user.id),
+        getUserGamificationData(user.id),
       ]);
+
+      // Update streak on dashboard load
+      updateStreak(user.id).catch(console.error);
 
       setTracks((trackData as unknown as TrackRow[]) || []);
       setStats(statsData);
       setLastLesson(lastData);
+      setGamification(gData);
 
       const earnedNames = new Set((userBadges || []).map((ub: any) => ub.badges?.name));
       setBadges(
