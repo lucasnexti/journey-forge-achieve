@@ -96,40 +96,47 @@ const TrainingPage = () => {
   }, [user]);
 
   const selectedModules = useMemo(() => modules.filter((m) => selected[m.id]), [modules, selected]);
-  const totalHours = useMemo(() => selectedModules.reduce((sum, m) => sum + m.duration_hours, 0), [selectedModules]);
+  const readyModules = useMemo(() => selectedModules.filter((m) => !!modalities[m.id]), [selectedModules, modalities]);
+  const totalHours = useMemo(() => readyModules.reduce((sum, m) => sum + m.duration_hours, 0), [readyModules]);
   const autoDiscount = getDiscountForHours(totalHours);
 
-  const getModModality = (mod: TrainingModule) => modalities[mod.id] || "presencial";
+  const getModModality = (mod: TrainingModule) => modalities[mod.id] || null;
+
+  const hasModality = (mod: TrainingModule) => !!modalities[mod.id];
 
   const getOriginalPrice = (mod: TrainingModule) =>
-    getModModality(mod) === "remoto" ? Number(mod.cost_per_hour_remote) : Number(mod.cost_per_hour);
+    modalities[mod.id] === "remoto" ? Number(mod.cost_per_hour_remote) : Number(mod.cost_per_hour);
 
   const getUnitPrice = (mod: TrainingModule) => getOriginalPrice(mod) * (1 - autoDiscount);
   const getModuleTotal = (mod: TrainingModule) => getUnitPrice(mod) * mod.duration_hours;
 
-  const grandTotalOriginal = selectedModules.reduce((s, m) => s + getOriginalPrice(m) * m.duration_hours, 0);
-  const grandTotalFinal = selectedModules.reduce((s, m) => s + getModuleTotal(m), 0);
+  const grandTotalOriginal = readyModules.reduce((s, m) => s + getOriginalPrice(m) * m.duration_hours, 0);
+  const grandTotalFinal = readyModules.reduce((s, m) => s + getModuleTotal(m), 0);
 
-  const handleToggle = (id: string) => setSelected((prev) => ({ ...prev, [id]: !prev[id] }));
+  const handleToggle = (id: string) => {
+    const next = !selected[id];
+    setSelected((prev) => ({ ...prev, [id]: next }));
+    if (!next) setModalities((prev) => { const n = { ...prev }; delete n[id]; return n; });
+  };
 
   const handleSubmit = async () => {
-    if (!user || selectedModules.length === 0) return;
+    if (!user || readyModules.length === 0) return;
     setSubmitting(true);
-    const inserts = selectedModules.map((mod) => ({
+    const inserts = readyModules.map((mod) => ({
       user_id: user.id, module_id: mod.id, preferred_date: preferredDate || null,
-      participants, notes: notes.trim() || null, modality: getModModality(mod),
+      participants, notes: notes.trim() || null, modality: modalities[mod.id],
     }));
     const { error } = await supabase.from("training_requests").insert(inserts);
     if (error) {
       toast.error("Erro ao enviar: " + error.message);
     } else {
-      toast.success(`${selectedModules.length} módulo(s) solicitado(s) com sucesso!`);
+      toast.success(`${readyModules.length} módulo(s) solicitado(s) com sucesso!`);
       const { data: adminRoles } = await supabase.from("user_roles").select("user_id").eq("role", "admin");
       if (adminRoles) {
         await supabase.from("notifications").insert(
           adminRoles.map((r: any) => ({
             user_id: r.user_id, title: "Nova solicitação de treinamento",
-            message: `${user.email} solicitou ${selectedModules.length} módulo(s) — ${participants} participantes, total ${fmt(grandTotalFinal)}`,
+            message: `${user.email} solicitou ${readyModules.length} módulo(s) — ${participants} participantes, total ${fmt(grandTotalFinal)}`,
             type: "training",
           }))
         );
@@ -218,10 +225,10 @@ const TrainingPage = () => {
                   )}
                 </TableCell>
                 <TableCell className="text-right tabular-nums text-sm text-muted-foreground">
-                  {fmt(origPrice)}
+                  {isOn && hasModality(mod) ? fmt(origPrice) : <span className="text-muted-foreground/40">—</span>}
                 </TableCell>
                 <TableCell className="text-right tabular-nums text-sm">
-                  {isOn ? (
+                  {isOn && hasModality(mod) ? (
                     <span className="font-bold text-foreground">{fmt(total)}</span>
                   ) : (
                     <span className="text-muted-foreground/40">—</span>
@@ -344,10 +351,10 @@ const TrainingPage = () => {
                     Investimento Total
                   </h3>
                   <div className="flex items-center gap-4 mt-1.5 text-xs text-muted-foreground">
-                    <span>{selectedModules.length} módulo{selectedModules.length !== 1 ? "s" : ""}</span>
+                    <span>{readyModules.length} módulo{readyModules.length !== 1 ? "s" : ""}</span>
                     <span>{totalHours}h total</span>
                   </div>
-                  {autoDiscount > 0 && selectedModules.length > 0 && (
+                  {autoDiscount > 0 && readyModules.length > 0 && (
                     <div className="mt-2 flex items-center gap-2">
                       <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 text-xs">
                         Desconto pacote: {(autoDiscount * 100).toFixed(0)}%
@@ -362,16 +369,16 @@ const TrainingPage = () => {
                 <div className="text-right">
                   <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Total</p>
                   <p className="font-display text-2xl font-extrabold text-primary tabular-nums">
-                    {selectedModules.length > 0 ? fmt(grandTotalFinal) : "—"}
+                    {readyModules.length > 0 ? fmt(grandTotalFinal) : "—"}
                   </p>
                 </div>
               </div>
 
-              {selectedModules.length > 0 && (
+              {readyModules.length > 0 && (
                 <div className="mt-4 pt-4 border-t border-primary/10">
                   <Button onClick={() => setShowRequestForm(true)} className="w-full sm:w-auto" size="lg">
                     <Send className="h-4 w-4 mr-2" />
-                    Solicitar {selectedModules.length} módulo{selectedModules.length !== 1 ? "s" : ""}
+                    Solicitar {readyModules.length} módulo{readyModules.length !== 1 ? "s" : ""}
                   </Button>
                 </div>
               )}
@@ -392,7 +399,7 @@ const TrainingPage = () => {
               <div className="bg-gradient-nexti p-5">
                 <h2 className="font-display text-lg font-bold text-primary-foreground">Confirmar Solicitação</h2>
                 <p className="text-sm text-primary-foreground/70 mt-0.5">
-                  {selectedModules.length} módulo{selectedModules.length !== 1 ? "s" : ""} • {totalHours}h • {fmt(grandTotalFinal)}
+                  {readyModules.length} módulo{readyModules.length !== 1 ? "s" : ""} • {totalHours}h • {fmt(grandTotalFinal)}
                   {autoDiscount > 0 && ` (${(autoDiscount * 100).toFixed(0)}% desc.)`}
                 </p>
               </div>
@@ -401,13 +408,13 @@ const TrainingPage = () => {
                 <div className="space-y-1.5">
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Módulos selecionados</p>
                   <ul className="space-y-1">
-                    {selectedModules.map((m) => (
+                     {readyModules.map((m) => (
                       <li key={m.id} className="text-sm text-foreground flex justify-between items-center">
                         <span className="flex items-center gap-1.5">
                           {m.title}
                           <Badge variant="outline" className="text-[9px] px-1.5 py-0 gap-0.5">
-                            {getModModality(m) === "remoto" ? <Monitor className="h-2.5 w-2.5" /> : <MapPin className="h-2.5 w-2.5" />}
-                            {getModModality(m) === "remoto" ? "Remoto" : "Presencial"}
+                            {modalities[m.id] === "remoto" ? <Monitor className="h-2.5 w-2.5" /> : <MapPin className="h-2.5 w-2.5" />}
+                            {modalities[m.id] === "remoto" ? "Remoto" : "Presencial"}
                           </Badge>
                         </span>
                         <span className="tabular-nums font-medium">{fmt(getModuleTotal(m))}</span>
