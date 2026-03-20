@@ -399,7 +399,7 @@ const TrainingPage = () => {
               <div className="bg-gradient-nexti p-5">
                 <h2 className="font-display text-lg font-bold text-primary-foreground">Confirmar Solicitação</h2>
                 <p className="text-sm text-primary-foreground/70 mt-0.5">
-                  {selectedModules.length} módulo{selectedModules.length !== 1 ? "s" : ""} • {totalHours}h • {fmt(grandTotalFinal)}
+                  {readyModules.length} módulo{readyModules.length !== 1 ? "s" : ""} • {totalHours}h • {fmt(grandTotalFinal)}
                   {autoDiscount > 0 && ` (${(autoDiscount * 100).toFixed(0)}% desc.)`}
                 </p>
               </div>
