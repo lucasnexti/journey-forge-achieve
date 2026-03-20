@@ -164,14 +164,30 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
   // Vimeo embed - auto-start timer to track time spent on page
   useEffect(() => {
     if (!vimeo) return;
+    // Stop timer if already completed or past duration
+    if (completed) return;
+    if (lessonDuration > 0 && currentTime >= lessonDuration) return;
+
     const timer = setInterval(() => {
       setCurrentTime((prev) => {
         const next = prev + 1;
+        // Stop counting beyond lesson duration
+        if (lessonDuration > 0 && next >= lessonDuration) {
+          clearInterval(timer);
+          // Auto-complete
+          if (!completed) {
+            setCompleted(true);
+            onComplete(Math.round(lessonDuration));
+          }
+          onProgress?.(Math.round(lessonDuration));
+          return lessonDuration;
+        }
+        // Periodic save
         if (next - lastSavedRef.current >= PROGRESS_SAVE_INTERVAL) {
           lastSavedRef.current = next;
           onProgress?.(Math.round(next));
         }
-        // Auto-complete when 90% of lesson duration is reached
+        // Auto-complete at 90% threshold
         if (vimeoCompletionThreshold > 0 && next >= vimeoCompletionThreshold && !completed) {
           setCompleted(true);
           onComplete(Math.round(next));
@@ -181,7 +197,7 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
     }, 1000);
     return () => clearInterval(timer);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [vimeo, videoUrl, onProgress, vimeoCompletionThreshold]);
+  }, [vimeo, videoUrl, onProgress, vimeoCompletionThreshold, completed, lessonDuration]);
 
   if (vimeo) {
     const embedUrl = getVimeoEmbedUrl(videoUrl) + (getVimeoEmbedUrl(videoUrl).includes("?") ? "&" : "?") + "autoplay=0&title=0&byline=0&portrait=0";
