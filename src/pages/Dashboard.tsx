@@ -245,45 +245,6 @@ const Dashboard = () => {
           ))}
         </motion.div>
 
-        {/* Badges */}
-        {badges.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="mb-6"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
-                <Award className="h-4 w-4 text-warning" />
-                Insígnias
-              </h3>
-              <p className="text-xs text-muted-foreground">
-                {badges.filter(b => b.earned).length}/{badges.length}
-              </p>
-            </div>
-            <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
-              {badges.map((badge, i) => (
-                <div
-                  key={i}
-                  className={`flex items-center gap-2 shrink-0 rounded-lg border px-3 py-2 transition-all ${
-                    badge.earned
-                      ? "border-warning/30 bg-warning/5"
-                      : "border-border/50 bg-card opacity-50 grayscale"
-                  }`}
-                >
-                  <div className={`flex h-7 w-7 items-center justify-center rounded-full ${
-                    badge.earned ? "bg-warning/15" : "bg-muted"
-                  }`}>
-                    <Award className={`h-3.5 w-3.5 ${badge.earned ? "text-warning" : "text-muted-foreground"}`} />
-                  </div>
-                  <span className="text-xs font-medium text-foreground whitespace-nowrap">{badge.name}</span>
-                  {badge.earned && <LinkedInShare type="badge" title={badge.name} compact />}
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        )}
 
         {/* Search & Filters */}
         <div className="mb-5 flex flex-col sm:flex-row items-start sm:items-center gap-3">
