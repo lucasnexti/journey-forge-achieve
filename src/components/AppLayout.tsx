@@ -1,6 +1,7 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import NotificationBell from "@/components/NotificationBell";
+import { GlobalSearch } from "@/components/GlobalSearch";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileHeader from "@/components/MobileHeader";
 
