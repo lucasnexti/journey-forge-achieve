@@ -984,6 +984,7 @@ export type Database = {
         Row: {
           category: string | null
           cost_per_hour: number
+          cost_per_hour_remote: number
           created_at: string
           description: string | null
           duration_hours: number
@@ -996,6 +997,7 @@ export type Database = {
         Insert: {
           category?: string | null
           cost_per_hour?: number
+          cost_per_hour_remote?: number
           created_at?: string
           description?: string | null
           duration_hours?: number
@@ -1008,6 +1010,7 @@ export type Database = {
         Update: {
           category?: string | null
           cost_per_hour?: number
+          cost_per_hour_remote?: number
           created_at?: string
           description?: string | null
           duration_hours?: number
@@ -1024,6 +1027,7 @@ export type Database = {
           admin_note: string | null
           created_at: string
           id: string
+          modality: string
           module_id: string
           notes: string | null
           participants: number | null
@@ -1036,6 +1040,7 @@ export type Database = {
           admin_note?: string | null
           created_at?: string
           id?: string
+          modality?: string
           module_id: string
           notes?: string | null
           participants?: number | null
@@ -1048,6 +1053,7 @@ export type Database = {
           admin_note?: string | null
           created_at?: string
           id?: string
+          modality?: string
           module_id?: string
           notes?: string | null
           participants?: number | null
