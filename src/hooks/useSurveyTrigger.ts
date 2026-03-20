@@ -20,7 +20,7 @@ export const useSurveyTrigger = (triggerType?: string, contextId?: string) => {
   const [showSurvey, setShowSurvey] = useState(false);
 
   const checkSurveys = useCallback(async () => {
-    if (!user) return;
+    if (!user || !triggerType) return;
 
     // Get active surveys for this trigger type
     let query = supabase
