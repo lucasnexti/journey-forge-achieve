@@ -137,6 +137,7 @@ const TrainingPage = () => {
       const { data: reqData } = await supabase.from("training_requests").select("*").eq("user_id", user.id).order("created_at", { ascending: false });
       setRequests((reqData as TrainingRequest[]) || []);
       setSelected({});
+      setModalities({});
       setShowRequestForm(false);
       setPreferredDate("");
       setParticipants(1);
