@@ -39,6 +39,7 @@ const Dashboard = () => {
   const [lastLesson, setLastLesson] = useState<Awaited<ReturnType<typeof getLastWatchedLesson>>>(null);
   const [gamification, setGamification] = useState({ coins: 0, xp: 0, level: 1, streak: 0, longestStreak: 0 });
   const [badges, setBadges] = useState<{ name: string; icon: string; earned: boolean }[]>([]);
+  const [completedLessonIds, setCompletedLessonIds] = useState<Set<string>>(new Set());
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
@@ -48,7 +49,7 @@ const Dashboard = () => {
     if (!user) return;
 
     const load = async () => {
-      const [{ data: trackData }, statsData, lastData, { data: userBadges }, { data: allBadges }, { data: profileData }, { data: favData }, gData] = await Promise.all([
+      const [{ data: trackData }, statsData, lastData, { data: userBadges }, { data: allBadges }, { data: profileData }, { data: favData }, gData, { data: lessonProgressData }] = await Promise.all([
         supabase
           .from("tracks")
           .select("id, title, description, category, estimated_hours, is_active, order_index, lessons(id, duration), enrollments(id, status)")
@@ -61,12 +62,14 @@ const Dashboard = () => {
         supabase.from("profiles").select("nome, onboarding_completed").eq("user_id", user.id).maybeSingle(),
         supabase.from("track_favorites").select("track_id").eq("user_id", user.id),
         getUserGamificationData(user.id),
+        supabase.from("lesson_progress").select("lesson_id, completed").eq("user_id", user.id).eq("completed", true),
       ]);
 
       setTracks((trackData as unknown as TrackRow[]) || []);
       setStats(statsData);
       setLastLesson(lastData);
       setGamification(gData);
+      setCompletedLessonIds(new Set((lessonProgressData || []).map((lp: any) => lp.lesson_id)));
 
       const earnedSet = new Set((userBadges || []).map((b: any) => b.badge_id));
       setBadges((allBadges || []).map((b: any) => ({ name: b.name, icon: b.icon || "award", earned: earnedSet.has(b.id) })));
@@ -108,7 +111,14 @@ const Dashboard = () => {
   const enrolledTracks = tracks.filter((t) => t.enrollments?.length > 0 && !t.enrollments?.some((e) => e.status === "completed"));
   const notStartedTracks = tracks.filter((t) => !t.enrollments || t.enrollments.length === 0);
   const completedTracks = tracks.filter((t) => t.enrollments?.some((e) => e.status === "completed"));
-  const overallProgress = tracks.length > 0 ? Math.round((completedCount / tracks.length) * 100) : 0;
+
+  // Calculate progress based on completed lessons across enrolled tracks
+  const enrolledOrCompletedTracks = tracks.filter((t) => t.enrollments?.length > 0);
+  const totalLessonsInEnrolled = enrolledOrCompletedTracks.reduce((sum, t) => sum + (t.lessons?.length || 0), 0);
+  const completedLessonsInEnrolled = enrolledOrCompletedTracks.reduce((sum, t) => {
+    return sum + (t.lessons?.filter((l) => completedLessonIds.has(l.id)).length || 0);
+  }, 0);
+  const overallProgress = totalLessonsInEnrolled > 0 ? Math.round((completedLessonsInEnrolled / totalLessonsInEnrolled) * 100) : 0;
 
   const formatTime = (secs: number) => {
     if (secs < 60) return `${secs}s`;
@@ -229,7 +239,7 @@ const Dashboard = () => {
         >
           {[
             { icon: Target, label: "Progresso", value: `${overallProgress}%`, color: "text-primary" },
-            { icon: BookOpen, label: "Concluídas", value: `${completedCount}/${tracks.length}`, color: "text-success" },
+            { icon: BookOpen, label: "Concluídas", value: `${completedLessonsInEnrolled}/${totalLessonsInEnrolled}`, color: "text-success" },
             { icon: Clock, label: "Tempo", value: formatTime(stats.totalWatched), color: "text-muted-foreground" },
             { icon: Trophy, label: "Nota Média", value: stats.avgScore > 0 ? `${stats.avgScore}%` : "—", color: "text-warning" },
           ].map(({ icon: Icon, label, value, color }) => (
