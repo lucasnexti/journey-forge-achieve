@@ -53,7 +53,7 @@ const Dashboard = () => {
       const [{ data: trackData }, statsData, lastData, { data: userBadges }, { data: allBadges }, { data: profileData }, { data: favData }, gData, { data: lessonProgressData }] = await Promise.all([
         supabase
           .from("tracks")
-          .select("id, title, description, category, estimated_hours, is_active, order_index, lessons(id, duration), enrollments(id, status)")
+          .select("id, title, description, category, estimated_hours, is_active, order_index, prerequisite_track_id, lessons(id, duration), enrollments(id, status)")
           .eq("is_active", true)
           .order("order_index"),
         getUserStats(user.id),
