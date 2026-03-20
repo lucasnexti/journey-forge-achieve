@@ -56,6 +56,7 @@ const navGroups: NavGroup[] = [
     icon: Award,
     items: [
       { to: "/admin/gamificacao", label: "Gamificação", icon: Award },
+      { to: "/admin/premios", label: "Prêmios & Resgates", icon: Gift },
       { to: "/admin/forum-gestao", label: "Fórum / Mural", icon: MessageSquare },
       { to: "/admin/notificacoes", label: "Notificações", icon: Bell },
       { to: "/admin/avaliacoes", label: "Avaliações CSAT", icon: Star },

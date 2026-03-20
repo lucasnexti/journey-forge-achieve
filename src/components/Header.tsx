@@ -22,6 +22,7 @@ const Header = () => {
 
   const links = [
     { to: "/dashboard", label: "Trilhas", icon: BookOpen },
+    { to: "/loja", label: "Loja", icon: Coins },
     { to: "/relatorios", label: "Relatórios", icon: BarChart3 },
     { to: "/base-conhecimento", label: "Base de Conhecimento", icon: Library },
     { to: "/quiz-nexti", label: "Quiz Nexti", icon: Zap },
