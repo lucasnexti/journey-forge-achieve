@@ -110,8 +110,8 @@ const TrainingPage = () => {
   const getUnitPrice = (mod: TrainingModule) => getOriginalPrice(mod) * (1 - autoDiscount);
   const getModuleTotal = (mod: TrainingModule) => getUnitPrice(mod) * mod.duration_hours;
 
-  const grandTotalOriginal = selectedModules.reduce((s, m) => s + getOriginalPrice(m) * m.duration_hours, 0);
-  const grandTotalFinal = selectedModules.reduce((s, m) => s + getModuleTotal(m), 0);
+  const grandTotalOriginal = readyModules.reduce((s, m) => s + getOriginalPrice(m) * m.duration_hours, 0);
+  const grandTotalFinal = readyModules.reduce((s, m) => s + getModuleTotal(m), 0);
 
   const handleToggle = (id: string) => setSelected((prev) => ({ ...prev, [id]: !prev[id] }));
 
