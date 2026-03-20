@@ -49,7 +49,6 @@ const LessonNotes = ({ lessonId, currentTime = 0, onSeek }: LessonNotesProps) =>
           created_at: d.created_at,
         })));
       });
-      });
   }, [user, lessonId]);
 
   const handleSave = async (withTimestamp: boolean) => {
