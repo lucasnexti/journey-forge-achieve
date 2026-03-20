@@ -117,18 +117,9 @@ const TrainingPage = () => {
   const getOriginalPrice = (mod: TrainingModule) =>
     modality === "remoto" ? Number(mod.cost_per_hour_remote) : Number(mod.cost_per_hour);
 
-  const getModuleDiscount = (mod: TrainingModule) => {
-    const custom = customDiscount[mod.id];
-    if (custom !== undefined && custom !== "") {
-      return parseFloat(custom) / 100;
-    }
-    return autoDiscount;
-  };
-
   const getUnitPrice = (mod: TrainingModule) => {
     const original = getOriginalPrice(mod);
-    const disc = getModuleDiscount(mod);
-    return original * (1 - disc);
+    return original * (1 - autoDiscount);
   };
 
   const getModuleTotal = (mod: TrainingModule) => {
