@@ -28,6 +28,7 @@ interface TrackCardProps {
 const TrackCard = ({
   trackId, title, description, category, totalLessons, totalDurationSeconds,
   index, isEnrolled, isCompleted, isFavorite = false, onToggleFavorite,
+  isLocked = false, prerequisiteTitle,
 }: TrackCardProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
