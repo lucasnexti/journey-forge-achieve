@@ -408,13 +408,13 @@ const TrainingPage = () => {
                 <div className="space-y-1.5">
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Módulos selecionados</p>
                   <ul className="space-y-1">
-                    {selectedModules.map((m) => (
+                     {readyModules.map((m) => (
                       <li key={m.id} className="text-sm text-foreground flex justify-between items-center">
                         <span className="flex items-center gap-1.5">
                           {m.title}
                           <Badge variant="outline" className="text-[9px] px-1.5 py-0 gap-0.5">
-                            {getModModality(m) === "remoto" ? <Monitor className="h-2.5 w-2.5" /> : <MapPin className="h-2.5 w-2.5" />}
-                            {getModModality(m) === "remoto" ? "Remoto" : "Presencial"}
+                            {modalities[m.id] === "remoto" ? <Monitor className="h-2.5 w-2.5" /> : <MapPin className="h-2.5 w-2.5" />}
+                            {modalities[m.id] === "remoto" ? "Remoto" : "Presencial"}
                           </Badge>
                         </span>
                         <span className="tabular-nums font-medium">{fmt(getModuleTotal(m))}</span>
