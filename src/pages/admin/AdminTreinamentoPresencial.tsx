@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, GraduationCap, CheckCircle2, XCircle, AlertCircle, Clock, Users, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, GraduationCap, Clock, Users, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface TrainingModule {
@@ -16,6 +16,7 @@ interface TrainingModule {
   description: string | null;
   duration_hours: number;
   cost_per_hour: number;
+  cost_per_hour_remote: number;
   category: string | null;
   is_active: boolean;
   order_index: number;
@@ -31,6 +32,7 @@ interface TrainingRequest {
   status: string;
   admin_note: string | null;
   created_at: string;
+  modality: string;
 }
 
 const AdminTreinamentoPresencial = () => {
@@ -40,12 +42,10 @@ const AdminTreinamentoPresencial = () => {
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"modules" | "requests">("modules");
 
-  // Module form
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState({ title: "", description: "", duration_hours: "1", cost_per_hour: "0", category: "", is_active: true });
+  const [form, setForm] = useState({ title: "", description: "", duration_hours: "1", cost_per_hour: "400", cost_per_hour_remote: "200", category: "", is_active: true });
 
-  // Request response
   const [respondingId, setRespondingId] = useState<string | null>(null);
   const [adminNote, setAdminNote] = useState("");
   const [respondStatus, setRespondStatus] = useState("approved");
@@ -73,6 +73,7 @@ const AdminTreinamentoPresencial = () => {
       description: form.description.trim() || null,
       duration_hours: parseFloat(form.duration_hours) || 1,
       cost_per_hour: parseFloat(form.cost_per_hour) || 0,
+      cost_per_hour_remote: parseFloat(form.cost_per_hour_remote) || 0,
       category: form.category.trim() || null,
       is_active: form.is_active,
     };
@@ -101,6 +102,7 @@ const AdminTreinamentoPresencial = () => {
       description: mod.description || "",
       duration_hours: String(mod.duration_hours),
       cost_per_hour: String(mod.cost_per_hour),
+      cost_per_hour_remote: String(mod.cost_per_hour_remote),
       category: mod.category || "",
       is_active: mod.is_active,
     });
@@ -110,7 +112,7 @@ const AdminTreinamentoPresencial = () => {
   const resetForm = () => {
     setShowForm(false);
     setEditingId(null);
-    setForm({ title: "", description: "", duration_hours: "1", cost_per_hour: "0", category: "", is_active: true });
+    setForm({ title: "", description: "", duration_hours: "1", cost_per_hour: "400", cost_per_hour_remote: "200", category: "", is_active: true });
   };
 
   const handleRespond = async (reqId: string) => {
@@ -135,7 +137,6 @@ const AdminTreinamentoPresencial = () => {
 
   return (
     <AdminLayout>
-      {/* Tabs */}
       <div className="flex gap-2 mb-6">
         <Button variant={tab === "modules" ? "default" : "outline"} size="sm" onClick={() => setTab("modules")}>
           Módulos ({modules.length})
@@ -145,7 +146,6 @@ const AdminTreinamentoPresencial = () => {
         </Button>
       </div>
 
-      {/* ====== MODULES TAB ====== */}
       {tab === "modules" && (
         <>
           <div className="flex justify-between items-center mb-4">
@@ -165,15 +165,19 @@ const AdminTreinamentoPresencial = () => {
                 </div>
                 <div>
                   <Label className="text-xs">Categoria</Label>
-                  <Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="Ex: Comercial, RH..." />
+                  <Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="Ex: Operação, Benefícios..." />
                 </div>
                 <div>
                   <Label className="text-xs">Duração (horas)</Label>
                   <Input type="number" min="0.5" step="0.5" value={form.duration_hours} onChange={(e) => setForm({ ...form, duration_hours: e.target.value })} />
                 </div>
                 <div>
-                  <Label className="text-xs">Custo por hora (R$)</Label>
+                  <Label className="text-xs">Custo/hora Presencial (R$)</Label>
                   <Input type="number" min="0" step="0.01" value={form.cost_per_hour} onChange={(e) => setForm({ ...form, cost_per_hour: e.target.value })} />
+                </div>
+                <div>
+                  <Label className="text-xs">Custo/hora Remoto (R$)</Label>
+                  <Input type="number" min="0" step="0.01" value={form.cost_per_hour_remote} onChange={(e) => setForm({ ...form, cost_per_hour_remote: e.target.value })} />
                 </div>
               </div>
               <div>
@@ -201,7 +205,7 @@ const AdminTreinamentoPresencial = () => {
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-foreground truncate">{mod.title}</p>
                     <p className="text-xs text-muted-foreground">
-                      {mod.duration_hours}h • R$ {Number(mod.cost_per_hour).toFixed(2)}/h
+                      {mod.duration_hours}h • Presencial R$ {Number(mod.cost_per_hour).toFixed(2)}/h • Remoto R$ {Number(mod.cost_per_hour_remote).toFixed(2)}/h
                       {mod.category && ` • ${mod.category}`}
                       {!mod.is_active && " • Inativo"}
                     </p>
@@ -224,7 +228,6 @@ const AdminTreinamentoPresencial = () => {
         </>
       )}
 
-      {/* ====== REQUESTS TAB ====== */}
       {tab === "requests" && (
         <div className="space-y-3">
           {requests.length === 0 ? (
@@ -242,9 +245,14 @@ const AdminTreinamentoPresencial = () => {
                         Solicitado por <span className="font-medium text-foreground">{profiles[req.user_id] || req.user_id}</span>
                       </p>
                     </div>
-                    <Badge variant="outline" className={cn("shrink-0 text-[10px]", st.color)}>
-                      {st.label}
-                    </Badge>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <Badge variant="secondary" className="text-[10px]">
+                        {req.modality === "remoto" ? "Remoto" : "Presencial"}
+                      </Badge>
+                      <Badge variant="outline" className={cn("text-[10px]", st.color)}>
+                        {st.label}
+                      </Badge>
+                    </div>
                   </div>
                   <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground mb-2">
                     <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{req.preferred_date || "Sem data"}</span>
