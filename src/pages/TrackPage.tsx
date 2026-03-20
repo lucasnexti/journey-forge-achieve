@@ -121,11 +121,13 @@ const TrackPage = () => {
 
   const handleLessonComplete = async (watchedSeconds: number) => {
     if (!user || !trackId) return;
+    console.log("handleLessonComplete called:", { userId: user.id, trackId, lessonId: currentLessonId, watchedSeconds });
     await markLessonCompleteDB(user.id, trackId, currentLessonId, watchedSeconds);
     setProgress((prev) => ({
       ...prev,
       [currentLessonId]: { completed: true, watched_seconds: watchedSeconds },
     }));
+    console.log("Lesson marked complete, progress updated");
   };
 
   const handleProgress = useCallback(async (watchedSeconds: number) => {
