@@ -4,10 +4,11 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { supabase } from "@/integrations/supabase/client";
 import { getUserStats, getLastWatchedLesson } from "@/lib/progressDB";
+import { getUserGamificationData, updateStreak, getLevelInfo } from "@/lib/gamification";
 import Header from "@/components/Header";
 import TrackCard from "@/components/TrackCard";
 import OnboardingWizard from "@/components/OnboardingWizard";
-import { BookOpen, Clock, Trophy, Play, Search, Filter, Star, Heart, TrendingUp, Target, Award } from "lucide-react";
+import { BookOpen, Clock, Trophy, Play, Search, Filter, Star, Heart, TrendingUp, Target, Award, Coins, Flame } from "lucide-react";
 import LinkedInShare from "@/components/LinkedInShare";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
@@ -36,6 +37,7 @@ const Dashboard = () => {
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [stats, setStats] = useState({ enrollments: 0, totalWatched: 0, avgScore: 0 });
   const [lastLesson, setLastLesson] = useState<Awaited<ReturnType<typeof getLastWatchedLesson>>>(null);
+  const [gamification, setGamification] = useState({ coins: 0, xp: 0, level: 1, streak: 0, longestStreak: 0 });
   const [badges, setBadges] = useState<{ name: string; icon: string; earned: boolean }[]>([]);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
@@ -48,7 +50,7 @@ const Dashboard = () => {
     if (!user) return;
 
     const load = async () => {
-      const [{ data: trackData }, statsData, lastData, { data: userBadges }, { data: allBadges }, { data: profileData }, { data: favData }] = await Promise.all([
+      const [{ data: trackData }, statsData, lastData, { data: userBadges }, { data: allBadges }, { data: profileData }, { data: favData }, gData] = await Promise.all([
         supabase
           .from("tracks")
           .select("id, title, description, category, estimated_hours, is_active, order_index, lessons(id, duration), enrollments(id, status)")
@@ -60,11 +62,16 @@ const Dashboard = () => {
         supabase.from("badges").select("name, icon, description, criteria_type, criteria_value"),
         supabase.from("profiles").select("onboarding_completed, nome").eq("user_id", user.id).maybeSingle(),
         supabase.from("track_favorites").select("track_id").eq("user_id", user.id),
+        getUserGamificationData(user.id),
       ]);
+
+      // Update streak on dashboard load
+      updateStreak(user.id).catch(console.error);
 
       setTracks((trackData as unknown as TrackRow[]) || []);
       setStats(statsData);
       setLastLesson(lastData);
+      setGamification(gData);
 
       const earnedNames = new Set((userBadges || []).map((ub: any) => ub.badges?.name));
       setBadges(
@@ -211,6 +218,27 @@ const Dashboard = () => {
             </div>
           </motion.div>
         </div>
+
+        {/* Gamification — Coins, Streak, Level */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }} className="mb-4 sm:mb-6">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
+            <Link to="/loja" className="card-surface-hover p-3 sm:p-4 text-center group">
+              <Coins className="h-5 w-5 mx-auto text-yellow-500 mb-1" />
+              <p className="text-lg sm:text-xl font-display font-extrabold text-foreground tabular-nums">{gamification.coins}</p>
+              <p className="text-[9px] sm:text-[10px] text-muted-foreground">Nexti Coins</p>
+            </Link>
+            <div className="card-surface p-3 sm:p-4 text-center">
+              <Flame className="h-5 w-5 mx-auto text-orange-500 mb-1" />
+              <p className="text-lg sm:text-xl font-display font-extrabold text-foreground tabular-nums">{gamification.streak}</p>
+              <p className="text-[9px] sm:text-[10px] text-muted-foreground">Dias seguidos</p>
+            </div>
+            <div className="card-surface p-3 sm:p-4 text-center">
+              <TrendingUp className="h-5 w-5 mx-auto text-primary mb-1" />
+              <p className="text-lg sm:text-xl font-display font-extrabold text-foreground">Nv. {gamification.level}</p>
+              <p className="text-[9px] sm:text-[10px] text-muted-foreground">{getLevelInfo(gamification.xp).title}</p>
+            </div>
+          </div>
+        </motion.div>
 
         {/* Gamification — Insígnias */}
         {badges.length > 0 && (

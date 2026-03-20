@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutGrid, Route, BookOpen, Star, GraduationCap, Users as UsersIcon,
   Layers, BarChart3, FileText, LogOut, Award, ShieldCheck, Bell, Palette,
-  ClipboardCheck, MessageSquare, ChevronDown, X, Zap
+  ClipboardCheck, MessageSquare, ChevronDown, X, Zap, Gift
 } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -56,6 +56,7 @@ const navGroups: NavGroup[] = [
     icon: Award,
     items: [
       { to: "/admin/gamificacao", label: "Gamificação", icon: Award },
+      { to: "/admin/premios", label: "Prêmios & Resgates", icon: Gift },
       { to: "/admin/forum-gestao", label: "Fórum / Mural", icon: MessageSquare },
       { to: "/admin/notificacoes", label: "Notificações", icon: Bell },
       { to: "/admin/avaliacoes", label: "Avaliações CSAT", icon: Star },

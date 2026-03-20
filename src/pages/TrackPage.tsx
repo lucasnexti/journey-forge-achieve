@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { markLessonCompleteDB, getTrackProgressDB, savePartialProgressDB } from "@/lib/progressDB";
+import { awardCoins, COIN_REWARDS } from "@/lib/gamification";
 import Header from "@/components/Header";
 import VideoPlayer from "@/components/VideoPlayer";
 import LessonSidebar from "@/components/LessonSidebar";
@@ -130,8 +131,9 @@ const TrackPage = () => {
       ...prev,
       [currentLessonId]: { completed: true, watched_seconds: watchedSeconds },
     }));
-    // Persist to DB in background
+    // Persist to DB + award coins in background
     markLessonCompleteDB(user.id, trackId, currentLessonId, watchedSeconds).catch(console.error);
+    awardCoins(user.id, COIN_REWARDS.lesson_complete, "Aula concluída", "lesson", currentLessonId).catch(console.error);
   };
 
   const handleProgress = useCallback(async (watchedSeconds: number) => {
@@ -151,14 +153,21 @@ const TrackPage = () => {
     await supabase.from("quiz_attempts").insert({ user_id: user.id, quiz_id: quiz.id, score, passed });
     setQuizScore(score);
     setQuizPassed(passed);
+
     if (passed) {
+      // Award coins for quiz
+      const coinAmount = score === 100 ? COIN_REWARDS.quiz_perfect : COIN_REWARDS.quiz_pass;
+      awardCoins(user.id, coinAmount, score === 100 ? "Quiz nota máxima" : "Quiz aprovado", "quiz", quiz.id).catch(console.error);
+      // Award coins for track completion
+      awardCoins(user.id, COIN_REWARDS.track_complete, "Trilha concluída", "track", trackId!).catch(console.error);
+
       setCompletedAt(new Date().toISOString());
       await supabase
         .from("enrollments")
         .update({ status: "completed", completed_at: new Date().toISOString() })
         .eq("user_id", user.id)
         .eq("track_id", trackId);
-      toast.success("Parabéns! Trilha concluída!");
+      toast.success("Parabéns! Trilha concluída! 🪙 Moedas adicionadas!");
     }
   };
 
