@@ -13,7 +13,7 @@ import TrackRating from "@/components/TrackRating";
 import LessonForum from "@/components/LessonForum";
 import QuizForm from "@/components/QuizForm";
 import Certificate from "@/components/Certificate";
-import { ArrowLeft, ClipboardCheck, BookOpen, Clock, CheckCircle2, List } from "lucide-react";
+import { ArrowLeft, ClipboardCheck, BookOpen, CheckCircle2, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
@@ -60,6 +60,7 @@ const TrackPage = () => {
   const [completedAt, setCompletedAt] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [profileName, setProfileName] = useState("Cooperado(a)");
+
   const isLessonComplete = (lesson: LessonRow) => {
     const lessonProgress = progress[lesson.id];
     if (!lessonProgress) return false;
@@ -77,7 +78,6 @@ const TrackPage = () => {
 
   const loadData = useCallback(async () => {
     if (!trackId || !user) return;
-
     const [{ data: trackData }, { data: lessonData }, { data: quizData }, progressData, { data: profile }] = await Promise.all([
       supabase.from("tracks").select("id, title, description, category").eq("id", trackId).maybeSingle(),
       supabase.from("lessons").select("id, title, description, video_url, duration, order_index").eq("track_id", trackId).order("order_index"),
@@ -85,7 +85,6 @@ const TrackPage = () => {
       getTrackProgressDB(user.id, trackId),
       supabase.from("profiles").select("nome").eq("user_id", user.id).maybeSingle(),
     ]);
-
     setTrack(trackData ? { ...trackData, description: trackData.description || "", category: trackData.category || "" } : null);
     setLessons(lessonData || []);
     setQuizzes((quizData as unknown as QuizRow[]) || []);
@@ -94,11 +93,9 @@ const TrackPage = () => {
     setQuizPassed(progressData.quizPassed);
     setCompletedAt(progressData.completedAt);
     setProfileName(profile?.nome || "Cooperado(a)");
-
     if (lessonData && lessonData.length > 0) {
       setCurrentLessonId(lessonData[0].id);
     }
-
     setLoading(false);
   }, [trackId, user]);
 
@@ -109,7 +106,6 @@ const TrackPage = () => {
   const allLessonsComplete = lessons.length > 0 && lessons.every(isLessonComplete);
   const completedLessons = lessons.filter(isLessonComplete).length;
 
-  // Calculate progress based on watched_seconds / duration per lesson
   const overallPercent = lessons.length > 0
     ? Math.round(
         lessons.reduce((acc, lesson) => {
@@ -124,17 +120,16 @@ const TrackPage = () => {
         }, 0) / lessons.length
       )
     : 0;
+
   const quiz = quizzes[0];
 
   const handleLessonComplete = async (watchedSeconds: number) => {
     if (!user || !trackId) return;
-    console.log("handleLessonComplete called:", { userId: user.id, trackId, lessonId: currentLessonId, watchedSeconds });
     await markLessonCompleteDB(user.id, trackId, currentLessonId, watchedSeconds);
     setProgress((prev) => ({
       ...prev,
       [currentLessonId]: { completed: true, watched_seconds: watchedSeconds },
     }));
-    console.log("Lesson marked complete, progress updated");
   };
 
   const handleProgress = useCallback(async (watchedSeconds: number) => {
@@ -205,7 +200,7 @@ const TrackPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen min-h-dvh bg-background">
         <Header />
         <div className="flex items-center justify-center py-32">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
@@ -216,7 +211,7 @@ const TrackPage = () => {
 
   if (!track) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen min-h-dvh bg-background">
         <Header />
         <div className="container py-16 text-center">
           <p className="text-muted-foreground">Trilha não encontrada.</p>
@@ -227,43 +222,43 @@ const TrackPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen min-h-dvh bg-background">
       <Header />
 
-      {/* Track header */}
+      {/* ── Track header ── */}
       <div className="border-b border-border/50 bg-card">
         <div className="container py-3 sm:py-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <Link to="/dashboard" className="mb-1.5 inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
+          <div className="flex items-start justify-between gap-2 sm:gap-3">
+            <div className="min-w-0 flex-1">
+              <Link to="/dashboard" className="mb-1 inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors touch-manipulation">
                 <ArrowLeft className="h-3 w-3" />
-                Voltar
+                <span>Voltar</span>
               </Link>
               <div className="flex items-center gap-2 mt-1">
                 <Badge variant="secondary" className="text-[10px] shrink-0">{track.category}</Badge>
-                <h1 className="font-display text-base sm:text-xl font-bold text-foreground truncate">{track.title}</h1>
+                <h1 className="font-display text-sm sm:text-base md:text-xl font-bold text-foreground truncate">{track.title}</h1>
               </div>
               <div className="mt-1.5 flex items-center gap-3 text-[11px] sm:text-xs text-muted-foreground">
                 <span className="flex items-center gap-1">
-                  <BookOpen className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                  <BookOpen className="h-3 w-3" />
                   {lessons.length} aulas
                 </span>
                 <span className="flex items-center gap-1">
-                  <CheckCircle2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                  <CheckCircle2 className="h-3 w-3" />
                   {completedLessons}/{lessons.length}
                 </span>
               </div>
             </div>
+
             <div className="shrink-0 flex items-center gap-2">
-              {/* Mobile sidebar toggle */}
               <Button
                 variant="outline"
                 size="sm"
-                className="lg:hidden h-8 gap-1.5 text-xs"
+                className="lg:hidden h-9 sm:h-8 gap-1.5 text-xs touch-manipulation"
                 onClick={() => setSidebarOpen(true)}
               >
-                <List className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Aulas</span>
+                <List className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
+                <span className="hidden xs:inline">Aulas</span>
               </Button>
               <div className="text-right hidden sm:block">
                 <p className="text-2xl font-display font-extrabold text-gradient-nexti tabular-nums">{overallPercent}%</p>
@@ -271,18 +266,20 @@ const TrackPage = () => {
               </div>
             </div>
           </div>
-          {/* Mobile progress */}
+
+          {/* Mobile/tablet progress */}
           <div className="sm:hidden mt-2 flex items-center gap-2">
-            <Progress value={overallPercent} className="h-1.5 flex-1" />
-            <span className="text-xs font-bold text-primary tabular-nums">{overallPercent}%</span>
+            <Progress value={overallPercent} className="h-2 flex-1" />
+            <span className="text-xs font-bold text-primary tabular-nums min-w-[2rem] text-right">{overallPercent}%</span>
           </div>
         </div>
       </div>
 
-      <main className="container py-4 sm:py-6">
-        <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-[1fr_320px]">
-          {/* Main content */}
-          <div className="space-y-4 sm:space-y-5 min-w-0">
+      {/* ── Main content ── */}
+      <main className="container py-3 sm:py-4 md:py-6">
+        <div className="grid grid-cols-1 gap-3 sm:gap-4 md:gap-6 lg:grid-cols-[1fr_320px] xl:grid-cols-[1fr_360px]">
+          {/* Left column — video + content */}
+          <div className="space-y-3 sm:space-y-4 md:space-y-5 min-w-0">
             <AnimatePresence mode="wait">
               {!showQuiz ? (
                 <motion.div
@@ -291,7 +288,7 @@ const TrackPage = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -8 }}
                   transition={{ duration: 0.2 }}
-                  className="space-y-4 sm:space-y-5"
+                  className="space-y-3 sm:space-y-4 md:space-y-5"
                 >
                   {currentLesson && (
                     <>
@@ -308,34 +305,34 @@ const TrackPage = () => {
 
                       {/* Lesson info + tabs */}
                       <div className="card-surface overflow-hidden">
-                        <div className="p-4 sm:p-5 border-b border-border/50">
-                          <h2 className="font-display text-base sm:text-lg font-semibold text-foreground">
+                        <div className="p-3 sm:p-4 md:p-5 border-b border-border/50">
+                          <h2 className="font-display text-sm sm:text-base md:text-lg font-semibold text-foreground">
                             {currentLesson.title}
                           </h2>
                           {currentLesson.description && (
-                            <p className="mt-1 text-sm text-muted-foreground">{currentLesson.description}</p>
+                            <p className="mt-1 text-xs sm:text-sm text-muted-foreground line-clamp-3">{currentLesson.description}</p>
                           )}
                         </div>
 
                         <Tabs defaultValue="notas" className="w-full">
-                          <TabsList className="w-full justify-start rounded-none border-b border-border/50 bg-transparent px-3 sm:px-5 h-auto py-0">
-                            <TabsTrigger value="notas" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent py-2.5 sm:py-3 text-xs">
+                          <TabsList className="w-full justify-start rounded-none border-b border-border/50 bg-transparent px-2 sm:px-4 md:px-5 h-auto py-0 gap-0">
+                            <TabsTrigger value="notas" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent py-3 sm:py-3 px-3 sm:px-4 text-xs sm:text-sm touch-manipulation">
                               Anotações
                             </TabsTrigger>
-                            <TabsTrigger value="materiais" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent py-2.5 sm:py-3 text-xs">
+                            <TabsTrigger value="materiais" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent py-3 sm:py-3 px-3 sm:px-4 text-xs sm:text-sm touch-manipulation">
                               Materiais
                             </TabsTrigger>
-                            <TabsTrigger value="forum" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent py-2.5 sm:py-3 text-xs">
+                            <TabsTrigger value="forum" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent py-3 sm:py-3 px-3 sm:px-4 text-xs sm:text-sm touch-manipulation">
                               Fórum
                             </TabsTrigger>
                           </TabsList>
-                          <TabsContent value="notas" className="p-4 sm:p-5 mt-0">
+                          <TabsContent value="notas" className="p-3 sm:p-4 md:p-5 mt-0">
                             <LessonNotes lessonId={currentLessonId} />
                           </TabsContent>
-                          <TabsContent value="materiais" className="p-4 sm:p-5 mt-0">
+                          <TabsContent value="materiais" className="p-3 sm:p-4 md:p-5 mt-0">
                             <LessonMaterials lessonId={currentLessonId} />
                           </TabsContent>
-                          <TabsContent value="forum" className="p-4 sm:p-5 mt-0">
+                          <TabsContent value="forum" className="p-3 sm:p-4 md:p-5 mt-0">
                             {trackId && <LessonForum lessonId={currentLessonId} trackId={trackId} />}
                           </TabsContent>
                         </Tabs>
@@ -346,7 +343,7 @@ const TrackPage = () => {
                   {allLessonsComplete && !quizPassed && quizForForm && (
                     <Button
                       onClick={() => setShowQuiz(true)}
-                      className="w-full gap-2 bg-gradient-nexti text-primary-foreground hover:opacity-90 h-11 sm:h-12"
+                      className="w-full gap-2 bg-gradient-nexti text-primary-foreground hover:opacity-90 h-12 sm:h-12 text-sm touch-manipulation"
                     >
                       <ClipboardCheck className="h-4 w-4" />
                       Iniciar Avaliação Final
@@ -369,7 +366,7 @@ const TrackPage = () => {
             </AnimatePresence>
 
             {quizPassed && completedAt && (
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <Certificate userName={profileName} trackTitle={track.title} completedAt={completedAt} score={quizScore || 0} />
                 <TrackRating trackId={track.id} />
               </div>
@@ -385,20 +382,20 @@ const TrackPage = () => {
             )}
           </div>
 
-          {/* Desktop sidebar */}
+          {/* ── Desktop sidebar ── */}
           <div className="hidden lg:block">
-            <div className="sticky top-4 space-y-4 max-h-[calc(100vh-6rem)] overflow-y-auto">
+            <div className="sticky top-[4.5rem] space-y-4 max-h-[calc(100dvh-6rem)] overflow-y-auto">
               <LessonSidebar {...lessonSidebarProps} />
             </div>
           </div>
 
-          {/* Mobile sidebar sheet */}
+          {/* ── Mobile/Tablet sidebar sheet ── */}
           <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-            <SheetContent side="right" className="w-[85vw] max-w-sm p-0">
+            <SheetContent side="right" className="w-[90vw] max-w-md p-0">
               <SheetHeader className="px-4 py-3 border-b border-border/50">
                 <SheetTitle className="text-sm font-semibold">Conteúdo da Trilha</SheetTitle>
               </SheetHeader>
-              <div className="overflow-y-auto max-h-[calc(100vh-4rem)]">
+              <div className="overflow-y-auto max-h-[calc(100dvh-4rem)] overscroll-contain">
                 <LessonSidebar
                   {...lessonSidebarProps}
                   onSelectLesson={(id) => {

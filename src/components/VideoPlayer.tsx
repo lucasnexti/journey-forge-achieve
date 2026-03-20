@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import Player from "@vimeo/player";
-import { Play, Pause, Volume2, VolumeX, Maximize, SkipForward, SkipBack } from "lucide-react";
+import { Play, Pause, Volume2, VolumeX, Maximize, SkipForward, SkipBack, RotateCcw } from "lucide-react";
 
 interface VideoPlayerProps {
   videoUrl: string;
@@ -61,7 +61,6 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
     }
   }, [onProgress]);
 
-  // Reset state on lesson change
   useEffect(() => {
     setPlaying(false);
     syncCurrentTime(initialWatchedSeconds);
@@ -70,7 +69,6 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
     setSpeed(1);
     lastSavedRef.current = 0;
     if (videoRef.current) videoRef.current.playbackRate = 1;
-
     if (vimeoPlayerRef.current) {
       vimeoPlayerRef.current.destroy().catch(() => undefined);
       vimeoPlayerRef.current = null;
@@ -83,21 +81,13 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
     }
   }, [persistProgress]);
 
-  // Save progress on unmount / lesson change / page hide
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.visibilityState === "hidden") {
-        persistProgress();
-      }
+      if (document.visibilityState === "hidden") persistProgress();
     };
-
-    const handlePageHide = () => {
-      persistProgress();
-    };
-
+    const handlePageHide = () => persistProgress();
     document.addEventListener("visibilitychange", handleVisibilityChange);
     window.addEventListener("pagehide", handlePageHide);
-
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("pagehide", handlePageHide);
@@ -105,10 +95,8 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
     };
   }, [persistProgress, videoUrl]);
 
-  // Vimeo SDK integration - ONLY source of time tracking for Vimeo
   useEffect(() => {
     if (!vimeo || !iframeRef.current) return;
-
     const player = new Player(iframeRef.current);
     vimeoPlayerRef.current = player;
 
@@ -118,7 +106,6 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
       const resumeTime = effectiveDuration > 0
         ? Math.min(initialWatchedSeconds, Math.max(effectiveDuration - 1, 0))
         : initialWatchedSeconds;
-
       if (resumeTime > 0) {
         await player.setCurrentTime(resumeTime).catch(() => undefined);
         syncCurrentTime(resumeTime);
@@ -126,7 +113,6 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
     }).catch(() => undefined);
 
     player.on("play", () => setPlaying(true));
-
     player.on("pause", async () => {
       setPlaying(false);
       const seconds = await player.getCurrentTime().catch(() => currentTimeRef.current);
@@ -135,16 +121,13 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
       syncCurrentTime(clampedSeconds);
       persistProgress(clampedSeconds);
     });
-
     player.on("timeupdate", ({ seconds, duration: playerDuration }) => {
       const effectiveDuration = lessonDuration > 0 ? lessonDuration : playerDuration || 0;
       const clampedSeconds = effectiveDuration > 0 ? Math.min(seconds, effectiveDuration) : seconds;
       syncCurrentTime(clampedSeconds);
-
       if (clampedSeconds - lastSavedRef.current >= PROGRESS_SAVE_INTERVAL) {
         persistProgress(clampedSeconds);
       }
-
       if (!completedRef.current && effectiveDuration > 0 && clampedSeconds >= effectiveDuration * 0.9) {
         completedRef.current = true;
         setCompleted(true);
@@ -152,19 +135,16 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
         persistProgress(effectiveDuration);
       }
     });
-
     player.on("ended", async () => {
       setPlaying(false);
       const playerDuration = await player.getDuration().catch(() => 0);
       const finalSeconds = lessonDuration > 0 ? lessonDuration : playerDuration || currentTimeRef.current;
       syncCurrentTime(finalSeconds);
-
       if (!completedRef.current) {
         completedRef.current = true;
         setCompleted(true);
         onComplete(Math.round(finalSeconds));
       }
-
       persistProgress(finalSeconds);
     });
 
@@ -178,26 +158,22 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
     if (vimeo) {
       const player = vimeoPlayerRef.current;
       if (!player) return;
-
       if (playing) {
         await player.pause().catch(() => undefined);
         persistProgress();
       } else {
         const effectiveDuration = lessonDuration > 0 ? lessonDuration : 0;
         const time = await player.getCurrentTime().catch(() => currentTimeRef.current);
-
         if (effectiveDuration > 0 && time >= effectiveDuration - 1) {
           await player.setCurrentTime(0).catch(() => undefined);
           syncCurrentTime(0);
           completedRef.current = false;
           setCompleted(false);
         }
-
         await player.play().catch(() => undefined);
       }
       return;
     }
-
     if (!videoRef.current) return;
     if (playing) {
       videoRef.current.pause();
@@ -233,6 +209,7 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
 
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 
+  // ── Vimeo player ──
   if (vimeo) {
     const embedUrl = getVimeoEmbedUrl(videoUrl) + (getVimeoEmbedUrl(videoUrl).includes("?") ? "&" : "?") + "autoplay=0&title=0&byline=0&portrait=0";
     const effectiveDur = lessonDuration > 0 ? lessonDuration : 1;
@@ -241,43 +218,51 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
       : (completed ? 100 : 0);
 
     return (
-      <div className="overflow-hidden rounded-xl bg-foreground/5">
-        <div className="relative aspect-video bg-foreground/10">
+      <div className="overflow-hidden rounded-lg sm:rounded-xl bg-foreground/5">
+        {/* Video container — full width on mobile */}
+        <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
           <iframe
             ref={iframeRef}
             src={embedUrl}
-            className="h-full w-full"
+            className="absolute inset-0 h-full w-full"
             allow="autoplay; fullscreen; picture-in-picture"
             allowFullScreen
             title={lessonTitle}
           />
         </div>
 
-        <div className="relative h-2 sm:h-1 bg-border">
+        {/* Progress bar — thicker on mobile for easier touch */}
+        <div className="relative h-2 sm:h-1.5 bg-border">
           <div
-            className="h-full bg-primary transition-all"
+            className="h-full bg-primary transition-all duration-300"
             style={{ width: `${vimeoPercent}%` }}
           />
         </div>
 
-        <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 sm:py-3">
-          {onPrev && (
-            <button onClick={onPrev} className="p-2 text-muted-foreground hover:text-foreground touch-manipulation">
-              <SkipBack className="h-4 w-4" />
-            </button>
-          )}
-          {onNext && (
-            <button onClick={onNext} className="p-2 text-muted-foreground hover:text-foreground touch-manipulation">
-              <SkipForward className="h-4 w-4" />
-            </button>
-          )}
+        {/* Controls — larger touch targets on mobile */}
+        <div className="flex flex-wrap items-center gap-1 px-2 py-2.5 sm:px-4 sm:py-3">
+          {/* Navigation buttons */}
+          <div className="flex items-center gap-0.5">
+            {onPrev && (
+              <button onClick={onPrev} className="flex items-center justify-center h-10 w-10 sm:h-8 sm:w-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary/80 touch-manipulation transition-colors">
+                <SkipBack className="h-5 w-5 sm:h-4 sm:w-4" />
+              </button>
+            )}
+            {onNext && (
+              <button onClick={onNext} className="flex items-center justify-center h-10 w-10 sm:h-8 sm:w-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary/80 touch-manipulation transition-colors">
+                <SkipForward className="h-5 w-5 sm:h-4 sm:w-4" />
+              </button>
+            )}
+          </div>
 
-          <span className="tabular-nums text-[10px] sm:text-xs text-muted-foreground ml-2">
-            ⏱ {formatTime(currentTime)}{lessonDuration > 0 ? ` / ${formatTime(lessonDuration)}` : ""}
+          {/* Time display */}
+          <span className="tabular-nums text-xs sm:text-xs text-muted-foreground ml-1">
+            {formatTime(currentTime)}{lessonDuration > 0 ? ` / ${formatTime(lessonDuration)}` : ""}
           </span>
 
           <div className="flex-1" />
 
+          {/* Actions */}
           {!completed && lessonDuration <= 0 && (
             <button
               onClick={() => {
@@ -286,7 +271,7 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
                 onComplete(Math.round(currentTime || 60));
                 persistProgress(currentTime || 60);
               }}
-              className="rounded-md border border-border bg-secondary px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted touch-manipulation"
+              className="rounded-lg border border-border bg-secondary px-3 py-2 sm:py-1.5 text-xs font-medium text-foreground hover:bg-muted active:bg-muted/80 touch-manipulation transition-colors"
             >
               Marcar como assistida
             </button>
@@ -295,29 +280,32 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
           {completed && (
             <button
               onClick={togglePlay}
-              className="rounded-md border border-border bg-secondary px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted touch-manipulation"
+              className="flex items-center gap-1.5 rounded-lg border border-border bg-secondary px-3 py-2 sm:py-1.5 text-xs font-medium text-foreground hover:bg-muted active:bg-muted/80 touch-manipulation transition-colors"
             >
+              <RotateCcw className="h-3.5 w-3.5" />
               Rever aula
             </button>
           )}
         </div>
 
+        {/* Completion banner */}
         {completed && (
-          <div className="border-t border-border/50 bg-green-50 dark:bg-green-900/10 px-4 py-2 text-center text-xs font-medium text-green-700 dark:text-green-400">
-            ✓ Aula assistida — "{lessonTitle}" concluída
+          <div className="border-t border-border/50 bg-green-50 dark:bg-green-900/10 px-4 py-2.5 sm:py-2 text-center text-xs font-medium text-green-700 dark:text-green-400">
+            ✓ Aula concluída — "{lessonTitle}"
           </div>
         )}
       </div>
     );
   }
 
+  // ── Native video player ──
   return (
-    <div className="overflow-hidden rounded-xl bg-foreground/5">
-      <div className="relative aspect-video bg-foreground/10">
+    <div className="overflow-hidden rounded-lg sm:rounded-xl bg-foreground/5">
+      <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
         <video
           ref={videoRef}
           src={videoUrl}
-          className="h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full object-cover"
           onTimeUpdate={handleTimeUpdate}
           onLoadedMetadata={() => setDuration(videoRef.current?.duration || 0)}
           onPause={() => persistProgress(videoRef.current?.currentTime || 0)}
@@ -333,59 +321,65 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
           className="absolute inset-0 flex items-center justify-center bg-foreground/5 opacity-0 transition-opacity hover:opacity-100 active:opacity-100 touch-manipulation"
         >
           {playing ? (
-            <Pause className="h-10 w-10 sm:h-12 sm:w-12 text-card" />
+            <Pause className="h-12 w-12 sm:h-14 sm:w-14 text-card drop-shadow-lg" />
           ) : (
-            <Play className="h-10 w-10 sm:h-12 sm:w-12 text-card" />
+            <Play className="h-12 w-12 sm:h-14 sm:w-14 text-card drop-shadow-lg" />
           )}
         </button>
       </div>
 
-      <div className="relative h-2 sm:h-1 bg-border cursor-pointer touch-manipulation" onClick={(e) => {
+      {/* Seekable progress bar — thick on mobile */}
+      <div className="relative h-2 sm:h-1.5 bg-border cursor-pointer touch-manipulation" onClick={(e) => {
         if (!videoRef.current || !duration) return;
         const rect = e.currentTarget.getBoundingClientRect();
         const pct = (e.clientX - rect.left) / rect.width;
         videoRef.current.currentTime = pct * duration;
       }}>
         <div
-          className="h-full bg-primary transition-all"
+          className="h-full bg-primary transition-all duration-300"
           style={{ width: `${progressPercent}%` }}
         />
       </div>
 
-      <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 sm:py-3">
-        {onPrev && (
-          <button onClick={onPrev} className="p-2 text-muted-foreground hover:text-foreground touch-manipulation">
-            <SkipBack className="h-4 w-4" />
+      {/* Controls */}
+      <div className="flex flex-wrap items-center gap-1 px-2 py-2.5 sm:px-4 sm:py-3">
+        <div className="flex items-center gap-0.5">
+          {onPrev && (
+            <button onClick={onPrev} className="flex items-center justify-center h-10 w-10 sm:h-8 sm:w-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary/80 touch-manipulation transition-colors">
+              <SkipBack className="h-5 w-5 sm:h-4 sm:w-4" />
+            </button>
+          )}
+          <button onClick={togglePlay} className="flex items-center justify-center h-10 w-10 sm:h-8 sm:w-8 rounded-lg text-foreground hover:text-primary hover:bg-secondary active:bg-secondary/80 touch-manipulation transition-colors">
+            {playing ? <Pause className="h-5 w-5 sm:h-4 sm:w-4" /> : <Play className="h-5 w-5 sm:h-4 sm:w-4" />}
           </button>
-        )}
-        <button onClick={togglePlay} className="p-2 text-foreground transition-colors hover:text-primary touch-manipulation">
-          {playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-        </button>
-        {onNext && (
-          <button onClick={onNext} className="p-2 text-muted-foreground hover:text-foreground touch-manipulation">
-            <SkipForward className="h-4 w-4" />
-          </button>
-        )}
-        <span className="tabular-nums text-[10px] sm:text-xs text-muted-foreground">
+          {onNext && (
+            <button onClick={onNext} className="flex items-center justify-center h-10 w-10 sm:h-8 sm:w-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary/80 touch-manipulation transition-colors">
+              <SkipForward className="h-5 w-5 sm:h-4 sm:w-4" />
+            </button>
+          )}
+        </div>
+
+        <span className="tabular-nums text-xs text-muted-foreground ml-1">
           {formatTime(currentTime)} / {formatTime(duration)}
         </span>
 
         <div className="flex-1" />
 
+        {/* Speed */}
         <div className="relative">
           <button
             onClick={() => setShowSpeedMenu(!showSpeedMenu)}
-            className="rounded-md border border-border bg-secondary px-2 py-1 text-[10px] sm:text-xs font-medium text-foreground hover:bg-muted tabular-nums touch-manipulation"
+            className="rounded-lg border border-border bg-secondary px-2.5 py-1.5 sm:py-1 text-xs font-medium text-foreground hover:bg-muted active:bg-muted/80 tabular-nums touch-manipulation transition-colors"
           >
             {speed}x
           </button>
           {showSpeedMenu && (
-            <div className="absolute bottom-full mb-1 right-0 rounded-lg border border-border bg-card shadow-lg py-1 z-10">
+            <div className="absolute bottom-full mb-1 right-0 rounded-lg border border-border bg-card shadow-lg py-1 z-20 min-w-[4.5rem]">
               {SPEEDS.map((s) => (
                 <button
                   key={s}
                   onClick={() => changeSpeed(s)}
-                  className={`block w-full px-4 py-2 text-xs text-left transition-colors touch-manipulation ${
+                  className={`block w-full px-4 py-2.5 sm:py-2 text-xs text-left transition-colors touch-manipulation ${
                     s === speed ? "bg-primary/10 text-primary font-semibold" : "text-foreground hover:bg-secondary"
                   }`}
                 >
@@ -396,17 +390,17 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
           )}
         </div>
 
-        <button onClick={() => setMuted(!muted)} className="p-2 text-muted-foreground hover:text-foreground touch-manipulation">
-          {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+        <button onClick={() => setMuted(!muted)} className="flex items-center justify-center h-10 w-10 sm:h-8 sm:w-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary/80 touch-manipulation transition-colors">
+          {muted ? <VolumeX className="h-5 w-5 sm:h-4 sm:w-4" /> : <Volume2 className="h-5 w-5 sm:h-4 sm:w-4" />}
         </button>
-        <button onClick={() => videoRef.current?.requestFullscreen()} className="p-2 text-muted-foreground hover:text-foreground touch-manipulation">
-          <Maximize className="h-4 w-4" />
+        <button onClick={() => videoRef.current?.requestFullscreen()} className="flex items-center justify-center h-10 w-10 sm:h-8 sm:w-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary/80 touch-manipulation transition-colors">
+          <Maximize className="h-5 w-5 sm:h-4 sm:w-4" />
         </button>
       </div>
 
       {completed && (
-        <div className="border-t border-border/50 bg-green-50 dark:bg-green-900/10 px-4 py-2 text-center text-xs font-medium text-green-700 dark:text-green-400">
-          ✓ Aula assistida — "{lessonTitle}" concluída
+        <div className="border-t border-border/50 bg-green-50 dark:bg-green-900/10 px-4 py-2.5 sm:py-2 text-center text-xs font-medium text-green-700 dark:text-green-400">
+          ✓ Aula concluída — "{lessonTitle}"
         </div>
       )}
     </div>
