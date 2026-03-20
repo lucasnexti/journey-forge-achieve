@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
@@ -48,12 +48,35 @@ interface TrackStats {
   completionCount: number;
 }
 
+// Helper: fetch Vimeo video duration via oEmbed API
+const fetchVimeoDuration = async (url: string): Promise<number | null> => {
+  try {
+    // Clean URL for oEmbed (remove query params like share=copy)
+    const match = url.match(/vimeo\.com\/(\d+)(?:\/([a-zA-Z0-9]+))?/);
+    if (!match) return null;
+    const videoId = match[1];
+    const hash = match[2];
+    const cleanUrl = hash
+      ? `https://vimeo.com/${videoId}/${hash}`
+      : `https://vimeo.com/${videoId}`;
+    const res = await fetch(`https://vimeo.com/api/oembed.json?url=${encodeURIComponent(cleanUrl)}`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.duration || null; // duration in seconds
+  } catch {
+    return null;
+  }
+};
+
+const isVimeoUrl = (url: string) => url.includes("vimeo.com");
+
 const AdminTrilhasGestao = () => {
   const [tracks, setTracks] = useState<Track[]>([]);
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
   const [trackStats, setTrackStats] = useState<Record<string, TrackStats>>({});
+  const [fetchingDuration, setFetchingDuration] = useState(false);
 
   // Dialogs
   const [trackDialogOpen, setTrackDialogOpen] = useState(false);
@@ -237,6 +260,19 @@ const AdminTrilhasGestao = () => {
     });
     setLessonDialogOpen(true);
   };
+
+  const handleVideoUrlChange = useCallback(async (url: string) => {
+    setLessonForm((prev) => ({ ...prev, video_url: url }));
+    if (isVimeoUrl(url)) {
+      setFetchingDuration(true);
+      const dur = await fetchVimeoDuration(url);
+      if (dur) {
+        setLessonForm((prev) => ({ ...prev, duration: dur }));
+        toast.success(`Duração detectada: ${Math.floor(dur / 60)}min ${dur % 60}s`);
+      }
+      setFetchingDuration(false);
+    }
+  }, []);
 
   const handleSaveLesson = async () => {
     if (!selectedTrackId || !lessonForm.title.trim()) { toast.error("Informe o título da aula."); return; }
@@ -705,11 +741,30 @@ const AdminTrilhasGestao = () => {
             </div>
             <div className="space-y-2">
               <Label>URL do vídeo</Label>
-              <Input value={lessonForm.video_url} onChange={(e) => setLessonForm({ ...lessonForm, video_url: e.target.value })} placeholder="https://..." />
+              <Input
+                value={lessonForm.video_url}
+                onChange={(e) => handleVideoUrlChange(e.target.value)}
+                placeholder="https://vimeo.com/..."
+              />
             </div>
             <div className="space-y-2 max-w-[200px]">
-              <Label>Duração (segundos)</Label>
-              <Input type="number" value={lessonForm.duration} onChange={(e) => setLessonForm({ ...lessonForm, duration: Number(e.target.value) })} />
+              <Label className="flex items-center gap-2">
+                Duração (segundos)
+                {fetchingDuration && (
+                  <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                )}
+              </Label>
+              <Input
+                type="number"
+                value={lessonForm.duration}
+                onChange={(e) => setLessonForm({ ...lessonForm, duration: Number(e.target.value) })}
+                className={fetchingDuration ? "opacity-50" : ""}
+              />
+              {lessonForm.duration > 0 && (
+                <p className="text-[11px] text-muted-foreground">
+                  ≈ {Math.floor(lessonForm.duration / 60)}min {lessonForm.duration % 60}s
+                </p>
+              )}
             </div>
           </div>
           <DialogFooter className="mt-4">
