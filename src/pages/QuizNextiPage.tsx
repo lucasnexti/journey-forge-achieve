@@ -256,8 +256,7 @@ const QuizNextiPage = () => {
   const progress = questions.length > 0 ? ((currentIdx + 1) / questions.length) * 100 : 0;
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <AppLayout>
 
       <div className="container py-8 max-w-4xl">
         <AnimatePresence mode="wait">

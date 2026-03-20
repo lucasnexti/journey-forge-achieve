@@ -100,8 +100,7 @@ const RewardsStorePage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
+      <AppLayout>
         <div className="flex items-center justify-center py-32">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
         </div>
@@ -110,8 +109,7 @@ const RewardsStorePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <AppLayout>
 
       {/* Hero Banner */}
       <div className="relative overflow-hidden bg-gradient-nexti">

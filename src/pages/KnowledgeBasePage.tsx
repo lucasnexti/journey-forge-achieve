@@ -119,8 +119,7 @@ const KnowledgeBasePage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <AppLayout>
 
       {/* Hero — same style as Playbook */}
       <section className="bg-muted/50 border-b border-border py-10">
