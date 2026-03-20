@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
-import { BookOpen, GraduationCap, Users, ChevronRight, TrendingUp, Clock, AlertTriangle, Wifi, Building2, Circle } from "lucide-react";
+import { BookOpen, GraduationCap, Users, ChevronRight, TrendingUp, Clock, AlertTriangle, Wifi, Building2, Circle, Shield, Activity, Award, BarChart3 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Progress } from "@/components/ui/progress";
+import { motion } from "framer-motion";
 
 interface OnlineUser {
   user_id: string;
@@ -19,6 +21,11 @@ interface OnlineUser {
 
 const ONLINE_THRESHOLD_MINUTES = 5;
 
+const fadeUp = {
+  initial: { opacity: 0, y: 16 },
+  animate: { opacity: 1, y: 0 },
+};
+
 const AdminDashboard = () => {
   const [stats, setStats] = useState({ tracks: 0, enrollments: 0, users: 0, activeEnrollments: 0, completedEnrollments: 0, certificates: 0 });
   const [recentEnrollments, setRecentEnrollments] = useState<any[]>([]);
@@ -30,8 +37,6 @@ const AdminDashboard = () => {
   useEffect(() => {
     fetchDashboardData();
     fetchOnlineUsers();
-
-    // Refresh online users every 30 seconds
     const interval = setInterval(fetchOnlineUsers, 30_000);
     return () => clearInterval(interval);
   }, []);
@@ -43,7 +48,6 @@ const AdminDashboard = () => {
       .select("user_id, nome, empresa, cargo, last_active_at, avatar_url")
       .gte("last_active_at", threshold)
       .order("last_active_at", { ascending: false });
-
     setOnlineUsers((data as OnlineUser[]) || []);
   };
 
@@ -91,7 +95,6 @@ const AdminDashboard = () => {
       .sort((a: any, b: any) => new Date(b.enrolled_at).getTime() - new Date(a.enrolled_at).getTime())
       .slice(0, 5);
     setRecentEnrollments(recent);
-
     setLoading(false);
   };
 
@@ -102,7 +105,6 @@ const AdminDashboard = () => {
     return `${Math.floor(diff / 60)} min atrás`;
   };
 
-  // Group online users by empresa
   const empresaGroups = onlineUsers.reduce<Record<string, OnlineUser[]>>((acc, u) => {
     const key = u.empresa || "Sem empresa";
     if (!acc[key]) acc[key] = [];
@@ -110,18 +112,30 @@ const AdminDashboard = () => {
     return acc;
   }, {});
 
+  const completionRate = stats.enrollments > 0
+    ? Math.round((stats.completedEnrollments / stats.enrollments) * 100)
+    : 0;
+
   const statCards = [
-    { value: stats.tracks, label: "Trilhas ativas", icon: BookOpen, color: "text-primary", link: "/admin/trilhas-gestao" },
-    { value: stats.enrollments, label: "Matrículas totais", sublabel: `${stats.activeEnrollments} ativas`, icon: GraduationCap, color: "text-primary", link: "/admin/matriculas" },
-    { value: stats.users, label: "Usuários cadastrados", icon: Users, color: "text-primary", link: "/admin/usuarios" },
-    { value: stats.completedEnrollments, label: "Conclusões", sublabel: `${stats.certificates} certificados`, icon: TrendingUp, color: "text-primary", link: "/admin/relatorio-progresso" },
+    { value: stats.tracks, label: "Trilhas ativas", icon: BookOpen, gradient: "from-primary to-accent" },
+    { value: stats.enrollments, label: "Matrículas totais", sublabel: `${stats.activeEnrollments} ativas`, icon: GraduationCap, gradient: "from-primary to-accent" },
+    { value: stats.users, label: "Usuários", icon: Users, gradient: "from-primary to-accent" },
+    { value: stats.completedEnrollments, label: "Conclusões", sublabel: `${stats.certificates} certificados`, icon: TrendingUp, gradient: "from-primary to-accent" },
+  ];
+
+  const quickLinks = [
+    { to: "/admin/trilhas-gestao", label: "Trilhas", icon: BookOpen },
+    { to: "/admin/usuarios", label: "Usuários", icon: Users },
+    { to: "/admin/matriculas", label: "Matrículas", icon: GraduationCap },
+    { to: "/admin/relatorio-progresso", label: "Relatórios", icon: BarChart3 },
+    { to: "/admin/gamificacao", label: "Gamificação", icon: Award },
   ];
 
   if (loading) {
     return (
       <AdminLayout>
         <div className="flex items-center justify-center py-24">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
         </div>
       </AdminLayout>
     );
@@ -129,39 +143,98 @@ const AdminDashboard = () => {
 
   return (
     <AdminLayout>
-      <h1 className="font-display text-xl font-bold text-primary">Dashboard Administrativo</h1>
-      <div className="mt-1 h-1 w-12 rounded-full bg-gradient-nexti" />
+      {/* Hero Banner */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-nexti">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-white/20 blur-3xl" />
+          <div className="absolute -bottom-10 -left-10 h-48 w-48 rounded-full bg-white/15 blur-2xl" />
+        </div>
+        <div className="relative px-5 sm:px-6 py-5 sm:py-6">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+            <motion.div {...fadeUp}>
+              <div className="flex items-center gap-2 mb-1">
+                <Shield className="h-5 w-5 text-primary-foreground/80" />
+                <span className="text-xs font-bold uppercase tracking-widest text-primary-foreground/70">
+                  Painel Administrativo
+                </span>
+              </div>
+              <h1 className="font-display text-xl sm:text-2xl font-extrabold text-primary-foreground">
+                Visão Geral da Plataforma
+              </h1>
+              <p className="mt-1 text-sm text-primary-foreground/75">
+                {stats.users} usuários • {onlineUsers.length} online agora • {completionRate}% taxa de conclusão
+              </p>
+            </motion.div>
 
-      {/* KPI Cards */}
-      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {statCards.map((stat) => (
-          <div key={stat.label} className="card-surface p-5">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="font-display text-3xl font-bold text-foreground">{stat.value}</p>
-                <p className={`mt-1 text-sm font-medium ${stat.color}`}>{stat.label}</p>
-                {stat.sublabel && <p className="text-xs text-muted-foreground">{stat.sublabel}</p>}
+            <motion.div {...fadeUp} transition={{ delay: 0.1 }} className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-2 rounded-xl bg-white/15 backdrop-blur-md border border-white/20 px-4 py-2.5">
+                <Wifi className="h-4 w-4 text-primary-foreground" />
+                <span className="text-sm font-bold text-primary-foreground tabular-nums">{onlineUsers.length} online</span>
               </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                <stat.icon className="h-5 w-5 text-primary" />
+              <div className="flex items-center gap-2 rounded-xl bg-white/15 backdrop-blur-md border border-white/20 px-4 py-2.5">
+                <Activity className="h-4 w-4 text-primary-foreground" />
+                <span className="text-sm font-bold text-primary-foreground tabular-nums">{completionRate}%</span>
               </div>
-            </div>
-            <Link to={stat.link} className="mt-3 flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
-              Ver detalhes <ChevronRight className="h-3 w-3" />
-            </Link>
+            </motion.div>
           </div>
-        ))}
+
+          {/* Completion progress */}
+          <motion.div {...fadeUp} transition={{ delay: 0.15 }} className="mt-4 flex items-center gap-3">
+            <div className="flex-1">
+              <Progress value={completionRate} className="h-2 bg-white/20 [&>div]:bg-white" />
+            </div>
+            <span className="text-xs font-bold text-primary-foreground tabular-nums">{completionRate}% conclusão</span>
+          </motion.div>
+        </div>
       </div>
 
+      {/* Quick links */}
+      <motion.div {...fadeUp} transition={{ delay: 0.1 }} className="mt-5 flex items-center gap-2 overflow-x-auto pb-1">
+        {quickLinks.map((link) => (
+          <Link
+            key={link.to}
+            to={link.to}
+            className="flex items-center gap-2 rounded-lg border border-border/50 bg-card px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:border-primary/30 hover:bg-primary/5 transition-all whitespace-nowrap"
+          >
+            <link.icon className="h-3.5 w-3.5" />
+            {link.label}
+          </Link>
+        ))}
+      </motion.div>
+
+      {/* KPI Cards */}
+      <motion.div {...fadeUp} transition={{ delay: 0.15 }} className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {statCards.map((stat, i) => (
+          <motion.div
+            key={stat.label}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 + i * 0.05 }}
+            className="card-surface-hover p-5 group"
+          >
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="font-display text-3xl font-bold text-foreground tabular-nums">{stat.value}</p>
+                <p className="mt-1 text-sm font-semibold text-primary">{stat.label}</p>
+                {stat.sublabel && <p className="text-xs text-muted-foreground">{stat.sublabel}</p>}
+              </div>
+              <div className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${stat.gradient} shadow-lg shadow-primary/15`}>
+                <stat.icon className="h-5 w-5 text-primary-foreground" />
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </motion.div>
+
       {/* Online Users Panel */}
-      <div className="mt-6 card-surface p-5">
+      <motion.div {...fadeUp} transition={{ delay: 0.25 }} className="mt-6 card-surface p-5">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <div className="relative">
               <Wifi className="h-5 w-5 text-green-500" />
               <Circle className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 fill-green-500 text-green-500 animate-pulse" />
             </div>
-            <h3 className="text-sm font-semibold text-foreground">Usuários Online Agora</h3>
+            <h3 className="text-sm font-semibold text-foreground">Usuários Online</h3>
             <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs">
               {onlineUsers.length} online
             </Badge>
@@ -176,7 +249,6 @@ const AdminDashboard = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Users list */}
             <ScrollArea className="max-h-72">
               <div className="space-y-2">
                 {onlineUsers.map((u) => (
@@ -198,9 +270,7 @@ const AdminDashboard = () => {
                             {u.empresa}
                           </span>
                         )}
-                        {u.cargo && (
-                          <span>• {u.cargo}</span>
-                        )}
+                        {u.cargo && <span>• {u.cargo}</span>}
                       </div>
                     </div>
                     <span className="text-xs text-green-600 dark:text-green-400 font-medium whitespace-nowrap">
@@ -211,7 +281,6 @@ const AdminDashboard = () => {
               </div>
             </ScrollArea>
 
-            {/* By company breakdown */}
             <div>
               <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Por Empresa</h4>
               <div className="space-y-2">
@@ -248,50 +317,57 @@ const AdminDashboard = () => {
             </div>
           </div>
         )}
-      </div>
+      </motion.div>
 
       {/* Alert: Inactive users */}
       {inactiveUsers > 0 && (
-        <div className="mt-6 card-surface border-warning/30 bg-warning/5 p-4 flex items-center gap-3">
-          <AlertTriangle className="h-5 w-5 text-warning shrink-0" />
-          <div>
-            <p className="text-sm font-medium text-foreground">{inactiveUsers} usuário(s) sem matrícula</p>
+        <motion.div {...fadeUp} transition={{ delay: 0.3 }} className="mt-6 card-surface border-warning/30 bg-warning/5 p-4 flex items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-warning/10">
+            <AlertTriangle className="h-5 w-5 text-warning" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-foreground">{inactiveUsers} usuário(s) sem matrícula</p>
             <p className="text-xs text-muted-foreground">Considere enviar notificações ou matriculá-los em trilhas.</p>
           </div>
-          <Link to="/admin/notificacoes" className="ml-auto text-xs font-medium text-primary hover:underline shrink-0">
-            Enviar notificação
+          <Link to="/admin/notificacoes" className="text-xs font-semibold text-primary hover:underline shrink-0">
+            Enviar notificação →
           </Link>
-        </div>
+        </motion.div>
       )}
 
-      {/* Charts */}
-      <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="card-surface p-5">
+      {/* Charts row */}
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <motion.div {...fadeUp} transition={{ delay: 0.35 }} className="card-surface p-5">
           <h3 className="text-sm font-semibold text-foreground">Matrículas nos últimos 7 dias</h3>
           <div className="mt-4 h-56">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={enrollmentsByDay}>
+              <AreaChart data={enrollmentsByDay}>
+                <defs>
+                  <linearGradient id="gradientArea" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="day" tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }} />
                 <YAxis tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }} allowDecimals={false} />
                 <Tooltip contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: '12px' }} />
-                <Line type="monotone" dataKey="value" stroke="hsl(var(--accent))" strokeWidth={2} dot={{ fill: 'hsl(var(--accent))', r: 4 }} />
-              </LineChart>
+                <Area type="monotone" dataKey="value" stroke="hsl(var(--primary))" strokeWidth={2.5} fill="url(#gradientArea)" dot={{ fill: 'hsl(var(--primary))', r: 4, strokeWidth: 2, stroke: 'hsl(var(--card))' }} />
+              </AreaChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Recent activity */}
-        <div className="card-surface p-5">
+        <motion.div {...fadeUp} transition={{ delay: 0.4 }} className="card-surface p-5">
           <h3 className="text-sm font-semibold text-foreground mb-4">Atividade Recente</h3>
           {recentEnrollments.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-8">Nenhuma matrícula recente.</p>
           ) : (
             <div className="space-y-3">
               {recentEnrollments.map((e: any) => (
-                <div key={e.id} className="flex items-center gap-3 py-2 border-b border-border/30 last:border-0">
-                  <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                    <GraduationCap className="h-4 w-4 text-primary" />
+                <div key={e.id} className="flex items-center gap-3 py-2.5 border-b border-border/30 last:border-0">
+                  <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-sm">
+                    <GraduationCap className="h-4 w-4 text-primary-foreground" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground truncate">{e.tracks?.title || "Trilha"}</p>
@@ -300,7 +376,7 @@ const AdminDashboard = () => {
                       {new Date(e.enrolled_at).toLocaleDateString("pt-BR")}
                     </p>
                   </div>
-                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
                     e.status === "active" ? "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400" :
                     e.status === "completed" ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive"
                   }`}>
@@ -310,7 +386,7 @@ const AdminDashboard = () => {
               ))}
             </div>
           )}
-        </div>
+        </motion.div>
       </div>
     </AdminLayout>
   );

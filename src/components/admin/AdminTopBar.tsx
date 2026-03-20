@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import {
-  Menu, Search, Bell, GraduationCap, ChevronRight, LogOut, User, X
+  Menu, Search, Bell, GraduationCap, ChevronRight, LogOut, User, X, Sun, Moon
 } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
@@ -12,8 +12,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useTheme } from "@/hooks/useTheme";
 
-// Breadcrumb map
 const routeLabels: Record<string, string> = {
   "/admin": "Dashboard",
   "/admin/cursos-ead": "Cursos EAD",
@@ -49,7 +49,6 @@ const routeGroups: Record<string, string> = {
   "/admin/logs": "Configuração",
 };
 
-// Search items for global search
 const searchItems = Object.entries(routeLabels).map(([to, label]) => ({ to, label }));
 
 interface AdminTopBarProps {
@@ -62,6 +61,7 @@ const AdminTopBar = ({ onMenuClick, collapsed, onToggleCollapse }: AdminTopBarPr
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -84,8 +84,7 @@ const AdminTopBar = ({ onMenuClick, collapsed, onToggleCollapse }: AdminTopBarPr
   const userInitials = user?.email?.slice(0, 2).toUpperCase() || "AD";
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border/60 bg-card/80 backdrop-blur-md px-4">
-      {/* Mobile hamburger */}
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border/60 bg-card/80 backdrop-blur-lg px-4">
       <Button
         variant="ghost"
         size="icon"
@@ -95,7 +94,6 @@ const AdminTopBar = ({ onMenuClick, collapsed, onToggleCollapse }: AdminTopBarPr
         <Menu className="h-5 w-5" />
       </Button>
 
-      {/* Desktop collapse toggle */}
       <Button
         variant="ghost"
         size="icon"
@@ -107,7 +105,7 @@ const AdminTopBar = ({ onMenuClick, collapsed, onToggleCollapse }: AdminTopBarPr
 
       {/* Breadcrumb */}
       <nav className="hidden sm:flex items-center gap-1 text-sm text-muted-foreground">
-        <Link to="/admin" className="hover:text-foreground transition-colors">Admin</Link>
+        <Link to="/admin" className="hover:text-foreground transition-colors font-medium">Admin</Link>
         {currentGroup && (
           <>
             <ChevronRight className="h-3 w-3" />
@@ -117,12 +115,11 @@ const AdminTopBar = ({ onMenuClick, collapsed, onToggleCollapse }: AdminTopBarPr
         {currentLabel !== "Dashboard" && (
           <>
             <ChevronRight className="h-3 w-3" />
-            <span className="font-medium text-foreground">{currentLabel}</span>
+            <span className="font-semibold text-foreground">{currentLabel}</span>
           </>
         )}
       </nav>
 
-      {/* Mobile page title */}
       <span className="sm:hidden text-sm font-semibold text-foreground truncate">
         {currentLabel}
       </span>
@@ -150,12 +147,12 @@ const AdminTopBar = ({ onMenuClick, collapsed, onToggleCollapse }: AdminTopBarPr
               </button>
             </div>
             {filteredSearch.length > 0 && (
-              <div className="absolute right-0 top-full mt-1 w-48 sm:w-64 rounded-lg border border-border bg-popover p-1 shadow-lg">
+              <div className="absolute right-0 top-full mt-1 w-48 sm:w-64 rounded-xl border border-border bg-popover p-1 shadow-lg">
                 {filteredSearch.map((item) => (
                   <button
                     key={item.to}
                     onMouseDown={() => handleSearchSelect(item.to)}
-                    className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent/10 transition-colors text-left"
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-accent/10 transition-colors text-left"
                   >
                     {item.label}
                   </button>
@@ -170,11 +167,16 @@ const AdminTopBar = ({ onMenuClick, collapsed, onToggleCollapse }: AdminTopBarPr
         )}
       </div>
 
+      {/* Theme toggle */}
+      <Button variant="ghost" size="icon" className="h-8 w-8 hidden sm:flex" onClick={toggleTheme}>
+        {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+      </Button>
+
       {/* Student mode */}
       <Button
         variant="outline"
         size="sm"
-        className="hidden sm:flex items-center gap-1.5 h-8 text-xs"
+        className="hidden sm:flex items-center gap-1.5 h-8 text-xs rounded-lg"
         onClick={() => navigate("/dashboard")}
       >
         <GraduationCap className="h-3.5 w-3.5" />
@@ -207,7 +209,7 @@ const AdminTopBar = ({ onMenuClick, collapsed, onToggleCollapse }: AdminTopBarPr
             Modo Aluno
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={async () => { await signOut(); navigate("/"); }}>
+          <DropdownMenuItem onClick={async () => { await signOut(); navigate("/"); }} className="text-destructive focus:text-destructive">
             <LogOut className="mr-2 h-4 w-4" />
             Sair
           </DropdownMenuItem>
