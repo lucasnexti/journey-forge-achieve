@@ -96,13 +96,16 @@ const TrainingPage = () => {
   }, [user]);
 
   const selectedModules = useMemo(() => modules.filter((m) => selected[m.id]), [modules, selected]);
-  const totalHours = useMemo(() => selectedModules.reduce((sum, m) => sum + m.duration_hours, 0), [selectedModules]);
+  const readyModules = useMemo(() => selectedModules.filter((m) => !!modalities[m.id]), [selectedModules, modalities]);
+  const totalHours = useMemo(() => readyModules.reduce((sum, m) => sum + m.duration_hours, 0), [readyModules]);
   const autoDiscount = getDiscountForHours(totalHours);
 
-  const getModModality = (mod: TrainingModule) => modalities[mod.id] || "presencial";
+  const getModModality = (mod: TrainingModule) => modalities[mod.id] || null;
+
+  const hasModality = (mod: TrainingModule) => !!modalities[mod.id];
 
   const getOriginalPrice = (mod: TrainingModule) =>
-    getModModality(mod) === "remoto" ? Number(mod.cost_per_hour_remote) : Number(mod.cost_per_hour);
+    modalities[mod.id] === "remoto" ? Number(mod.cost_per_hour_remote) : Number(mod.cost_per_hour);
 
   const getUnitPrice = (mod: TrainingModule) => getOriginalPrice(mod) * (1 - autoDiscount);
   const getModuleTotal = (mod: TrainingModule) => getUnitPrice(mod) * mod.duration_hours;
