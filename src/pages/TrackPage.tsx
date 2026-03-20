@@ -169,7 +169,6 @@ const TrackPage = () => {
         .eq("track_id", trackId);
       toast.success("Parabéns! Trilha concluída! 🪙 Moedas adicionadas!");
     }
-    }
   };
 
   const goToLesson = (index: number) => {
