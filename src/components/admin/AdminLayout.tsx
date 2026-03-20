@@ -1,57 +1,39 @@
-import { useState, useEffect } from "react";
-import AdminSidebar from "./AdminSidebar";
-import AdminTopBar from "./AdminTopBar";
-import { cn } from "@/lib/utils";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AdminAppSidebar } from "./AdminAppSidebar";
+import NotificationBell from "@/components/NotificationBell";
+import { useIsMobile } from "@/hooks/use-mobile";
+import MobileHeader from "@/components/MobileHeader";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
-  rightPanel?: React.ReactNode;
 }
 
-const AdminLayout = ({ children, rightPanel }: AdminLayoutProps) => {
-  const [collapsed, setCollapsed] = useState(() => {
-    return localStorage.getItem("admin-sidebar-collapsed") === "true";
-  });
-  const [mobileOpen, setMobileOpen] = useState(false);
+const AdminLayout = ({ children }: AdminLayoutProps) => {
+  const isMobile = useIsMobile();
 
-  useEffect(() => {
-    localStorage.setItem("admin-sidebar-collapsed", String(collapsed));
-  }, [collapsed]);
+  if (isMobile) {
+    return (
+      <div className="min-h-screen min-h-dvh bg-background">
+        <MobileHeader />
+        {children}
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-secondary/50">
-      <AdminSidebar
-        collapsed={collapsed}
-        onToggle={() => setCollapsed(!collapsed)}
-        mobileOpen={mobileOpen}
-        onMobileClose={() => setMobileOpen(false)}
-      />
-
-      <div
-        className={cn(
-          "transition-all duration-300",
-          collapsed ? "lg:ml-16" : "lg:ml-60"
-        )}
-      >
-        <AdminTopBar
-          onMenuClick={() => setMobileOpen(true)}
-          collapsed={collapsed}
-          onToggleCollapse={() => setCollapsed(!collapsed)}
-        />
-
-        <div className="flex min-h-[calc(100vh-3.5rem)]">
-          <main className={cn("flex-1 p-4 sm:p-6", rightPanel && "max-w-[calc(100%-320px)]")}>
-            {children}
-          </main>
-
-          {rightPanel && (
-            <aside className="hidden lg:block w-80 shrink-0 border-l border-border/50 bg-card p-6">
-              {rightPanel}
-            </aside>
-          )}
+    <SidebarProvider>
+      <div className="min-h-screen min-h-dvh flex w-full">
+        <AdminAppSidebar />
+        <div className="flex-1 flex flex-col min-w-0">
+          <header className="sticky top-0 z-40 flex h-12 items-center gap-2 border-b border-border/50 bg-card/80 backdrop-blur-lg px-4">
+            <SidebarTrigger />
+            <div className="flex-1" />
+            <NotificationBell />
+          </header>
+          <main className="flex-1">{children}</main>
         </div>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
 
