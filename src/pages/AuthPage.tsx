@@ -189,6 +189,23 @@ const AuthPage = () => {
                 </div>
               </div>
 
+              {isLogin && (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!email.trim()) { toast.error("Informe seu e-mail primeiro."); return; }
+                    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                      redirectTo: `${window.location.origin}/reset-password`,
+                    });
+                    if (error) toast.error(error.message);
+                    else toast.success("Link de recuperação enviado para seu e-mail!");
+                  }}
+                  className="w-full text-right text-xs text-primary hover:underline"
+                >
+                  Esqueci minha senha
+                </button>
+              )}
+
               <Button type="submit" disabled={loading} className="w-full h-11 bg-gradient-nexti text-primary-foreground hover:opacity-90 font-semibold">
                 {loading ? "Aguarde..." : isLogin ? "Entrar" : "Criar Conta"}
               </Button>

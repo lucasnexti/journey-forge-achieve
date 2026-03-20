@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { User, Award, FileText, Save, Camera } from "lucide-react";
+import { User, Award, FileText, Save, Camera, Eye, EyeOff, KeyRound, Loader2 } from "lucide-react";
 
 interface ProfileData {
   nome: string;
@@ -18,11 +18,21 @@ interface ProfileData {
 
 const ProfilePage = () => {
   const { user } = useAuth();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [profile, setProfile] = useState<ProfileData>({ nome: "", cpf: null, empresa: null, cargo: null, avatar_url: null });
   const [badges, setBadges] = useState<{ name: string; icon: string; earned_at: string }[]>([]);
   const [certificates, setCertificates] = useState<{ id: string; track_title: string; issued_at: string; certificate_code: string }[]>([]);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+
+  // Password change
+  const [showPasswordSection, setShowPasswordSection] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -67,6 +77,74 @@ const ProfilePage = () => {
     toast.success("Perfil atualizado!");
   };
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Selecione um arquivo de imagem.");
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("A imagem deve ter no máximo 2MB.");
+      return;
+    }
+
+    setUploadingAvatar(true);
+    const ext = file.name.split(".").pop() || "jpg";
+    const filePath = `${user.id}/avatar.${ext}`;
+
+    // Delete old avatar if exists
+    await supabase.storage.from("avatars").remove([filePath]).catch(() => {});
+
+    const { error: uploadError } = await supabase.storage
+      .from("avatars")
+      .upload(filePath, file, { upsert: true });
+
+    if (uploadError) {
+      toast.error("Erro ao enviar imagem: " + uploadError.message);
+      setUploadingAvatar(false);
+      return;
+    }
+
+    const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(filePath);
+    const avatarUrl = urlData.publicUrl + `?t=${Date.now()}`;
+
+    await supabase
+      .from("profiles")
+      .update({ avatar_url: avatarUrl })
+      .eq("user_id", user.id);
+
+    setProfile((prev) => ({ ...prev, avatar_url: avatarUrl }));
+    setUploadingAvatar(false);
+    toast.success("Foto atualizada!");
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPassword.length < 6) {
+      toast.error("A nova senha deve ter pelo menos 6 caracteres.");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error("As senhas não coincidem.");
+      return;
+    }
+
+    setChangingPassword(true);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success("Senha alterada com sucesso!");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setShowPasswordSection(false);
+    }
+    setChangingPassword(false);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -85,12 +163,33 @@ const ProfilePage = () => {
       <div className="bg-gradient-nexti">
         <div className="container py-6 sm:py-10">
           <div className="flex items-center gap-3 sm:gap-4">
-            <div className="flex h-12 w-12 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-primary-foreground/20 border-2 border-primary-foreground/30 shrink-0">
-              {profile.avatar_url ? (
-                <img src={profile.avatar_url} alt="" className="h-full w-full rounded-full object-cover" />
-              ) : (
-                <User className="h-5 w-5 sm:h-7 sm:w-7 text-primary-foreground" />
-              )}
+            {/* Avatar with upload */}
+            <div className="relative group shrink-0">
+              <div className="flex h-14 w-14 sm:h-20 sm:w-20 items-center justify-center rounded-full bg-primary-foreground/20 border-2 border-primary-foreground/30 overflow-hidden">
+                {profile.avatar_url ? (
+                  <img src={profile.avatar_url} alt="" className="h-full w-full rounded-full object-cover" />
+                ) : (
+                  <User className="h-6 w-6 sm:h-8 sm:w-8 text-primary-foreground" />
+                )}
+              </div>
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingAvatar}
+                className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+              >
+                {uploadingAvatar ? (
+                  <Loader2 className="h-5 w-5 text-white animate-spin" />
+                ) : (
+                  <Camera className="h-5 w-5 text-white" />
+                )}
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarUpload}
+              />
             </div>
             <div className="min-w-0">
               <h1 className="font-display text-lg sm:text-2xl font-extrabold text-primary-foreground truncate">{profile.nome}</h1>
@@ -135,6 +234,68 @@ const ProfilePage = () => {
                 <Save className="h-4 w-4" />
                 {saving ? "Salvando..." : "Salvar Alterações"}
               </Button>
+            </div>
+
+            {/* Change Password */}
+            <div className="card-surface p-4 sm:p-6">
+              <div className="flex items-center justify-between mb-3 sm:mb-4">
+                <h2 className="font-display text-sm sm:text-base font-semibold text-foreground flex items-center gap-2">
+                  <KeyRound className="h-4 w-4 text-primary" />
+                  Segurança
+                </h2>
+                {!showPasswordSection && (
+                  <Button variant="outline" size="sm" onClick={() => setShowPasswordSection(true)} className="text-xs">
+                    Alterar Senha
+                  </Button>
+                )}
+              </div>
+
+              {showPasswordSection ? (
+                <form onSubmit={handleChangePassword} className="space-y-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-sm font-medium">Nova senha *</Label>
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        placeholder="Mínimo 6 caracteres"
+                        required
+                        minLength={6}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-sm font-medium">Confirmar nova senha *</Label>
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Repita a nova senha"
+                      required
+                      minLength={6}
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button type="submit" disabled={changingPassword} className="gap-2 bg-gradient-nexti text-primary-foreground hover:opacity-90">
+                      <KeyRound className="h-4 w-4" />
+                      {changingPassword ? "Salvando..." : "Alterar Senha"}
+                    </Button>
+                    <Button type="button" variant="outline" onClick={() => { setShowPasswordSection(false); setNewPassword(""); setConfirmPassword(""); }}>
+                      Cancelar
+                    </Button>
+                  </div>
+                </form>
+              ) : (
+                <p className="text-sm text-muted-foreground">Sua conta está protegida. Clique em "Alterar Senha" para modificar.</p>
+              )}
             </div>
 
             {/* Certificates */}
