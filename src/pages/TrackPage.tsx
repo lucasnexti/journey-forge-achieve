@@ -286,7 +286,9 @@ const TrackPage = () => {
                       <VideoPlayer
                         videoUrl={currentLesson.video_url || ""}
                         onComplete={handleLessonComplete}
+                        onProgress={handleProgress}
                         lessonTitle={currentLesson.title}
+                        initialWatchedSeconds={progress[currentLessonId]?.watched_seconds || 0}
                         onPrev={currentIndex > 0 ? () => goToLesson(currentIndex - 1) : undefined}
                         onNext={currentIndex < lessons.length - 1 ? () => goToLesson(currentIndex + 1) : undefined}
                       />
