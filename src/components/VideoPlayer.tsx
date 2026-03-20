@@ -46,41 +46,64 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
   const vimeoPlayerRef = useRef<Player | null>(null);
   const lastSavedRef = useRef(0);
   const completedRef = useRef(false);
+  const currentTimeRef = useRef(initialWatchedSeconds);
+
+  const syncCurrentTime = useCallback((time: number) => {
+    currentTimeRef.current = time;
+    setCurrentTime(time);
+  }, []);
+
+  const persistProgress = useCallback((time?: number) => {
+    const safeTime = Math.max(0, Math.round(time ?? currentTimeRef.current));
+    if (safeTime > 0) {
+      lastSavedRef.current = safeTime;
+      onProgress?.(safeTime);
+    }
+  }, [onProgress]);
 
   // Reset state on lesson change
   useEffect(() => {
     setPlaying(false);
-    setCurrentTime(initialWatchedSeconds);
+    syncCurrentTime(initialWatchedSeconds);
     setCompleted(false);
     completedRef.current = false;
     setSpeed(1);
     lastSavedRef.current = 0;
     if (videoRef.current) videoRef.current.playbackRate = 1;
 
-    // Destroy old Vimeo player
     if (vimeoPlayerRef.current) {
       vimeoPlayerRef.current.destroy().catch(() => undefined);
       vimeoPlayerRef.current = null;
     }
-  }, [videoUrl, initialWatchedSeconds]);
+  }, [videoUrl, initialWatchedSeconds, syncCurrentTime]);
 
-  // Periodic progress save for native video
   const saveProgressIfNeeded = useCallback((time: number) => {
     if (time - lastSavedRef.current >= PROGRESS_SAVE_INTERVAL) {
-      lastSavedRef.current = time;
-      onProgress?.(Math.round(time));
+      persistProgress(time);
     }
-  }, [onProgress]);
+  }, [persistProgress]);
 
-  // Save progress on unmount / lesson change
+  // Save progress on unmount / lesson change / page hide
   useEffect(() => {
-    return () => {
-      if (currentTime > 0 && onProgress) {
-        onProgress(Math.round(currentTime));
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        persistProgress();
       }
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [videoUrl]);
+
+    const handlePageHide = () => {
+      persistProgress();
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("pagehide", handlePageHide);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("pagehide", handlePageHide);
+      persistProgress();
+    };
+  }, [persistProgress, videoUrl]);
 
   // Vimeo SDK integration - ONLY source of time tracking for Vimeo
   useEffect(() => {
@@ -89,69 +112,96 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
     const player = new Player(iframeRef.current);
     vimeoPlayerRef.current = player;
 
+    player.ready().then(async () => {
+      const playerDuration = await player.getDuration().catch(() => 0);
+      const effectiveDuration = lessonDuration > 0 ? lessonDuration : playerDuration || 0;
+      const resumeTime = effectiveDuration > 0
+        ? Math.min(initialWatchedSeconds, Math.max(effectiveDuration - 1, 0))
+        : initialWatchedSeconds;
+
+      if (resumeTime > 0) {
+        await player.setCurrentTime(resumeTime).catch(() => undefined);
+        syncCurrentTime(resumeTime);
+      }
+    }).catch(() => undefined);
+
     player.on("play", () => setPlaying(true));
 
-    player.on("pause", () => {
+    player.on("pause", async () => {
       setPlaying(false);
+      const seconds = await player.getCurrentTime().catch(() => currentTimeRef.current);
+      const effectiveDuration = lessonDuration > 0 ? lessonDuration : 0;
+      const clampedSeconds = effectiveDuration > 0 ? Math.min(seconds, effectiveDuration) : seconds;
+      syncCurrentTime(clampedSeconds);
+      persistProgress(clampedSeconds);
     });
 
     player.on("timeupdate", ({ seconds, duration: playerDuration }) => {
       const effectiveDuration = lessonDuration > 0 ? lessonDuration : playerDuration || 0;
       const clampedSeconds = effectiveDuration > 0 ? Math.min(seconds, effectiveDuration) : seconds;
-      setCurrentTime(clampedSeconds);
+      syncCurrentTime(clampedSeconds);
 
-      // Periodic save (throttled)
       if (clampedSeconds - lastSavedRef.current >= PROGRESS_SAVE_INTERVAL) {
-        lastSavedRef.current = clampedSeconds;
-        onProgress?.(Math.round(clampedSeconds));
+        persistProgress(clampedSeconds);
       }
 
-      // Auto-complete at 90%
       if (!completedRef.current && effectiveDuration > 0 && clampedSeconds >= effectiveDuration * 0.9) {
         completedRef.current = true;
         setCompleted(true);
         onComplete(Math.round(effectiveDuration));
-        onProgress?.(Math.round(effectiveDuration));
+        persistProgress(effectiveDuration);
       }
     });
 
-    player.on("ended", () => {
+    player.on("ended", async () => {
       setPlaying(false);
-      const finalSeconds = lessonDuration > 0 ? lessonDuration : 0;
-      if (finalSeconds > 0) setCurrentTime(finalSeconds);
+      const playerDuration = await player.getDuration().catch(() => 0);
+      const finalSeconds = lessonDuration > 0 ? lessonDuration : playerDuration || currentTimeRef.current;
+      syncCurrentTime(finalSeconds);
 
       if (!completedRef.current) {
         completedRef.current = true;
         setCompleted(true);
-        onComplete(Math.round(finalSeconds || currentTime));
+        onComplete(Math.round(finalSeconds));
       }
-      onProgress?.(Math.round(finalSeconds || currentTime));
+
+      persistProgress(finalSeconds);
     });
 
     return () => {
       player.destroy().catch(() => undefined);
       vimeoPlayerRef.current = null;
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [videoUrl, lessonDuration]);
+  }, [vimeo, videoUrl, lessonDuration, initialWatchedSeconds, onComplete, persistProgress, syncCurrentTime]);
 
-  const togglePlay = () => {
+  const togglePlay = async () => {
     if (vimeo) {
       const player = vimeoPlayerRef.current;
       if (!player) return;
 
       if (playing) {
-        player.pause().catch(() => undefined);
-        onProgress?.(Math.round(currentTime));
+        await player.pause().catch(() => undefined);
+        persistProgress();
       } else {
-        player.play().catch(() => undefined);
+        const effectiveDuration = lessonDuration > 0 ? lessonDuration : 0;
+        const time = await player.getCurrentTime().catch(() => currentTimeRef.current);
+
+        if (effectiveDuration > 0 && time >= effectiveDuration - 1) {
+          await player.setCurrentTime(0).catch(() => undefined);
+          syncCurrentTime(0);
+          completedRef.current = false;
+          setCompleted(false);
+        }
+
+        await player.play().catch(() => undefined);
       }
       return;
     }
+
     if (!videoRef.current) return;
     if (playing) {
       videoRef.current.pause();
-      onProgress?.(Math.round(videoRef.current.currentTime));
+      persistProgress(videoRef.current.currentTime);
     } else {
       videoRef.current.play();
     }
@@ -161,17 +211,12 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
   const handleTimeUpdate = () => {
     if (!videoRef.current) return;
     const time = videoRef.current.currentTime;
-    setCurrentTime(time);
+    syncCurrentTime(time);
     saveProgressIfNeeded(time);
     if (time >= videoRef.current.duration * 0.9 && !completed) {
       setCompleted(true);
       onComplete(Math.round(time));
     }
-  };
-
-  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!videoRef.current) return;
-    videoRef.current.currentTime = Number(e.target.value);
   };
 
   const changeSpeed = (s: number) => {
@@ -208,7 +253,6 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
           />
         </div>
 
-        {/* Progress bar for Vimeo */}
         <div className="relative h-2 sm:h-1 bg-border">
           <div
             className="h-full bg-primary transition-all"
@@ -234,13 +278,13 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
 
           <div className="flex-1" />
 
-          {/* Fallback button only when no duration is configured */}
           {!completed && lessonDuration <= 0 && (
             <button
               onClick={() => {
                 completedRef.current = true;
                 setCompleted(true);
                 onComplete(Math.round(currentTime || 60));
+                persistProgress(currentTime || 60);
               }}
               className="rounded-md border border-border bg-secondary px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted touch-manipulation"
             >
@@ -249,9 +293,12 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
           )}
 
           {completed && (
-            <span className="rounded-md border border-green-300 bg-green-50 px-3 py-1.5 text-xs font-medium text-green-700 dark:border-green-700 dark:bg-green-900/20 dark:text-green-400">
-              ✓ Concluída
-            </span>
+            <button
+              onClick={togglePlay}
+              className="rounded-md border border-border bg-secondary px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted touch-manipulation"
+            >
+              Rever aula
+            </button>
           )}
         </div>
 
@@ -264,7 +311,6 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
     );
   }
 
-  // Native video player
   return (
     <div className="overflow-hidden rounded-xl bg-foreground/5">
       <div className="relative aspect-video bg-foreground/10">
@@ -274,7 +320,11 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
           className="h-full w-full object-cover"
           onTimeUpdate={handleTimeUpdate}
           onLoadedMetadata={() => setDuration(videoRef.current?.duration || 0)}
-          onEnded={() => { setPlaying(false); onProgress?.(Math.round(currentTime)); }}
+          onPause={() => persistProgress(videoRef.current?.currentTime || 0)}
+          onEnded={() => {
+            setPlaying(false);
+            persistProgress(videoRef.current?.duration || currentTimeRef.current);
+          }}
           muted={muted}
           playsInline
         />
@@ -290,7 +340,6 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
         </button>
       </div>
 
-      {/* Progress bar */}
       <div className="relative h-2 sm:h-1 bg-border cursor-pointer touch-manipulation" onClick={(e) => {
         if (!videoRef.current || !duration) return;
         const rect = e.currentTarget.getBoundingClientRect();
@@ -323,7 +372,6 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
 
         <div className="flex-1" />
 
-        {/* Speed control */}
         <div className="relative">
           <button
             onClick={() => setShowSpeedMenu(!showSpeedMenu)}
