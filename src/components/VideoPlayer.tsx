@@ -9,6 +9,7 @@ interface VideoPlayerProps {
   onNext?: () => void;
   onPrev?: () => void;
   initialWatchedSeconds?: number;
+  lessonDuration?: number; // duration in seconds from DB
 }
 
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
