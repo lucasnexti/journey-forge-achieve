@@ -209,6 +209,17 @@ const RewardsStorePage = () => {
               </span>
             )}
           </button>
+          <button
+            onClick={() => setActiveTab("how")}
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+              activeTab === "how"
+                ? "bg-card text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <HelpCircle className="h-4 w-4" />
+            Como funciona
+          </button>
         </div>
 
         <AnimatePresence mode="wait">
