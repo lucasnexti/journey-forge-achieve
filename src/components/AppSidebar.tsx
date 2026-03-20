@@ -1,16 +1,19 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { BookOpen, BarChart3, LogOut, Shield, User, Sun, Moon, Coins, Library, Zap, ChevronDown, TrendingUp } from "lucide-react";
+import { BookOpen, BarChart3, LogOut, Shield, User, Sun, Moon, Coins, Library, Zap, ChevronDown, Award } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useTheme } from "@/hooks/useTheme";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -20,6 +23,7 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 const navItems = [
   { to: "/dashboard", label: "Trilhas", icon: BookOpen },
@@ -29,6 +33,27 @@ const navItems = [
   { to: "/quiz-nexti", label: "Quiz Nexti", icon: Zap },
 ];
 
+const iconMap: Record<string, string> = {
+  award: "🏆",
+  star: "⭐",
+  zap: "⚡",
+  trophy: "🏅",
+  medal: "🎖️",
+  flame: "🔥",
+  target: "🎯",
+  crown: "👑",
+  rocket: "🚀",
+  gem: "💎",
+  heart: "❤️",
+  shield: "🛡️",
+  "book-open": "📖",
+};
+
+interface UserBadge {
+  name: string;
+  icon: string | null;
+}
+
 export function AppSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -37,6 +62,25 @@ export function AppSidebar() {
   const { theme, toggleTheme } = useTheme();
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
+  const [badges, setBadges] = useState<UserBadge[]>([]);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("user_badges")
+      .select("badges(name, icon)")
+      .eq("user_id", user.id)
+      .then(({ data }) => {
+        if (data) {
+          setBadges(
+            data.map((d: any) => ({
+              name: d.badges?.name ?? "Badge",
+              icon: d.badges?.icon ?? "award",
+            }))
+          );
+        }
+      });
+  }, [user]);
 
   const userInitials = user?.email?.slice(0, 2).toUpperCase() || "U";
 
@@ -117,6 +161,53 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {/* Badges / Insígnias */}
+        {badges.length > 0 && (
+          <SidebarGroup>
+            {!collapsed && (
+              <SidebarGroupLabel className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                <Award className="h-3.5 w-3.5 mr-1.5 inline" />
+                Insígnias
+              </SidebarGroupLabel>
+            )}
+            <SidebarGroupContent>
+              <div className={cn(
+                "px-3 pt-1 pb-2",
+                collapsed ? "flex flex-col items-center gap-1" : "flex flex-wrap gap-1.5"
+              )}>
+                {badges.slice(0, collapsed ? 5 : 12).map((badge, i) => (
+                  <Tooltip key={i}>
+                    <TooltipTrigger asChild>
+                      <span
+                        className={cn(
+                          "inline-flex items-center justify-center rounded-md bg-primary/5 border border-primary/10 cursor-default transition-colors hover:bg-primary/10",
+                          collapsed ? "h-8 w-8 text-base" : "h-7 px-2 gap-1 text-xs"
+                        )}
+                      >
+                        <span>{iconMap[badge.icon || "award"] || "🏆"}</span>
+                        {!collapsed && (
+                          <span className="text-foreground/80 font-medium truncate max-w-[80px]">
+                            {badge.name}
+                          </span>
+                        )}
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent side="right">{badge.name}</TooltipContent>
+                  </Tooltip>
+                ))}
+                {badges.length > (collapsed ? 5 : 12) && (
+                  <span className={cn(
+                    "inline-flex items-center justify-center rounded-md bg-muted text-muted-foreground text-xs font-medium",
+                    collapsed ? "h-8 w-8" : "h-7 px-2"
+                  )}>
+                    +{badges.length - (collapsed ? 5 : 12)}
+                  </span>
+                )}
+              </div>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
       <SidebarFooter className="border-t border-border/50 p-3">
