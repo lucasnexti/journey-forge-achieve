@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import Header from "@/components/Header";
+import AppLayout from "@/components/AppLayout";
 import { History, CheckCircle2, XCircle, Clock } from "lucide-react";
 
 interface Attempt {

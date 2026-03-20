@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import Header from "@/components/Header";
+import AppLayout from "@/components/AppLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Clock, Trophy, BookOpen, Users, Building2, Search } from "lucide-react";

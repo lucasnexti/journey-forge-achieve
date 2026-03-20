@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import Header from "@/components/Header";
+import AppLayout from "@/components/AppLayout";
 import { motion, AnimatePresence } from "framer-motion";
 import { BookOpen, Trophy, CheckCircle2, XCircle, ArrowRight, RotateCcw, Award, Zap, Target, ChevronRight, Clock, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";

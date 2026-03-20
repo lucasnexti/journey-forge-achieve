@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import Header from "@/components/Header";
+import AppLayout from "@/components/AppLayout";
 import { FileText, ExternalLink, Loader2, BookOpen } from "lucide-react";
 import { playbookSupabase } from "@/lib/playbookClient";
 
