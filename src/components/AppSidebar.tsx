@@ -32,6 +32,7 @@ const navItems = [
   { to: "/base-conhecimento", label: "Base de Conhecimento", icon: Library },
   { to: "/quiz-nexti", label: "Quiz Nexti", icon: Zap },
   { to: "/insignias", label: "Insígnias", icon: Award },
+  { to: "/treinamento-presencial", label: "Treinamento Presencial", icon: GraduationCap },
 ];
 
 const iconMap: Record<string, string> = {
