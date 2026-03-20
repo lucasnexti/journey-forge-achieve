@@ -69,6 +69,7 @@ const Dashboard = () => {
       setStats(statsData);
       setLastLesson(lastData);
       setGamification(gData);
+      setCompletedLessonIds(new Set((lessonProgressData || []).map((lp: any) => lp.lesson_id)));
 
       const earnedSet = new Set((userBadges || []).map((b: any) => b.badge_id));
       setBadges((allBadges || []).map((b: any) => ({ name: b.name, icon: b.icon || "award", earned: earnedSet.has(b.id) })));
