@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect, useCallback } from "react";
+import Player from "@vimeo/player";
 import { Play, Pause, Volume2, VolumeX, Maximize, SkipForward, SkipBack } from "lucide-react";
 
 interface VideoPlayerProps {

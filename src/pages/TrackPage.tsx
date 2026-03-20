@@ -60,7 +60,15 @@ const TrackPage = () => {
   const [completedAt, setCompletedAt] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [profileName, setProfileName] = useState("Cooperado(a)");
-  const allLessonsCompletedForSurvey = lessons.length > 0 && lessons.every((l) => progress[l.id]?.completed);
+  const isLessonComplete = (lesson: LessonRow) => {
+    const lessonProgress = progress[lesson.id];
+    if (!lessonProgress) return false;
+    if (lessonProgress.completed) return true;
+    const duration = lesson.duration || 0;
+    return duration > 0 && lessonProgress.watched_seconds >= duration * 0.9;
+  };
+
+  const allLessonsCompletedForSurvey = lessons.length > 0 && lessons.every(isLessonComplete);
   const isFullyComplete = allLessonsCompletedForSurvey && quizPassed;
   const { pendingSurvey, showSurvey, dismissSurvey } = useSurveyTrigger(
     isFullyComplete ? "track_completion" : undefined,
