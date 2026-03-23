@@ -96,7 +96,19 @@ const TrackPage = () => {
     ]);
     setTrack(trackData ? { ...trackData, description: trackData.description || "", category: trackData.category || "" } : null);
     setLessons(lessonData || []);
-    setQuizzes((quizData as unknown as QuizRow[]) || []);
+    // Fetch quiz questions via secure RPC
+    const rawQuizzes = (quizData as unknown as QuizRowRaw[]) || [];
+    const quizzesWithQuestions: QuizRow[] = [];
+    for (const q of rawQuizzes) {
+      const { data: qQuestions } = await supabase.rpc("get_quiz_questions", { _quiz_id: q.id });
+      quizzesWithQuestions.push({
+        ...q,
+        quiz_questions: (qQuestions || []).map((qq: any) => ({
+          id: qq.id, question: qq.question, options: qq.options, order_index: qq.order_index,
+        })),
+      });
+    }
+    setQuizzes(quizzesWithQuestions);
     setProgress(progressData.lessons);
     setQuizScore(progressData.quizScore);
     setQuizPassed(progressData.quizPassed);
