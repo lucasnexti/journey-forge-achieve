@@ -217,7 +217,7 @@ const ProfilePage = () => {
                 </div>
                 <div className="space-y-1.5 sm:space-y-2">
                   <Label className="text-sm font-medium text-muted-foreground">CPF</Label>
-                  <Input value={profile.cpf || ""} disabled className="bg-muted/50" />
+                  <Input value={profile.cpf ? profile.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4") : ""} disabled className="bg-muted/50" />
                 </div>
                 <div className="space-y-1.5 sm:space-y-2">
                   <Label className="text-sm font-medium text-muted-foreground">Empresa</Label>
