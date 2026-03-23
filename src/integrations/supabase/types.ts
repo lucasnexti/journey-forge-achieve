@@ -1172,9 +1172,49 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      company_colleagues: {
+        Row: {
+          avatar_url: string | null
+          cargo: string | null
+          empresa: string | null
+          is_active: boolean | null
+          last_active_at: string | null
+          nome: string | null
+          user_id: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          cargo?: string | null
+          empresa?: string | null
+          is_active?: boolean | null
+          last_active_at?: string | null
+          nome?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          cargo?: string | null
+          empresa?: string | null
+          is_active?: boolean | null
+          last_active_at?: string | null
+          nome?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      award_coins: {
+        Args: {
+          _amount: number
+          _reason: string
+          _reference_id?: string
+          _reference_type?: string
+          _user_id: string
+        }
+        Returns: undefined
+      }
+      award_xp: { Args: { _user_id: string; _xp: number }; Returns: undefined }
       get_level_from_xp: { Args: { _xp: number }; Returns: number }
       get_user_coins: { Args: { _user_id: string }; Returns: number }
       get_user_empresa: { Args: { _user_id: string }; Returns: string }
@@ -1185,6 +1225,8 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_same_company: { Args: { _user_id: string }; Returns: boolean }
+      update_user_streak: { Args: { _user_id: string }; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
