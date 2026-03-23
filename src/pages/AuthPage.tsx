@@ -184,8 +184,8 @@ const AuthPage = () => {
                     <Input id="nome" value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Seu nome completo" required />
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor="cpf" className="text-sm font-medium">CPF</Label>
-                    <Input id="cpf" value={cpf} onChange={(e) => setCpf(e.target.value)} placeholder="000.000.000-00" />
+                    <Label htmlFor="cpf" className="text-sm font-medium">CPF *</Label>
+                    <Input id="cpf" value={cpf} onChange={(e) => setCpf(formatCpf(e.target.value))} placeholder="000.000.000-00" required maxLength={14} />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1.5">
