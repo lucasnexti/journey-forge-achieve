@@ -1202,6 +1202,76 @@ export type Database = {
         }
         Relationships: []
       }
+      kb_quiz_questions_safe: {
+        Row: {
+          explanation: string | null
+          id: string | null
+          module_id: string | null
+          options: Json | null
+          order_index: number | null
+          question: string | null
+          type: string | null
+        }
+        Insert: {
+          explanation?: string | null
+          id?: string | null
+          module_id?: string | null
+          options?: Json | null
+          order_index?: number | null
+          question?: string | null
+          type?: string | null
+        }
+        Update: {
+          explanation?: string | null
+          id?: string | null
+          module_id?: string | null
+          options?: Json | null
+          order_index?: number | null
+          question?: string | null
+          type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kb_quiz_questions_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "kb_quiz_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quiz_questions_safe: {
+        Row: {
+          id: string | null
+          options: Json | null
+          order_index: number | null
+          question: string | null
+          quiz_id: string | null
+        }
+        Insert: {
+          id?: string | null
+          options?: Json | null
+          order_index?: number | null
+          question?: string | null
+          quiz_id?: string | null
+        }
+        Update: {
+          id?: string | null
+          options?: Json | null
+          order_index?: number | null
+          question?: string | null
+          quiz_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_questions_quiz_id_fkey"
+            columns: ["quiz_id"]
+            isOneToOne: false
+            referencedRelation: "quizzes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       award_coins: {
