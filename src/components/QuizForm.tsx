@@ -2,9 +2,10 @@ import { useState } from "react";
 import { Quiz } from "@/lib/data";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 interface QuizFormProps {
-  quiz: Quiz;
+  quiz: Quiz & { quizId?: string };
   onSubmit: (score: number, passed: boolean) => void;
   previousScore: number | null;
 }
@@ -12,20 +13,40 @@ interface QuizFormProps {
 const QuizForm = ({ quiz, onSubmit, previousScore }: QuizFormProps) => {
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [score, setScore] = useState<number | null>(null);
   const [retryDelay, setRetryDelay] = useState(false);
+  const [correctAnswers, setCorrectAnswers] = useState<Record<string, number>>({});
 
   const allAnswered = quiz.questions.every((q) => answers[q.id] !== undefined);
 
-  const handleSubmit = () => {
-    let correct = 0;
-    quiz.questions.forEach((q) => {
-      if (answers[q.id] === q.correctIndex) correct++;
+  const handleSubmit = async () => {
+    if (!quiz.quizId) return;
+    setSubmitting(true);
+
+    // Use server-side validation
+    const { data: result } = await supabase.rpc("validate_quiz_attempt", {
+      _user_id: (await supabase.auth.getUser()).data.user?.id || "",
+      _quiz_id: quiz.quizId,
+      _answers: answers,
     });
-    const pct = Math.round((correct / quiz.questions.length) * 100);
-    const passed = pct >= quiz.passingScore;
+
+    const resultData = result as any;
+    const pct = resultData?.score || 0;
+    const passed = resultData?.passed || false;
+
+    // Extract correct answers from server response
+    if (resultData?.details) {
+      const corrects: Record<string, number> = {};
+      (resultData.details as any[]).forEach((d: any) => {
+        corrects[d.question_id] = d.correct_answer;
+      });
+      setCorrectAnswers(corrects);
+    }
+
     setScore(pct);
     setSubmitted(true);
+    setSubmitting(false);
     onSubmit(pct, passed);
 
     if (!passed) {
@@ -38,6 +59,7 @@ const QuizForm = ({ quiz, onSubmit, previousScore }: QuizFormProps) => {
     setAnswers({});
     setSubmitted(false);
     setScore(null);
+    setCorrectAnswers({});
   };
 
   const passed = score !== null && score >= quiz.passingScore;
@@ -61,8 +83,8 @@ const QuizForm = ({ quiz, onSubmit, previousScore }: QuizFormProps) => {
             <div className="mt-3 space-y-2">
               {q.options.map((opt, oi) => {
                 const selected = answers[q.id] === oi;
-                const isCorrect = submitted && oi === q.correctIndex;
-                const isWrong = submitted && selected && oi !== q.correctIndex;
+                const isCorrect = submitted && correctAnswers[q.id] === oi;
+                const isWrong = submitted && selected && correctAnswers[q.id] !== oi;
 
                 return (
                   <label
@@ -128,10 +150,10 @@ const QuizForm = ({ quiz, onSubmit, previousScore }: QuizFormProps) => {
         {!submitted ? (
           <Button
             onClick={handleSubmit}
-            disabled={!allAnswered}
+            disabled={!allAnswered || submitting}
             className="w-full bg-gradient-nexti text-primary-foreground hover:opacity-90"
           >
-            Enviar Respostas
+            {submitting ? "Validando..." : "Enviar Respostas"}
           </Button>
         ) : !passed ? (
           <Button
