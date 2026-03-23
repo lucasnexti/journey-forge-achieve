@@ -181,8 +181,9 @@ const QuizNextiPage = () => {
       _answers: { [currentQ.id]: answers[currentIdx] },
     });
     
-    if (result && result.details) {
-      const detail = (result.details as any[]).find((d: any) => d.question_id === currentQ.id);
+    const resultData = result as any;
+    if (resultData && resultData.details) {
+      const detail = (resultData.details as any[]).find((d: any) => d.question_id === currentQ.id);
       if (detail) {
         // Update question with correct_answer from server
         const updatedQuestions = [...questions];
