@@ -81,42 +81,21 @@ export async function updateStreak(userId: string) {
     .eq("user_id", userId)
     .maybeSingle();
 
-  if (!streak) {
-    // First visit
-    await supabase.from("user_streaks").insert({
-      user_id: userId,
-      current_streak: 1,
-      longest_streak: 1,
-      last_active_date: today,
-    });
-    // Daily login bonus
-    await awardCoins(userId, COIN_REWARDS.daily_login, "Acesso diário", "daily", `daily-${today}`);
-    return { current_streak: 1, longest_streak: 1 };
-  }
-
-  if (streak.last_active_date === today) {
-    return { current_streak: streak.current_streak, longest_streak: streak.longest_streak };
-  }
-
-  const lastDate = new Date(streak.last_active_date + "T00:00:00");
-  const todayDate = new Date(today + "T00:00:00");
-  const diffDays = Math.round((todayDate.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
-
-  let newStreak = diffDays === 1 ? streak.current_streak + 1 : 1;
-  const newLongest = Math.max(newStreak, streak.longest_streak);
-
-  await supabase
-    .from("user_streaks")
-    .update({
-      current_streak: newStreak,
-      longest_streak: newLongest,
-      last_active_date: today,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("user_id", userId);
+  // Use server-side streak update
+  await supabase.rpc("update_user_streak", { _user_id: userId });
 
   // Daily login bonus
   await awardCoins(userId, COIN_REWARDS.daily_login, "Acesso diário", "daily", `daily-${today}`);
+
+  // Re-fetch streak data after server update
+  const { data: updatedStreak } = await supabase
+    .from("user_streaks")
+    .select("current_streak, longest_streak")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  const newStreak = updatedStreak?.current_streak || 1;
+  const newLongest = updatedStreak?.longest_streak || 1;
 
   // Streak milestones
   if (newStreak === 3) {
