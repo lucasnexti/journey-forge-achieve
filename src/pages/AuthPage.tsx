@@ -34,13 +34,51 @@ const AuthPage = () => {
     setLoading(false);
   };
 
+  const formatCpf = (value: string) => {
+    const digits = value.replace(/\D/g, "").slice(0, 11);
+    return digits
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+  };
+
+  const isValidCpf = (cpf: string) => {
+    const digits = cpf.replace(/\D/g, "");
+    if (digits.length !== 11 || /^(\d)\1{10}$/.test(digits)) return false;
+    let sum = 0;
+    for (let i = 0; i < 9; i++) sum += parseInt(digits[i]) * (10 - i);
+    let rest = (sum * 10) % 11;
+    if (rest === 10) rest = 0;
+    if (rest !== parseInt(digits[9])) return false;
+    sum = 0;
+    for (let i = 0; i < 10; i++) sum += parseInt(digits[i]) * (11 - i);
+    rest = (sum * 10) % 11;
+    if (rest === 10) rest = 0;
+    return rest === parseInt(digits[10]);
+  };
+
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!nome.trim()) { toast.error("Informe seu nome."); return; }
+    const cpfDigits = cpf.replace(/\D/g, "");
+    if (!cpfDigits || !isValidCpf(cpfDigits)) { toast.error("Informe um CPF válido."); return; }
     setLoading(true);
+
+    // Check CPF uniqueness
+    const { data: existing } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("cpf", cpfDigits)
+      .maybeSingle();
+    if (existing) {
+      toast.error("Este CPF já está cadastrado.");
+      setLoading(false);
+      return;
+    }
+
     const { error } = await supabase.auth.signUp({
       email, password,
-      options: { data: { nome, cpf, empresa, cargo }, emailRedirectTo: window.location.origin },
+      options: { data: { nome, cpf: cpfDigits, empresa, cargo }, emailRedirectTo: window.location.origin },
     });
     if (error) toast.error(error.message);
     else toast.success("Conta criada! Verifique seu e-mail para confirmar.");
@@ -146,8 +184,8 @@ const AuthPage = () => {
                     <Input id="nome" value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Seu nome completo" required />
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor="cpf" className="text-sm font-medium">CPF</Label>
-                    <Input id="cpf" value={cpf} onChange={(e) => setCpf(e.target.value)} placeholder="000.000.000-00" />
+                    <Label htmlFor="cpf" className="text-sm font-medium">CPF *</Label>
+                    <Input id="cpf" value={cpf} onChange={(e) => setCpf(formatCpf(e.target.value))} placeholder="000.000.000-00" required maxLength={14} />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1.5">

@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX idx_profiles_cpf_unique ON public.profiles (cpf) WHERE cpf IS NOT NULL;
