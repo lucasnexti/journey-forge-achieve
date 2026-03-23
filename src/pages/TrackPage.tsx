@@ -190,6 +190,7 @@ const TrackPage = () => {
 
   const quizForForm = quiz
     ? {
+        quizId: quiz.id,
         passingScore: quiz.passing_score || 70,
         questions: quiz.quiz_questions
           .sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
