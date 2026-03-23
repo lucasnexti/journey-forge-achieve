@@ -26,8 +26,8 @@ interface Question {
   question: string;
   type: string;
   options: string[];
-  correct_answer: number;
   explanation: string | null;
+  correct_answer?: number; // populated after server validation
 }
 
 type Phase = "modules" | "quiz" | "result";
