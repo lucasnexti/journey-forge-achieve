@@ -44,6 +44,12 @@ interface QuizRow {
   quiz_questions: { id: string; question: string; options: any; order_index: number | null }[];
 }
 
+interface QuizRowRaw {
+  id: string;
+  title: string;
+  passing_score: number | null;
+}
+
 const TrackPage = () => {
   const { trackId } = useParams<{ trackId: string }>();
   const { user } = useAuth();
