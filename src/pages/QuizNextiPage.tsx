@@ -137,9 +137,10 @@ const QuizNextiPage = () => {
     }
     setQuizLoading(true);
 
+    // Fetch questions without correct_answer for display
     const { data } = await supabase
       .from("kb_quiz_questions")
-      .select("id, question, type, options, correct_answer, explanation")
+      .select("id, question, type, options, order_index, explanation")
       .in("module_id", Array.from(selectedModules))
       .order("order_index");
 
