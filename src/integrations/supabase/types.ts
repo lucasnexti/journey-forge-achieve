@@ -1297,6 +1297,10 @@ export type Database = {
       }
       is_same_company: { Args: { _user_id: string }; Returns: boolean }
       update_user_streak: { Args: { _user_id: string }; Returns: undefined }
+      validate_kb_quiz_attempt: {
+        Args: { _answers: Json; _module_ids: string[]; _user_id: string }
+        Returns: Json
+      }
       validate_quiz_attempt: {
         Args: { _answers: Json; _quiz_id: string; _user_id: string }
         Returns: Json
