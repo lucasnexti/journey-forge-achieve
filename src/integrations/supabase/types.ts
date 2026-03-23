@@ -1227,6 +1227,10 @@ export type Database = {
       }
       is_same_company: { Args: { _user_id: string }; Returns: boolean }
       update_user_streak: { Args: { _user_id: string }; Returns: undefined }
+      validate_quiz_attempt: {
+        Args: { _answers: Json; _quiz_id: string; _user_id: string }
+        Returns: Json
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
