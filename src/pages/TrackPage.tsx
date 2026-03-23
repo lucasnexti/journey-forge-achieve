@@ -41,7 +41,13 @@ interface QuizRow {
   id: string;
   title: string;
   passing_score: number | null;
-  quiz_questions: { id: string; question: string; options: any; correct_answer: number; order_index: number | null }[];
+  quiz_questions: { id: string; question: string; options: any; order_index: number | null }[];
+}
+
+interface QuizRowRaw {
+  id: string;
+  title: string;
+  passing_score: number | null;
 }
 
 const TrackPage = () => {
@@ -84,13 +90,25 @@ const TrackPage = () => {
     const [{ data: trackData }, { data: lessonData }, { data: quizData }, progressData, { data: profile }] = await Promise.all([
       supabase.from("tracks").select("id, title, description, category").eq("id", trackId).maybeSingle(),
       supabase.from("lessons").select("id, title, description, video_url, duration, order_index").eq("track_id", trackId).order("order_index"),
-      supabase.from("quizzes").select("id, title, passing_score, quiz_questions(id, question, options, correct_answer, order_index)").eq("track_id", trackId),
+      supabase.from("quizzes").select("id, title, passing_score").eq("track_id", trackId),
       getTrackProgressDB(user.id, trackId),
       supabase.from("profiles").select("nome").eq("user_id", user.id).maybeSingle(),
     ]);
     setTrack(trackData ? { ...trackData, description: trackData.description || "", category: trackData.category || "" } : null);
     setLessons(lessonData || []);
-    setQuizzes((quizData as unknown as QuizRow[]) || []);
+    // Fetch quiz questions via secure RPC
+    const rawQuizzes = (quizData as unknown as QuizRowRaw[]) || [];
+    const quizzesWithQuestions: QuizRow[] = [];
+    for (const q of rawQuizzes) {
+      const { data: qQuestions } = await supabase.rpc("get_quiz_questions", { _quiz_id: q.id });
+      quizzesWithQuestions.push({
+        ...q,
+        quiz_questions: (qQuestions || []).map((qq: any) => ({
+          id: qq.id, question: qq.question, options: qq.options, order_index: qq.order_index,
+        })),
+      });
+    }
+    setQuizzes(quizzesWithQuestions);
     setProgress(progressData.lessons);
     setQuizScore(progressData.quizScore);
     setQuizPassed(progressData.quizPassed);
@@ -190,6 +208,7 @@ const TrackPage = () => {
 
   const quizForForm = quiz
     ? {
+        quizId: quiz.id,
         passingScore: quiz.passing_score || 70,
         questions: quiz.quiz_questions
           .sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
@@ -197,7 +216,6 @@ const TrackPage = () => {
             id: q.id,
             text: q.question,
             options: Array.isArray(q.options) ? q.options as string[] : [],
-            correctIndex: q.correct_answer,
           })),
       }
     : null;

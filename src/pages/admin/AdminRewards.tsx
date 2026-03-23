@@ -100,12 +100,12 @@ const AdminRewards = () => {
       // Refund coins
       const redemption = redemptions.find((r) => r.id === id);
       if (redemption) {
-        await supabase.from("coin_transactions").insert({
-          user_id: redemption.user_id,
-          amount: redemption.cost,
-          reason: `Reembolso: resgate rejeitado`,
-          reference_type: "refund",
-          reference_id: id,
+        await supabase.rpc("award_coins", {
+          _user_id: redemption.user_id,
+          _amount: redemption.cost,
+          _reason: `Reembolso: resgate rejeitado`,
+          _reference_type: "refund",
+          _reference_id: id,
         });
       }
     }

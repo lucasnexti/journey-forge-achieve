@@ -1172,10 +1172,142 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      company_colleagues: {
+        Row: {
+          avatar_url: string | null
+          cargo: string | null
+          empresa: string | null
+          is_active: boolean | null
+          last_active_at: string | null
+          nome: string | null
+          user_id: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          cargo?: string | null
+          empresa?: string | null
+          is_active?: boolean | null
+          last_active_at?: string | null
+          nome?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          cargo?: string | null
+          empresa?: string | null
+          is_active?: boolean | null
+          last_active_at?: string | null
+          nome?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      kb_quiz_questions_safe: {
+        Row: {
+          explanation: string | null
+          id: string | null
+          module_id: string | null
+          options: Json | null
+          order_index: number | null
+          question: string | null
+          type: string | null
+        }
+        Insert: {
+          explanation?: string | null
+          id?: string | null
+          module_id?: string | null
+          options?: Json | null
+          order_index?: number | null
+          question?: string | null
+          type?: string | null
+        }
+        Update: {
+          explanation?: string | null
+          id?: string | null
+          module_id?: string | null
+          options?: Json | null
+          order_index?: number | null
+          question?: string | null
+          type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kb_quiz_questions_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "kb_quiz_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quiz_questions_safe: {
+        Row: {
+          id: string | null
+          options: Json | null
+          order_index: number | null
+          question: string | null
+          quiz_id: string | null
+        }
+        Insert: {
+          id?: string | null
+          options?: Json | null
+          order_index?: number | null
+          question?: string | null
+          quiz_id?: string | null
+        }
+        Update: {
+          id?: string | null
+          options?: Json | null
+          order_index?: number | null
+          question?: string | null
+          quiz_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_questions_quiz_id_fkey"
+            columns: ["quiz_id"]
+            isOneToOne: false
+            referencedRelation: "quizzes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
+      award_coins: {
+        Args: {
+          _amount: number
+          _reason: string
+          _reference_id?: string
+          _reference_type?: string
+          _user_id: string
+        }
+        Returns: undefined
+      }
+      award_xp: { Args: { _user_id: string; _xp: number }; Returns: undefined }
+      get_kb_quiz_questions: {
+        Args: { _module_ids: string[] }
+        Returns: {
+          explanation: string
+          id: string
+          module_id: string
+          options: Json
+          order_index: number
+          question: string
+          type: string
+        }[]
+      }
       get_level_from_xp: { Args: { _xp: number }; Returns: number }
+      get_quiz_questions: {
+        Args: { _quiz_id: string }
+        Returns: {
+          id: string
+          options: Json
+          order_index: number
+          question: string
+          quiz_id: string
+        }[]
+      }
       get_user_coins: { Args: { _user_id: string }; Returns: number }
       get_user_empresa: { Args: { _user_id: string }; Returns: string }
       has_role: {
@@ -1184,6 +1316,16 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      is_same_company: { Args: { _user_id: string }; Returns: boolean }
+      update_user_streak: { Args: { _user_id: string }; Returns: undefined }
+      validate_kb_quiz_attempt: {
+        Args: { _answers: Json; _module_ids: string[]; _user_id: string }
+        Returns: Json
+      }
+      validate_quiz_attempt: {
+        Args: { _answers: Json; _quiz_id: string; _user_id: string }
+        Returns: Json
       }
     }
     Enums: {

@@ -68,9 +68,9 @@ const RewardsStorePage = () => {
       return;
     }
     setRedeeming(reward.id);
-    await supabase.from("coin_transactions").insert({
-      user_id: user.id, amount: -reward.cost,
-      reason: `Resgate: ${reward.name}`, reference_type: "redemption", reference_id: reward.id,
+    await supabase.rpc("award_coins", {
+      _user_id: user.id, _amount: -reward.cost,
+      _reason: `Resgate: ${reward.name}`, _reference_type: "redemption", _reference_id: reward.id,
     });
     await supabase.from("reward_redemptions").insert({
       user_id: user.id, reward_id: reward.id, cost: reward.cost,

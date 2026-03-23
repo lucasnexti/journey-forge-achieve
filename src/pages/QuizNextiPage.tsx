@@ -26,8 +26,8 @@ interface Question {
   question: string;
   type: string;
   options: string[];
-  correct_answer: number;
   explanation: string | null;
+  correct_answer?: number; // populated after server validation
 }
 
 type Phase = "modules" | "quiz" | "result";
@@ -137,11 +137,10 @@ const QuizNextiPage = () => {
     }
     setQuizLoading(true);
 
-    const { data } = await supabase
-      .from("kb_quiz_questions")
-      .select("id, question, type, options, correct_answer, explanation")
-      .in("module_id", Array.from(selectedModules))
-      .order("order_index");
+    // Fetch questions via secure server-side function (no correct_answer exposed)
+    const { data } = await supabase.rpc("get_kb_quiz_questions", {
+      _module_ids: Array.from(selectedModules),
+    });
 
     if (!data || data.length === 0) {
       toast.error("Nenhuma pergunta disponível nos módulos selecionados");
@@ -166,8 +165,31 @@ const QuizNextiPage = () => {
     setAnswers(newAnswers);
   };
 
-  const confirmAnswer = () => {
+  const confirmAnswer = async () => {
     if (answers[currentIdx] === null) return;
+    
+    // Validate single answer server-side
+    const currentQ = questions[currentIdx];
+    const answerMap: Record<string, number> = {};
+    answerMap[currentQ.id] = answers[currentIdx]!;
+    
+    const { data: result } = await supabase.rpc("validate_kb_quiz_attempt", {
+      _user_id: user?.id || "",
+      _module_ids: Array.from(selectedModules),
+      _answers: { [currentQ.id]: answers[currentIdx] },
+    });
+    
+    const resultData = result as any;
+    if (resultData && resultData.details) {
+      const detail = (resultData.details as any[]).find((d: any) => d.question_id === currentQ.id);
+      if (detail) {
+        // Update question with correct_answer from server
+        const updatedQuestions = [...questions];
+        updatedQuestions[currentIdx] = { ...currentQ, correct_answer: detail.correct_answer };
+        setQuestions(updatedQuestions);
+      }
+    }
+    
     setShowAnswer(true);
   };
 
@@ -176,13 +198,21 @@ const QuizNextiPage = () => {
     if (currentIdx < questions.length - 1) {
       setCurrentIdx(currentIdx + 1);
     } else {
-      // Finish quiz — calculate score
-      let correct = 0;
+      // Finish quiz — validate all answers server-side
+      const answerMap: Record<string, number> = {};
       questions.forEach((q, i) => {
-        if (answers[i] === q.correct_answer) correct++;
+        if (answers[i] !== null) answerMap[q.id] = answers[i]!;
       });
-      const pct = Math.round((correct / questions.length) * 100);
-      const passed = pct >= 70;
+
+      const { data: result } = await supabase.rpc("validate_kb_quiz_attempt", {
+        _user_id: user?.id || "",
+        _module_ids: Array.from(selectedModules),
+        _answers: answerMap,
+      });
+
+      const pct = (result as any)?.score || 0;
+      const correct = (result as any)?.correct || 0;
+      const passed = (result as any)?.passed || false;
 
       setScore(pct);
       setTotalQ(questions.length);
@@ -191,11 +221,6 @@ const QuizNextiPage = () => {
       if (user) {
         const moduleIds = Array.from(selectedModules);
         for (const modId of moduleIds) {
-          const modQuestions = questions.filter(q => {
-            // We need to know which module each question belongs to, 
-            // but we lost that info. Save one attempt per selected module with the overall score.
-            return true;
-          });
           await supabase.from("kb_quiz_attempts").insert({
             user_id: user.id,
             module_id: modId,
@@ -208,7 +233,6 @@ const QuizNextiPage = () => {
         // Check and award badges
         const earned: string[] = [];
         if (passed) {
-          // Check module-specific badges
           const { data: allBadges } = await supabase
             .from("badges")
             .select("id, name, criteria_type, criteria_value");
