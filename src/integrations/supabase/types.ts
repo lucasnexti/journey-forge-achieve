@@ -1285,7 +1285,29 @@ export type Database = {
         Returns: undefined
       }
       award_xp: { Args: { _user_id: string; _xp: number }; Returns: undefined }
+      get_kb_quiz_questions: {
+        Args: { _module_ids: string[] }
+        Returns: {
+          explanation: string
+          id: string
+          module_id: string
+          options: Json
+          order_index: number
+          question: string
+          type: string
+        }[]
+      }
       get_level_from_xp: { Args: { _xp: number }; Returns: number }
+      get_quiz_questions: {
+        Args: { _quiz_id: string }
+        Returns: {
+          id: string
+          options: Json
+          order_index: number
+          question: string
+          quiz_id: string
+        }[]
+      }
       get_user_coins: { Args: { _user_id: string }; Returns: number }
       get_user_empresa: { Args: { _user_id: string }; Returns: string }
       has_role: {
