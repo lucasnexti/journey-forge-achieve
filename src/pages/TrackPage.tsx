@@ -84,7 +84,7 @@ const TrackPage = () => {
     const [{ data: trackData }, { data: lessonData }, { data: quizData }, progressData, { data: profile }] = await Promise.all([
       supabase.from("tracks").select("id, title, description, category").eq("id", trackId).maybeSingle(),
       supabase.from("lessons").select("id, title, description, video_url, duration, order_index").eq("track_id", trackId).order("order_index"),
-      supabase.from("quizzes").select("id, title, passing_score, quiz_questions(id, question, options, order_index)").eq("track_id", trackId),
+      supabase.from("quizzes").select("id, title, passing_score").eq("track_id", trackId),
       getTrackProgressDB(user.id, trackId),
       supabase.from("profiles").select("nome").eq("user_id", user.id).maybeSingle(),
     ]);

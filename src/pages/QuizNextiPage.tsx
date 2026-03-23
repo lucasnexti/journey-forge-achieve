@@ -137,12 +137,10 @@ const QuizNextiPage = () => {
     }
     setQuizLoading(true);
 
-    // Fetch questions without correct_answer for display
-    const { data } = await supabase
-      .from("kb_quiz_questions")
-      .select("id, question, type, options, order_index, explanation")
-      .in("module_id", Array.from(selectedModules))
-      .order("order_index");
+    // Fetch questions via secure server-side function (no correct_answer exposed)
+    const { data } = await supabase.rpc("get_kb_quiz_questions", {
+      _module_ids: Array.from(selectedModules),
+    });
 
     if (!data || data.length === 0) {
       toast.error("Nenhuma pergunta disponível nos módulos selecionados");
