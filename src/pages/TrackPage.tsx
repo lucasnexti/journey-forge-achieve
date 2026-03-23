@@ -197,7 +197,6 @@ const TrackPage = () => {
             id: q.id,
             text: q.question,
             options: Array.isArray(q.options) ? q.options as string[] : [],
-            correctIndex: q.correct_answer,
           })),
       }
     : null;

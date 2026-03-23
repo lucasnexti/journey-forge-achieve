@@ -2,7 +2,7 @@ export interface Question {
   id: string;
   text: string;
   options: string[];
-  correctIndex: number;
+  correctIndex?: number; // populated after server-side validation
 }
 
 export interface Quiz {
