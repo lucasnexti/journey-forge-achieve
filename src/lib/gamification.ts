@@ -58,28 +58,17 @@ export async function awardCoins(
     if (existing && existing.length > 0) return; // Already awarded
   }
 
-  await supabase.from("coin_transactions").insert({
-    user_id: userId,
-    amount,
-    reason,
-    reference_type: referenceType,
-    reference_id: referenceId,
+  // Use server-side secure functions
+  await supabase.rpc("award_coins", {
+    _user_id: userId,
+    _amount: amount,
+    _reason: reason,
+    _reference_type: referenceType,
+    _reference_id: referenceId ?? null,
   });
 
-  // Update XP
-  const { data: levelData } = await supabase
-    .from("user_levels")
-    .select("total_xp")
-    .eq("user_id", userId)
-    .maybeSingle();
-
-  const newXp = (levelData?.total_xp || 0) + amount;
-  const newLevel = getLevelInfo(newXp).level;
-
-  await supabase.from("user_levels").upsert(
-    { user_id: userId, total_xp: newXp, current_level: newLevel, updated_at: new Date().toISOString() },
-    { onConflict: "user_id" }
-  );
+  // Update XP via server-side function
+  await supabase.rpc("award_xp", { _user_id: userId, _xp: amount });
 }
 
 // ── Streak management ──
