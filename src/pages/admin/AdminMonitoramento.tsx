@@ -11,7 +11,8 @@ import {
   RefreshCw, Server, Database, Zap, AlertTriangle, CheckCircle2,
   TrendingUp, TrendingDown, BarChart3, FileText, Plus, Trash2, Play, History,
   Settings2, Target, Percent, Flame, UserPlus, ArrowUpRight, ArrowDownRight,
-  Gauge, Eye, CalendarDays, PieChart,
+  Gauge, Eye, CalendarDays, PieChart, Timer, HardDrive, Video, MonitorCheck,
+  CircleCheck, CircleX, Layers,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
