@@ -47,8 +47,9 @@ interface PerformanceMetrics {
   reliability: { errorCount: number; totalActions: number; errorRate: number; uptimeProxy: number };
   throughput: { lessonProgressPerHour: number; quizAttemptsPerHour: number; enrollmentsPerHour: number };
   dataVolume: Record<string, number>;
-  lmsHealth: { videoAvailability: number; contentCompleteness: number; quizCoverage: number };
-  slos: { name: string; target: number; actual: number; met: boolean }[];
+  lmsHealth: { videoAvailability: number; contentCompleteness: number; quizCoverage: number; quizPassRate?: number; profileCompleteness?: number; lessonDescCoverage?: number };
+  slos: { name: string; category: string; target: number; actual: number; met: boolean; weight: number }[];
+  sloByCategory?: { category: string; total: number; met: number; score: number }[];
   sloScore: number;
 }
 
@@ -273,40 +274,96 @@ const AdminMonitoramento = () => {
                 {/* SLO Score */}
                 <section>
                   <div className="flex items-center justify-between mb-3">
-                    <SectionTitle icon={MonitorCheck} title="SLO Compliance" />
+                    <SectionTitle icon={MonitorCheck} title="Saúde do Sistema — SLO Compliance" />
                     <Button size="sm" variant="outline" onClick={fetchPerfMetrics} disabled={loadingPerf} className="h-8 text-xs">
                       <RefreshCw className={cn("h-3 w-3 mr-1", loadingPerf && "animate-spin")} /> Re-benchmark
                     </Button>
                   </div>
                   <div className="card-surface p-5">
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className={cn("text-4xl font-black tabular-nums", perfMetrics.sloScore >= 80 ? "text-emerald-500" : perfMetrics.sloScore >= 50 ? "text-amber-500" : "text-destructive")}>
-                        {perfMetrics.sloScore}%
+                    {/* Main Score */}
+                    <div className="flex items-center gap-4 mb-5">
+                      <div className="relative">
+                        <div className={cn("text-5xl font-black tabular-nums", perfMetrics.sloScore >= 95 ? "text-emerald-500" : perfMetrics.sloScore >= 80 ? "text-amber-500" : "text-destructive")}>
+                          {perfMetrics.sloScore}%
+                        </div>
+                        <p className="text-[10px] text-muted-foreground text-center">Meta: 95%</p>
                       </div>
-                      <div>
-                        <p className="text-sm font-bold text-foreground">SLO Score Geral</p>
+                      <div className="flex-1">
+                        <p className="text-sm font-bold text-foreground">Saúde Geral do Sistema</p>
                         <p className="text-[11px] text-muted-foreground">
                           {perfMetrics.slos.filter((s) => s.met).length}/{perfMetrics.slos.length} objetivos atingidos
                         </p>
+                        <Progress value={perfMetrics.sloScore} className="h-2 mt-2 [&>div]:transition-all [&>div]:duration-700" />
                       </div>
-                      <div className="ml-auto text-right">
-                        <p className="text-[10px] text-muted-foreground">Benchmark executado em</p>
+                      <div className="text-right">
+                        <p className="text-[10px] text-muted-foreground">Benchmark em</p>
                         <p className="text-sm font-bold tabular-nums text-foreground">{perfMetrics.executionTime}ms</p>
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      {perfMetrics.slos.map((slo) => (
-                        <div key={slo.name} className="flex items-center gap-3">
-                          {slo.met
-                            ? <CircleCheck className="h-4 w-4 text-emerald-500 shrink-0" />
-                            : <CircleX className="h-4 w-4 text-destructive shrink-0" />}
-                          <span className="text-sm text-foreground flex-1">{slo.name}</span>
-                          <span className={cn("text-sm font-bold tabular-nums", slo.met ? "text-emerald-500" : "text-destructive")}>
-                            {typeof slo.actual === 'number' && slo.actual % 1 !== 0 ? slo.actual.toFixed(1) : slo.actual}
-                          </span>
-                          <span className="text-[10px] text-muted-foreground w-16 text-right">meta: {slo.target}</span>
-                        </div>
-                      ))}
+
+                    {/* Category Breakdown */}
+                    {perfMetrics.sloByCategory && (
+                      <div className="grid grid-cols-5 gap-2 mb-5">
+                        {perfMetrics.sloByCategory.map((cat) => {
+                          const catLabels: Record<string, string> = {
+                            performance: "Performance", reliability: "Confiabilidade",
+                            content: "Conteúdo", ux: "Experiência", data: "Dados"
+                          };
+                          const catIcons: Record<string, typeof Zap> = {
+                            performance: Zap, reliability: ShieldCheck,
+                            content: BookOpen, ux: Globe, data: HardDrive
+                          };
+                          const CatIcon = catIcons[cat.category] || Layers;
+                          return (
+                            <div key={cat.category} className={cn(
+                              "rounded-lg border p-2.5 text-center transition-colors",
+                              cat.score === 100 ? "border-emerald-500/30 bg-emerald-500/5" :
+                              cat.score >= 75 ? "border-amber-500/30 bg-amber-500/5" :
+                              "border-destructive/30 bg-destructive/5"
+                            )}>
+                              <CatIcon className={cn("h-4 w-4 mx-auto mb-1",
+                                cat.score === 100 ? "text-emerald-500" : cat.score >= 75 ? "text-amber-500" : "text-destructive"
+                              )} />
+                              <p className={cn("text-lg font-black tabular-nums",
+                                cat.score === 100 ? "text-emerald-500" : cat.score >= 75 ? "text-amber-500" : "text-destructive"
+                              )}>{cat.score}%</p>
+                              <p className="text-[9px] text-muted-foreground">{catLabels[cat.category]}</p>
+                              <p className="text-[8px] text-muted-foreground/60">{cat.met}/{cat.total}</p>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* Detailed SLOs grouped by category */}
+                    <div className="space-y-4">
+                      {["performance", "reliability", "content", "ux", "data"].map((cat) => {
+                        const catSlos = perfMetrics.slos.filter((s) => s.category === cat);
+                        if (catSlos.length === 0) return null;
+                        const catLabels: Record<string, string> = {
+                          performance: "⚡ Performance", reliability: "🛡️ Confiabilidade",
+                          content: "📚 Conteúdo", ux: "🎯 Experiência do Usuário", data: "💾 Dados & Escala"
+                        };
+                        return (
+                          <div key={cat}>
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5">{catLabels[cat]}</p>
+                            <div className="space-y-1">
+                              {catSlos.map((slo) => (
+                                <div key={slo.name} className="flex items-center gap-3 py-0.5">
+                                  {slo.met
+                                    ? <CircleCheck className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                                    : <CircleX className="h-3.5 w-3.5 text-destructive shrink-0" />}
+                                  <span className="text-xs text-foreground flex-1">{slo.name}</span>
+                                  <span className={cn("text-xs font-bold tabular-nums", slo.met ? "text-emerald-500" : "text-destructive")}>
+                                    {typeof slo.actual === 'number' && slo.actual % 1 !== 0 ? slo.actual.toFixed(1) : slo.actual}
+                                  </span>
+                                  <span className="text-[9px] text-muted-foreground w-14 text-right">meta: {slo.target}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 </section>

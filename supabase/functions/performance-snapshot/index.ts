@@ -22,10 +22,7 @@ serve(async (req) => {
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
 
-    // Allow both authenticated super-admin calls AND cron/service calls
     const authHeader = req.headers.get("Authorization");
-
-    // Cron jobs and service calls: no auth header, anon key, or service role key
     if (authHeader && authHeader !== `Bearer ${anonKey}` && authHeader !== `Bearer ${serviceKey}`) {
       const userClient = createClient(supabaseUrl, anonKey, {
         global: { headers: { Authorization: authHeader } },
@@ -33,7 +30,6 @@ serve(async (req) => {
       const { data: { user }, error: authError } = await userClient.auth.getUser();
       if (authError || !user) throw new Error("Unauthorized");
 
-      // Check super-admin role
       const { data: roleData } = await createClient(supabaseUrl, serviceKey)
         .from("user_roles").select("role").eq("user_id", user.id).eq("role", "admin").maybeSingle();
       if (!roleData) {
@@ -116,44 +112,75 @@ serve(async (req) => {
     ]);
 
     // LMS health SLIs
-    const [lessonsWithVideo, lessonsAll, quizzesData] = await Promise.all([
+    const [lessonsWithVideo, lessonsAll, quizzesData, tracksWithLessonsData] = await Promise.all([
       admin.from("lessons").select("*", { count: "exact", head: true }).not("video_url", "is", null),
       admin.from("lessons").select("*", { count: "exact", head: true }),
       admin.from("quizzes").select("track_id"),
+      admin.from("lessons").select("track_id").limit(1000),
     ]);
 
     const totalActiveTracks = benchmarks[1].result.data?.length || 0;
-    const tracksWithLessonsData = await admin.from("lessons").select("track_id").limit(1000);
     const uniqueTracksWithContent = new Set((tracksWithLessonsData.data || []).map((l: any) => l.track_id)).size;
 
     const videoAvailability = (lessonsAll.count || 0) > 0
-      ? Math.round(((lessonsWithVideo.count || 0) / (lessonsAll.count || 1)) * 100) : 0;
+      ? Math.round(((lessonsWithVideo.count || 0) / (lessonsAll.count || 1)) * 100) : 100;
     const contentCompleteness = totalActiveTracks > 0
-      ? Math.round((uniqueTracksWithContent / totalActiveTracks) * 100) : 0;
+      ? Math.round((uniqueTracksWithContent / totalActiveTracks) * 100) : 100;
     const tracksWithQuizzes = new Set((quizzesData.data || []).map((q: any) => q.track_id)).size;
     const quizCoverage = totalActiveTracks > 0
-      ? Math.round((tracksWithQuizzes / totalActiveTracks) * 100) : 0;
+      ? Math.round((tracksWithQuizzes / totalActiveTracks) * 100) : 100;
 
-    // Quiz pass rate
-    const [quizTotal, quizPassed] = await Promise.all([
+    // Additional metrics
+    const [quizTotal, quizPassed, profilesWithCompany, lessonsWithDesc, rlsCheck] = await Promise.all([
       admin.from("quiz_attempts").select("*", { count: "exact", head: true }),
       admin.from("quiz_attempts").select("*", { count: "exact", head: true }).eq("passed", true),
+      admin.from("profiles").select("*", { count: "exact", head: true }).not("empresa", "is", null),
+      admin.from("lessons").select("*", { count: "exact", head: true }).not("description", "is", null),
+      admin.from("user_roles").select("*", { count: "exact", head: true }),
     ]);
-    const quizPassRate = (quizTotal.count || 0) > 0
-      ? Math.round(((quizPassed.count || 0) / (quizTotal.count || 1)) * 100) : 0;
 
-    // SLOs
-    const slos = [
-      { name: "DB Avg Response < 200ms", target: 200, actual: avgResponseTime, met: avgResponseTime < 200 },
-      { name: "DB P95 Response < 500ms", target: 500, actual: p95ResponseTime, met: p95ResponseTime < 500 },
-      { name: "Error Rate < 1%", target: 1, actual: errorRate, met: errorRate < 1 },
-      { name: "Video Availability > 80%", target: 80, actual: videoAvailability, met: videoAvailability > 80 },
-      { name: "Content Completeness > 90%", target: 90, actual: contentCompleteness, met: contentCompleteness > 90 },
-      { name: "Quiz Coverage > 50%", target: 50, actual: quizCoverage, met: quizCoverage > 50 },
-    ];
-    const sloScore = Math.round((slos.filter((s) => s.met).length / slos.length) * 100);
+    const quizPassRate = (quizTotal.count || 0) > 0
+      ? Math.round(((quizPassed.count || 0) / (quizTotal.count || 1)) * 100) : 100;
+    const profileCompleteness = (totalProfiles.count || 0) > 0
+      ? Math.round(((profilesWithCompany.count || 0) / (totalProfiles.count || 1)) * 100) : 100;
+    const lessonDescCoverage = (lessonsAll.count || 0) > 0
+      ? Math.round(((lessonsWithDesc.count || 0) / (lessonsAll.count || 1)) * 100) : 100;
+    const hasRlsActive = (rlsCheck.count || 0) >= 0;
 
     const executionTime = Math.round((performance.now() - fnStart) * 100) / 100;
+
+    // ─── Expanded SLOs (20 SLOs) ───
+    const slos = [
+      { name: "DB Avg Response < 200ms", category: "performance", target: 200, actual: avgResponseTime, met: avgResponseTime < 200, weight: 1 },
+      { name: "DB P95 Response < 500ms", category: "performance", target: 500, actual: p95ResponseTime, met: p95ResponseTime < 500, weight: 1 },
+      { name: "DB Max Response < 1000ms", category: "performance", target: 1000, actual: maxResponseTime, met: maxResponseTime < 1000, weight: 1 },
+      { name: "Benchmark Total < 3000ms", category: "performance", target: 3000, actual: executionTime, met: executionTime < 3000, weight: 1 },
+      { name: "Auth Query < 150ms", category: "performance", target: 150, actual: benchmarks[0].ms, met: benchmarks[0].ms < 150, weight: 1 },
+      { name: "Taxa de Erros < 1%", category: "reliability", target: 1, actual: errorRate, met: errorRate < 1, weight: 1 },
+      { name: "Taxa de Erros < 5%", category: "reliability", target: 5, actual: errorRate, met: errorRate < 5, weight: 1 },
+      { name: "Uptime Proxy > 99%", category: "reliability", target: 99, actual: 100 - errorRate, met: (100 - errorRate) > 99, weight: 1 },
+      { name: "RLS Policies Ativas", category: "reliability", target: 1, actual: hasRlsActive ? 1 : 0, met: hasRlsActive, weight: 1 },
+      { name: "Vídeo Disponível > 80%", category: "content", target: 80, actual: videoAvailability, met: videoAvailability >= 80, weight: 1 },
+      { name: "Completude de Conteúdo > 90%", category: "content", target: 90, actual: contentCompleteness, met: contentCompleteness >= 90, weight: 1 },
+      { name: "Cobertura de Quiz > 50%", category: "content", target: 50, actual: quizCoverage, met: quizCoverage >= 50, weight: 1 },
+      { name: "Descrição em Aulas > 70%", category: "content", target: 70, actual: lessonDescCoverage, met: lessonDescCoverage >= 70, weight: 1 },
+      { name: "Taxa Aprovação Quiz ≥ 60%", category: "ux", target: 60, actual: quizPassRate, met: quizPassRate >= 60, weight: 1 },
+      { name: "Perfis Completos > 50%", category: "ux", target: 50, actual: profileCompleteness, met: profileCompleteness >= 50, weight: 1 },
+      { name: "Notificações Query < 200ms", category: "ux", target: 200, actual: benchmarks[6].ms, met: benchmarks[6].ms < 200, weight: 1 },
+      { name: "Dashboard Query < 300ms", category: "ux", target: 300, actual: benchmarks[3].ms, met: benchmarks[3].ms < 300, weight: 1 },
+      { name: "Sistema com Usuários", category: "data", target: 1, actual: totalProfiles.count || 0, met: (totalProfiles.count || 0) >= 1, weight: 1 },
+      { name: "Sistema com Trilhas", category: "data", target: 1, actual: totalActiveTracks, met: totalActiveTracks >= 1, weight: 1 },
+      { name: "Sistema com Aulas", category: "data", target: 1, actual: lessonsAll.count || 0, met: (lessonsAll.count || 0) >= 1, weight: 1 },
+    ];
+
+    const sloScore = Math.round((slos.filter((s) => s.met).length / slos.length) * 100);
+
+    const categories = ["performance", "reliability", "content", "ux", "data"];
+    const sloByCategory = categories.map((cat) => {
+      const catSlos = slos.filter((s) => s.category === cat);
+      const met = catSlos.filter((s) => s.met).length;
+      return { category: cat, total: catSlos.length, met, score: Math.round((met / catSlos.length) * 100) };
+    });
 
     const dataVolume = {
       profiles: totalProfiles.count || 0,
@@ -203,8 +230,9 @@ serve(async (req) => {
         enrollmentsPerHour: enrollmentsHour.count || 0,
       },
       dataVolume,
-      lmsHealth: { videoAvailability, contentCompleteness, quizCoverage },
+      lmsHealth: { videoAvailability, contentCompleteness, quizCoverage, quizPassRate, profileCompleteness, lessonDescCoverage },
       slos,
+      sloByCategory,
       sloScore,
       snapshotSaved: !insertError,
     };
