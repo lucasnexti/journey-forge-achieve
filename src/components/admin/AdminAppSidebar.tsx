@@ -77,6 +77,7 @@ const navGroups: NavGroup[] = [
       { to: "/admin/personalizacao", label: "Personalização", icon: Palette },
       { to: "/admin/relatorio-progresso", label: "Relatórios", icon: BarChart3 },
       { to: "/admin/logs", label: "Logs", icon: FileText },
+      { to: "/admin/monitoramento", label: "Monitoramento", icon: Activity },
     ],
   },
 ];
