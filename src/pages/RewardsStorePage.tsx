@@ -1,7 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { getUserGamificationData, getLevelInfo } from "@/lib/gamification";
+import { getLevelInfo } from "@/lib/gamification";
+import { useRewardsStoreData } from "@/hooks/useDashboardData";
+import { useQueryClient } from "@tanstack/react-query";
 import AppLayout from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,57 +17,36 @@ import {
 } from "lucide-react";
 
 interface Reward {
-  id: string;
-  name: string;
-  description: string | null;
-  image_url: string | null;
-  cost: number;
-  stock: number | null;
-  category: string | null;
+  id: string; name: string; description: string | null; image_url: string | null;
+  cost: number; stock: number | null; category: string | null;
 }
-
 interface Redemption {
-  id: string;
-  cost: number;
-  status: string;
-  created_at: string;
-  reward_id: string;
+  id: string; cost: number; status: string; created_at: string; reward_id: string;
 }
 
 const RewardsStorePage = () => {
   const { user } = useAuth();
-  const [rewards, setRewards] = useState<Reward[]>([]);
-  const [redemptions, setRedemptions] = useState<Redemption[]>([]);
-  const [gamification, setGamification] = useState({ coins: 0, xp: 0, level: 1, streak: 0, longestStreak: 0 });
-  const [transactions, setTransactions] = useState<{ amount: number; reason: string; created_at: string }[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const { data: storeData, isLoading: loading } = useRewardsStoreData();
+
+  const rewards = (storeData?.rewards ?? []) as Reward[];
+  const redemptions = (storeData?.redemptions ?? []) as Redemption[];
+  const transactions = storeData?.transactions ?? [];
+  const [gamification, setGamification] = useState(storeData?.gamification ?? { coins: 0, xp: 0, level: 1, streak: 0, longestStreak: 0 });
+
+  // Sync gamification when data loads
+  if (storeData?.gamification && gamification.coins !== storeData.gamification.coins) {
+    setGamification(storeData.gamification);
+  }
+
   const [redeeming, setRedeeming] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"store" | "history" | "how">("store");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!user) return;
-    const load = async () => {
-      const [gData, { data: rewardData }, { data: redemptionData }, { data: txData }] = await Promise.all([
-        getUserGamificationData(user.id),
-        supabase.from("rewards").select("*").eq("is_active", true).order("cost"),
-        supabase.from("reward_redemptions").select("id, cost, status, created_at, reward_id").eq("user_id", user.id).order("created_at", { ascending: false }),
-        supabase.from("coin_transactions").select("amount, reason, created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(50),
-      ]);
-      setGamification(gData);
-      setRewards((rewardData as Reward[]) || []);
-      setRedemptions((redemptionData as Redemption[]) || []);
-      setTransactions(txData || []);
-      setLoading(false);
-    };
-    load();
-  }, [user]);
-
   const handleRedeem = async (reward: Reward) => {
     if (!user) return;
     if (gamification.coins < reward.cost) {
-      toast.error("Moedas insuficientes para este prêmio.");
-      return;
+      toast.error("Moedas insuficientes para este prêmio."); return;
     }
     setRedeeming(reward.id);
     await supabase.rpc("award_coins", {
@@ -78,13 +59,11 @@ const RewardsStorePage = () => {
     setGamification((prev) => ({ ...prev, coins: prev.coins - reward.cost }));
     toast.success(`🎉 Prêmio "${reward.name}" resgatado! Aguarde a aprovação.`);
     setRedeeming(null);
-    const { data: newRedemptions } = await supabase
-      .from("reward_redemptions")
-      .select("id, cost, status, created_at, reward_id")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
-    setRedemptions(newRedemptions || []);
+    queryClient.invalidateQueries({ queryKey: ["rewards", "store", user.id] });
   };
+
+
+
 
   const levelInfo = getLevelInfo(gamification.xp);
   const categories = [...new Set(rewards.map((r) => r.category).filter(Boolean))] as string[];

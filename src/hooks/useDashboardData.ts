@@ -162,3 +162,153 @@ export function useTrainingRequests() {
     staleTime: 2 * 60 * 1000,
   });
 }
+
+// ── Leaderboard data ──
+export function useLeaderboard() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: queryKeys.leaderboard.company(user?.id ?? ""),
+    queryFn: async () => {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("empresa")
+        .eq("user_id", user!.id)
+        .maybeSingle();
+
+      const empresa = profile?.empresa;
+      if (!empresa) return { empresa: null, ranking: [] };
+
+      const { data: colleagues } = await supabase
+        .from("profiles")
+        .select("user_id, nome")
+        .eq("empresa", empresa)
+        .eq("is_active", true);
+
+      if (!colleagues || colleagues.length === 0) return { empresa, ranking: [] };
+
+      const userIds = colleagues.map((c) => c.user_id);
+      const { data: enrollments } = await supabase
+        .from("enrollments")
+        .select("user_id, status")
+        .in("user_id", userIds);
+
+      const nameMap = new Map(colleagues.map((c) => [c.user_id, c.nome]));
+      const rankMap = new Map<string, { completed: number; total: number }>();
+
+      (enrollments || []).forEach((e) => {
+        const entry = rankMap.get(e.user_id) || { completed: 0, total: 0 };
+        entry.total++;
+        if (e.status === "completed") entry.completed++;
+        rankMap.set(e.user_id, entry);
+      });
+
+      const ranking = Array.from(rankMap.entries())
+        .map(([uid, stats]) => ({ user_id: uid, nome: nameMap.get(uid) || "Usuário", ...stats }))
+        .sort((a, b) => b.completed - a.completed || a.total - b.total);
+
+      return { empresa, ranking };
+    },
+    enabled: !!user,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+// ── Badges page full data ──
+export function useBadgesPageData() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["badges", "page", user?.id ?? ""],
+    queryFn: async () => {
+      const [
+        { data: allBadges },
+        { data: userBadges },
+        gData,
+        { count: trackCount },
+        { count: lessonCount },
+        { count: quizCount },
+        { count: forumCount },
+        { data: quizAttempts },
+      ] = await Promise.all([
+        supabase.from("badges").select("*").order("created_at"),
+        supabase.from("user_badges").select("badge_id, earned_at").eq("user_id", user!.id),
+        getUserGamificationData(user!.id),
+        supabase.from("enrollments").select("*", { count: "exact", head: true }).eq("user_id", user!.id).eq("status", "completed"),
+        supabase.from("lesson_progress").select("*", { count: "exact", head: true }).eq("user_id", user!.id).eq("completed", true),
+        supabase.from("quiz_attempts").select("*", { count: "exact", head: true }).eq("user_id", user!.id).eq("passed", true),
+        supabase.from("forum_posts").select("*", { count: "exact", head: true }).eq("user_id", user!.id),
+        supabase.from("quiz_attempts").select("score").eq("user_id", user!.id).order("score", { ascending: false }).limit(1),
+      ]);
+
+      const earnedMap = new Map((userBadges || []).map((ub: any) => [ub.badge_id, ub.earned_at]));
+      const badges = (allBadges || []).map((b: any) => ({
+        id: b.id, name: b.name, description: b.description, icon: b.icon,
+        criteria_type: b.criteria_type, criteria_value: b.criteria_value,
+        earned: earnedMap.has(b.id), earned_at: earnedMap.get(b.id) || null,
+      }));
+
+      return {
+        badges,
+        gamification: gData,
+        userProgress: {
+          completedTracks: trackCount || 0,
+          completedLessons: lessonCount || 0,
+          quizzesPassed: quizCount || 0,
+          forumPosts: forumCount || 0,
+          bestQuizScore: quizAttempts?.[0]?.score || 0,
+        },
+      };
+    },
+    enabled: !!user,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+// ── Rewards store data ──
+export function useRewardsStoreData() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["rewards", "store", user?.id ?? ""],
+    queryFn: async () => {
+      const [gData, { data: rewardData }, { data: redemptionData }, { data: txData }] = await Promise.all([
+        getUserGamificationData(user!.id),
+        supabase.from("rewards").select("*").eq("is_active", true).order("cost"),
+        supabase.from("reward_redemptions").select("id, cost, status, created_at, reward_id").eq("user_id", user!.id).order("created_at", { ascending: false }),
+        supabase.from("coin_transactions").select("amount, reason, created_at").eq("user_id", user!.id).order("created_at", { ascending: false }).limit(50),
+      ]);
+      return {
+        gamification: gData,
+        rewards: rewardData || [],
+        redemptions: redemptionData || [],
+        transactions: txData || [],
+      };
+    },
+    enabled: !!user,
+    staleTime: 2 * 60 * 1000,
+  });
+}
+
+// ── Profile page data ──
+export function useProfilePageData() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["profile", "page", user?.id ?? ""],
+    queryFn: async () => {
+      const [{ data: profileData }, { data: badgeData }, { data: certData }] = await Promise.all([
+        supabase.from("profiles").select("nome, cpf, empresa, cargo, avatar_url").eq("user_id", user!.id).maybeSingle(),
+        supabase.from("user_badges").select("earned_at, badges(name, icon)").eq("user_id", user!.id),
+        supabase.from("certificates").select("id, issued_at, certificate_code, tracks(title)").eq("user_id", user!.id),
+      ]);
+      return {
+        profile: profileData || { nome: "", cpf: null, empresa: null, cargo: null, avatar_url: null },
+        badges: (badgeData || []).map((b: any) => ({
+          name: b.badges?.name || "", icon: b.badges?.icon || "award", earned_at: b.earned_at,
+        })),
+        certificates: (certData || []).map((c: any) => ({
+          id: c.id, track_title: c.tracks?.title || "", issued_at: c.issued_at, certificate_code: c.certificate_code,
+        })),
+      };
+    },
+    enabled: !!user,
+    staleTime: 5 * 60 * 1000,
+  });
+}

@@ -1,6 +1,5 @@
-import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { useLeaderboard } from "@/hooks/useDashboardData";
 import AppLayout from "@/components/AppLayout";
 import { Trophy, Medal, Crown, User } from "lucide-react";
 
@@ -13,69 +12,9 @@ interface RankEntry {
 
 const LeaderboardPage = () => {
   const { user } = useAuth();
-  const [ranking, setRanking] = useState<RankEntry[]>([]);
-  const [empresa, setEmpresa] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!user) return;
-
-    const load = async () => {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("empresa")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      const userEmpresa = profile?.empresa;
-      setEmpresa(userEmpresa);
-
-      if (!userEmpresa) {
-        setLoading(false);
-        return;
-      }
-
-      const { data: colleagues } = await supabase
-        .from("profiles")
-        .select("user_id, nome")
-        .eq("empresa", userEmpresa)
-        .eq("is_active", true);
-
-      if (!colleagues || colleagues.length === 0) {
-        setLoading(false);
-        return;
-      }
-
-      const userIds = colleagues.map((c) => c.user_id);
-      const { data: enrollments } = await supabase
-        .from("enrollments")
-        .select("user_id, status")
-        .in("user_id", userIds);
-
-      const nameMap = new Map(colleagues.map((c) => [c.user_id, c.nome]));
-      const rankMap = new Map<string, { completed: number; total: number }>();
-
-      (enrollments || []).forEach((e) => {
-        const entry = rankMap.get(e.user_id) || { completed: 0, total: 0 };
-        entry.total++;
-        if (e.status === "completed") entry.completed++;
-        rankMap.set(e.user_id, entry);
-      });
-
-      const rankList: RankEntry[] = Array.from(rankMap.entries())
-        .map(([uid, stats]) => ({
-          user_id: uid,
-          nome: nameMap.get(uid) || "Usuário",
-          ...stats,
-        }))
-        .sort((a, b) => b.completed - a.completed || a.total - b.total);
-
-      setRanking(rankList);
-      setLoading(false);
-    };
-
-    load();
-  }, [user]);
+  const { data, isLoading: loading } = useLeaderboard();
+  const empresa = data?.empresa ?? null;
+  const ranking = (data?.ranking ?? []) as RankEntry[];
 
   const getMedal = (index: number) => {
     if (index === 0) return <Crown className="h-5 w-5 text-warning" />;

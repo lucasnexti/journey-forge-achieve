@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useProfilePageData } from "@/hooks/useDashboardData";
+import { useQueryClient } from "@tanstack/react-query";
 import AppLayout from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,12 +20,14 @@ interface ProfileData {
 
 const ProfilePage = () => {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { data: pageData, isLoading: loading } = useProfilePageData();
+
   const [profile, setProfile] = useState<ProfileData>({ nome: "", cpf: null, empresa: null, cargo: null, avatar_url: null });
   const [badges, setBadges] = useState<{ name: string; icon: string; earned_at: string }[]>([]);
   const [certificates, setCertificates] = useState<{ id: string; track_title: string; issued_at: string; certificate_code: string }[]>([]);
   const [saving, setSaving] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   // Password change
@@ -34,37 +38,14 @@ const ProfilePage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
 
+  // Sync from query data
   useEffect(() => {
-    if (!user) return;
-
-    const load = async () => {
-      const [{ data: profileData }, { data: badgeData }, { data: certData }] = await Promise.all([
-        supabase.from("profiles").select("nome, cpf, empresa, cargo, avatar_url").eq("user_id", user.id).maybeSingle(),
-        supabase.from("user_badges").select("earned_at, badges(name, icon)").eq("user_id", user.id),
-        supabase.from("certificates").select("id, issued_at, certificate_code, tracks(title)").eq("user_id", user.id),
-      ]);
-
-      if (profileData) setProfile(profileData);
-      setBadges(
-        (badgeData || []).map((b: any) => ({
-          name: b.badges?.name || "",
-          icon: b.badges?.icon || "award",
-          earned_at: b.earned_at,
-        }))
-      );
-      setCertificates(
-        (certData || []).map((c: any) => ({
-          id: c.id,
-          track_title: c.tracks?.title || "",
-          issued_at: c.issued_at,
-          certificate_code: c.certificate_code,
-        }))
-      );
-      setLoading(false);
-    };
-
-    load();
-  }, [user]);
+    if (pageData) {
+      setProfile(pageData.profile as ProfileData);
+      setBadges(pageData.badges);
+      setCertificates(pageData.certificates);
+    }
+  }, [pageData]);
 
   const handleSave = async () => {
     if (!user) return;

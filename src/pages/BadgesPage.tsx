@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
-import { getUserGamificationData, getLevelInfo } from "@/lib/gamification";
+import { getLevelInfo } from "@/lib/gamification";
+import { useBadgesPageData } from "@/hooks/useDashboardData";
 import AppLayout from "@/components/AppLayout";
 import { motion } from "framer-motion";
 import { Award, Trophy, Star, Zap, Target, Shield, Flame, BookOpen, Crown, Gem, Lock, CheckCircle2, TrendingUp } from "lucide-react";
@@ -22,132 +21,48 @@ interface BadgeData {
 }
 
 const iconComponents: Record<string, React.ElementType> = {
-  award: Award,
-  trophy: Trophy,
-  star: Star,
-  zap: Zap,
-  target: Target,
-  shield: Shield,
-  flame: Flame,
-  "book-open": BookOpen,
-  crown: Crown,
-  gem: Gem,
+  award: Award, trophy: Trophy, star: Star, zap: Zap, target: Target,
+  shield: Shield, flame: Flame, "book-open": BookOpen, crown: Crown, gem: Gem,
 };
 
 const criteriaLabels: Record<string, string> = {
-  track_completion: "Completar trilhas",
-  quiz_pass: "Passar em quizzes",
-  quiz_score: "Nota mínima no quiz",
-  quiz_module_pass: "Passar em módulo de quiz",
-  streak: "Dias consecutivos",
-  lesson_count: "Aulas completadas",
-  xp_threshold: "XP acumulado",
-  forum_posts: "Posts no fórum",
+  track_completion: "Completar trilhas", quiz_pass: "Passar em quizzes",
+  quiz_score: "Nota mínima no quiz", quiz_module_pass: "Passar em módulo de quiz",
+  streak: "Dias consecutivos", lesson_count: "Aulas completadas",
+  xp_threshold: "XP acumulado", forum_posts: "Posts no fórum",
 };
 
 const BadgesPage = () => {
   const { user } = useAuth();
-  const [badges, setBadges] = useState<BadgeData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [gamification, setGamification] = useState({ coins: 0, xp: 0, level: 1, streak: 0, longestStreak: 0 });
-  const [userProgress, setUserProgress] = useState({
-    completedTracks: 0,
-    completedLessons: 0,
-    quizzesPassed: 0,
-    forumPosts: 0,
-    bestQuizScore: 0,
-  });
+  const { data, isLoading: loading } = useBadgesPageData();
 
-  useEffect(() => {
-    if (!user) return;
-
-    const load = async () => {
-      const [
-        { data: allBadges },
-        { data: userBadges },
-        gData,
-        { count: trackCount },
-        { count: lessonCount },
-        { count: quizCount },
-        { count: forumCount },
-        { data: quizAttempts },
-      ] = await Promise.all([
-        supabase.from("badges").select("*").order("created_at"),
-        supabase.from("user_badges").select("badge_id, earned_at").eq("user_id", user.id),
-        getUserGamificationData(user.id),
-        supabase.from("enrollments").select("*", { count: "exact", head: true }).eq("user_id", user.id).eq("status", "completed"),
-        supabase.from("lesson_progress").select("*", { count: "exact", head: true }).eq("user_id", user.id).eq("completed", true),
-        supabase.from("quiz_attempts").select("*", { count: "exact", head: true }).eq("user_id", user.id).eq("passed", true),
-        supabase.from("forum_posts").select("*", { count: "exact", head: true }).eq("user_id", user.id),
-        supabase.from("quiz_attempts").select("score").eq("user_id", user.id).order("score", { ascending: false }).limit(1),
-      ]);
-
-      setGamification(gData);
-      setUserProgress({
-        completedTracks: trackCount || 0,
-        completedLessons: lessonCount || 0,
-        quizzesPassed: quizCount || 0,
-        forumPosts: forumCount || 0,
-        bestQuizScore: quizAttempts?.[0]?.score || 0,
-      });
-
-      const earnedMap = new Map((userBadges || []).map((ub: any) => [ub.badge_id, ub.earned_at]));
-
-      setBadges(
-        (allBadges || []).map((b: any) => ({
-          id: b.id,
-          name: b.name,
-          description: b.description,
-          icon: b.icon,
-          criteria_type: b.criteria_type,
-          criteria_value: b.criteria_value,
-          earned: earnedMap.has(b.id),
-          earned_at: earnedMap.get(b.id) || null,
-        }))
-      );
-
-      setLoading(false);
-    };
-    load();
-  }, [user]);
+  const badges = (data?.badges ?? []) as BadgeData[];
+  const gamification = data?.gamification ?? { coins: 0, xp: 0, level: 1, streak: 0, longestStreak: 0 };
+  const userProgress = data?.userProgress ?? {
+    completedTracks: 0, completedLessons: 0, quizzesPassed: 0, forumPosts: 0, bestQuizScore: 0,
+  };
 
   const getProgressForBadge = (badge: BadgeData): number => {
     if (badge.earned) return 100;
     const target = badge.criteria_value || 1;
     let current = 0;
-
     switch (badge.criteria_type) {
-      case "track_completion":
-        current = userProgress.completedTracks;
-        break;
-      case "lesson_count":
-        current = userProgress.completedLessons;
-        break;
-      case "quiz_pass":
-      case "quiz_module_pass":
-        current = userProgress.quizzesPassed;
-        break;
-      case "quiz_score":
-        current = userProgress.bestQuizScore;
-        break;
-      case "streak":
-        current = gamification.streak;
-        break;
-      case "xp_threshold":
-        current = gamification.xp;
-        break;
-      case "forum_posts":
-        current = userProgress.forumPosts;
-        break;
-      default:
-        current = 0;
+      case "track_completion": current = userProgress.completedTracks; break;
+      case "lesson_count": current = userProgress.completedLessons; break;
+      case "quiz_pass": case "quiz_module_pass": current = userProgress.quizzesPassed; break;
+      case "quiz_score": current = userProgress.bestQuizScore; break;
+      case "streak": current = gamification.streak; break;
+      case "xp_threshold": current = gamification.xp; break;
+      case "forum_posts": current = userProgress.forumPosts; break;
     }
-
     return Math.min(100, Math.round((current / target) * 100));
   };
 
   const earnedCount = badges.filter((b) => b.earned).length;
   const levelInfo = getLevelInfo(gamification.xp);
+
+
+
 
   if (loading) {
     return (
