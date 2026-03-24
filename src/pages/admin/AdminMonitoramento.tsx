@@ -78,6 +78,19 @@ interface AlertHistoryEntry {
   triggered_at: string; rule_id: string;
 }
 
+interface PerformanceMetrics {
+  timestamp: string;
+  executionTime: number;
+  queryBenchmarks: { name: string; endpoint: string; ms: number; category: string }[];
+  responseTimeSummary: { avg: number; max: number; p95: number };
+  reliability: { errorCount: number; totalActions: number; errorRate: number; uptimeProxy: number };
+  throughput: { lessonProgressPerHour: number; quizAttemptsPerHour: number; enrollmentsPerHour: number };
+  dataVolume: Record<string, number>;
+  lmsHealth: { videoAvailability: number; contentCompleteness: number; quizCoverage: number };
+  slos: { name: string; target: number; actual: number; met: boolean }[];
+  sloScore: number;
+}
+
 /* ─── Constants ─── */
 const METRIC_OPTIONS = [
   { key: "users_online", label: "Usuários online", icon: Wifi },
