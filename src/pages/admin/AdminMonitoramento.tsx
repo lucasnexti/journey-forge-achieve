@@ -198,6 +198,9 @@ const AdminMonitoramento = () => {
   // Performance state
   const [perfMetrics, setPerfMetrics] = useState<PerformanceMetrics | null>(null);
   const [loadingPerf, setLoadingPerf] = useState(false);
+  const [snapshots, setSnapshots] = useState<any[]>([]);
+  const [loadingSnapshots, setLoadingSnapshots] = useState(false);
+  const [snapshotRange, setSnapshotRange] = useState<"24h" | "7d" | "30d">("24h");
 
   // Alert state
   const [alertRules, setAlertRules] = useState<AlertRule[]>([]);
