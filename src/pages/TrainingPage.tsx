@@ -290,8 +290,9 @@ const TrainingPage = () => {
                 const isExpanded = expandedCategories[cat] !== false;
                 const cfg = categoryConfig[cat] || { icon: Package, color: "text-muted-foreground", gradient: "from-muted/50 to-muted/20" };
                 const CatIcon = cfg.icon;
-                const selectedCount = getSelectedCountForCategory(cat);
                 const catTotalHours = getCategoryTotalHours(cat);
+                const mode = categoryMode[cat]; // undefined = not chosen yet
+                const selectedCount = getSelectedCountForCategory(cat);
 
                 return (
                   <motion.div key={cat}
@@ -328,7 +329,7 @@ const TrainingPage = () => {
                       )} />
                     </button>
 
-                    {/* Category Content (Plans) */}
+                    {/* Category Content */}
                     <AnimatePresence initial={false}>
                       {isExpanded && (
                         <motion.div
@@ -338,97 +339,200 @@ const TrainingPage = () => {
                           transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
                           className="overflow-hidden"
                         >
-                          <div className="divide-y divide-border">
-                            {catModules.map((mod) => {
-                              const isOn = !!selected[mod.id];
-                              const modMod = getModModality(mod);
-                              const origPrice = getOriginalPrice(mod);
-                              const total = getModuleTotal(mod);
+                          {/* Mode selector */}
+                          <div className="px-4 sm:px-5 py-3 border-b border-border bg-muted/20">
+                            <p className="text-[11px] text-muted-foreground font-medium mb-2">Tipo de solicitação:</p>
+                            <div className="flex flex-col sm:flex-row gap-2">
+                              {/* Reimplantação Completa */}
+                              <button
+                                onClick={(e) => { e.stopPropagation(); handleCategoryMode(cat, "completa"); }}
+                                className={cn(
+                                  "flex-1 flex items-center gap-3 rounded-lg border-2 p-3 text-left transition-all",
+                                  mode === "completa"
+                                    ? "border-primary bg-primary/5"
+                                    : "border-border hover:border-primary/40 bg-background"
+                                )}
+                              >
+                                <div className={cn(
+                                  "flex h-8 w-8 items-center justify-center rounded-full shrink-0",
+                                  mode === "completa" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                                )}>
+                                  <Layers className="h-4 w-4" />
+                                </div>
+                                <div>
+                                  <p className={cn("text-sm font-bold", mode === "completa" ? "text-foreground" : "text-muted-foreground")}>
+                                    Reimplantação Completa
+                                  </p>
+                                  <p className="text-[11px] text-muted-foreground">
+                                    Todos os {catModules.length} módulos · <span className="font-semibold">{catTotalHours}h</span>
+                                  </p>
+                                </div>
+                                {mode === "completa" && (
+                                  <CheckCircle2 className="h-4 w-4 text-primary ml-auto shrink-0" />
+                                )}
+                              </button>
 
-                              return (
-                                <div key={mod.id}
-                                  className={cn(
-                                    "px-4 sm:px-5 py-3.5 transition-colors",
-                                    isOn ? "bg-primary/[0.03]" : "hover:bg-muted/20"
-                                  )}
-                                >
-                                  <div className="flex items-center gap-3">
-                                    {/* Module info */}
-                                    <div className="flex-1 min-w-0">
-                                      <div className="flex items-center gap-2">
-                                        <p className={cn("text-sm font-semibold leading-snug", isOn ? "text-foreground" : "text-muted-foreground")}>
-                                          {mod.title}
-                                        </p>
-                                        <Badge variant="outline" className="text-[9px] h-4 px-1.5 shrink-0">
-                                          {mod.duration_hours}h
-                                        </Badge>
-                                      </div>
-                                      {mod.description && (
-                                        <p className="text-[11px] text-muted-foreground/70 mt-0.5 line-clamp-1">{mod.description}</p>
-                                      )}
+                              {/* Solicitações Avulsas */}
+                              <button
+                                onClick={(e) => { e.stopPropagation(); handleCategoryMode(cat, "avulsa"); }}
+                                className={cn(
+                                  "flex-1 flex items-center gap-3 rounded-lg border-2 p-3 text-left transition-all",
+                                  mode === "avulsa"
+                                    ? "border-primary bg-primary/5"
+                                    : "border-border hover:border-primary/40 bg-background"
+                                )}
+                              >
+                                <div className={cn(
+                                  "flex h-8 w-8 items-center justify-center rounded-full shrink-0",
+                                  mode === "avulsa" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                                )}>
+                                  <BookOpen className="h-4 w-4" />
+                                </div>
+                                <div>
+                                  <p className={cn("text-sm font-bold", mode === "avulsa" ? "text-foreground" : "text-muted-foreground")}>
+                                    Solicitações Avulsas
+                                  </p>
+                                  <p className="text-[11px] text-muted-foreground">
+                                    Selecione módulos individuais por horas
+                                  </p>
+                                </div>
+                                {mode === "avulsa" && (
+                                  <CheckCircle2 className="h-4 w-4 text-primary ml-auto shrink-0" />
+                                )}
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Completa mode: show all modules with modality selector */}
+                          {mode === "completa" && (
+                            <div className="px-4 sm:px-5 py-3 bg-primary/[0.02]">
+                              <div className="flex items-center justify-between mb-3">
+                                <div>
+                                  <p className="text-sm font-bold text-foreground">Pacote completo selecionado</p>
+                                  <p className="text-[11px] text-muted-foreground">{catModules.length} módulos · {catTotalHours}h</p>
+                                </div>
+                              </div>
+                              <div className="space-y-1.5">
+                                {catModules.map((mod) => (
+                                  <div key={mod.id} className="flex items-center justify-between text-sm py-1.5 px-2 rounded-md bg-muted/30">
+                                    <div className="flex items-center gap-2">
+                                      <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />
+                                      <span className="text-foreground font-medium">{mod.title}</span>
+                                      <Badge variant="outline" className="text-[9px] h-4 px-1.5">{mod.duration_hours}h</Badge>
                                     </div>
-
-                                    {/* Toggle */}
-                                    <div className="shrink-0">
-                                      <Switch checked={isOn} onCheckedChange={() => handleToggle(mod.id)} />
+                                    {/* Inline modality */}
+                                    <div className="inline-flex rounded-md border border-border bg-background p-0.5 gap-0.5">
+                                      {([
+                                        { key: "presencial" as const, icon: MapPin },
+                                        { key: "remoto" as const, icon: Monitor },
+                                      ]).map(({ key, icon: Icon }) => (
+                                        <button key={key}
+                                          onClick={() => setModalities((prev) => ({ ...prev, [mod.id]: key }))}
+                                          className={cn(
+                                            "flex items-center gap-1 px-2 py-1 rounded text-[10px] font-medium transition-all",
+                                            modalities[mod.id] === key
+                                              ? "bg-primary text-primary-foreground shadow-sm"
+                                              : "text-muted-foreground hover:text-foreground"
+                                          )}
+                                        >
+                                          <Icon className="h-3 w-3" />
+                                          {key === "presencial" ? "Presencial" : "Remoto"}
+                                        </button>
+                                      ))}
                                     </div>
                                   </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
 
-                                  {/* Expanded options when selected */}
-                                  <AnimatePresence>
-                                    {isOn && (
-                                      <motion.div
-                                        initial={{ height: 0, opacity: 0 }}
-                                        animate={{ height: "auto", opacity: 1 }}
-                                        exit={{ height: 0, opacity: 0 }}
-                                        transition={{ duration: 0.2 }}
-                                        className="overflow-hidden"
-                                      >
-                                        <div className="mt-3 pt-3 border-t border-border/50 flex flex-wrap items-center gap-3">
-                                          {/* Modality selector */}
-                                          <div className="inline-flex rounded-lg border border-border bg-muted/30 p-0.5 gap-0.5">
-                                            {([
-                                              { key: "presencial" as const, label: "Presencial", icon: MapPin, price: mod.cost_per_hour },
-                                              { key: "remoto" as const, label: "Remoto", icon: Monitor, price: mod.cost_per_hour_remote },
-                                            ]).map(({ key, label, icon: Icon, price }) => (
-                                              <button
-                                                key={key}
-                                                onClick={() => setModalities((prev) => ({ ...prev, [mod.id]: key }))}
-                                                className={cn(
-                                                  "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-medium transition-all",
-                                                  modMod === key
-                                                    ? "bg-primary text-primary-foreground shadow-sm"
-                                                    : "text-muted-foreground hover:text-foreground"
-                                                )}
-                                              >
-                                                <Icon className="h-3 w-3" />
-                                                {label}
-                                                <span className="opacity-70">({fmt(Number(price))})</span>
-                                              </button>
-                                            ))}
-                                          </div>
+                          {/* Avulsa mode: individual toggles */}
+                          {mode === "avulsa" && (
+                            <div className="divide-y divide-border">
+                              {catModules.map((mod) => {
+                                const isOn = !!selected[mod.id];
+                                const modMod = getModModality(mod);
+                                const origPrice = getOriginalPrice(mod);
+                                const total = getModuleTotal(mod);
 
-                                          {/* Price display */}
-                                          {hasModality(mod) && (
-                                            <div className="flex items-center gap-2 ml-auto">
-                                              {autoDiscount > 0 && (
-                                                <span className="text-[10px] text-muted-foreground line-through">
-                                                  {fmt(origPrice * mod.duration_hours)}
-                                                </span>
-                                              )}
-                                              <span className="text-sm font-bold text-primary tabular-nums">
-                                                {fmt(total)}
-                                              </span>
-                                            </div>
-                                          )}
-                                        </div>
-                                      </motion.div>
+                                return (
+                                  <div key={mod.id}
+                                    className={cn(
+                                      "px-4 sm:px-5 py-3.5 transition-colors",
+                                      isOn ? "bg-primary/[0.03]" : "hover:bg-muted/20"
                                     )}
-                                  </AnimatePresence>
-                                </div>
-                              );
-                            })}
-                          </div>
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2">
+                                          <p className={cn("text-sm font-semibold leading-snug", isOn ? "text-foreground" : "text-muted-foreground")}>
+                                            {mod.title}
+                                          </p>
+                                          <Badge variant="outline" className="text-[9px] h-4 px-1.5 shrink-0">
+                                            {mod.duration_hours}h
+                                          </Badge>
+                                        </div>
+                                        {mod.description && (
+                                          <p className="text-[11px] text-muted-foreground/70 mt-0.5 line-clamp-1">{mod.description}</p>
+                                        )}
+                                      </div>
+                                      <div className="shrink-0">
+                                        <Switch checked={isOn} onCheckedChange={() => handleToggle(mod.id)} />
+                                      </div>
+                                    </div>
+
+                                    <AnimatePresence>
+                                      {isOn && (
+                                        <motion.div
+                                          initial={{ height: 0, opacity: 0 }}
+                                          animate={{ height: "auto", opacity: 1 }}
+                                          exit={{ height: 0, opacity: 0 }}
+                                          transition={{ duration: 0.2 }}
+                                          className="overflow-hidden"
+                                        >
+                                          <div className="mt-3 pt-3 border-t border-border/50 flex flex-wrap items-center gap-3">
+                                            <div className="inline-flex rounded-lg border border-border bg-muted/30 p-0.5 gap-0.5">
+                                              {([
+                                                { key: "presencial" as const, label: "Presencial", icon: MapPin, price: mod.cost_per_hour },
+                                                { key: "remoto" as const, label: "Remoto", icon: Monitor, price: mod.cost_per_hour_remote },
+                                              ]).map(({ key, label, icon: Icon, price }) => (
+                                                <button
+                                                  key={key}
+                                                  onClick={() => setModalities((prev) => ({ ...prev, [mod.id]: key }))}
+                                                  className={cn(
+                                                    "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-medium transition-all",
+                                                    modMod === key
+                                                      ? "bg-primary text-primary-foreground shadow-sm"
+                                                      : "text-muted-foreground hover:text-foreground"
+                                                  )}
+                                                >
+                                                  <Icon className="h-3 w-3" />
+                                                  {label}
+                                                  <span className="opacity-70">({fmt(Number(price))})</span>
+                                                </button>
+                                              ))}
+                                            </div>
+                                            {hasModality(mod) && (
+                                              <div className="flex items-center gap-2 ml-auto">
+                                                {autoDiscount > 0 && (
+                                                  <span className="text-[10px] text-muted-foreground line-through">
+                                                    {fmt(origPrice * mod.duration_hours)}
+                                                  </span>
+                                                )}
+                                                <span className="text-sm font-bold text-primary tabular-nums">
+                                                  {fmt(total)}
+                                                </span>
+                                              </div>
+                                            )}
+                                          </div>
+                                        </motion.div>
+                                      )}
+                                    </AnimatePresence>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
                         </motion.div>
                       )}
                     </AnimatePresence>
