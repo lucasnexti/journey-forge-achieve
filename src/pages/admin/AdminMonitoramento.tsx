@@ -12,6 +12,8 @@ import {
   TrendingUp, BarChart3, FileText, Plus, Trash2, Play, History,
   Settings2, Timer, HardDrive, Video, MonitorCheck,
   CircleCheck, CircleX, Layers, Globe, UserPlus,
+  Gauge, ArrowUp, ArrowDown, Minus, Database, Shield,
+  Eye, MessageSquare, Award,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -24,7 +26,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  AreaChart, Area, CartesianGrid, Cell,
+  AreaChart, Area, CartesianGrid, Cell, RadialBarChart, RadialBar, Legend,
 } from "recharts";
 import { KpiGauge, StatCard, SectionTitle, type SystemMetrics } from "@/components/admin/MonitoringComponents";
 
