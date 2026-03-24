@@ -616,6 +616,81 @@ export type Database = {
         }
         Relationships: []
       }
+      performance_snapshots: {
+        Row: {
+          active_today: number
+          avg_response_ms: number
+          captured_at: string
+          content_completeness: number
+          data_volume: Json
+          enrollments_total: number
+          error_rate: number
+          execution_time_ms: number
+          id: string
+          lessons_completed_today: number
+          max_response_ms: number
+          p95_response_ms: number
+          query_benchmarks: Json
+          quiz_coverage: number
+          quiz_pass_rate: number
+          slo_score: number
+          throughput_enrollments_hour: number
+          throughput_lessons_hour: number
+          throughput_quizzes_hour: number
+          uptime_proxy: number
+          users_online: number
+          video_availability: number
+        }
+        Insert: {
+          active_today?: number
+          avg_response_ms?: number
+          captured_at?: string
+          content_completeness?: number
+          data_volume?: Json
+          enrollments_total?: number
+          error_rate?: number
+          execution_time_ms?: number
+          id?: string
+          lessons_completed_today?: number
+          max_response_ms?: number
+          p95_response_ms?: number
+          query_benchmarks?: Json
+          quiz_coverage?: number
+          quiz_pass_rate?: number
+          slo_score?: number
+          throughput_enrollments_hour?: number
+          throughput_lessons_hour?: number
+          throughput_quizzes_hour?: number
+          uptime_proxy?: number
+          users_online?: number
+          video_availability?: number
+        }
+        Update: {
+          active_today?: number
+          avg_response_ms?: number
+          captured_at?: string
+          content_completeness?: number
+          data_volume?: Json
+          enrollments_total?: number
+          error_rate?: number
+          execution_time_ms?: number
+          id?: string
+          lessons_completed_today?: number
+          max_response_ms?: number
+          p95_response_ms?: number
+          query_benchmarks?: Json
+          quiz_coverage?: number
+          quiz_pass_rate?: number
+          slo_score?: number
+          throughput_enrollments_hour?: number
+          throughput_lessons_hour?: number
+          throughput_quizzes_hour?: number
+          uptime_proxy?: number
+          users_online?: number
+          video_availability?: number
+        }
+        Relationships: []
+      }
       platform_settings: {
         Row: {
           id: string
