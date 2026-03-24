@@ -62,30 +62,8 @@ const RewardsStorePage = () => {
     queryClient.invalidateQueries({ queryKey: ["rewards", "store", user.id] });
   };
 
-  const handleRedeem = async (reward: Reward) => {
-    if (!user) return;
-    if (gamification.coins < reward.cost) {
-      toast.error("Moedas insuficientes para este prêmio.");
-      return;
-    }
-    setRedeeming(reward.id);
-    await supabase.rpc("award_coins", {
-      _user_id: user.id, _amount: -reward.cost,
-      _reason: `Resgate: ${reward.name}`, _reference_type: "redemption", _reference_id: reward.id,
-    });
-    await supabase.from("reward_redemptions").insert({
-      user_id: user.id, reward_id: reward.id, cost: reward.cost,
-    });
-    setGamification((prev) => ({ ...prev, coins: prev.coins - reward.cost }));
-    toast.success(`🎉 Prêmio "${reward.name}" resgatado! Aguarde a aprovação.`);
-    setRedeeming(null);
-    const { data: newRedemptions } = await supabase
-      .from("reward_redemptions")
-      .select("id, cost, status, created_at, reward_id")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
-    setRedemptions(newRedemptions || []);
-  };
+
+
 
   const levelInfo = getLevelInfo(gamification.xp);
   const categories = [...new Set(rewards.map((r) => r.category).filter(Boolean))] as string[];

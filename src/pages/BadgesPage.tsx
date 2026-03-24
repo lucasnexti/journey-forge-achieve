@@ -61,43 +61,8 @@ const BadgesPage = () => {
   const earnedCount = badges.filter((b) => b.earned).length;
   const levelInfo = getLevelInfo(gamification.xp);
 
-  const getProgressForBadge = (badge: BadgeData): number => {
-    if (badge.earned) return 100;
-    const target = badge.criteria_value || 1;
-    let current = 0;
 
-    switch (badge.criteria_type) {
-      case "track_completion":
-        current = userProgress.completedTracks;
-        break;
-      case "lesson_count":
-        current = userProgress.completedLessons;
-        break;
-      case "quiz_pass":
-      case "quiz_module_pass":
-        current = userProgress.quizzesPassed;
-        break;
-      case "quiz_score":
-        current = userProgress.bestQuizScore;
-        break;
-      case "streak":
-        current = gamification.streak;
-        break;
-      case "xp_threshold":
-        current = gamification.xp;
-        break;
-      case "forum_posts":
-        current = userProgress.forumPosts;
-        break;
-      default:
-        current = 0;
-    }
 
-    return Math.min(100, Math.round((current / target) * 100));
-  };
-
-  const earnedCount = badges.filter((b) => b.earned).length;
-  const levelInfo = getLevelInfo(gamification.xp);
 
   if (loading) {
     return (
