@@ -368,8 +368,8 @@ const AdminMonitoramento = () => {
                       className="card-surface p-4 space-y-2">
                       <div className="flex items-center justify-between">
                         <div className={cn("flex h-8 w-8 items-center justify-center rounded-lg",
-                          perfMetrics.responseTimeSummary.p95 < 300 ? "bg-emerald-500/10 text-emerald-500" :
-                          perfMetrics.responseTimeSummary.p95 < 500 ? "bg-amber-500/10 text-amber-500" : "bg-destructive/10 text-destructive"
+                          perfMetrics.responseTimeSummary.p95 < 800 ? "bg-emerald-500/10 text-emerald-500" :
+                          perfMetrics.responseTimeSummary.p95 < 1500 ? "bg-amber-500/10 text-amber-500" : "bg-destructive/10 text-destructive"
                         )}>
                           <TrendingUp className="h-4 w-4" />
                         </div>
