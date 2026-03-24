@@ -5,10 +5,11 @@ import { useTrainingModules, useTrainingRequests } from "@/hooks/useDashboardDat
 import { queryKeys } from "@/hooks/useQueryKeys";
 import { useQueryClient } from "@tanstack/react-query";
 import AppLayout from "@/components/AppLayout";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   GraduationCap, Clock, Users, CalendarDays, Send, CheckCircle2, Loader2,
-  XCircle, AlertCircle, Monitor, MapPin, Package
+  XCircle, AlertCircle, Monitor, MapPin, Package, ChevronDown, BookOpen,
+  Layers, ArrowLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,9 +17,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow
-} from "@/components/ui/table";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -70,12 +68,19 @@ function getDiscountForHours(totalHours: number): number {
 const fmt = (v: number) =>
   v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
+const categoryConfig: Record<string, { icon: React.ElementType; color: string; gradient: string }> = {
+  "Nexti Prime": { icon: Layers, color: "text-blue-600", gradient: "from-blue-500/10 to-blue-500/5" },
+  "Fechamento de Folha": { icon: BookOpen, color: "text-purple-600", gradient: "from-purple-500/10 to-purple-500/5" },
+  "Benefícios": { icon: Package, color: "text-emerald-600", gradient: "from-emerald-500/10 to-emerald-500/5" },
+  "RH Digital": { icon: Monitor, color: "text-amber-600", gradient: "from-amber-500/10 to-amber-500/5" },
+};
+
 const TrainingPage = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { data: modulesRaw = [], isLoading: modulesLoading } = useTrainingModules();
   const { data: requestsRaw = [], isLoading: requestsLoading } = useTrainingRequests();
-  
+
   const modules = modulesRaw as TrainingModule[];
   const requests = requestsRaw as TrainingRequest[];
   const loading = modulesLoading || requestsLoading;
@@ -88,9 +93,21 @@ const TrainingPage = () => {
   const [participants, setParticipants] = useState(1);
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
 
+  const categories = useMemo(
+    () => [...new Set(modules.map((m) => m.category).filter(Boolean))] as string[],
+    [modules]
+  );
 
-
+  // Auto-expand all categories on mount
+  useMemo(() => {
+    if (categories.length > 0 && Object.keys(expandedCategories).length === 0) {
+      const initial: Record<string, boolean> = {};
+      categories.forEach((c) => { initial[c] = true; });
+      setExpandedCategories(initial);
+    }
+  }, [categories]);
 
   const selectedModules = useMemo(() => modules.filter((m) => selected[m.id]), [modules, selected]);
   const readyModules = useMemo(() => selectedModules.filter((m) => !!modalities[m.id]), [selectedModules, modalities]);
@@ -98,12 +115,9 @@ const TrainingPage = () => {
   const autoDiscount = getDiscountForHours(totalHours);
 
   const getModModality = (mod: TrainingModule) => modalities[mod.id] || null;
-
   const hasModality = (mod: TrainingModule) => !!modalities[mod.id];
-
   const getOriginalPrice = (mod: TrainingModule) =>
     modalities[mod.id] === "remoto" ? Number(mod.cost_per_hour_remote) : Number(mod.cost_per_hour);
-
   const getUnitPrice = (mod: TrainingModule) => getOriginalPrice(mod) * (1 - autoDiscount);
   const getModuleTotal = (mod: TrainingModule) => getUnitPrice(mod) * mod.duration_hours;
 
@@ -114,6 +128,10 @@ const TrainingPage = () => {
     const next = !selected[id];
     setSelected((prev) => ({ ...prev, [id]: next }));
     if (!next) setModalities((prev) => { const n = { ...prev }; delete n[id]; return n; });
+  };
+
+  const toggleCategory = (cat: string) => {
+    setExpandedCategories((prev) => ({ ...prev, [cat]: !prev[cat] }));
   };
 
   const handleSubmit = async () => {
@@ -150,8 +168,6 @@ const TrainingPage = () => {
     setSubmitting(false);
   };
 
-  const categories = [...new Set(modules.map((m) => m.category).filter(Boolean))] as string[];
-
   if (loading) {
     return (
       <AppLayout>
@@ -162,81 +178,15 @@ const TrainingPage = () => {
     );
   }
 
-  const renderModuleTable = (mods: TrainingModule[]) => (
-    <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
-      <Table>
-        <TableHeader>
-          <TableRow className="bg-muted/30 hover:bg-muted/30">
-            <TableHead className="text-xs font-semibold text-muted-foreground">Módulo</TableHead>
-            <TableHead className="text-xs font-semibold text-muted-foreground text-center w-[100px]">Contratado?</TableHead>
-            <TableHead className="text-xs font-semibold text-muted-foreground text-center w-[140px]">Modalidade</TableHead>
-            <TableHead className="text-xs font-semibold text-muted-foreground text-right w-[110px]">Valor/hora</TableHead>
-            <TableHead className="text-xs font-semibold text-muted-foreground text-right w-[110px]">Total</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {mods.map((mod) => {
-            const isOn = !!selected[mod.id];
-            const modMod = getModModality(mod);
-            const origPrice = getOriginalPrice(mod);
-            const total = getModuleTotal(mod);
-            return (
-              <TableRow key={mod.id} className={cn("transition-colors", isOn && "bg-primary/[0.03]")}>
-                <TableCell className="py-3">
-                  <p className={cn("text-sm font-semibold leading-snug", isOn ? "text-foreground" : "text-muted-foreground")}>
-                    {mod.title}
-                  </p>
-                  {mod.description && (
-                    <p className="text-[11px] text-muted-foreground/70 mt-0.5 line-clamp-1">{mod.description}</p>
-                  )}
-                  <span className="text-[10px] text-muted-foreground/50 mt-0.5 inline-block">{mod.duration_hours}h de duração</span>
-                </TableCell>
-                <TableCell className="text-center">
-                  <Switch checked={isOn} onCheckedChange={() => handleToggle(mod.id)} />
-                </TableCell>
-                <TableCell className="text-center">
-                  {isOn ? (
-                    <div className="inline-flex rounded-md border border-border bg-muted/30 p-0.5 gap-0.5">
-                      {([
-                        { key: "presencial" as const, label: "Presencial", icon: MapPin },
-                        { key: "remoto" as const, label: "Remoto", icon: Monitor },
-                      ]).map(({ key, label, icon: Icon }) => (
-                        <button
-                          key={key}
-                          onClick={() => setModalities((prev) => ({ ...prev, [mod.id]: key }))}
-                          className={cn(
-                            "flex items-center gap-1 px-2 py-1 rounded text-[11px] font-medium transition-all",
-                            modMod === key
-                              ? "bg-primary text-primary-foreground shadow-sm"
-                              : "text-muted-foreground hover:text-foreground"
-                          )}
-                        >
-                          <Icon className="h-3 w-3" />
-                          {label}
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    <span className="text-muted-foreground/40">—</span>
-                  )}
-                </TableCell>
-                <TableCell className="text-right tabular-nums text-sm text-muted-foreground">
-                  {isOn && hasModality(mod) ? fmt(origPrice) : <span className="text-muted-foreground/40">—</span>}
-                </TableCell>
-                <TableCell className="text-right tabular-nums text-sm">
-                  {isOn && hasModality(mod) ? (
-                    <span className="font-bold text-foreground">{fmt(total)}</span>
-                  ) : (
-                    <span className="text-muted-foreground/40">—</span>
-                  )}
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </div>
-  );
+  const getSelectedCountForCategory = (cat: string) => {
+    const catMods = modules.filter((m) => m.category === cat);
+    return catMods.filter((m) => selected[m.id]).length;
+  };
+
+  const getCategoryTotalHours = (cat: string) => {
+    const catMods = modules.filter((m) => m.category === cat);
+    return catMods.reduce((s, m) => s + m.duration_hours, 0);
+  };
 
   return (
     <AppLayout>
@@ -286,66 +236,218 @@ const TrainingPage = () => {
         {tab === "modules" && !showRequestForm && (
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
             {/* Info bar */}
-            <div className="flex items-center gap-4 mb-6">
+            <div className="flex flex-wrap items-center gap-3 mb-5">
               {totalHours > 0 && (
                 <Badge variant="outline" className="text-xs gap-1">
                   <Package className="h-3 w-3" />
                   {totalHours}h selecionada{totalHours > 1 ? "s" : ""} — desconto {(autoDiscount * 100).toFixed(0)}%
                 </Badge>
               )}
-            </div>
-
-            {/* Discount tiers */}
-            <div className="flex flex-wrap gap-2 mb-5">
-              {discountTiers.map((tier) => (
-                <div key={tier.minHours}
-                  className={cn(
-                    "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium border transition-colors",
-                    totalHours >= tier.minHours
-                      ? "bg-primary/10 text-primary border-primary/30"
-                      : "bg-muted/50 text-muted-foreground border-border/50"
-                  )}
-                >
-                  <Clock className="h-3 w-3" />
-                  {tier.minHours}h+ → {tier.label}
-                </div>
-              ))}
-            </div>
-
-            {/* Tables by category */}
-            {categories.map((cat, ci) => {
-              const catModules = modules.filter((m) => m.category === cat);
-              if (catModules.length === 0) return null;
-              return (
-                <motion.div key={cat} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: ci * 0.06, duration: 0.5, ease: [0.16, 1, 0.3, 1] }} className="mb-8"
-                >
-                  <div className="flex items-center gap-2 mb-3">
-                    <Package className="h-4 w-4 text-muted-foreground" />
-                    <h2 className="text-sm font-bold uppercase tracking-wider text-foreground">{cat}</h2>
+              {/* Discount tiers */}
+              <div className="flex flex-wrap gap-1.5">
+                {discountTiers.map((tier) => (
+                  <div key={tier.minHours}
+                    className={cn(
+                      "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-medium border transition-colors",
+                      totalHours >= tier.minHours
+                        ? "bg-primary/10 text-primary border-primary/30"
+                        : "bg-muted/50 text-muted-foreground border-border/50"
+                    )}
+                  >
+                    <Clock className="h-2.5 w-2.5" />
+                    {tier.minHours}h+ → {tier.label}
                   </div>
-                  {renderModuleTable(catModules)}
-                </motion.div>
-              );
-            })}
-
-            {/* Uncategorized */}
-            {modules.filter((m) => !m.category || !categories.includes(m.category)).length > 0 && (
-              <div className="mb-8">
-                <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-3">Outros</h2>
-                {renderModuleTable(modules.filter((m) => !m.category || !categories.includes(m.category)))}
+                ))}
               </div>
-            )}
+            </div>
 
-            {/* Footer summary with discount */}
+            {/* ═══ MODULE GROUPS (Accordion) ═══ */}
+            <div className="space-y-4">
+              {categories.map((cat, ci) => {
+                const catModules = modules.filter((m) => m.category === cat);
+                if (catModules.length === 0) return null;
+                const isExpanded = expandedCategories[cat] !== false;
+                const cfg = categoryConfig[cat] || { icon: Package, color: "text-muted-foreground", gradient: "from-muted/50 to-muted/20" };
+                const CatIcon = cfg.icon;
+                const selectedCount = getSelectedCountForCategory(cat);
+                const catTotalHours = getCategoryTotalHours(cat);
+
+                return (
+                  <motion.div key={cat}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: ci * 0.05, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                    className="rounded-xl border border-border bg-card overflow-hidden shadow-sm"
+                  >
+                    {/* Category Header */}
+                    <button
+                      onClick={() => toggleCategory(cat)}
+                      className={cn(
+                        "w-full flex items-center gap-3 px-4 sm:px-5 py-4 text-left transition-colors hover:bg-muted/30",
+                        "bg-gradient-to-r", cfg.gradient
+                      )}
+                    >
+                      <div className={cn("flex h-9 w-9 items-center justify-center rounded-lg shrink-0 bg-background/80 border border-border/50", cfg.color)}>
+                        <CatIcon className="h-4.5 w-4.5" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h2 className="text-sm font-bold text-foreground">{cat}</h2>
+                        <p className="text-[11px] text-muted-foreground mt-0.5">
+                          {catModules.length} plano{catModules.length > 1 ? "s" : ""} · {catTotalHours}h total
+                        </p>
+                      </div>
+                      {selectedCount > 0 && (
+                        <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px] font-bold mr-2">
+                          {selectedCount} selecionado{selectedCount > 1 ? "s" : ""}
+                        </Badge>
+                      )}
+                      <ChevronDown className={cn(
+                        "h-4 w-4 text-muted-foreground shrink-0 transition-transform duration-200",
+                        isExpanded && "rotate-180"
+                      )} />
+                    </button>
+
+                    {/* Category Content (Plans) */}
+                    <AnimatePresence initial={false}>
+                      {isExpanded && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                          className="overflow-hidden"
+                        >
+                          <div className="divide-y divide-border">
+                            {catModules.map((mod) => {
+                              const isOn = !!selected[mod.id];
+                              const modMod = getModModality(mod);
+                              const origPrice = getOriginalPrice(mod);
+                              const total = getModuleTotal(mod);
+
+                              return (
+                                <div key={mod.id}
+                                  className={cn(
+                                    "px-4 sm:px-5 py-3.5 transition-colors",
+                                    isOn ? "bg-primary/[0.03]" : "hover:bg-muted/20"
+                                  )}
+                                >
+                                  <div className="flex items-center gap-3">
+                                    {/* Module info */}
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-center gap-2">
+                                        <p className={cn("text-sm font-semibold leading-snug", isOn ? "text-foreground" : "text-muted-foreground")}>
+                                          {mod.title}
+                                        </p>
+                                        <Badge variant="outline" className="text-[9px] h-4 px-1.5 shrink-0">
+                                          {mod.duration_hours}h
+                                        </Badge>
+                                      </div>
+                                      {mod.description && (
+                                        <p className="text-[11px] text-muted-foreground/70 mt-0.5 line-clamp-1">{mod.description}</p>
+                                      )}
+                                    </div>
+
+                                    {/* Toggle */}
+                                    <div className="shrink-0">
+                                      <Switch checked={isOn} onCheckedChange={() => handleToggle(mod.id)} />
+                                    </div>
+                                  </div>
+
+                                  {/* Expanded options when selected */}
+                                  <AnimatePresence>
+                                    {isOn && (
+                                      <motion.div
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: "auto", opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        transition={{ duration: 0.2 }}
+                                        className="overflow-hidden"
+                                      >
+                                        <div className="mt-3 pt-3 border-t border-border/50 flex flex-wrap items-center gap-3">
+                                          {/* Modality selector */}
+                                          <div className="inline-flex rounded-lg border border-border bg-muted/30 p-0.5 gap-0.5">
+                                            {([
+                                              { key: "presencial" as const, label: "Presencial", icon: MapPin, price: mod.cost_per_hour },
+                                              { key: "remoto" as const, label: "Remoto", icon: Monitor, price: mod.cost_per_hour_remote },
+                                            ]).map(({ key, label, icon: Icon, price }) => (
+                                              <button
+                                                key={key}
+                                                onClick={() => setModalities((prev) => ({ ...prev, [mod.id]: key }))}
+                                                className={cn(
+                                                  "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-medium transition-all",
+                                                  modMod === key
+                                                    ? "bg-primary text-primary-foreground shadow-sm"
+                                                    : "text-muted-foreground hover:text-foreground"
+                                                )}
+                                              >
+                                                <Icon className="h-3 w-3" />
+                                                {label}
+                                                <span className="opacity-70">({fmt(Number(price))})</span>
+                                              </button>
+                                            ))}
+                                          </div>
+
+                                          {/* Price display */}
+                                          {hasModality(mod) && (
+                                            <div className="flex items-center gap-2 ml-auto">
+                                              {autoDiscount > 0 && (
+                                                <span className="text-[10px] text-muted-foreground line-through">
+                                                  {fmt(origPrice * mod.duration_hours)}
+                                                </span>
+                                              )}
+                                              <span className="text-sm font-bold text-primary tabular-nums">
+                                                {fmt(total)}
+                                              </span>
+                                            </div>
+                                          )}
+                                        </div>
+                                      </motion.div>
+                                    )}
+                                  </AnimatePresence>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                );
+              })}
+
+              {/* Uncategorized */}
+              {modules.filter((m) => !m.category || !categories.includes(m.category)).length > 0 && (
+                <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+                  <div className="px-4 sm:px-5 py-3 bg-muted/30">
+                    <h2 className="text-sm font-bold text-muted-foreground">Outros</h2>
+                  </div>
+                  <div className="divide-y divide-border">
+                    {modules.filter((m) => !m.category || !categories.includes(m.category)).map((mod) => {
+                      const isOn = !!selected[mod.id];
+                      return (
+                        <div key={mod.id} className={cn("px-4 sm:px-5 py-3.5", isOn && "bg-primary/[0.03]")}>
+                          <div className="flex items-center gap-3">
+                            <div className="flex-1">
+                              <p className="text-sm font-semibold">{mod.title}</p>
+                              <span className="text-[10px] text-muted-foreground">{mod.duration_hours}h</span>
+                            </div>
+                            <Switch checked={isOn} onCheckedChange={() => handleToggle(mod.id)} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer summary */}
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-              className="rounded-xl border-2 border-primary/20 bg-primary/[0.03] p-5 sm:p-6"
+              className="mt-6 rounded-xl border-2 border-primary/20 bg-primary/[0.03] p-5 sm:p-6"
             >
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                  <h3 className="text-sm font-bold text-foreground">
-                    Investimento Total
-                  </h3>
+                  <h3 className="text-sm font-bold text-foreground">Investimento Total</h3>
                   <div className="flex items-center gap-4 mt-1.5 text-xs text-muted-foreground">
                     <span>{readyModules.length} módulo{readyModules.length !== 1 ? "s" : ""}</span>
                     <span>{totalHours}h total</span>
@@ -386,65 +488,53 @@ const TrainingPage = () => {
         {tab === "modules" && showRequestForm && (
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="max-w-xl mx-auto">
             <button onClick={() => setShowRequestForm(false)}
-              className="text-sm text-muted-foreground font-medium mb-5 hover:text-primary flex items-center gap-1.5 transition-colors"
+              className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-5 transition-colors"
             >
-              ← Voltar ao pacote
+              <ArrowLeft className="h-4 w-4" /> Voltar
             </button>
 
-            <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
-              <div className="bg-gradient-nexti p-5">
-                <h2 className="font-display text-lg font-bold text-primary-foreground">Confirmar Solicitação</h2>
-                <p className="text-sm text-primary-foreground/70 mt-0.5">
-                  {readyModules.length} módulo{readyModules.length !== 1 ? "s" : ""} • {totalHours}h • {fmt(grandTotalFinal)}
-                  {autoDiscount > 0 && ` (${(autoDiscount * 100).toFixed(0)}% desc.)`}
+            <div className="card-surface p-6 space-y-5">
+              <div>
+                <h2 className="text-lg font-bold text-foreground">Confirmar Solicitação</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {readyModules.length} módulo{readyModules.length !== 1 ? "s" : ""} · {totalHours}h · {fmt(grandTotalFinal)}
                 </p>
               </div>
 
-              <div className="p-5 space-y-4">
-                <div className="space-y-1.5">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Módulos selecionados</p>
-                  <ul className="space-y-1">
-                     {readyModules.map((m) => (
-                      <li key={m.id} className="text-sm text-foreground flex justify-between items-center">
-                        <span className="flex items-center gap-1.5">
-                          {m.title}
-                          <Badge variant="outline" className="text-[9px] px-1.5 py-0 gap-0.5">
-                            {modalities[m.id] === "remoto" ? <Monitor className="h-2.5 w-2.5" /> : <MapPin className="h-2.5 w-2.5" />}
-                            {modalities[m.id] === "remoto" ? "Remoto" : "Presencial"}
-                          </Badge>
-                        </span>
-                        <span className="tabular-nums font-medium">{fmt(getModuleTotal(m))}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <Label className="text-sm font-medium">Data preferencial</Label>
-                    <Input type="date" value={preferredDate} onChange={(e) => setPreferredDate(e.target.value)} className="mt-1" />
+              {/* Selected summary */}
+              <div className="space-y-2">
+                {readyModules.map((mod) => (
+                  <div key={mod.id} className="flex items-center justify-between text-sm p-2 rounded-lg bg-muted/30">
+                    <div>
+                      <span className="font-medium text-foreground">{mod.title}</span>
+                      <span className="text-[10px] text-muted-foreground ml-2">
+                        {modalities[mod.id] === "remoto" ? "Remoto" : "Presencial"} · {mod.duration_hours}h
+                      </span>
+                    </div>
+                    <span className="font-bold text-primary tabular-nums">{fmt(getModuleTotal(mod))}</span>
                   </div>
-                  <div>
-                    <Label className="text-sm font-medium">Participantes</Label>
-                    <Input type="number" min={1} max={100} value={participants}
-                      onChange={(e) => setParticipants(Math.max(1, Math.min(100, parseInt(e.target.value) || 1)))}
-                      className="mt-1"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <Label className="text-sm font-medium">Observações (opcional)</Label>
-                  <Textarea value={notes} onChange={(e) => setNotes(e.target.value.slice(0, 500))}
-                    placeholder="Informações adicionais..." className="mt-1" rows={3} maxLength={500}
-                  />
-                </div>
-
-                <Button onClick={handleSubmit} disabled={submitting} className="w-full" size="lg">
-                  {submitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Send className="h-4 w-4 mr-2" />}
-                  Confirmar Solicitação
-                </Button>
+                ))}
               </div>
+
+              <div className="space-y-3">
+                <div>
+                  <Label className="text-xs">Data preferencial</Label>
+                  <Input type="date" value={preferredDate} onChange={(e) => setPreferredDate(e.target.value)} />
+                </div>
+                <div>
+                  <Label className="text-xs">Nº de participantes</Label>
+                  <Input type="number" min={1} value={participants} onChange={(e) => setParticipants(parseInt(e.target.value) || 1)} />
+                </div>
+                <div>
+                  <Label className="text-xs">Observações</Label>
+                  <Textarea placeholder="Necessidades especiais, horários, etc." value={notes} onChange={(e) => setNotes(e.target.value)} />
+                </div>
+              </div>
+
+              <Button onClick={handleSubmit} disabled={submitting} className="w-full" size="lg">
+                {submitting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
+                Enviar Solicitação
+              </Button>
             </div>
           </motion.div>
         )}
@@ -453,49 +543,42 @@ const TrainingPage = () => {
         {tab === "requests" && (
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
             {requests.length === 0 ? (
-              <div className="text-center py-20">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted/50 mx-auto mb-4">
-                  <Send className="h-8 w-8 text-muted-foreground/40" />
-                </div>
-                <h3 className="text-lg font-semibold text-foreground">Nenhuma solicitação</h3>
-                <p className="text-sm text-muted-foreground mt-1">Você ainda não solicitou nenhum treinamento.</p>
-                <Button onClick={() => setTab("modules")} variant="outline" className="mt-4">Ver catálogo</Button>
+              <div className="text-center py-16 text-muted-foreground">
+                <CalendarDays className="h-10 w-10 mx-auto mb-3 opacity-40" />
+                <p className="text-sm font-medium">Nenhuma solicitação ainda</p>
+                <p className="text-xs mt-1">Monte seu pacote na aba "Montar Pacote"</p>
               </div>
             ) : (
-              <div className="space-y-3 max-w-3xl">
-                {requests.map((req, i) => {
+              <div className="space-y-3">
+                {requests.map((req) => {
                   const mod = modules.find((m) => m.id === req.module_id);
-                  const st = statusConfig[req.status] || statusConfig.pending;
-                  const StIcon = st.icon;
+                  const cfg = statusConfig[req.status] || statusConfig.pending;
+                  const StatusIcon = cfg.icon;
                   return (
-                    <motion.div key={req.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.04, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                      className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-sm"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-sm text-foreground truncate">{mod?.title || "Módulo removido"}</h3>
-                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5 text-xs text-muted-foreground">
-                            <span className="flex items-center gap-1"><CalendarDays className="h-3 w-3" />{req.preferred_date || "Sem data"}</span>
-                            <span className="flex items-center gap-1"><Users className="h-3 w-3" />{req.participants}</span>
-                            <span className="flex items-center gap-1">
-                              {req.modality === "remoto" ? <Monitor className="h-3 w-3" /> : <MapPin className="h-3 w-3" />}
-                              {req.modality === "remoto" ? "Remoto" : "Presencial"}
-                            </span>
-                            <span className="text-muted-foreground/50">{new Date(req.created_at).toLocaleDateString("pt-BR")}</span>
-                          </div>
-                          {req.admin_note && (
-                            <p className="mt-2 text-xs bg-muted/50 rounded-lg p-2.5 text-muted-foreground border border-border/50">
-                              <span className="font-semibold text-foreground">Resposta:</span> {req.admin_note}
-                            </p>
+                    <div key={req.id} className="card-surface p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-foreground">{mod?.title || "Módulo"}</p>
+                        <div className="flex flex-wrap items-center gap-2 mt-1 text-[11px] text-muted-foreground">
+                          {req.modality === "remoto" ? (
+                            <span className="flex items-center gap-0.5"><Monitor className="h-3 w-3" /> Remoto</span>
+                          ) : (
+                            <span className="flex items-center gap-0.5"><MapPin className="h-3 w-3" /> Presencial</span>
                           )}
+                          <span>· {req.participants} participante{req.participants > 1 ? "s" : ""}</span>
+                          {req.preferred_date && <span>· {new Date(req.preferred_date).toLocaleDateString("pt-BR")}</span>}
+                          <span>· {new Date(req.created_at).toLocaleDateString("pt-BR")}</span>
                         </div>
-                        <div className={cn("flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold", st.color, st.bg)}>
-                          <StIcon className="h-3 w-3" />
-                          {st.label}
-                        </div>
+                        {req.admin_note && (
+                          <p className="text-[11px] text-muted-foreground mt-1.5 bg-muted/30 rounded px-2 py-1 italic">
+                            💬 {req.admin_note}
+                          </p>
+                        )}
                       </div>
-                    </motion.div>
+                      <Badge variant="outline" className={cn("text-xs gap-1", cfg.bg, cfg.color)}>
+                        <StatusIcon className="h-3 w-3" />
+                        {cfg.label}
+                      </Badge>
+                    </div>
                   );
                 })}
               </div>
