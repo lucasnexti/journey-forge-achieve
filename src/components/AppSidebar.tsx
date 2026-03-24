@@ -66,6 +66,7 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const [badges, setBadges] = useState<UserBadge[]>([]);
+  const prefetchRoute = usePrefetch();
 
   useEffect(() => {
     if (!user) return;
