@@ -89,19 +89,8 @@ const TrainingPage = () => {
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (!user) return;
-    const load = async () => {
-      const [{ data: modData }, { data: reqData }] = await Promise.all([
-        supabase.from("training_modules").select("*").eq("is_active", true).order("order_index"),
-        supabase.from("training_requests").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
-      ]);
-      setModules((modData as TrainingModule[]) || []);
-      setRequests((reqData as TrainingRequest[]) || []);
-      setLoading(false);
-    };
-    load();
-  }, [user]);
+
+
 
   const selectedModules = useMemo(() => modules.filter((m) => selected[m.id]), [modules, selected]);
   const readyModules = useMemo(() => selectedModules.filter((m) => !!modalities[m.id]), [selectedModules, modalities]);
