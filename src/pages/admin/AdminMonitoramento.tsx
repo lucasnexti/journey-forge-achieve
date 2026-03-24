@@ -347,16 +347,16 @@ const AdminMonitoramento = () => {
                       className="card-surface p-4 space-y-2">
                       <div className="flex items-center justify-between">
                         <div className={cn("flex h-8 w-8 items-center justify-center rounded-lg",
-                          perfMetrics.responseTimeSummary.avg < 100 ? "bg-emerald-500/10 text-emerald-500" :
-                          perfMetrics.responseTimeSummary.avg < 200 ? "bg-amber-500/10 text-amber-500" : "bg-destructive/10 text-destructive"
+                          perfMetrics.responseTimeSummary.avg < 500 ? "bg-emerald-500/10 text-emerald-500" :
+                          perfMetrics.responseTimeSummary.avg < 1000 ? "bg-amber-500/10 text-amber-500" : "bg-destructive/10 text-destructive"
                         )}>
                           <Gauge className="h-4 w-4" />
                         </div>
                         <Badge variant="outline" className={cn("text-[9px] h-5",
-                          perfMetrics.responseTimeSummary.avg < 100 ? "border-emerald-500/30 text-emerald-600" :
-                          perfMetrics.responseTimeSummary.avg < 200 ? "border-amber-500/30 text-amber-600" : "border-destructive/30 text-destructive"
+                          perfMetrics.responseTimeSummary.avg < 500 ? "border-emerald-500/30 text-emerald-600" :
+                          perfMetrics.responseTimeSummary.avg < 1000 ? "border-amber-500/30 text-amber-600" : "border-destructive/30 text-destructive"
                         )}>
-                          {perfMetrics.responseTimeSummary.avg < 100 ? "Excelente" : perfMetrics.responseTimeSummary.avg < 200 ? "Bom" : "Lento"}
+                          {perfMetrics.responseTimeSummary.avg < 500 ? "Ótimo" : perfMetrics.responseTimeSummary.avg < 1000 ? "Bom" : "Lento"}
                         </Badge>
                       </div>
                       <p className="text-2xl font-black tabular-nums text-foreground">{perfMetrics.responseTimeSummary.avg}<span className="text-sm font-medium text-muted-foreground">ms</span></p>
@@ -368,8 +368,8 @@ const AdminMonitoramento = () => {
                       className="card-surface p-4 space-y-2">
                       <div className="flex items-center justify-between">
                         <div className={cn("flex h-8 w-8 items-center justify-center rounded-lg",
-                          perfMetrics.responseTimeSummary.p95 < 300 ? "bg-emerald-500/10 text-emerald-500" :
-                          perfMetrics.responseTimeSummary.p95 < 500 ? "bg-amber-500/10 text-amber-500" : "bg-destructive/10 text-destructive"
+                          perfMetrics.responseTimeSummary.p95 < 800 ? "bg-emerald-500/10 text-emerald-500" :
+                          perfMetrics.responseTimeSummary.p95 < 1500 ? "bg-amber-500/10 text-amber-500" : "bg-destructive/10 text-destructive"
                         )}>
                           <TrendingUp className="h-4 w-4" />
                         </div>
@@ -516,17 +516,17 @@ const AdminMonitoramento = () => {
                           />
                           <Bar dataKey="ms" name="Response Time" radius={[0, 6, 6, 0]} barSize={18}>
                             {[...perfMetrics.queryBenchmarks].sort((a, b) => b.ms - a.ms).map((entry, i) => (
-                              <Cell key={i} fill={entry.ms < 50 ? "hsl(142, 76%, 36%)" : entry.ms < 100 ? "hsl(var(--chart-2))" : entry.ms < 200 ? "hsl(var(--chart-4))" : "hsl(var(--destructive))"} />
+                              <Cell key={i} fill={entry.ms < 500 ? "hsl(142, 76%, 36%)" : entry.ms < 800 ? "hsl(var(--chart-2))" : entry.ms < 1000 ? "hsl(var(--chart-4))" : "hsl(var(--destructive))"} />
                             ))}
                           </Bar>
                         </BarChart>
                       </ResponsiveContainer>
                     </div>
                     <div className="flex items-center justify-center gap-6 mt-3 text-[10px] text-muted-foreground">
-                      <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full" style={{ background: "hsl(142, 76%, 36%)" }} /> &lt;50ms Ótimo</span>
-                      <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-[hsl(var(--chart-2))]" /> 50-100ms Bom</span>
-                      <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-[hsl(var(--chart-4))]" /> 100-200ms Ok</span>
-                      <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-destructive" /> &gt;200ms Lento</span>
+                      <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full" style={{ background: "hsl(142, 76%, 36%)" }} /> &lt;500ms Ótimo</span>
+                      <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-[hsl(var(--chart-2))]" /> 500-800ms Bom</span>
+                      <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-[hsl(var(--chart-4))]" /> 800-1000ms Ok</span>
+                      <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-destructive" /> &gt;1000ms Lento</span>
                     </div>
                   </div>
                 </section>
