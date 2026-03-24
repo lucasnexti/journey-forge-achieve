@@ -68,13 +68,14 @@ export function usePrefetch() {
         case "/treinamento-presencial":
           queryClient.prefetchQuery({
             queryKey: queryKeys.training.modules,
-            queryFn: () =>
-              supabase
+            queryFn: async () => {
+              const { data } = await supabase
                 .from("training_modules")
                 .select("*")
                 .eq("is_active", true)
-                .order("order_index")
-                .then(({ data }) => data || []),
+                .order("order_index");
+              return data || [];
+            },
             ...opts,
           });
           break;
