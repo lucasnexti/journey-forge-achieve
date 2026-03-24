@@ -323,6 +323,9 @@ const AdminMonitoramento = () => {
                           {perfMetrics.slos.filter((s) => s.met).length}/{perfMetrics.slos.length} objetivos atingidos
                         </p>
                         <Progress value={perfMetrics.sloScore} className="h-2 mt-2 [&>div]:transition-all [&>div]:duration-700" />
+                        <p className="text-[9px] text-muted-foreground/60 mt-1 flex items-center gap-1">
+                          <Settings2 className="h-2.5 w-2.5" /> Auto-heal ativo a cada 30min
+                        </p>
                       </div>
                       <div className="text-right">
                         <p className="text-[10px] text-muted-foreground">Benchmark em</p>
