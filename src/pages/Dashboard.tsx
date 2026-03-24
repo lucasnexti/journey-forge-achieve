@@ -1,10 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { supabase } from "@/integrations/supabase/client";
-import { getUserStats, getLastWatchedLesson } from "@/lib/progressDB";
-import { getUserGamificationData, updateStreak, getLevelInfo } from "@/lib/gamification";
+import { updateStreak, getLevelInfo } from "@/lib/gamification";
+import { useTracks, useProfile, useUserStats, useLastWatched, useGamification, useUserBadges, useFavorites, useCompletedLessons } from "@/hooks/useDashboardData";
+import { queryKeys } from "@/hooks/useQueryKeys";
+import { useQueryClient } from "@tanstack/react-query";
 import AppLayout from "@/components/AppLayout";
 import TrackCard from "@/components/TrackCard";
 import OnboardingWizard from "@/components/OnboardingWizard";
@@ -32,60 +34,42 @@ interface TrackRow {
 const Dashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [tracks, setTracks] = useState<TrackRow[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
-  const [stats, setStats] = useState({ enrollments: 0, totalWatched: 0, avgScore: 0 });
-  const [lastLesson, setLastLesson] = useState<Awaited<ReturnType<typeof getLastWatchedLesson>>>(null);
-  const [gamification, setGamification] = useState({ coins: 0, xp: 0, level: 1, streak: 0, longestStreak: 0 });
-  const [badges, setBadges] = useState<{ name: string; icon: string; earned: boolean }[]>([]);
-  const [completedLessonIds, setCompletedLessonIds] = useState<Set<string>>(new Set());
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
-  const [profileName, setProfileName] = useState("");
 
+  // React Query cached hooks
+  const { data: tracksRaw = [], isLoading: tracksLoading } = useTracks();
+  const { data: profileData } = useProfile();
+  const { data: stats = { enrollments: 0, totalWatched: 0, avgScore: 0 } } = useUserStats();
+  const { data: lastLesson } = useLastWatched();
+  const { data: gamification = { coins: 0, xp: 0, level: 1, streak: 0, longestStreak: 0 } } = useGamification();
+  const { data: badges = [] } = useUserBadges();
+  const { data: favoritesSet = new Set<string>() } = useFavorites();
+  const { data: completedLessonIds = new Set<string>() } = useCompletedLessons();
+
+  const tracks = tracksRaw as unknown as TrackRow[];
+  const loading = tracksLoading;
+  const profileName = profileData?.nome || "";
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+
+  // Sync favorites from query
   useEffect(() => {
-    if (!user) return;
+    setFavorites(favoritesSet);
+  }, [favoritesSet]);
 
-    const load = async () => {
-      const [{ data: trackData }, statsData, lastData, { data: userBadges }, { data: allBadges }, { data: profileData }, { data: favData }, gData, { data: lessonProgressData }] = await Promise.all([
-        supabase
-          .from("tracks")
-          .select("id, title, description, category, estimated_hours, is_active, order_index, prerequisite_track_id, lessons(id, duration), enrollments(id, status)")
-          .eq("is_active", true)
-          .order("order_index"),
-        getUserStats(user.id),
-        getLastWatchedLesson(user.id),
-        supabase.from("user_badges").select("badge_id").eq("user_id", user.id),
-        supabase.from("badges").select("id, name, icon"),
-        supabase.from("profiles").select("nome, onboarding_completed").eq("user_id", user.id).maybeSingle(),
-        supabase.from("track_favorites").select("track_id").eq("user_id", user.id),
-        getUserGamificationData(user.id),
-        supabase.from("lesson_progress").select("lesson_id, completed").eq("user_id", user.id).eq("completed", true),
-      ]);
+  // Check onboarding
+  useEffect(() => {
+    if (profileData && !profileData.onboarding_completed) {
+      setShowOnboarding(true);
+    }
+  }, [profileData]);
 
-      setTracks((trackData as unknown as TrackRow[]) || []);
-      setStats(statsData);
-      setLastLesson(lastData);
-      setGamification(gData);
-      setCompletedLessonIds(new Set((lessonProgressData || []).map((lp: any) => lp.lesson_id)));
-
-      const earnedSet = new Set((userBadges || []).map((b: any) => b.badge_id));
-      setBadges((allBadges || []).map((b: any) => ({ name: b.name, icon: b.icon || "award", earned: earnedSet.has(b.id) })));
-
-      if (profileData) {
-        setProfileName(profileData.nome || "");
-        if (!profileData.onboarding_completed) setShowOnboarding(true);
-      }
-
-      setFavorites(new Set((favData || []).map((f: any) => f.track_id)));
-      setLoading(false);
-
-      updateStreak(user.id).catch(() => {});
-    };
-    load();
+  // Update streak once on mount
+  useEffect(() => {
+    if (user) updateStreak(user.id).catch(() => {});
   }, [user]);
 
   const categories = [...new Set(tracks.map((t) => t.category).filter(Boolean))] as string[];
