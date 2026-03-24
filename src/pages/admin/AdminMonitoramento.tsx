@@ -195,6 +195,10 @@ const AdminMonitoramento = () => {
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
 
+  // Performance state
+  const [perfMetrics, setPerfMetrics] = useState<PerformanceMetrics | null>(null);
+  const [loadingPerf, setLoadingPerf] = useState(false);
+
   // Alert state
   const [alertRules, setAlertRules] = useState<AlertRule[]>([]);
   const [alertHistory, setAlertHistory] = useState<AlertHistoryEntry[]>([]);
