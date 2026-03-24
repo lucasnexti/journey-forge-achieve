@@ -121,13 +121,34 @@ const AdminMonitoramento = () => {
     setLoadingAlerts(false);
   }, []);
 
-  const fetchPerfMetrics = useCallback(async () => {
+  const fetchPerfMetrics = useCallback(async (autoHealOnFail = false) => {
     setLoadingPerf(true);
     try {
       const { data, error: fnError } = await supabase.functions.invoke("performance-metrics");
       if (fnError) throw fnError;
       if (data?.error) throw new Error(data.error);
-      setPerfMetrics(data as PerformanceMetrics);
+      const pm = data as PerformanceMetrics;
+      setPerfMetrics(pm);
+
+      // Auto-trigger heal if SLO score is below target and content SLOs are failing
+      if (autoHealOnFail && pm.sloScore < 95) {
+        const contentFailing = pm.slos.filter(s => !s.met && ["content", "ux"].includes(s.category));
+        if (contentFailing.length > 0) {
+          toast.info("🔄 Indicadores negativos detectados. Executando correção automática...");
+          try {
+            const { data: healData } = await supabase.functions.invoke("auto-heal");
+            if (healData?.fixed > 0) {
+              toast.success(`✅ ${healData.fixed} correção(ões) automática(s) aplicada(s)!`);
+              // Re-fetch to show updated scores
+              const { data: refreshed } = await supabase.functions.invoke("performance-metrics");
+              if (refreshed && !refreshed.error) setPerfMetrics(refreshed as PerformanceMetrics);
+            }
+            if (healData?.alerts > 0) {
+              toast.warning(`⚠️ ${healData.alerts} item(ns) precisam de atenção manual.`);
+            }
+          } catch { /* heal is best-effort */ }
+        }
+      }
     } catch (e: any) {
       toast.error("Erro ao carregar métricas de performance: " + (e.message || ""));
     } finally {
