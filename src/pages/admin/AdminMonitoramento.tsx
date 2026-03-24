@@ -91,6 +91,7 @@ const AdminMonitoramento = () => {
   const [newOperator, setNewOperator] = useState("gte");
   const [newThreshold, setNewThreshold] = useState("");
   const [newCooldown, setNewCooldown] = useState("60");
+  const [runningHeal, setRunningHeal] = useState(false);
 
   const fetchMetrics = useCallback(async () => {
     try {
