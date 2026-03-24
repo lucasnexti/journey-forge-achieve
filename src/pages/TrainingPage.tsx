@@ -138,8 +138,7 @@ const TrainingPage = () => {
           }))
         );
       }
-      const { data: reqData } = await supabase.from("training_requests").select("*").eq("user_id", user.id).order("created_at", { ascending: false });
-      setRequests((reqData as TrainingRequest[]) || []);
+      queryClient.invalidateQueries({ queryKey: queryKeys.training.requests(user.id) });
       setSelected({});
       setModalities({});
       setShowRequestForm(false);
