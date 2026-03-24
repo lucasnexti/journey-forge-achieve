@@ -90,6 +90,7 @@ const Dashboard = () => {
       await supabase.from("track_favorites").insert({ user_id: user.id, track_id: trackId });
       setFavorites((prev) => new Set(prev).add(trackId));
     }
+    queryClient.invalidateQueries({ queryKey: queryKeys.favorites.user(user.id) });
   };
 
   const completedTrackIds = new Set(tracks.filter((t) => t.enrollments?.some((e) => e.status === "completed")).map(t => t.id));
