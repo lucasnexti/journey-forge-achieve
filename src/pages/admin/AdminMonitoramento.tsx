@@ -804,6 +804,174 @@ const AdminMonitoramento = () => {
                     </div>
                   </div>
                 </section>
+
+                {/* ─── HISTORICAL TRENDS ─── */}
+                <section>
+                  <div className="flex items-center justify-between mb-3">
+                    <SectionTitle icon={TrendingUp} title="Tendência Histórica" />
+                    <div className="flex items-center gap-2">
+                      {(["24h", "7d", "30d"] as const).map((r) => (
+                        <Button key={r} size="sm" variant={snapshotRange === r ? "default" : "outline"}
+                          className="h-7 text-[11px] px-2.5"
+                          onClick={() => { setSnapshotRange(r); fetchSnapshots(r); }}>
+                          {r}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {loadingSnapshots ? (
+                    <div className="flex items-center justify-center py-12">
+                      <div className="h-6 w-6 animate-spin rounded-full border-3 border-primary border-t-transparent" />
+                    </div>
+                  ) : snapshots.length === 0 ? (
+                    <div className="card-surface p-8 text-center text-muted-foreground text-sm">
+                      <History className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p>Nenhum snapshot encontrado para o período selecionado.</p>
+                      <p className="text-[11px] mt-1">Os snapshots são coletados automaticamente a cada hora.</p>
+                      <Button size="sm" variant="outline" className="mt-3 h-8 text-xs"
+                        onClick={async () => {
+                          setLoadingPerf(true);
+                          try {
+                            const { data, error } = await supabase.functions.invoke("performance-snapshot");
+                            if (error) throw error;
+                            toast.success("Snapshot salvo! Atualizando...");
+                            setPerfMetrics(data as PerformanceMetrics);
+                            fetchSnapshots(snapshotRange);
+                          } catch (e: any) { toast.error(e.message); }
+                          finally { setLoadingPerf(false); }
+                        }}>
+                        <Play className="h-3 w-3 mr-1" /> Capturar snapshot agora
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {/* Response Time Trend */}
+                      <div className="card-surface p-4">
+                        <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">
+                          Tempo de Resposta (ms)
+                        </p>
+                        <div className="h-48">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart data={snapshots.map((s: any) => ({
+                              time: new Date(s.captured_at).toLocaleString("pt-BR", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit" }),
+                              avg: Number(s.avg_response_ms),
+                              p95: Number(s.p95_response_ms),
+                              max: Number(s.max_response_ms),
+                            }))}>
+                              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                              <XAxis dataKey="time" tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }} />
+                              <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} unit="ms" />
+                              <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 11 }} />
+                              <Area type="monotone" dataKey="max" name="Máximo" stroke="hsl(var(--destructive))" fill="hsl(var(--destructive))" fillOpacity={0.1} />
+                              <Area type="monotone" dataKey="p95" name="P95" stroke="hsl(var(--chart-4))" fill="hsl(var(--chart-4))" fillOpacity={0.15} />
+                              <Area type="monotone" dataKey="avg" name="Média" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.2} />
+                            </AreaChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </div>
+
+                      {/* SLO Score + Uptime Trend */}
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div className="card-surface p-4">
+                          <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">
+                            SLO Score (%)
+                          </p>
+                          <div className="h-40">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <AreaChart data={snapshots.map((s: any) => ({
+                                time: new Date(s.captured_at).toLocaleString("pt-BR", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit" }),
+                                slo: s.slo_score,
+                              }))}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                                <XAxis dataKey="time" tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }} />
+                                <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
+                                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 11 }} />
+                                <Area type="monotone" dataKey="slo" name="SLO Score" stroke="hsl(var(--chart-2))" fill="hsl(var(--chart-2))" fillOpacity={0.2} />
+                              </AreaChart>
+                            </ResponsiveContainer>
+                          </div>
+                        </div>
+
+                        <div className="card-surface p-4">
+                          <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">
+                            Uptime & Taxa de Erro (%)
+                          </p>
+                          <div className="h-40">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <AreaChart data={snapshots.map((s: any) => ({
+                                time: new Date(s.captured_at).toLocaleString("pt-BR", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit" }),
+                                uptime: Number(s.uptime_proxy),
+                                errors: Number(s.error_rate),
+                              }))}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                                <XAxis dataKey="time" tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }} />
+                                <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
+                                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 11 }} />
+                                <Area type="monotone" dataKey="uptime" name="Uptime" stroke="hsl(var(--chart-2))" fill="hsl(var(--chart-2))" fillOpacity={0.15} />
+                                <Area type="monotone" dataKey="errors" name="Erros" stroke="hsl(var(--destructive))" fill="hsl(var(--destructive))" fillOpacity={0.15} />
+                              </AreaChart>
+                            </ResponsiveContainer>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Users Online + Throughput Trend */}
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div className="card-surface p-4">
+                          <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">
+                            Usuários Online & Ativos
+                          </p>
+                          <div className="h-40">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <AreaChart data={snapshots.map((s: any) => ({
+                                time: new Date(s.captured_at).toLocaleString("pt-BR", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit" }),
+                                online: s.users_online,
+                                ativos: s.active_today,
+                              }))}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                                <XAxis dataKey="time" tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }} />
+                                <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
+                                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 11 }} />
+                                <Area type="monotone" dataKey="ativos" name="Ativos hoje" stroke="hsl(var(--chart-4))" fill="hsl(var(--chart-4))" fillOpacity={0.1} />
+                                <Area type="monotone" dataKey="online" name="Online" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.2} />
+                              </AreaChart>
+                            </ResponsiveContainer>
+                          </div>
+                        </div>
+
+                        <div className="card-surface p-4">
+                          <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">
+                            Throughput / Hora
+                          </p>
+                          <div className="h-40">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <BarChart data={snapshots.map((s: any) => ({
+                                time: new Date(s.captured_at).toLocaleString("pt-BR", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit" }),
+                                aulas: s.throughput_lessons_hour,
+                                quizzes: s.throughput_quizzes_hour,
+                                matriculas: s.throughput_enrollments_hour,
+                              }))}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                                <XAxis dataKey="time" tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }} />
+                                <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
+                                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 11 }} />
+                                <Bar dataKey="aulas" name="Aulas" fill="hsl(var(--primary))" radius={[2, 2, 0, 0]} />
+                                <Bar dataKey="quizzes" name="Quizzes" fill="hsl(var(--chart-4))" radius={[2, 2, 0, 0]} />
+                                <Bar dataKey="matriculas" name="Matrículas" fill="hsl(var(--chart-2))" radius={[2, 2, 0, 0]} />
+                              </BarChart>
+                            </ResponsiveContainer>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Snapshots count */}
+                      <div className="text-center text-[10px] text-muted-foreground">
+                        {snapshots.length} snapshot(s) no período · Coleta automática a cada hora
+                      </div>
+                    </div>
+                  )}
+                </section>
               </>
             ) : (
               <div className="card-surface p-12 text-center">
