@@ -71,6 +71,7 @@ const PageLoader = () => (
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
+    <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />
     <TooltipProvider>
       <Toaster />
       <Sonner />
