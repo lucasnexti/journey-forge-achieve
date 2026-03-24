@@ -351,7 +351,7 @@ const AdminMonitoramento = () => {
                           className="h-7 text-[10px] border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10">
                           <Zap className={cn("h-3 w-3 mr-1", runningHeal && "animate-pulse")} /> Auto-Heal
                         </Button>
-                        <Button size="sm" variant="outline" onClick={fetchPerfMetrics} disabled={loadingPerf} className="h-7 text-[10px]">
+                        <Button size="sm" variant="outline" onClick={() => fetchPerfMetrics(false)} disabled={loadingPerf} className="h-7 text-[10px]">
                           <RefreshCw className={cn("h-3 w-3 mr-1", loadingPerf && "animate-spin")} /> Benchmark
                         </Button>
                       </div>
