@@ -121,13 +121,34 @@ const AdminMonitoramento = () => {
     setLoadingAlerts(false);
   }, []);
 
-  const fetchPerfMetrics = useCallback(async () => {
+  const fetchPerfMetrics = useCallback(async (autoHealOnFail = false) => {
     setLoadingPerf(true);
     try {
       const { data, error: fnError } = await supabase.functions.invoke("performance-metrics");
       if (fnError) throw fnError;
       if (data?.error) throw new Error(data.error);
-      setPerfMetrics(data as PerformanceMetrics);
+      const pm = data as PerformanceMetrics;
+      setPerfMetrics(pm);
+
+      // Auto-trigger heal if SLO score is below target and content SLOs are failing
+      if (autoHealOnFail && pm.sloScore < 95) {
+        const contentFailing = pm.slos.filter(s => !s.met && ["content", "ux"].includes(s.category));
+        if (contentFailing.length > 0) {
+          toast.info("🔄 Indicadores negativos detectados. Executando correção automática...");
+          try {
+            const { data: healData } = await supabase.functions.invoke("auto-heal");
+            if (healData?.fixed > 0) {
+              toast.success(`✅ ${healData.fixed} correção(ões) automática(s) aplicada(s)!`);
+              // Re-fetch to show updated scores
+              const { data: refreshed } = await supabase.functions.invoke("performance-metrics");
+              if (refreshed && !refreshed.error) setPerfMetrics(refreshed as PerformanceMetrics);
+            }
+            if (healData?.alerts > 0) {
+              toast.warning(`⚠️ ${healData.alerts} item(ns) precisam de atenção manual.`);
+            }
+          } catch { /* heal is best-effort */ }
+        }
+      }
     } catch (e: any) {
       toast.error("Erro ao carregar métricas de performance: " + (e.message || ""));
     } finally {
@@ -275,7 +296,7 @@ const AdminMonitoramento = () => {
 
         <Tabs defaultValue="performance" className="space-y-6">
           <TabsList className="bg-muted/50 h-9">
-            <TabsTrigger value="performance" className="text-xs gap-1.5" onClick={() => { if (!perfMetrics && !loadingPerf) { fetchPerfMetrics(); fetchSnapshots(snapshotRange); } }}>
+            <TabsTrigger value="performance" className="text-xs gap-1.5" onClick={() => { if (!perfMetrics && !loadingPerf) { fetchPerfMetrics(true); fetchSnapshots(snapshotRange); } }}>
               <Timer className="h-3.5 w-3.5" />Performance
             </TabsTrigger>
             <TabsTrigger value="operations" className="text-xs gap-1.5"><Server className="h-3.5 w-3.5" />Operações</TabsTrigger>
@@ -330,7 +351,7 @@ const AdminMonitoramento = () => {
                           className="h-7 text-[10px] border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10">
                           <Zap className={cn("h-3 w-3 mr-1", runningHeal && "animate-pulse")} /> Auto-Heal
                         </Button>
-                        <Button size="sm" variant="outline" onClick={fetchPerfMetrics} disabled={loadingPerf} className="h-7 text-[10px]">
+                        <Button size="sm" variant="outline" onClick={() => fetchPerfMetrics(false)} disabled={loadingPerf} className="h-7 text-[10px]">
                           <RefreshCw className={cn("h-3 w-3 mr-1", loadingPerf && "animate-spin")} /> Benchmark
                         </Button>
                       </div>
