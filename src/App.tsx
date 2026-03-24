@@ -50,7 +50,16 @@ const AdminPersonalizacao = lazy(() => import("./pages/admin/AdminPersonalizacao
 const AdminQuizNexti = lazy(() => import("./pages/admin/AdminQuizNexti"));
 const AdminRewards = lazy(() => import("./pages/admin/AdminRewards"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,      // 5 min — dados considerados frescos
+      gcTime: 30 * 60 * 1000,         // 30 min — mantém cache em memória
+      refetchOnWindowFocus: false,     // não refaz ao voltar para aba
+      retry: 2,
+    },
+  },
+});
 
 const PageLoader = () => (
   <div className="flex min-h-screen items-center justify-center bg-background">
