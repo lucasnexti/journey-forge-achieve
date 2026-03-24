@@ -347,16 +347,16 @@ const AdminMonitoramento = () => {
                       className="card-surface p-4 space-y-2">
                       <div className="flex items-center justify-between">
                         <div className={cn("flex h-8 w-8 items-center justify-center rounded-lg",
-                          perfMetrics.responseTimeSummary.avg < 100 ? "bg-emerald-500/10 text-emerald-500" :
-                          perfMetrics.responseTimeSummary.avg < 200 ? "bg-amber-500/10 text-amber-500" : "bg-destructive/10 text-destructive"
+                          perfMetrics.responseTimeSummary.avg < 500 ? "bg-emerald-500/10 text-emerald-500" :
+                          perfMetrics.responseTimeSummary.avg < 1000 ? "bg-amber-500/10 text-amber-500" : "bg-destructive/10 text-destructive"
                         )}>
                           <Gauge className="h-4 w-4" />
                         </div>
                         <Badge variant="outline" className={cn("text-[9px] h-5",
-                          perfMetrics.responseTimeSummary.avg < 100 ? "border-emerald-500/30 text-emerald-600" :
-                          perfMetrics.responseTimeSummary.avg < 200 ? "border-amber-500/30 text-amber-600" : "border-destructive/30 text-destructive"
+                          perfMetrics.responseTimeSummary.avg < 500 ? "border-emerald-500/30 text-emerald-600" :
+                          perfMetrics.responseTimeSummary.avg < 1000 ? "border-amber-500/30 text-amber-600" : "border-destructive/30 text-destructive"
                         )}>
-                          {perfMetrics.responseTimeSummary.avg < 100 ? "Excelente" : perfMetrics.responseTimeSummary.avg < 200 ? "Bom" : "Lento"}
+                          {perfMetrics.responseTimeSummary.avg < 500 ? "Ótimo" : perfMetrics.responseTimeSummary.avg < 1000 ? "Bom" : "Lento"}
                         </Badge>
                       </div>
                       <p className="text-2xl font-black tabular-nums text-foreground">{perfMetrics.responseTimeSummary.avg}<span className="text-sm font-medium text-muted-foreground">ms</span></p>
