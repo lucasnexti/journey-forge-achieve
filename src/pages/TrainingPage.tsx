@@ -94,6 +94,8 @@ const TrainingPage = () => {
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
+  // "completa" = all modules in category, "avulsa" = individual selection
+  const [categoryMode, setCategoryMode] = useState<Record<string, "completa" | "avulsa">>({});
 
   const categories = useMemo(
     () => [...new Set(modules.map((m) => m.category).filter(Boolean))] as string[],
@@ -108,6 +110,25 @@ const TrainingPage = () => {
       setExpandedCategories(initial);
     }
   }, [categories]);
+
+  const handleCategoryMode = (cat: string, mode: "completa" | "avulsa") => {
+    setCategoryMode((prev) => ({ ...prev, [cat]: mode }));
+    const catMods = modules.filter((m) => m.category === cat);
+    if (mode === "completa") {
+      // Select all modules in category
+      const next = { ...selected };
+      catMods.forEach((m) => { next[m.id] = true; });
+      setSelected(next);
+    } else {
+      // Deselect all modules in category
+      const next = { ...selected };
+      catMods.forEach((m) => { next[m.id] = false; });
+      setSelected(next);
+      const nextMod = { ...modalities };
+      catMods.forEach((m) => { delete nextMod[m.id]; });
+      setModalities(nextMod);
+    }
+  };
 
   const selectedModules = useMemo(() => modules.filter((m) => selected[m.id]), [modules, selected]);
   const readyModules = useMemo(() => selectedModules.filter((m) => !!modalities[m.id]), [selectedModules, modalities]);
