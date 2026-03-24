@@ -11,7 +11,8 @@ import {
   RefreshCw, Server, Database, Zap, AlertTriangle, CheckCircle2,
   TrendingUp, TrendingDown, BarChart3, FileText, Plus, Trash2, Play, History,
   Settings2, Target, Percent, Flame, UserPlus, ArrowUpRight, ArrowDownRight,
-  Gauge, Eye, CalendarDays, PieChart,
+  Gauge, Eye, CalendarDays, PieChart, Timer, HardDrive, Video, MonitorCheck,
+  CircleCheck, CircleX, Layers,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -75,6 +76,19 @@ interface AlertRule {
 interface AlertHistoryEntry {
   id: string; metric_key: string; metric_value: number; threshold: number;
   triggered_at: string; rule_id: string;
+}
+
+interface PerformanceMetrics {
+  timestamp: string;
+  executionTime: number;
+  queryBenchmarks: { name: string; endpoint: string; ms: number; category: string }[];
+  responseTimeSummary: { avg: number; max: number; p95: number };
+  reliability: { errorCount: number; totalActions: number; errorRate: number; uptimeProxy: number };
+  throughput: { lessonProgressPerHour: number; quizAttemptsPerHour: number; enrollmentsPerHour: number };
+  dataVolume: Record<string, number>;
+  lmsHealth: { videoAvailability: number; contentCompleteness: number; quizCoverage: number };
+  slos: { name: string; target: number; actual: number; met: boolean }[];
+  sloScore: number;
 }
 
 /* ─── Constants ─── */
@@ -181,6 +195,10 @@ const AdminMonitoramento = () => {
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
 
+  // Performance state
+  const [perfMetrics, setPerfMetrics] = useState<PerformanceMetrics | null>(null);
+  const [loadingPerf, setLoadingPerf] = useState(false);
+
   // Alert state
   const [alertRules, setAlertRules] = useState<AlertRule[]>([]);
   const [alertHistory, setAlertHistory] = useState<AlertHistoryEntry[]>([]);
@@ -215,6 +233,20 @@ const AdminMonitoramento = () => {
     setAlertRules((rules || []) as AlertRule[]);
     setAlertHistory((history || []) as AlertHistoryEntry[]);
     setLoadingAlerts(false);
+  }, []);
+
+  const fetchPerfMetrics = useCallback(async () => {
+    setLoadingPerf(true);
+    try {
+      const { data, error: fnError } = await supabase.functions.invoke("performance-metrics");
+      if (fnError) throw fnError;
+      if (data?.error) throw new Error(data.error);
+      setPerfMetrics(data as PerformanceMetrics);
+    } catch (e: any) {
+      toast.error("Erro ao carregar métricas de performance: " + (e.message || ""));
+    } finally {
+      setLoadingPerf(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -374,6 +406,9 @@ const AdminMonitoramento = () => {
           <TabsList className="bg-muted/50 h-9">
             <TabsTrigger value="overview" className="text-xs gap-1.5"><Gauge className="h-3.5 w-3.5" />Visão Geral</TabsTrigger>
             <TabsTrigger value="engagement" className="text-xs gap-1.5"><Zap className="h-3.5 w-3.5" />Engajamento</TabsTrigger>
+            <TabsTrigger value="performance" className="text-xs gap-1.5" onClick={() => { if (!perfMetrics && !loadingPerf) fetchPerfMetrics(); }}>
+              <Timer className="h-3.5 w-3.5" />Performance
+            </TabsTrigger>
             <TabsTrigger value="operations" className="text-xs gap-1.5"><Server className="h-3.5 w-3.5" />Operações</TabsTrigger>
             <TabsTrigger value="alerts" className="text-xs gap-1.5">
               <AlertTriangle className="h-3.5 w-3.5" />Alertas
@@ -569,6 +604,195 @@ const AdminMonitoramento = () => {
                   </div>
                 </section>
               </>
+            )}
+          </TabsContent>
+
+          {/* ═══════ PERFORMANCE TAB ═══════ */}
+          <TabsContent value="performance" className="space-y-6">
+            {loadingPerf && !perfMetrics ? (
+              <div className="flex items-center justify-center py-20">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+              </div>
+            ) : perfMetrics ? (
+              <>
+                {/* SLO Score */}
+                <section>
+                  <div className="flex items-center justify-between mb-3">
+                    <SectionTitle icon={MonitorCheck} title="SLO Compliance" />
+                    <Button size="sm" variant="outline" onClick={fetchPerfMetrics} disabled={loadingPerf} className="h-8 text-xs">
+                      <RefreshCw className={cn("h-3 w-3 mr-1", loadingPerf && "animate-spin")} /> Re-benchmark
+                    </Button>
+                  </div>
+                  <div className="card-surface p-5">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className={cn("text-4xl font-black tabular-nums", perfMetrics.sloScore >= 80 ? "text-emerald-500" : perfMetrics.sloScore >= 50 ? "text-amber-500" : "text-destructive")}>
+                        {perfMetrics.sloScore}%
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-foreground">SLO Score Geral</p>
+                        <p className="text-[11px] text-muted-foreground">
+                          {perfMetrics.slos.filter((s) => s.met).length}/{perfMetrics.slos.length} objetivos atingidos
+                        </p>
+                      </div>
+                      <div className="ml-auto text-right">
+                        <p className="text-[10px] text-muted-foreground">Benchmark executado em</p>
+                        <p className="text-sm font-bold tabular-nums text-foreground">{perfMetrics.executionTime}ms</p>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      {perfMetrics.slos.map((slo) => (
+                        <div key={slo.name} className="flex items-center gap-3">
+                          {slo.met
+                            ? <CircleCheck className="h-4 w-4 text-emerald-500 shrink-0" />
+                            : <CircleX className="h-4 w-4 text-destructive shrink-0" />}
+                          <span className="text-sm text-foreground flex-1">{slo.name}</span>
+                          <span className={cn("text-sm font-bold tabular-nums", slo.met ? "text-emerald-500" : "text-destructive")}>
+                            {typeof slo.actual === 'number' && slo.actual % 1 !== 0 ? slo.actual.toFixed(1) : slo.actual}
+                          </span>
+                          <span className="text-[10px] text-muted-foreground w-16 text-right">meta: {slo.target}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </section>
+
+                {/* Response Times Chart */}
+                <section>
+                  <SectionTitle icon={Timer} title="Tempos de Resposta — Queries Críticas" />
+                  <div className="card-surface p-4">
+                    <div className="grid grid-cols-3 gap-4 mb-4 text-center">
+                      <div>
+                        <p className={cn("text-2xl font-black tabular-nums", perfMetrics.responseTimeSummary.avg < 100 ? "text-emerald-500" : perfMetrics.responseTimeSummary.avg < 200 ? "text-amber-500" : "text-destructive")}>
+                          {perfMetrics.responseTimeSummary.avg}ms
+                        </p>
+                        <p className="text-[10px] text-muted-foreground">Média</p>
+                      </div>
+                      <div>
+                        <p className={cn("text-2xl font-black tabular-nums", perfMetrics.responseTimeSummary.p95 < 300 ? "text-emerald-500" : "text-amber-500")}>
+                          {perfMetrics.responseTimeSummary.p95}ms
+                        </p>
+                        <p className="text-[10px] text-muted-foreground">P95</p>
+                      </div>
+                      <div>
+                        <p className={cn("text-2xl font-black tabular-nums", perfMetrics.responseTimeSummary.max < 500 ? "text-emerald-500" : "text-destructive")}>
+                          {perfMetrics.responseTimeSummary.max}ms
+                        </p>
+                        <p className="text-[10px] text-muted-foreground">Máximo</p>
+                      </div>
+                    </div>
+                    <div className="h-52">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={perfMetrics.queryBenchmarks} layout="vertical" margin={{ left: 100 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                          <XAxis type="number" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} unit="ms" />
+                          <YAxis dataKey="name" type="category" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} width={95} />
+                          <Tooltip
+                            contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
+                            formatter={(value: number) => [`${value}ms`, "Tempo"]}
+                          />
+                          <Bar dataKey="ms" name="Response Time" radius={[0, 4, 4, 0]}>
+                            {perfMetrics.queryBenchmarks.map((entry, i) => (
+                              <Cell key={i} fill={entry.ms < 100 ? "hsl(var(--chart-2))" : entry.ms < 200 ? "hsl(var(--chart-4))" : "hsl(var(--destructive))"} />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <div className="flex items-center justify-center gap-4 mt-2 text-[10px] text-muted-foreground">
+                      <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-sm bg-[hsl(var(--chart-2))]" /> &lt;100ms Bom</span>
+                      <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-sm bg-[hsl(var(--chart-4))]" /> 100-200ms Ok</span>
+                      <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-sm bg-destructive" /> &gt;200ms Lento</span>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Reliability + Throughput */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <section>
+                    <SectionTitle icon={ShieldCheck} title="Confiabilidade" />
+                    <div className="card-surface p-4 space-y-4">
+                      <div className="grid grid-cols-2 gap-4 text-center">
+                        <div>
+                          <p className={cn("text-3xl font-black tabular-nums", perfMetrics.reliability.uptimeProxy >= 99 ? "text-emerald-500" : "text-amber-500")}>
+                            {perfMetrics.reliability.uptimeProxy.toFixed(2)}%
+                          </p>
+                          <p className="text-[10px] text-muted-foreground">Uptime Proxy (24h)</p>
+                        </div>
+                        <div>
+                          <p className={cn("text-3xl font-black tabular-nums", perfMetrics.reliability.errorRate < 1 ? "text-emerald-500" : "text-destructive")}>
+                            {perfMetrics.reliability.errorRate}%
+                          </p>
+                          <p className="text-[10px] text-muted-foreground">Taxa de Erro (24h)</p>
+                        </div>
+                      </div>
+                      <div className="text-center text-[11px] text-muted-foreground">
+                        {perfMetrics.reliability.errorCount} erros em {perfMetrics.reliability.totalActions} ações registradas
+                      </div>
+                    </div>
+                  </section>
+
+                  <section>
+                    <SectionTitle icon={Zap} title="Throughput (Última Hora)" />
+                    <div className="card-surface p-4">
+                      <div className="grid grid-cols-3 gap-4 text-center">
+                        <div>
+                          <p className="text-2xl font-black text-foreground">{perfMetrics.throughput.lessonProgressPerHour}</p>
+                          <p className="text-[10px] text-muted-foreground">Progressos de aula</p>
+                        </div>
+                        <div>
+                          <p className="text-2xl font-black text-foreground">{perfMetrics.throughput.quizAttemptsPerHour}</p>
+                          <p className="text-[10px] text-muted-foreground">Tentativas de quiz</p>
+                        </div>
+                        <div>
+                          <p className="text-2xl font-black text-foreground">{perfMetrics.throughput.enrollmentsPerHour}</p>
+                          <p className="text-[10px] text-muted-foreground">Matrículas</p>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+
+                {/* LMS Health SLIs */}
+                <section>
+                  <SectionTitle icon={Layers} title="Saúde do Conteúdo LMS" />
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <KpiGauge icon={Video} label="Disponibilidade de Vídeo" value={perfMetrics.lmsHealth.videoAvailability}
+                      target={80} color="text-blue-500" />
+                    <KpiGauge icon={BookOpen} label="Completude de Conteúdo" value={perfMetrics.lmsHealth.contentCompleteness}
+                      target={90} color="text-emerald-500" />
+                    <KpiGauge icon={Trophy} label="Cobertura de Quizzes" value={perfMetrics.lmsHealth.quizCoverage}
+                      target={50} color="text-amber-500" />
+                  </div>
+                </section>
+
+                {/* Data Volume / Capacity */}
+                <section>
+                  <SectionTitle icon={HardDrive} title="Volume de Dados (Capacity Planning)" />
+                  <div className="card-surface p-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 text-center">
+                      {Object.entries(perfMetrics.dataVolume).map(([key, value]) => {
+                        const labels: Record<string, string> = {
+                          profiles: "Perfis", enrollments: "Matrículas", lessonProgress: "Progresso",
+                          quizAttempts: "Quiz Attempts", forumPosts: "Posts Fórum", notifications: "Notificações",
+                        };
+                        return (
+                          <div key={key}>
+                            <p className="text-xl font-black tabular-nums text-foreground">
+                              {value >= 1000 ? `${(value / 1000).toFixed(1)}k` : value}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground">{labels[key] || key}</p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </section>
+              </>
+            ) : (
+              <div className="card-surface p-12 text-center">
+                <Timer className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+                <p className="text-sm text-muted-foreground">Clique em "Performance" para executar o benchmark</p>
+              </div>
             )}
           </TabsContent>
 
