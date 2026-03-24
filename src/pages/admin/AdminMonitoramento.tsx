@@ -91,6 +91,7 @@ const AdminMonitoramento = () => {
   const [newOperator, setNewOperator] = useState("gte");
   const [newThreshold, setNewThreshold] = useState("");
   const [newCooldown, setNewCooldown] = useState("60");
+  const [runningHeal, setRunningHeal] = useState(false);
 
   const fetchMetrics = useCallback(async () => {
     try {
@@ -186,6 +187,29 @@ const AdminMonitoramento = () => {
     finally { setCheckingAlerts(false); }
   };
 
+  const handleAutoHeal = async () => {
+    setRunningHeal(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("auto-heal");
+      if (error) throw error;
+      if (data?.fixed > 0) {
+        toast.success(`✅ ${data.fixed} correção(ões) automática(s) aplicada(s)!`);
+      }
+      if (data?.alerts > 0) {
+        toast.warning(`⚠️ ${data.alerts} item(ns) precisam de atenção manual.`);
+      }
+      if (data?.fixed === 0 && data?.alerts === 0) {
+        toast.success("Sistema saudável! Nenhuma ação necessária.");
+      }
+      // Refresh performance metrics after heal
+      fetchPerfMetrics();
+    } catch (e: any) {
+      toast.error("Erro no auto-heal: " + (e.message || ""));
+    } finally {
+      setRunningHeal(false);
+    }
+  };
+
   if (authLoading || superLoading) {
     return (
       <AdminLayout>
@@ -275,9 +299,14 @@ const AdminMonitoramento = () => {
                 <section>
                   <div className="flex items-center justify-between mb-3">
                     <SectionTitle icon={MonitorCheck} title="Saúde do Sistema — SLO Compliance" />
-                    <Button size="sm" variant="outline" onClick={fetchPerfMetrics} disabled={loadingPerf} className="h-8 text-xs">
-                      <RefreshCw className={cn("h-3 w-3 mr-1", loadingPerf && "animate-spin")} /> Re-benchmark
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Button size="sm" variant="outline" onClick={handleAutoHeal} disabled={runningHeal} className="h-8 text-xs border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10">
+                        <Zap className={cn("h-3 w-3 mr-1", runningHeal && "animate-pulse")} /> Auto-Heal
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={fetchPerfMetrics} disabled={loadingPerf} className="h-8 text-xs">
+                        <RefreshCw className={cn("h-3 w-3 mr-1", loadingPerf && "animate-spin")} /> Re-benchmark
+                      </Button>
+                    </div>
                   </div>
                   <div className="card-surface p-5">
                     {/* Main Score */}
@@ -294,6 +323,9 @@ const AdminMonitoramento = () => {
                           {perfMetrics.slos.filter((s) => s.met).length}/{perfMetrics.slos.length} objetivos atingidos
                         </p>
                         <Progress value={perfMetrics.sloScore} className="h-2 mt-2 [&>div]:transition-all [&>div]:duration-700" />
+                        <p className="text-[9px] text-muted-foreground/60 mt-1 flex items-center gap-1">
+                          <Settings2 className="h-2.5 w-2.5" /> Auto-heal ativo a cada 30min
+                        </p>
                       </div>
                       <div className="text-right">
                         <p className="text-[10px] text-muted-foreground">Benchmark em</p>
