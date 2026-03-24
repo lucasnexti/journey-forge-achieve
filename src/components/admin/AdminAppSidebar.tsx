@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutGrid, Route, BookOpen, Star, GraduationCap, Users as UsersIcon,
   Layers, BarChart3, FileText, LogOut, Award, ShieldCheck, Bell, Palette,
-  ClipboardCheck, MessageSquare, Sun, Moon, ChevronDown, User, Zap, Gift
+  ClipboardCheck, MessageSquare, Sun, Moon, ChevronDown, User, Zap, Gift, Activity
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/hooks/useTheme";
