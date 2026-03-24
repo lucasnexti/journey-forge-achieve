@@ -187,7 +187,29 @@ const AdminMonitoramento = () => {
     finally { setCheckingAlerts(false); }
   };
 
-  if (authLoading || superLoading) {
+  const handleAutoHeal = async () => {
+    setRunningHeal(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("auto-heal");
+      if (error) throw error;
+      if (data?.fixed > 0) {
+        toast.success(`✅ ${data.fixed} correção(ões) automática(s) aplicada(s)!`);
+      }
+      if (data?.alerts > 0) {
+        toast.warning(`⚠️ ${data.alerts} item(ns) precisam de atenção manual.`);
+      }
+      if (data?.fixed === 0 && data?.alerts === 0) {
+        toast.success("Sistema saudável! Nenhuma ação necessária.");
+      }
+      // Refresh performance metrics after heal
+      fetchPerfMetrics();
+    } catch (e: any) {
+      toast.error("Erro no auto-heal: " + (e.message || ""));
+    } finally {
+      setRunningHeal(false);
+    }
+  };
+
     return (
       <AdminLayout>
         <div className="flex items-center justify-center py-32">
