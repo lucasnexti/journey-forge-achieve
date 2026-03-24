@@ -1,6 +1,9 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useTrainingModules, useTrainingRequests } from "@/hooks/useDashboardData";
+import { queryKeys } from "@/hooks/useQueryKeys";
+import { useQueryClient } from "@tanstack/react-query";
 import AppLayout from "@/components/AppLayout";
 import { motion } from "framer-motion";
 import {
@@ -69,9 +72,14 @@ const fmt = (v: number) =>
 
 const TrainingPage = () => {
   const { user } = useAuth();
-  const [modules, setModules] = useState<TrainingModule[]>([]);
-  const [requests, setRequests] = useState<TrainingRequest[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const { data: modulesRaw = [], isLoading: modulesLoading } = useTrainingModules();
+  const { data: requestsRaw = [], isLoading: requestsLoading } = useTrainingRequests();
+  
+  const modules = modulesRaw as TrainingModule[];
+  const requests = requestsRaw as TrainingRequest[];
+  const loading = modulesLoading || requestsLoading;
+
   const [tab, setTab] = useState<"modules" | "requests">("modules");
   const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [modalities, setModalities] = useState<Record<string, "presencial" | "remoto">>({});
