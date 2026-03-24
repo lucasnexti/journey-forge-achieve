@@ -516,17 +516,17 @@ const AdminMonitoramento = () => {
                           />
                           <Bar dataKey="ms" name="Response Time" radius={[0, 6, 6, 0]} barSize={18}>
                             {[...perfMetrics.queryBenchmarks].sort((a, b) => b.ms - a.ms).map((entry, i) => (
-                              <Cell key={i} fill={entry.ms < 50 ? "hsl(142, 76%, 36%)" : entry.ms < 100 ? "hsl(var(--chart-2))" : entry.ms < 200 ? "hsl(var(--chart-4))" : "hsl(var(--destructive))"} />
+                              <Cell key={i} fill={entry.ms < 500 ? "hsl(142, 76%, 36%)" : entry.ms < 800 ? "hsl(var(--chart-2))" : entry.ms < 1000 ? "hsl(var(--chart-4))" : "hsl(var(--destructive))"} />
                             ))}
                           </Bar>
                         </BarChart>
                       </ResponsiveContainer>
                     </div>
                     <div className="flex items-center justify-center gap-6 mt-3 text-[10px] text-muted-foreground">
-                      <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full" style={{ background: "hsl(142, 76%, 36%)" }} /> &lt;50ms Ótimo</span>
-                      <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-[hsl(var(--chart-2))]" /> 50-100ms Bom</span>
-                      <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-[hsl(var(--chart-4))]" /> 100-200ms Ok</span>
-                      <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-destructive" /> &gt;200ms Lento</span>
+                      <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full" style={{ background: "hsl(142, 76%, 36%)" }} /> &lt;500ms Ótimo</span>
+                      <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-[hsl(var(--chart-2))]" /> 500-800ms Bom</span>
+                      <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-[hsl(var(--chart-4))]" /> 800-1000ms Ok</span>
+                      <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-destructive" /> &gt;1000ms Lento</span>
                     </div>
                   </div>
                 </section>
