@@ -296,7 +296,7 @@ const AdminMonitoramento = () => {
 
         <Tabs defaultValue="performance" className="space-y-6">
           <TabsList className="bg-muted/50 h-9">
-            <TabsTrigger value="performance" className="text-xs gap-1.5" onClick={() => { if (!perfMetrics && !loadingPerf) { fetchPerfMetrics(); fetchSnapshots(snapshotRange); } }}>
+            <TabsTrigger value="performance" className="text-xs gap-1.5" onClick={() => { if (!perfMetrics && !loadingPerf) { fetchPerfMetrics(true); fetchSnapshots(snapshotRange); } }}>
               <Timer className="h-3.5 w-3.5" />Performance
             </TabsTrigger>
             <TabsTrigger value="operations" className="text-xs gap-1.5"><Server className="h-3.5 w-3.5" />Operações</TabsTrigger>
