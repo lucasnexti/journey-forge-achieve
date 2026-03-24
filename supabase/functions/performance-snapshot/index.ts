@@ -22,17 +22,21 @@ serve(async (req) => {
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
 
-    // Allow both authenticated super-admin calls AND cron (no auth header)
+    // Allow both authenticated super-admin calls AND cron/service calls
     const authHeader = req.headers.get("Authorization");
-    const isCron = !authHeader || authHeader === `Bearer ${anonKey}`;
 
-    if (!isCron) {
+    // Cron jobs and service calls: no auth header, anon key, or service role key
+    if (authHeader && authHeader !== `Bearer ${anonKey}` && authHeader !== `Bearer ${serviceKey}`) {
       const userClient = createClient(supabaseUrl, anonKey, {
         global: { headers: { Authorization: authHeader } },
       });
       const { data: { user }, error: authError } = await userClient.auth.getUser();
       if (authError || !user) throw new Error("Unauthorized");
-      if (user.email !== "robson@nexti.com") {
+
+      // Check super-admin role
+      const { data: roleData } = await createClient(supabaseUrl, serviceKey)
+        .from("user_roles").select("role").eq("user_id", user.id).eq("role", "admin").maybeSingle();
+      if (!roleData) {
         return new Response(JSON.stringify({ error: "Forbidden" }), {
           status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });

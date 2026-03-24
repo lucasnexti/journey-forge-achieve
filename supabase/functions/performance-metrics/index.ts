@@ -30,7 +30,11 @@ serve(async (req) => {
     });
     const { data: { user }, error: authError } = await userClient.auth.getUser();
     if (authError || !user) throw new Error("Unauthorized");
-    if (user.email !== "robson@nexti.com") {
+
+    // Check admin role instead of hardcoded email
+    const { data: roleData } = await createClient(supabaseUrl, serviceKey)
+      .from("user_roles").select("role").eq("user_id", user.id).eq("role", "admin").maybeSingle();
+    if (!roleData) {
       return new Response(JSON.stringify({ error: "Forbidden" }), {
         status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
