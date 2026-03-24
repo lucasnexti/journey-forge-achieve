@@ -47,8 +47,9 @@ interface PerformanceMetrics {
   reliability: { errorCount: number; totalActions: number; errorRate: number; uptimeProxy: number };
   throughput: { lessonProgressPerHour: number; quizAttemptsPerHour: number; enrollmentsPerHour: number };
   dataVolume: Record<string, number>;
-  lmsHealth: { videoAvailability: number; contentCompleteness: number; quizCoverage: number };
-  slos: { name: string; target: number; actual: number; met: boolean }[];
+  lmsHealth: { videoAvailability: number; contentCompleteness: number; quizCoverage: number; quizPassRate?: number; profileCompleteness?: number; lessonDescCoverage?: number };
+  slos: { name: string; category: string; target: number; actual: number; met: boolean; weight: number }[];
+  sloByCategory?: { category: string; total: number; met: number; score: number }[];
   sloScore: number;
 }
 
