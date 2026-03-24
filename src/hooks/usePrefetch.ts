@@ -85,13 +85,14 @@ export function usePrefetch() {
         case "/perfil":
           queryClient.prefetchQuery({
             queryKey: queryKeys.profile.user(user.id),
-            queryFn: () =>
-              supabase
+            queryFn: async () => {
+              const { data } = await supabase
                 .from("profiles")
                 .select("nome, cpf, empresa, cargo, avatar_url")
                 .eq("user_id", user.id)
-                .maybeSingle()
-                .then(({ data }) => data),
+                .maybeSingle();
+              return data;
+            },
             ...opts,
           });
           break;
