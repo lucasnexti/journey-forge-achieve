@@ -1,6 +1,9 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useTrainingModules, useTrainingRequests } from "@/hooks/useDashboardData";
+import { queryKeys } from "@/hooks/useQueryKeys";
+import { useQueryClient } from "@tanstack/react-query";
 import AppLayout from "@/components/AppLayout";
 import { motion } from "framer-motion";
 import {
@@ -69,9 +72,14 @@ const fmt = (v: number) =>
 
 const TrainingPage = () => {
   const { user } = useAuth();
-  const [modules, setModules] = useState<TrainingModule[]>([]);
-  const [requests, setRequests] = useState<TrainingRequest[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const { data: modulesRaw = [], isLoading: modulesLoading } = useTrainingModules();
+  const { data: requestsRaw = [], isLoading: requestsLoading } = useTrainingRequests();
+  
+  const modules = modulesRaw as TrainingModule[];
+  const requests = requestsRaw as TrainingRequest[];
+  const loading = modulesLoading || requestsLoading;
+
   const [tab, setTab] = useState<"modules" | "requests">("modules");
   const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [modalities, setModalities] = useState<Record<string, "presencial" | "remoto">>({});
@@ -81,19 +89,8 @@ const TrainingPage = () => {
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (!user) return;
-    const load = async () => {
-      const [{ data: modData }, { data: reqData }] = await Promise.all([
-        supabase.from("training_modules").select("*").eq("is_active", true).order("order_index"),
-        supabase.from("training_requests").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
-      ]);
-      setModules((modData as TrainingModule[]) || []);
-      setRequests((reqData as TrainingRequest[]) || []);
-      setLoading(false);
-    };
-    load();
-  }, [user]);
+
+
 
   const selectedModules = useMemo(() => modules.filter((m) => selected[m.id]), [modules, selected]);
   const readyModules = useMemo(() => selectedModules.filter((m) => !!modalities[m.id]), [selectedModules, modalities]);
@@ -141,8 +138,7 @@ const TrainingPage = () => {
           }))
         );
       }
-      const { data: reqData } = await supabase.from("training_requests").select("*").eq("user_id", user.id).order("created_at", { ascending: false });
-      setRequests((reqData as TrainingRequest[]) || []);
+      queryClient.invalidateQueries({ queryKey: queryKeys.training.requests(user.id) });
       setSelected({});
       setModalities({});
       setShowRequestForm(false);
