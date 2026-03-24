@@ -252,6 +252,20 @@ const AdminMonitoramento = () => {
     }
   }, []);
 
+  const fetchSnapshots = useCallback(async (range: "24h" | "7d" | "30d") => {
+    setLoadingSnapshots(true);
+    const hours = range === "24h" ? 24 : range === "7d" ? 168 : 720;
+    const since = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
+    const { data } = await supabase
+      .from("performance_snapshots")
+      .select("*")
+      .gte("captured_at", since)
+      .order("captured_at", { ascending: true })
+      .limit(500);
+    setSnapshots(data || []);
+    setLoadingSnapshots(false);
+  }, []);
+
   useEffect(() => {
     if (isSuperAdmin) { fetchMetrics(); fetchAlertData(); }
   }, [isSuperAdmin, fetchMetrics, fetchAlertData]);
