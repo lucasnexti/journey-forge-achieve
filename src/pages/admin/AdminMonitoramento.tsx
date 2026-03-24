@@ -423,7 +423,7 @@ const AdminMonitoramento = () => {
           <TabsList className="bg-muted/50 h-9">
             <TabsTrigger value="overview" className="text-xs gap-1.5"><Gauge className="h-3.5 w-3.5" />Visão Geral</TabsTrigger>
             <TabsTrigger value="engagement" className="text-xs gap-1.5"><Zap className="h-3.5 w-3.5" />Engajamento</TabsTrigger>
-            <TabsTrigger value="performance" className="text-xs gap-1.5" onClick={() => { if (!perfMetrics && !loadingPerf) fetchPerfMetrics(); }}>
+            <TabsTrigger value="performance" className="text-xs gap-1.5" onClick={() => { if (!perfMetrics && !loadingPerf) { fetchPerfMetrics(); fetchSnapshots(snapshotRange); } }}>
               <Timer className="h-3.5 w-3.5" />Performance
             </TabsTrigger>
             <TabsTrigger value="operations" className="text-xs gap-1.5"><Server className="h-3.5 w-3.5" />Operações</TabsTrigger>
