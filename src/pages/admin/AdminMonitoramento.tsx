@@ -299,9 +299,14 @@ const AdminMonitoramento = () => {
                 <section>
                   <div className="flex items-center justify-between mb-3">
                     <SectionTitle icon={MonitorCheck} title="Saúde do Sistema — SLO Compliance" />
-                    <Button size="sm" variant="outline" onClick={fetchPerfMetrics} disabled={loadingPerf} className="h-8 text-xs">
-                      <RefreshCw className={cn("h-3 w-3 mr-1", loadingPerf && "animate-spin")} /> Re-benchmark
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Button size="sm" variant="outline" onClick={handleAutoHeal} disabled={runningHeal} className="h-8 text-xs border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10">
+                        <Zap className={cn("h-3 w-3 mr-1", runningHeal && "animate-pulse")} /> Auto-Heal
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={fetchPerfMetrics} disabled={loadingPerf} className="h-8 text-xs">
+                        <RefreshCw className={cn("h-3 w-3 mr-1", loadingPerf && "animate-spin")} /> Re-benchmark
+                      </Button>
+                    </div>
                   </div>
                   <div className="card-surface p-5">
                     {/* Main Score */}
