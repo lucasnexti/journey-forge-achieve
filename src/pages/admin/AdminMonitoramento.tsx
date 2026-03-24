@@ -210,6 +210,7 @@ const AdminMonitoramento = () => {
     }
   };
 
+  if (authLoading || superLoading) {
     return (
       <AdminLayout>
         <div className="flex items-center justify-center py-32">
