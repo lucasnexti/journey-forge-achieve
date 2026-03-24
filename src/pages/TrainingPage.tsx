@@ -361,7 +361,7 @@ const TrainingPage = () => {
                                 </div>
                                 <div>
                                   <p className={cn("text-sm font-bold", mode === "completa" ? "text-foreground" : "text-muted-foreground")}>
-                                    Reimplantação Completa
+                                    Completa
                                   </p>
                                   <p className="text-[11px] text-muted-foreground">
                                     Todos os {catModules.length} módulos · <span className="font-semibold">{catTotalHours}h</span>
