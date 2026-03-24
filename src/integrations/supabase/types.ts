@@ -14,6 +14,90 @@ export type Database = {
   }
   public: {
     Tables: {
+      alert_history: {
+        Row: {
+          id: string
+          metric_key: string
+          metric_value: number
+          notification_id: string | null
+          rule_id: string
+          threshold: number
+          triggered_at: string
+        }
+        Insert: {
+          id?: string
+          metric_key: string
+          metric_value: number
+          notification_id?: string | null
+          rule_id: string
+          threshold: number
+          triggered_at?: string
+        }
+        Update: {
+          id?: string
+          metric_key?: string
+          metric_value?: number
+          notification_id?: string | null
+          rule_id?: string
+          threshold?: number
+          triggered_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alert_history_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "notifications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alert_history_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "alert_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      alert_rules: {
+        Row: {
+          cooldown_minutes: number
+          created_at: string
+          created_by: string
+          id: string
+          is_active: boolean
+          metric_key: string
+          metric_label: string
+          operator: string
+          threshold: number
+          updated_at: string
+        }
+        Insert: {
+          cooldown_minutes?: number
+          created_at?: string
+          created_by: string
+          id?: string
+          is_active?: boolean
+          metric_key: string
+          metric_label: string
+          operator?: string
+          threshold: number
+          updated_at?: string
+        }
+        Update: {
+          cooldown_minutes?: number
+          created_at?: string
+          created_by?: string
+          id?: string
+          is_active?: boolean
+          metric_key?: string
+          metric_label?: string
+          operator?: string
+          threshold?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
