@@ -49,6 +49,7 @@ const AdminForumGestao = lazy(() => import("./pages/admin/AdminForumGestao"));
 const AdminPersonalizacao = lazy(() => import("./pages/admin/AdminPersonalizacao"));
 const AdminQuizNexti = lazy(() => import("./pages/admin/AdminQuizNexti"));
 const AdminRewards = lazy(() => import("./pages/admin/AdminRewards"));
+const AdminMonitoramento = lazy(() => import("./pages/admin/AdminMonitoramento"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
