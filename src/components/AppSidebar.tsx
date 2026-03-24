@@ -6,7 +6,8 @@ import { useTheme } from "@/hooks/useTheme";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { usePrefetch } from "@/hooks/usePrefetch";
 import {
   Sidebar,
   SidebarContent,
