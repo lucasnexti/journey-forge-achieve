@@ -235,6 +235,20 @@ const AdminMonitoramento = () => {
     setLoadingAlerts(false);
   }, []);
 
+  const fetchPerfMetrics = useCallback(async () => {
+    setLoadingPerf(true);
+    try {
+      const { data, error: fnError } = await supabase.functions.invoke("performance-metrics");
+      if (fnError) throw fnError;
+      if (data?.error) throw new Error(data.error);
+      setPerfMetrics(data as PerformanceMetrics);
+    } catch (e: any) {
+      toast.error("Erro ao carregar métricas de performance: " + (e.message || ""));
+    } finally {
+      setLoadingPerf(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (isSuperAdmin) { fetchMetrics(); fetchAlertData(); }
   }, [isSuperAdmin, fetchMetrics, fetchAlertData]);
