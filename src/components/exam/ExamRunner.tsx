@@ -65,6 +65,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   lessons_incomplete: "Conclua 100% das aulas para liberar a avaliação.",
   attempt_limit_reached: "Você atingiu o limite de tentativas desta avaliação.",
   unauthenticated: "Sessão expirada. Faça login novamente.",
+  no_active_session: "Nenhuma tentativa ativa encontrada. Inicie a avaliação novamente.",
 };
 
 
