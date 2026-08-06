@@ -41,25 +41,43 @@ export function rangeLabel(range?: ExamDateRange): string {
 const rangeSuffix = (range?: ExamDateRange) =>
   range?.from || range?.to ? `-${range?.from || "inicio"}_${range?.to || "hoje"}` : "";
 
-const BASE_HEADERS = ["Aluno", "Tentativa", "Acertos", "Nota (%)", "Nota mínima (%)", "Tempo", "Situação", "Data"];
+const BASE_HEADERS = [
+  "Aluno",
+  "Tentativa",
+  "Questões",
+  "Acertos",
+  "Erros",
+  "Nota (%)",
+  "Nota mínima (%)",
+  "Tempo",
+  "Situação",
+  "Data",
+];
 
 const hasTracks = (rows: ExamAttemptExportRow[]) => rows.some((r) => !!r.track_title);
 const headersFor = (rows: ExamAttemptExportRow[]) =>
   hasTracks(rows) ? ["Curso", ...BASE_HEADERS] : BASE_HEADERS;
 /** índice da coluna "Situação" (para colorir no PDF) */
-const statusIndex = (rows: ExamAttemptExportRow[]) => (hasTracks(rows) ? 7 : 6);
+const statusIndex = (rows: ExamAttemptExportRow[]) => headersFor(rows).indexOf("Situação");
 
-const toRow = (a: ExamAttemptExportRow, withTrack: boolean) => [
-  ...(withTrack ? [a.track_title || "-"] : []),
-  a.nome || "Aluno",
-  `#${a.attempt_number}`,
-  `${a.correct_count}/${a.total_questions}`,
-  String(a.percent),
-  a.passing_score != null ? String(a.passing_score) : "-",
-  fmtTime(a.duration_seconds),
-  a.passed ? "Aprovado" : "Reprovado",
-  fmtDate(a.created_at),
-];
+const toRow = (a: ExamAttemptExportRow, withTrack: boolean) => {
+  const total = a.total_questions ?? 0;
+  const correct = a.correct_count ?? 0;
+  return [
+    ...(withTrack ? [a.track_title || "-"] : []),
+    a.nome || "Aluno",
+    `#${a.attempt_number}`,
+    String(total),
+    String(correct),
+    String(Math.max(total - correct, 0)),
+    String(a.percent),
+    a.passing_score != null ? String(a.passing_score) : "-",
+    fmtTime(a.duration_seconds),
+    a.passed ? "Aprovado" : "Reprovado",
+    fmtDate(a.created_at),
+  ];
+};
+
 
 export function exportAttemptsCsv(attempts: ExamAttemptExportRow[], trackTitle: string, range?: ExamDateRange) {
   attempts = filterAttemptsByDate(attempts, range);
