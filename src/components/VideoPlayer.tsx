@@ -14,7 +14,10 @@ interface VideoPlayerProps {
 }
 
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
-const PROGRESS_SAVE_INTERVAL = 15;
+// Intervalo mínimo (em segundos de vídeo) entre gravações de progresso.
+// 30s reduz pela metade a carga de escrita no banco em cenários de alta concorrência
+// sem impacto perceptível na retomada (o progresso também é salvo ao pausar/sair).
+const PROGRESS_SAVE_INTERVAL = 30;
 
 const isVimeoUrl = (url: string) =>
   url.includes("vimeo.com") || url.includes("player.vimeo.com");

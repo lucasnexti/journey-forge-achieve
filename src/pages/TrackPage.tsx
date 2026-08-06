@@ -83,7 +83,7 @@ const TrackPage = () => {
       supabase.from("lessons").select("id, title, description, video_url, duration, order_index").eq("track_id", trackId).order("order_index"),
       supabase.from("exams").select("id").eq("track_id", trackId).eq("is_active", true).maybeSingle(),
       supabase.from("exam_attempts").select("percent, passed, created_at").eq("user_id", user.id).eq("track_id", trackId).order("created_at", { ascending: false }).limit(20),
-      getTrackProgressDB(user.id, trackId),
+      getTrackProgressDB(user.id, trackId, false),
       supabase.from("profiles").select("nome").eq("user_id", user.id).maybeSingle(),
     ]);
     setTrack(trackData ? { ...trackData, description: trackData.description || "", category: trackData.category || "" } : null);
