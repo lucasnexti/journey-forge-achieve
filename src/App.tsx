@@ -51,6 +51,7 @@ const AdminPersonalizacao = lazy(() => import("./pages/admin/AdminPersonalizacao
 const AdminQuizNexti = lazy(() => import("./pages/admin/AdminQuizNexti"));
 const AdminRewards = lazy(() => import("./pages/admin/AdminRewards"));
 const AdminMonitoramento = lazy(() => import("./pages/admin/AdminMonitoramento"));
+const AdminProvas = lazy(() => import("./pages/admin/AdminProvas"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -106,6 +107,7 @@ const App = () => (
               <Route path="/admin/treinamentos" element={<AdminRoute><AdminTreinamentos /></AdminRoute>} />
               <Route path="/admin/trilhas-gestao" element={<AdminRoute><AdminTrilhasGestao /></AdminRoute>} />
               <Route path="/admin/quizzes" element={<AdminRoute><AdminQuizzes /></AdminRoute>} />
+              <Route path="/admin/provas" element={<AdminRoute><AdminProvas /></AdminRoute>} />
               <Route path="/admin/certificados" element={<AdminRoute><AdminCertificados /></AdminRoute>} />
               <Route path="/admin/gamificacao" element={<AdminRoute><AdminGamificacao /></AdminRoute>} />
               <Route path="/admin/notificacoes" element={<AdminRoute><AdminNotificacoes /></AdminRoute>} />
