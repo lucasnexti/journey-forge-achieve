@@ -78,23 +78,52 @@ export async function getLastWatchedLesson(userId: string): Promise<{
 
 // ──────── Write ────────
 
+// Coalescência de escritas de progresso:
+// - ignora gravações que não avançam o tempo já persistido (idempotência);
+// - mantém no máximo uma requisição em voo por aula, guardando o último valor
+//   pendente para enviar em seguida. Evita rajadas de writes com muitos usuários.
+const lastPersisted = new Map<string, number>();
+const inFlight = new Map<string, boolean>();
+const pending = new Map<string, number>();
+
+async function flushProgress(key: string, userId: string, trackId: string, lessonId: string) {
+  if (inFlight.get(key)) return;
+  const value = pending.get(key);
+  if (value === undefined) return;
+  pending.delete(key);
+  inFlight.set(key, true);
+  const { error } = await supabase.from("lesson_progress").upsert(
+    {
+      user_id: userId,
+      track_id: trackId,
+      lesson_id: lessonId,
+      watched_seconds: value,
+      last_watched_at: new Date().toISOString(),
+    },
+    { onConflict: "user_id,lesson_id" }
+  );
+  inFlight.set(key, false);
+  if (error) {
+    console.error("savePartialProgressDB error:", error.message);
+    // devolve o valor à fila para nova tentativa no próximo tick de progresso
+    if (!pending.has(key)) pending.set(key, value);
+    return;
+  }
+  lastPersisted.set(key, value);
+  if (pending.has(key)) void flushProgress(key, userId, trackId, lessonId);
+}
+
 export async function savePartialProgressDB(
   userId: string,
   trackId: string,
   lessonId: string,
   watchedSeconds: number
 ) {
-  const { error } = await supabase.from("lesson_progress").upsert(
-    {
-      user_id: userId,
-      track_id: trackId,
-      lesson_id: lessonId,
-      watched_seconds: watchedSeconds,
-      last_watched_at: new Date().toISOString(),
-    },
-    { onConflict: "user_id,lesson_id" }
-  );
-  if (error) console.error("savePartialProgressDB error:", error);
+  const key = `${userId}:${lessonId}`;
+  const seconds = Math.max(0, Math.round(watchedSeconds));
+  if (seconds <= (lastPersisted.get(key) ?? -1)) return; // nada novo para gravar
+  pending.set(key, Math.max(seconds, pending.get(key) ?? 0));
+  await flushProgress(key, userId, trackId, lessonId);
 }
 
 export async function markLessonCompleteDB(
@@ -115,8 +144,17 @@ export async function markLessonCompleteDB(
     { onConflict: "user_id,lesson_id" }
   );
   if (error) console.error("markLessonCompleteDB error:", error);
+  else lastPersisted.set(`${userId}:${lessonId}`, Math.max(0, Math.round(watchedSeconds)));
 
-  // Update last_active_at on profile
+  // Atualiza presença sem bloquear a conclusão da aula (no máximo 1x por minuto)
+  void touchLastActive(userId);
+}
+
+let lastActiveTouch = 0;
+async function touchLastActive(userId: string) {
+  const now = Date.now();
+  if (now - lastActiveTouch < 60_000) return;
+  lastActiveTouch = now;
   await supabase
     .from("profiles")
     .update({ last_active_at: new Date().toISOString() })
