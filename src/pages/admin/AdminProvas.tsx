@@ -27,6 +27,8 @@ interface ExamRow {
   passing_score: number;
   question_count: number;
   time_limit_minutes: number | null;
+  max_attempts: number;
+
   shuffle_questions: boolean;
   shuffle_options: boolean;
   is_active: boolean;
