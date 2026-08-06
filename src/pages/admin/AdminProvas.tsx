@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import AdminLayout from "@/components/admin/AdminLayout";
@@ -14,7 +14,8 @@ import { toast } from "sonner";
 import {
   Plus, Trash2, Save, X, ClipboardCheck, Pencil, CheckCircle2, XCircle, Download, FileText,
 } from "lucide-react";
-import { exportAttemptsCsv, exportAttemptsPdf } from "@/lib/examExport";
+import { exportAttemptsCsv, exportAttemptsPdf, filterAttemptsByDate, rangeLabel, type ExamDateRange } from "@/lib/examExport";
+import ExamDateRangeFilter from "@/components/exam/ExamDateRangeFilter";
 
 
 type QType = "multiple_choice" | "true_false" | "essay";
@@ -65,6 +66,8 @@ const AdminProvas = () => {
   const [exam, setExam] = useState<ExamRow | null>(null);
   const [questions, setQuestions] = useState<QuestionRow[]>([]);
   const [attempts, setAttempts] = useState<any[]>([]);
+  const [dateRange, setDateRange] = useState<ExamDateRange>({});
+  const visibleAttempts = useMemo(() => filterAttemptsByDate(attempts, dateRange), [attempts, dateRange]);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState(emptyQuestion);
   const [showForm, setShowForm] = useState(false);
@@ -453,17 +456,22 @@ const AdminProvas = () => {
               <div className="card-surface p-10 text-center text-sm text-muted-foreground">Nenhuma tentativa registrada.</div>
             ) : (
               <>
-              <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                <p className="text-sm text-muted-foreground">{attempts.length} tentativa(s) registradas</p>
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex flex-wrap items-center gap-3">
+                  <ExamDateRangeFilter value={dateRange} onChange={setDateRange} />
+                  <p className="text-sm text-muted-foreground">
+                    {visibleAttempts.length} de {attempts.length} tentativa(s) · {rangeLabel(dateRange)}
+                  </p>
+                </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={() => {
-                    exportAttemptsCsv(attempts.map((a) => ({ ...a, passing_score: exam?.passing_score })), trackTitle);
+                  <Button variant="outline" size="sm" disabled={visibleAttempts.length === 0} onClick={() => {
+                    exportAttemptsCsv(visibleAttempts.map((a) => ({ ...a, passing_score: exam?.passing_score })), trackTitle, dateRange);
                     toast.success("CSV exportado!");
                   }}>
                     <Download className="mr-2 h-4 w-4" /> Exportar CSV
                   </Button>
-                  <Button variant="outline" size="sm" onClick={() => {
-                    const ok = exportAttemptsPdf(attempts.map((a) => ({ ...a, passing_score: exam?.passing_score })), trackTitle);
+                  <Button variant="outline" size="sm" disabled={visibleAttempts.length === 0} onClick={() => {
+                    const ok = exportAttemptsPdf(visibleAttempts.map((a) => ({ ...a, passing_score: exam?.passing_score })), trackTitle, dateRange);
                     if (!ok) toast.error("Permita pop-ups para gerar o PDF.");
                   }}>
                     <FileText className="mr-2 h-4 w-4" /> Exportar PDF
@@ -481,7 +489,7 @@ const AdminProvas = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {attempts.map((a) => (
+                    {visibleAttempts.map((a) => (
                       <tr key={a.id} className="border-b border-border/30 last:border-0">
                         <td className="px-4 py-3 text-sm font-medium text-foreground">{a.nome}</td>
                         <td className="px-4 py-3 text-sm tabular-nums text-muted-foreground">#{a.attempt_number}</td>

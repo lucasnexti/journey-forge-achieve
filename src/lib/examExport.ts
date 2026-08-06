@@ -15,6 +15,31 @@ const fmtDate = (d: string) => new Date(d).toLocaleString("pt-BR");
 const slug = (s: string) =>
   s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-|-$/g, "").toLowerCase();
 
+export interface ExamDateRange { from?: string; to?: string }
+
+/** Filtra tentativas pelo intervalo de datas (inclusive nas duas pontas). */
+export function filterAttemptsByDate<T extends { created_at: string }>(rows: T[], range?: ExamDateRange): T[] {
+  if (!range?.from && !range?.to) return rows;
+  const start = range?.from ? new Date(`${range.from}T00:00:00`).getTime() : -Infinity;
+  const end = range?.to ? new Date(`${range.to}T23:59:59.999`).getTime() : Infinity;
+  return rows.filter((r) => {
+    const t = new Date(r.created_at).getTime();
+    return t >= start && t <= end;
+  });
+}
+
+const dmy = (d: string) => new Date(`${d}T00:00:00`).toLocaleDateString("pt-BR");
+
+export function rangeLabel(range?: ExamDateRange): string {
+  if (range?.from && range?.to) return `${dmy(range.from)} a ${dmy(range.to)}`;
+  if (range?.from) return `a partir de ${dmy(range.from)}`;
+  if (range?.to) return `até ${dmy(range.to)}`;
+  return "Período completo";
+}
+
+const rangeSuffix = (range?: ExamDateRange) =>
+  range?.from || range?.to ? `-${range?.from || "inicio"}_${range?.to || "hoje"}` : "";
+
 const HEADERS = ["Aluno", "Tentativa", "Acertos", "Nota (%)", "Nota mínima (%)", "Tempo", "Situação", "Data"];
 
 const toRow = (a: ExamAttemptExportRow) => [
@@ -28,19 +53,21 @@ const toRow = (a: ExamAttemptExportRow) => [
   fmtDate(a.created_at),
 ];
 
-export function exportAttemptsCsv(attempts: ExamAttemptExportRow[], trackTitle: string) {
+export function exportAttemptsCsv(attempts: ExamAttemptExportRow[], trackTitle: string, range?: ExamDateRange) {
+  attempts = filterAttemptsByDate(attempts, range);
   const esc = (v: string) => `"${v.replace(/"/g, '""')}"`;
-  const lines = [HEADERS, ...attempts.map(toRow)].map((r) => r.map(esc).join(";"));
+  const lines = [[`Período: ${rangeLabel(range)}`], HEADERS, ...attempts.map(toRow)].map((r) => r.map(esc).join(";"));
   const blob = new Blob(["\uFEFF" + lines.join("\r\n")], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `avaliacoes-${slug(trackTitle)}-${new Date().toISOString().slice(0, 10)}.csv`;
+  link.download = `avaliacoes-${slug(trackTitle)}${rangeSuffix(range)}-${new Date().toISOString().slice(0, 10)}.csv`;
   link.click();
   URL.revokeObjectURL(url);
 }
 
-export function exportAttemptsPdf(attempts: ExamAttemptExportRow[], trackTitle: string) {
+export function exportAttemptsPdf(attempts: ExamAttemptExportRow[], trackTitle: string, range?: ExamDateRange) {
+  attempts = filterAttemptsByDate(attempts, range);
   const approved = attempts.filter((a) => a.passed).length;
   const avg = attempts.length
     ? Math.round(attempts.reduce((s, a) => s + Number(a.percent), 0) / attempts.length)
@@ -75,7 +102,7 @@ export function exportAttemptsPdf(attempts: ExamAttemptExportRow[], trackTitle: 
 </style></head><body>
 <div class="bar"></div>
 <h1>Histórico de Avaliações</h1>
-<div class="sub">${trackTitle} &middot; gerado em ${new Date().toLocaleString("pt-BR")}</div>
+<div class="sub">${trackTitle} &middot; ${rangeLabel(range)} &middot; gerado em ${new Date().toLocaleString("pt-BR")}</div>
 <div class="stats">
   <div>Tentativas <b>${attempts.length}</b></div>
   <div>Aprovados <b>${approved}</b></div>
