@@ -434,4 +434,4 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
   );
 };
 
-export default VideoPlayer;
+export default memo(VideoPlayer);
