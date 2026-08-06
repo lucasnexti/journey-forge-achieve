@@ -82,7 +82,7 @@ export function submitAttempt(
     state: next,
     passed,
     attemptNumber: used + 1,
-    attemptsLeft: attemptsLeft(attempts, maxAttempts),
+    attemptsLeft: maxAttempts > 0 ? Math.max(maxAttempts - (used + 1), 0) : null,
     courseReset: isFinalFailure,
     showDetails: revealAnswers(passed),
   };
