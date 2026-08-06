@@ -13,7 +13,7 @@ import LessonNotes from "@/components/LessonNotes";
 import LessonMaterials from "@/components/LessonMaterials";
 import TrackRating from "@/components/TrackRating";
 import LessonForum from "@/components/LessonForum";
-import QuizForm from "@/components/QuizForm";
+import ExamRunner, { ExamResult } from "@/components/exam/ExamRunner";
 import Certificate from "@/components/Certificate";
 import { ArrowLeft, ClipboardCheck, BookOpen, CheckCircle2, List, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -37,18 +37,6 @@ interface LessonRow {
   order_index: number | null;
 }
 
-interface QuizRow {
-  id: string;
-  title: string;
-  passing_score: number | null;
-  quiz_questions: { id: string; question: string; options: any; order_index: number | null }[];
-}
-
-interface QuizRowRaw {
-  id: string;
-  title: string;
-  passing_score: number | null;
-}
 
 const TrackPage = () => {
   const { trackId } = useParams<{ trackId: string }>();
@@ -60,7 +48,7 @@ const TrackPage = () => {
 
   const [track, setTrack] = useState<{ id: string; title: string; description: string; category: string } | null>(null);
   const [lessons, setLessons] = useState<LessonRow[]>([]);
-  const [quizzes, setQuizzes] = useState<QuizRow[]>([]);
+  
   const [currentLessonId, setCurrentLessonId] = useState("");
   const [showQuiz, setShowQuiz] = useState(false);
   const [progress, setProgress] = useState<Record<string, { completed: boolean; watched_seconds: number }>>({});
@@ -69,6 +57,7 @@ const TrackPage = () => {
   const [completedAt, setCompletedAt] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [profileName, setProfileName] = useState("Cooperado(a)");
+  const [hasExam, setHasExam] = useState(false);
 
   const isLessonComplete = (lesson: LessonRow) => {
     const lessonProgress = progress[lesson.id];
@@ -87,33 +76,26 @@ const TrackPage = () => {
 
   const loadData = useCallback(async () => {
     if (!trackId || !user) return;
-    const [{ data: trackData }, { data: lessonData }, { data: quizData }, progressData, { data: profile }] = await Promise.all([
+    const [{ data: trackData }, { data: lessonData }, { data: examData }, { data: examAttempts }, progressData, { data: profile }] = await Promise.all([
       supabase.from("tracks").select("id, title, description, category").eq("id", trackId).maybeSingle(),
       supabase.from("lessons").select("id, title, description, video_url, duration, order_index").eq("track_id", trackId).order("order_index"),
-      supabase.from("quizzes").select("id, title, passing_score").eq("track_id", trackId),
+      supabase.from("exams").select("id").eq("track_id", trackId).eq("is_active", true).maybeSingle(),
+      supabase.from("exam_attempts").select("percent, passed, created_at").eq("user_id", user.id).eq("track_id", trackId).order("created_at", { ascending: false }).limit(20),
       getTrackProgressDB(user.id, trackId),
       supabase.from("profiles").select("nome").eq("user_id", user.id).maybeSingle(),
     ]);
     setTrack(trackData ? { ...trackData, description: trackData.description || "", category: trackData.category || "" } : null);
     setLessons(lessonData || []);
-    // Fetch quiz questions via secure RPC
-    const rawQuizzes = (quizData as unknown as QuizRowRaw[]) || [];
-    const quizzesWithQuestions: QuizRow[] = [];
-    for (const q of rawQuizzes) {
-      const { data: qQuestions } = await supabase.rpc("get_quiz_questions", { _quiz_id: q.id });
-      quizzesWithQuestions.push({
-        ...q,
-        quiz_questions: (qQuestions || []).map((qq: any) => ({
-          id: qq.id, question: qq.question, options: qq.options, order_index: qq.order_index,
-        })),
-      });
-    }
-    setQuizzes(quizzesWithQuestions);
+    setHasExam(!!examData);
     setProgress(progressData.lessons);
-    setQuizScore(progressData.quizScore);
-    setQuizPassed(progressData.quizPassed);
-    setCompletedAt(progressData.completedAt);
     setProfileName(profile?.nome || "Cooperado(a)");
+
+    const approved = (examAttempts || []).find((a) => a.passed);
+    const last = (examAttempts || [])[0];
+    setQuizPassed(!!approved);
+    setQuizScore(approved ? Number(approved.percent) : last ? Number(last.percent) : null);
+    setCompletedAt(approved ? approved.created_at : null);
+
     if (lessonData && lessonData.length > 0) {
       setCurrentLessonId(lessonData[0].id);
     }
@@ -140,7 +122,7 @@ const TrackPage = () => {
       )
     : 0;
 
-  const quiz = quizzes[0];
+  
 
   const handleLessonComplete = async (watchedSeconds: number) => {
     if (!user || !trackId) return;
@@ -171,16 +153,16 @@ const TrackPage = () => {
     }));
   }, [user, trackId, currentLessonId]);
 
-  const handleQuizSubmit = async (score: number, passed: boolean) => {
-    if (!user || !quiz) return;
-    await supabase.from("quiz_attempts").insert({ user_id: user.id, quiz_id: quiz.id, score, passed });
-    setQuizScore(score);
-    setQuizPassed(passed);
+  const handleExamFinished = async (result: ExamResult) => {
+    if (!user || !trackId) return;
+    setQuizScore(result.percent);
 
-    if (passed) {
-      const coinAmount = score === 100 ? COIN_REWARDS.quiz_perfect : COIN_REWARDS.quiz_pass;
-      awardCoins(user.id, coinAmount, score === 100 ? "Quiz nota máxima" : "Quiz aprovado", "quiz", quiz.id).catch(console.error);
-      awardCoins(user.id, COIN_REWARDS.track_complete, "Trilha concluída", "track", trackId!).catch(console.error);
+    if (result.passed) {
+      setQuizPassed(true);
+      setCompletedAt(new Date().toISOString());
+      const coinAmount = result.percent === 100 ? COIN_REWARDS.quiz_perfect : COIN_REWARDS.quiz_pass;
+      awardCoins(user.id, coinAmount, result.percent === 100 ? "Avaliação nota máxima" : "Avaliação aprovada", "exam", trackId).catch(console.error);
+      awardCoins(user.id, COIN_REWARDS.track_complete, "Trilha concluída", "track", trackId).catch(console.error);
 
       triggerAchievement({
         type: "track_complete",
@@ -188,14 +170,12 @@ const TrackPage = () => {
         description: `${track?.title} — Parabéns!`,
         value: COIN_REWARDS.track_complete,
       });
-
-      setCompletedAt(new Date().toISOString());
-      await supabase
-        .from("enrollments")
-        .update({ status: "completed", completed_at: new Date().toISOString() })
-        .eq("user_id", user.id)
-        .eq("track_id", trackId);
-      toast.success("Parabéns! Trilha concluída! 🪙 Moedas adicionadas!");
+      toast.success("Aprovado! Certificado liberado. 🪙 Moedas adicionadas!");
+    } else {
+      setQuizPassed(false);
+      setCompletedAt(null);
+      setProgress({});
+      toast.error("Reprovado. Seu progresso foi reiniciado — refaça as aulas para nova tentativa.");
     }
   };
 
@@ -206,19 +186,6 @@ const TrackPage = () => {
     }
   };
 
-  const quizForForm = quiz
-    ? {
-        quizId: quiz.id,
-        passingScore: quiz.passing_score || 70,
-        questions: quiz.quiz_questions
-          .sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
-          .map((q) => ({
-            id: q.id,
-            text: q.question,
-            options: Array.isArray(q.options) ? q.options as string[] : [],
-          })),
-      }
-    : null;
 
   const lessonSidebarProps = {
     lessons: lessons.map((l) => ({
@@ -399,13 +366,16 @@ const TrackPage = () => {
                     </>
                   )}
 
-                  {allLessonsComplete && !quizPassed && quizForForm && (
+                  {hasExam && !quizPassed && (
                     <Button
                       onClick={() => setShowQuiz(true)}
+                      disabled={!allLessonsComplete}
                       className="w-full gap-2 bg-gradient-nexti text-primary-foreground hover:opacity-90 h-12 text-sm"
                     >
                       <ClipboardCheck className="h-4 w-4" />
-                      Iniciar Avaliação Final
+                      {allLessonsComplete
+                        ? "Realizar Avaliação Final"
+                        : `Avaliação bloqueada — ${completedLessons}/${lessons.length} aulas concluídas`}
                     </Button>
                   )}
                 </motion.div>
@@ -417,8 +387,13 @@ const TrackPage = () => {
                   exit={{ opacity: 0, y: -8 }}
                   transition={{ duration: 0.2 }}
                 >
-                  {quizForForm && (
-                    <QuizForm quiz={quizForForm} onSubmit={handleQuizSubmit} previousScore={quizScore} />
+                  {trackId && (
+                    <ExamRunner
+                      trackId={trackId}
+                      locked={!allLessonsComplete}
+                      lockedReason={`Conclua 100% das aulas (${completedLessons}/${lessons.length}) para liberar a avaliação.`}
+                      onFinished={handleExamFinished}
+                    />
                   )}
                 </motion.div>
               )}
