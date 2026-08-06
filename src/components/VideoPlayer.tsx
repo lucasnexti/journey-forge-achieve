@@ -150,7 +150,7 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
       if (!completedRef.current && effectiveDuration > 0 && clampedSeconds >= effectiveDuration * 0.9) {
         completedRef.current = true;
         setCompleted(true);
-        onComplete(Math.round(effectiveDuration));
+        onCompleteRef.current(Math.round(effectiveDuration));
         persistProgress(effectiveDuration);
       }
     });
@@ -162,7 +162,7 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
       if (!completedRef.current) {
         completedRef.current = true;
         setCompleted(true);
-        onComplete(Math.round(finalSeconds));
+        onCompleteRef.current(Math.round(finalSeconds));
       }
       persistProgress(finalSeconds);
     });
@@ -171,7 +171,8 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
       player.destroy().catch(() => undefined);
       vimeoPlayerRef.current = null;
     };
-  }, [vimeo, videoUrl, lessonDuration, initialWatchedSeconds, onComplete, persistProgress, syncCurrentTime]);
+  }, [vimeo, videoUrl, lessonDuration, resumeSeconds, persistProgress, syncCurrentTime]);
+
 
   const togglePlay = async () => {
     if (vimeo) {
