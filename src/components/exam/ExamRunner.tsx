@@ -197,8 +197,10 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
     setAnswers({});
     setResult(null);
     setRestored(false);
-    setStartedAt(Date.now());
-    setElapsed(0);
+    // o início oficial é o do servidor (a sessão pode já estar em andamento)
+    const serverElapsed = Math.max(payload.elapsed_seconds ?? 0, 0);
+    setStartedAt(Date.now() - serverElapsed * 1000);
+    setElapsed(serverElapsed);
   };
 
   const submittingRef = useRef(false);
