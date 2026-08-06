@@ -47,33 +47,50 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
   const lastSavedRef = useRef(0);
   const completedRef = useRef(false);
   const currentTimeRef = useRef(initialWatchedSeconds);
+  const lastRenderedSecondRef = useRef(Math.floor(initialWatchedSeconds));
 
+  // Keep callbacks in refs so the Vimeo player is never re-created on parent re-render
+  const onCompleteRef = useRef(onComplete);
+  const onProgressRef = useRef(onProgress);
+  onCompleteRef.current = onComplete;
+  onProgressRef.current = onProgress;
+
+  // Freeze the resume position per video so progress saves don't restart the player
+  const resumeRef = useRef({ url: videoUrl, seconds: initialWatchedSeconds });
+  if (resumeRef.current.url !== videoUrl) {
+    resumeRef.current = { url: videoUrl, seconds: initialWatchedSeconds };
+  }
+  const resumeSeconds = resumeRef.current.seconds;
+
+  // Only push state (re-render) when the visible second actually changes
   const syncCurrentTime = useCallback((time: number) => {
     currentTimeRef.current = time;
-    setCurrentTime(time);
+    const second = Math.floor(time);
+    if (second !== lastRenderedSecondRef.current) {
+      lastRenderedSecondRef.current = second;
+      setCurrentTime(time);
+    }
   }, []);
 
   const persistProgress = useCallback((time?: number) => {
     const safeTime = Math.max(0, Math.round(time ?? currentTimeRef.current));
     if (safeTime > 0) {
       lastSavedRef.current = safeTime;
-      onProgress?.(safeTime);
+      onProgressRef.current?.(safeTime);
     }
-  }, [onProgress]);
+  }, []);
 
   useEffect(() => {
     setPlaying(false);
-    syncCurrentTime(initialWatchedSeconds);
+    currentTimeRef.current = resumeSeconds;
+    lastRenderedSecondRef.current = Math.floor(resumeSeconds);
+    setCurrentTime(resumeSeconds);
     setCompleted(false);
     completedRef.current = false;
     setSpeed(1);
     lastSavedRef.current = 0;
     if (videoRef.current) videoRef.current.playbackRate = 1;
-    if (vimeoPlayerRef.current) {
-      vimeoPlayerRef.current.destroy().catch(() => undefined);
-      vimeoPlayerRef.current = null;
-    }
-  }, [videoUrl, initialWatchedSeconds, syncCurrentTime]);
+  }, [videoUrl, resumeSeconds]);
 
   const saveProgressIfNeeded = useCallback((time: number) => {
     if (time - lastSavedRef.current >= PROGRESS_SAVE_INTERVAL) {
@@ -94,6 +111,7 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
       persistProgress();
     };
   }, [persistProgress, videoUrl]);
+
 
   useEffect(() => {
     if (!vimeo || !iframeRef.current) return;
