@@ -476,6 +476,12 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
             </div>
           ))}
         </div>
+        ) : (
+          <p className="mt-6 rounded-lg border border-border/50 p-4 text-xs text-muted-foreground">
+            O gabarito não é exibido em tentativas reprovadas. Revise o conteúdo do curso antes da próxima tentativa.
+          </p>
+        )}
+
       </div>
     );
   }
