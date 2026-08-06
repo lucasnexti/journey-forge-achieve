@@ -13,7 +13,7 @@ import LessonNotes from "@/components/LessonNotes";
 import LessonMaterials from "@/components/LessonMaterials";
 import TrackRating from "@/components/TrackRating";
 import LessonForum from "@/components/LessonForum";
-import QuizForm from "@/components/QuizForm";
+import ExamRunner, { ExamResult } from "@/components/exam/ExamRunner";
 import Certificate from "@/components/Certificate";
 import { ArrowLeft, ClipboardCheck, BookOpen, CheckCircle2, List, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -69,6 +69,7 @@ const TrackPage = () => {
   const [completedAt, setCompletedAt] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [profileName, setProfileName] = useState("Cooperado(a)");
+  const [hasExam, setHasExam] = useState(false);
 
   const isLessonComplete = (lesson: LessonRow) => {
     const lessonProgress = progress[lesson.id];
