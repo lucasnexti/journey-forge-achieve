@@ -82,6 +82,8 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
   const [elapsed, setElapsed] = useState(0);
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [restored, setRestored] = useState(false);
+  const [blocked, setBlocked] = useState<{ used: number; max: number } | null>(null);
+
 
   const draftKey = user ? `nexti:exam-draft:${user.id}:${trackId}` : null;
 
