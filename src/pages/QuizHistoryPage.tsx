@@ -101,7 +101,26 @@ const QuizHistoryPage = () => {
             Nenhuma avaliação realizada ainda.
           </div>
         ) : (
+          <>
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <Select value={trackFilter} onValueChange={setTrackFilter}>
+              <SelectTrigger className="w-full sm:w-72"><SelectValue placeholder="Todos os cursos" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os cursos</SelectItem>
+                {trackOptions.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => exportAttemptsCsv(exportRows, exportTitle)}>
+                <Download className="mr-2 h-4 w-4" /> CSV
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => exportAttemptsPdf(exportRows, exportTitle)}>
+                <FileText className="mr-2 h-4 w-4" /> PDF
+              </Button>
+            </div>
+          </div>
           <div className="card-surface overflow-x-auto">
+
             <table className="w-full">
               <thead>
                 <tr className="border-b border-border/50 bg-secondary/50">
