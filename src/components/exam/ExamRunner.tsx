@@ -321,6 +321,10 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
             <h3 className="font-display text-lg font-semibold text-foreground">{exam.title}</h3>
             <p className="mt-1 text-sm text-muted-foreground">
               Nota mínima: {exam.passing_score}% · {exam.questions.length} questões
+              {exam.max_attempts && exam.max_attempts > 0
+                ? ` · Tentativa ${(exam.attempts_used ?? 0) + 1} de ${exam.max_attempts}`
+                : ""}
+
             </p>
           </div>
           <div className="flex items-center gap-3">
