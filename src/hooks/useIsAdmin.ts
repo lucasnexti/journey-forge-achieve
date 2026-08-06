@@ -14,6 +14,9 @@ export const useIsAdmin = () => {
       return;
     }
 
+    let cancelled = false;
+    setLoading(true);
+
     const checkAdmin = async () => {
       const { data, error } = await supabase
         .from("user_roles")
@@ -22,11 +25,13 @@ export const useIsAdmin = () => {
         .eq("role", "admin")
         .maybeSingle();
 
+      if (cancelled) return;
       setIsAdmin(!!data && !error);
       setLoading(false);
     };
 
     checkAdmin();
+    return () => { cancelled = true; };
   }, [user]);
 
   return { isAdmin, loading };
