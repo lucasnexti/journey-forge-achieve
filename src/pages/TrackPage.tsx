@@ -48,7 +48,7 @@ const TrackPage = () => {
 
   const [track, setTrack] = useState<{ id: string; title: string; description: string; category: string } | null>(null);
   const [lessons, setLessons] = useState<LessonRow[]>([]);
-  const [quizzes, setQuizzes] = useState<QuizRow[]>([]);
+  
   const [currentLessonId, setCurrentLessonId] = useState("");
   const [showQuiz, setShowQuiz] = useState(false);
   const [progress, setProgress] = useState<Record<string, { completed: boolean; watched_seconds: number }>>({});
