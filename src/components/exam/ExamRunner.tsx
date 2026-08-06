@@ -145,13 +145,32 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
     }
   }, [draftKey, exam, answers, startedAt, result]);
 
-  // Avisa antes de fechar a aba com prova em andamento
+  // Confirmação antes de fechar/atualizar a aba com prova em andamento
   useEffect(() => {
     if (!exam || result) return;
-    const handler = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = ""; };
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      // exigido por navegadores legados para exibir o diálogo nativo
+      e.returnValue = "Você tem uma avaliação em andamento. Se sair agora, respostas não enviadas podem ser perdidas.";
+      return e.returnValue;
+    };
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
   }, [exam, result]);
+
+  // Confirmação ao usar voltar/avançar do navegador durante a prova
+  useEffect(() => {
+    if (!exam || result) return;
+    window.history.pushState({ examGuard: true }, "");
+    const onPopState = () => {
+      setLeaveOpen(true);
+      // mantém o usuário na prova até ele confirmar a saída
+      window.history.pushState({ examGuard: true }, "");
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, [exam, result]);
+
 
   useEffect(() => {
     if (!startedAt || result) return;
