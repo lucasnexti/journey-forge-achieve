@@ -106,6 +106,9 @@ const TrackPage = () => {
 
   const currentLesson = lessons.find((l) => l.id === currentLessonId);
   const currentIndex = lessons.findIndex((l) => l.id === currentLessonId);
+  const currentIndexRef = useRef(currentIndex);
+  currentIndexRef.current = currentIndex;
+
   const allLessonsComplete = lessons.length > 0 && lessons.every(isLessonComplete);
   const completedLessons = lessons.filter(isLessonComplete).length;
 
