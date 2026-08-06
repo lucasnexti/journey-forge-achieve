@@ -8,6 +8,8 @@ import { awardCoins, COIN_REWARDS } from "@/lib/gamification";
 import { triggerAchievement } from "@/components/AchievementPopup";
 import AppLayout from "@/components/AppLayout";
 import VideoPlayer from "@/components/VideoPlayer";
+import { useVideoPrefetch } from "@/hooks/useVideoPrefetch";
+
 import LessonSidebar from "@/components/LessonSidebar";
 import LessonNotes from "@/components/LessonNotes";
 import LessonMaterials from "@/components/LessonMaterials";
@@ -201,6 +203,11 @@ const TrackPage = () => {
   progressRef.current = progress;
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const initialWatchedForLesson = useMemo(() => progressRef.current[currentLessonId]?.watched_seconds || 0, [currentLessonId, loading]);
+
+  // Pré-carrega o vídeo da próxima aula para reduzir engasgos na troca
+  const nextLessonVideoUrl = lessons[currentIndex + 1]?.video_url || null;
+  useVideoPrefetch(nextLessonVideoUrl, !loading);
+
 
 
 
