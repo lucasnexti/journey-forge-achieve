@@ -122,8 +122,9 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
       const playerDuration = await player.getDuration().catch(() => 0);
       const effectiveDuration = lessonDuration > 0 ? lessonDuration : playerDuration || 0;
       const resumeTime = effectiveDuration > 0
-        ? Math.min(initialWatchedSeconds, Math.max(effectiveDuration - 1, 0))
-        : initialWatchedSeconds;
+        ? Math.min(resumeSeconds, Math.max(effectiveDuration - 1, 0))
+        : resumeSeconds;
+
       if (resumeTime > 0) {
         await player.setCurrentTime(resumeTime).catch(() => undefined);
         syncCurrentTime(resumeTime);
