@@ -15,7 +15,11 @@ export interface TrackProgressDB {
 
 // ──────── Read ────────
 
-export async function getTrackProgressDB(userId: string, trackId: string): Promise<TrackProgressDB> {
+export async function getTrackProgressDB(
+  userId: string,
+  trackId: string,
+  includeQuizAttempts = true
+): Promise<TrackProgressDB> {
   const base: TrackProgressDB = { lessons: {}, quizScore: null, quizPassed: false, completedAt: null };
 
   const [{ data: lp }, { data: qa }] = await Promise.all([
@@ -24,12 +28,14 @@ export async function getTrackProgressDB(userId: string, trackId: string): Promi
       .select("lesson_id, completed, watched_seconds")
       .eq("user_id", userId)
       .eq("track_id", trackId),
-    supabase
-      .from("quiz_attempts")
-      .select("score, passed, attempted_at")
-      .eq("user_id", userId)
-      .order("attempted_at", { ascending: false })
-      .limit(10),
+    includeQuizAttempts
+      ? supabase
+          .from("quiz_attempts")
+          .select("score, passed, attempted_at")
+          .eq("user_id", userId)
+          .order("attempted_at", { ascending: false })
+          .limit(10)
+      : Promise.resolve({ data: null as null | { score: number; passed: boolean | null; attempted_at: string | null }[] }),
   ]);
 
   if (lp) {

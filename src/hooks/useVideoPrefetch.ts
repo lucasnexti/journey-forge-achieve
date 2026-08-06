@@ -66,17 +66,17 @@ export function useVideoPrefetch(nextVideoUrl?: string | null, enabled = true) {
         return;
       }
 
-      // Vídeo direto: aquece o cache com o início do arquivo
-      controller = new AbortController();
-      fetch(nextVideoUrl, {
-        method: "GET",
-        headers: { Range: "bytes=0-1048575" },
-        signal: controller.signal,
-        mode: "cors",
-        credentials: "omit",
-      })
-        .then((res) => res.blob())
-        .catch(() => undefined);
+      // Vídeo direto: apenas aquece DNS/TLS da origem.
+      // Não baixamos bytes de um vídeo que o usuário ainda não iniciou —
+      // isso economiza banda/custo de CDN em escala e evita concorrência
+      // com o vídeo em reprodução.
+      try {
+        const origin = new URL(nextVideoUrl, window.location.href).origin;
+        const l = addLink("preconnect", origin);
+        if (l) created.push(l);
+      } catch {
+        /* URL inválida — ignora */
+      }
     });
 
     return () => {
