@@ -196,8 +196,17 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
     setSubmitting(false);
     submittingRef.current = false;
     if (error) { toast.error(error.message); return; }
-    const res = data as unknown as (ExamResult & { error?: string });
-    if (res?.error) { toast.error(ERROR_MESSAGES[res.error] || res.error); return; }
+    const res = data as unknown as (ExamResult & { error?: string; max_attempts?: number; attempts_used?: number });
+    if (res?.error) {
+      if (res.error === "attempt_limit_reached") {
+        setBlocked({ used: res.attempts_used ?? 0, max: res.max_attempts ?? 0 });
+        clearDraft();
+        setExam(null);
+      }
+      toast.error(ERROR_MESSAGES[res.error] || res.error);
+      return;
+    }
+
     clearDraft();
     setResult(res);
     setStartedAt(null);
