@@ -104,8 +104,11 @@ de O(n) para busca indexada. As reduções de escrita são imediatas e mensuráv
 ## 8. Riscos remanescentes
 
 - Questões dissertativas continuam sem correção automática (comportamento existente).
-- `AdminMonitoramento`, `AdminTrilhasGestao` e relatórios carregam listas completas sem
-  paginação: aceitável no volume atual, mas deve receber paginação quando as tabelas
-  passarem de alguns milhares de linhas.
+- `AdminMonitoramento` e `AdminTrilhasGestao` ainda carregam listas completas sem paginação:
+  aceitável no volume atual, mas deve receber paginação quando as tabelas passarem de alguns
+  milhares de linhas. O relatório de progresso já agrega no banco via
+  `admin_enrollment_report(_track_id)` (RPC `SECURITY DEFINER` restrita a administradores),
+  eliminando o download de todas as matrículas para o navegador.
+
 - Sem fila assíncrona: certificados e notificações são gravados na própria transação —
   barato hoje, candidato a fila caso o volume de aprovações simultâneas cresça muito.

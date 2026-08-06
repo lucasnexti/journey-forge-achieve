@@ -20,38 +20,39 @@ const AdminRelatorioProgresso = () => {
 
   const fetchStats = async () => {
     setLoading(true);
-    const [profilesRes, tracksRes, enrollmentsRes, certsRes] = await Promise.all([
-      supabase.from("profiles").select("id", { count: "exact", head: true }),
-      supabase.from("tracks").select("id, title", { count: "exact" }).eq("is_active", true),
-      trackFilter === "all"
-        ? supabase.from("enrollments").select("id, status, track_id, tracks(title)")
-        : supabase.from("enrollments").select("id, status, track_id, tracks(title)").eq("track_id", trackFilter),
-      supabase.from("certificates").select("id", { count: "exact", head: true }),
+    // Agregação feita no banco: evita baixar todas as matrículas para o navegador
+    const [tracksRes, reportRes] = await Promise.all([
+      supabase.from("tracks").select("id, title").eq("is_active", true).order("title"),
+      supabase.rpc("admin_enrollment_report", {
+        _track_id: trackFilter === "all" ? null : trackFilter,
+      }),
     ]);
 
     if (tracksRes.data) setTracks(tracksRes.data);
-    const enrollments = (enrollmentsRes.data || []) as any[];
-    const active = enrollments.filter(e => e.status === "active").length;
-    const completed = enrollments.filter(e => e.status === "completed").length;
+
+    const report = (reportRes.data || {}) as any;
+    const byStatus = (report.by_status || []) as { status: string; value: number }[];
+    const statusValue = (s: string) => byStatus.find((r) => r.status === s)?.value || 0;
 
     setStats({
-      totalUsers: profilesRes.count || 0,
-      totalTracks: tracksRes.count || 0,
-      totalEnrollments: enrollments.length,
-      activeEnrollments: active,
-      completedEnrollments: completed,
-      certificates: certsRes.count || 0,
+      totalUsers: report.total_users || 0,
+      totalTracks: report.total_tracks || 0,
+      totalEnrollments: report.total_enrollments || 0,
+      activeEnrollments: statusValue("active"),
+      completedEnrollments: statusValue("completed"),
+      certificates: report.certificates || 0,
     });
 
-    const byTrack: Record<string, number> = {};
-    enrollments.forEach(e => { const n = e.tracks?.title || "Sem trilha"; byTrack[n] = (byTrack[n] || 0) + 1; });
-    setEnrollmentsByTrack(Object.entries(byTrack).map(([name, value]) => ({ name, value })));
-
-    const byStatus: Record<string, number> = {};
-    enrollments.forEach(e => { const s = e.status === "active" ? "Ativa" : e.status === "completed" ? "Concluída" : "Cancelada"; byStatus[s] = (byStatus[s] || 0) + 1; });
-    setEnrollmentsByStatus(Object.entries(byStatus).map(([name, value]) => ({ name, value })));
+    setEnrollmentsByTrack(((report.by_track || []) as { name: string; value: number }[]));
+    setEnrollmentsByStatus(
+      byStatus.map((r) => ({
+        name: r.status === "active" ? "Ativa" : r.status === "completed" ? "Concluída" : "Cancelada",
+        value: r.value,
+      }))
+    );
     setLoading(false);
   };
+
 
   const exportCSV = () => {
     const headers = "Métrica,Valor\n";
