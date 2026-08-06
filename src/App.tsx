@@ -13,8 +13,9 @@ import AdminRoute from "@/components/AdminRoute";
 
 // Eagerly loaded (critical path)
 import LandingPage from "./pages/LandingPage";
-import AuthPage from "./pages/AuthPage";
-import Dashboard from "./pages/Dashboard";
+const AuthPage = lazy(() => import("./pages/AuthPage"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+
 
 // Lazy loaded
 const TrackPage = lazy(() => import("./pages/TrackPage"));
