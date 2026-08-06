@@ -124,7 +124,7 @@ const TrackPage = () => {
 
   
 
-  const handleLessonComplete = async (watchedSeconds: number) => {
+  const handleLessonComplete = useCallback(async (watchedSeconds: number) => {
     if (!user || !trackId) return;
     setProgress((prev) => ({
       ...prev,
@@ -139,7 +139,8 @@ const TrackPage = () => {
       description: `+${COIN_REWARDS.lesson_complete} Nexti Coins`,
       value: COIN_REWARDS.lesson_complete,
     });
-  };
+  }, [user, trackId, currentLessonId]);
+
 
   const handleProgress = useCallback(async (watchedSeconds: number) => {
     if (!user || !trackId) return;
