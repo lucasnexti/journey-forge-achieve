@@ -25,6 +25,32 @@ const QuizHistoryPage = () => {
   const { user } = useAuth();
   const [attempts, setAttempts] = useState<Attempt[]>([]);
   const [loading, setLoading] = useState(true);
+  const [trackFilter, setTrackFilter] = useState("all");
+
+  const trackOptions = useMemo(
+    () => [...new Set(attempts.map((a) => a.track_title))].sort(),
+    [attempts],
+  );
+  const filtered = useMemo(
+    () => (trackFilter === "all" ? attempts : attempts.filter((a) => a.track_title === trackFilter)),
+    [attempts, trackFilter],
+  );
+  const exportTitle = trackFilter === "all" ? "Todos os cursos" : trackFilter;
+  const exportRows = useMemo(
+    () =>
+      filtered.map((a) => ({
+        nome: `${a.track_title} — ${a.title} (${a.kind})`,
+        attempt_number: a.attempt_number ?? 1,
+        correct_count: a.correct ? Number(a.correct.split("/")[0]) : 0,
+        total_questions: a.correct ? Number(a.correct.split("/")[1]) : 0,
+        percent: a.score,
+        duration_seconds: a.duration_seconds ?? 0,
+        passed: a.passed,
+        created_at: a.attempted_at,
+      })),
+    [filtered],
+  );
+
 
   useEffect(() => {
     if (!user) return;
