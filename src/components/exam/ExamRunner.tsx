@@ -30,6 +30,11 @@ export interface ExamPayload {
   max_attempts?: number | null;
   attempts_used?: number | null;
   attempts_left?: number | null;
+  session_id?: string;
+  server_now?: string;
+  started_at?: string;
+  expires_at?: string | null;
+  elapsed_seconds?: number;
   questions: ExamQuestion[];
 }
 
@@ -60,6 +65,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   lessons_incomplete: "Conclua 100% das aulas para liberar a avaliação.",
   attempt_limit_reached: "Você atingiu o limite de tentativas desta avaliação.",
   unauthenticated: "Sessão expirada. Faça login novamente.",
+  no_active_session: "Nenhuma tentativa ativa encontrada. Inicie a avaliação novamente.",
 };
 
 
@@ -191,8 +197,10 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
     setAnswers({});
     setResult(null);
     setRestored(false);
-    setStartedAt(Date.now());
-    setElapsed(0);
+    // o início oficial é o do servidor (a sessão pode já estar em andamento)
+    const serverElapsed = Math.max(payload.elapsed_seconds ?? 0, 0);
+    setStartedAt(Date.now() - serverElapsed * 1000);
+    setElapsed(serverElapsed);
   };
 
   const submittingRef = useRef(false);

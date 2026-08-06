@@ -383,6 +383,54 @@ export type Database = {
           },
         ]
       }
+      exam_sessions: {
+        Row: {
+          created_at: string
+          exam_id: string
+          expires_at: string | null
+          id: string
+          started_at: string
+          submitted_at: string | null
+          track_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          exam_id: string
+          expires_at?: string | null
+          id?: string
+          started_at?: string
+          submitted_at?: string | null
+          track_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          exam_id?: string
+          expires_at?: string | null
+          id?: string
+          started_at?: string
+          submitted_at?: string | null
+          track_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_sessions_exam_id_fkey"
+            columns: ["exam_id"]
+            isOneToOne: false
+            referencedRelation: "exams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exam_sessions_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       exams: {
         Row: {
           created_at: string
