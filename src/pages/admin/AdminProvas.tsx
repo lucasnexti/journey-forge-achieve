@@ -437,7 +437,26 @@ const AdminProvas = () => {
             {attempts.length === 0 ? (
               <div className="card-surface p-10 text-center text-sm text-muted-foreground">Nenhuma tentativa registrada.</div>
             ) : (
+              <>
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                <p className="text-sm text-muted-foreground">{attempts.length} tentativa(s) registradas</p>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={() => {
+                    exportAttemptsCsv(attempts.map((a) => ({ ...a, passing_score: exam?.passing_score })), trackTitle);
+                    toast.success("CSV exportado!");
+                  }}>
+                    <Download className="mr-2 h-4 w-4" /> Exportar CSV
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => {
+                    const ok = exportAttemptsPdf(attempts.map((a) => ({ ...a, passing_score: exam?.passing_score })), trackTitle);
+                    if (!ok) toast.error("Permita pop-ups para gerar o PDF.");
+                  }}>
+                    <FileText className="mr-2 h-4 w-4" /> Exportar PDF
+                  </Button>
+                </div>
+              </div>
               <div className="card-surface overflow-x-auto">
+
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-border/50 bg-secondary/50">
