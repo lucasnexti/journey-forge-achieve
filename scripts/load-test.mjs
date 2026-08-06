@@ -128,7 +128,27 @@ function report() {
   console.log(`Critérios: p95 APIs < 500ms | p95 provas < 1000ms | erros < 1%`);
 }
 
+// Fases: aquecimento → rampa → carga sustentada → pico → recuperação
+const SPIKE_USERS = Number(args.spike ?? Math.round(USERS * 0.3));
+const SPIKE_DURATION = Number(args.spikeDuration ?? 30);
+const RECOVERY = Number(args.recovery ?? 30);
+
+function phaseReport(label, from) {
+  const slice = samples.slice(from);
+  const ms = slice.map((s) => s.ms);
+  const err = slice.filter((s) => !s.ok).length;
+  console.log(
+    `${label.padEnd(14)} n=${String(slice.length).padStart(6)}  p50=${pct(ms, 50).toFixed(0)}ms  ` +
+      `p95=${pct(ms, 95).toFixed(0)}ms  p99=${pct(ms, 99).toFixed(0)}ms  erros=${((err / (slice.length || 1)) * 100).toFixed(2)}%`
+  );
+}
+
 (async () => {
+  // Aquecimento (conexões/planos quentes, fora das métricas comparativas)
+  await scenarioBrowse();
+
+  const marks = {};
+  marks.load = samples.length;
   const stopAt = Date.now() + (RAMP + DURATION) * 1000;
   const tasks = [];
   for (let i = 0; i < USERS; i++) {
@@ -136,5 +156,20 @@ function report() {
     tasks.push(new Promise((r) => setTimeout(r, delay)).then(() => virtualUser(stopAt)));
   }
   await Promise.all(tasks);
+
+  // Pico repentino: usuários extras entrando de uma vez
+  marks.spike = samples.length;
+  const spikeStop = Date.now() + SPIKE_DURATION * 1000;
+  await Promise.all(Array.from({ length: SPIKE_USERS }, () => virtualUser(spikeStop)));
+
+  // Recuperação após o pico
+  marks.recovery = samples.length;
+  const recStop = Date.now() + RECOVERY * 1000;
+  await Promise.all(Array.from({ length: Math.round(USERS * 0.2) }, () => virtualUser(recStop)));
+
   report();
+  console.log("\n=== Por fase ===");
+  phaseReport("carga", marks.load);
+  phaseReport("pico", marks.spike);
+  phaseReport("recuperação", marks.recovery);
 })();

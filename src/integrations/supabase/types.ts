@@ -1711,6 +1711,8 @@ export type Database = {
         Returns: boolean
       }
       is_same_company: { Args: { _user_id: string }; Returns: boolean }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
       start_exam_attempt: { Args: { _track_id: string }; Returns: Json }
       submit_exam_attempt: {
         Args: { _answers: Json; _duration_seconds: number; _exam_id: string }

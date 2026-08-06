@@ -112,3 +112,58 @@ de O(n) para busca indexada. As reduções de escrita são imediatas e mensuráv
 
 - Sem fila assíncrona: certificados e notificações são gravados na própria transação —
   barato hoje, candidato a fila caso o volume de aprovações simultâneas cresça muito.
+
+---
+
+## 9. Rodada 2 — diagnóstico com evidências (medido em produção, leitura apenas)
+
+Linha de base coletada de `pg_stat_statements`, `pg_stat_user_tables`, `pg_indexes` e `db_health`.
+
+| Problema | Evidência | Localização | Impacto | Severidade | Solução | Esforço | Risco | Validação |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Dois escritores independentes de presença (`profiles.last_active_at`) | `pg_stat_statements`: 1.189 chamadas, média **44ms**, pico **3.514ms** — operação mais lenta por chamada | `usePresenceHeartbeat.ts` + `progressDB.touchLastActive` | Até 2 writes/min/usuário (~33 writes/s com 1.000 usuários) numa tabela com trigger `updated_at` | Alta (P1) | Escritor único, janela de 2min, pausa com aba oculta | Baixo | Baixo (só reduz frequência) | Teste unitário `presence.test.ts` |
+| Upsert de progresso é a operação de maior custo total | 76.375 chamadas, **539.974ms** totais, pico 1.684ms | `progressDB.savePartialProgressDB` | Domina o custo de escrita do banco | Alta (P1) | Já mitigado (intervalo 30s + coalescência); mantido sob observação | — | — | `progressDB.test.ts` |
+| Busca global usa `ilike '%termo%'` sem índice | Plano `Seq Scan on lessons ... Filter: (title ~~* '%gest%')` | `GlobalSearch.tsx` (tracks/lessons/lesson_materials) | Varredura completa a cada busca; degrada linearmente com o catálogo | Média (P2) | Índices GIN `pg_trgm` nas colunas `title` | Baixo | Baixo (`CREATE INDEX IF NOT EXISTS`) | `EXPLAIN` com volume real |
+| Contagem exata desnecessária no sino de notificações | `count: "exact"` gera segunda varredura (`pgrst_source_count`), 6.499 chamadas | `NotificationBell.tsx` | 2 queries por carga sem uso do total | Baixa (P3) | Remover `count` + índice parcial de não lidas | Baixo | Nenhum | Slow queries |
+| Teste de carga sem fases de pico/recuperação | `scripts/load-test.mjs` só tinha rampa + sustentação | script | Não comprova comportamento em pico | Média (P2) | Fases aquecimento → rampa → sustentação → pico → recuperação com percentis por fase | Baixo | Nenhum | Execução do script |
+
+Saúde atual do banco (`db_health`): banco e PgBouncer no ar, memória 34%, disco 4%,
+conexões 7/60, pool 1/200, 0 reinícios. **Não há saturação de pool nem de memória hoje** —
+o limite prático virá de writes de progresso, não de conexões.
+
+### Implementado nesta rodada
+- Migration (somente `CREATE EXTENSION/INDEX IF NOT EXISTS`, sem alterar dados):
+  `idx_tracks_title_trgm`, `idx_lessons_title_trgm`, `idx_lesson_materials_title_trgm`,
+  `idx_notifications_user_unread` (parcial, `read = false`).
+- `src/lib/presence.ts`: escritor único de presença (janela 2min, pausa com aba oculta,
+  sem chamadas concorrentes, retry suavizado em erro).
+- `usePresenceHeartbeat` e `markLessonCompleteDB` passam a usar esse escritor.
+- `NotificationBell`: sem `count: "exact"`.
+- `scripts/load-test.mjs`: fases de aquecimento, pico e recuperação + percentis por fase.
+- Testes: `src/lib/presence.test.ts` (3 casos). Suíte: **7/7 passando**.
+
+### Comparativo (analítico, derivado das métricas acima)
+
+| Métrica | Antes | Depois |
+| --- | --- | --- |
+| Writes de presença por usuário/hora | até 60 (2 emissores × 1/min) | ≤ 30, e 0 com a aba em segundo plano |
+| Queries por abertura do sino | 2 (dados + count) | 1 |
+| Busca global por título | seq scan por tabela | índice GIN trigram (a partir de volume relevante) |
+| Fases cobertas pelo teste de carga | 2 | 5 |
+
+Observação honesta: com o volume atual (8 aulas, 3 perfis) o planejador continua
+escolhendo *seq scan* — é o plano correto para tabelas mínimas. O ganho dos índices
+trigram só é mensurável com catálogo real; o ganho de redução de writes é imediato.
+
+### Critérios de aceitação — status
+Atendidos por evidência: ausência de saturação de pool/memória; ausência de duplicidade
+em provas (lock + claim atômico, rodada 1); nenhuma regressão funcional (suíte verde).
+**Não comprovados**: p95 < 500ms sob 1.000 usuários e estabilidade em carga sustentada —
+exigem execução do `scripts/load-test.mjs` contra homologação com massa representativa,
+o que não foi executado por não haver autorização para gerar carga em produção.
+
+### Próximos passos recomendados (não executados — exigem autorização/escopo maior)
+1. Rodar o teste de carga em homologação e anexar os percentis reais.
+2. Paginação em `AdminMonitoramento` e `AdminTrilhasGestao` (hoje carregam listas completas).
+3. Fila assíncrona para certificados/notificações se o volume de aprovações simultâneas crescer.
+4. Substituir o heartbeat de presença por Realtime Presence (zero writes no Postgres).
