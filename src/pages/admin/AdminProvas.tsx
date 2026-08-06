@@ -100,7 +100,10 @@ const AdminProvas = () => {
 
   useEffect(() => { load(trackId); }, [trackId, load]);
 
+  const trackTitle = tracks.find((t) => t.id === trackId)?.title || "Curso";
+
   const selectTrack = (v: string) => { setTrackId(v); setParams({ track: v }); setShowForm(false); };
+
 
   const createExam = async () => {
     const { error } = await supabase.from("exams").insert({ track_id: trackId });
