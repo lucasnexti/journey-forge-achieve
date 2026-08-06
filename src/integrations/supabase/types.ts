@@ -264,6 +264,7 @@ export type Database = {
           attempt_number: number
           correct_count: number
           created_at: string
+          cycle: number
           details: Json
           duration_seconds: number
           exam_id: string
@@ -281,6 +282,7 @@ export type Database = {
           attempt_number?: number
           correct_count?: number
           created_at?: string
+          cycle?: number
           details?: Json
           duration_seconds?: number
           exam_id: string
@@ -298,6 +300,7 @@ export type Database = {
           attempt_number?: number
           correct_count?: number
           created_at?: string
+          cycle?: number
           details?: Json
           duration_seconds?: number
           exam_id?: string
@@ -1674,6 +1677,10 @@ export type Database = {
         Returns: undefined
       }
       award_xp: { Args: { _user_id: string; _xp: number }; Returns: undefined }
+      exam_current_cycle: {
+        Args: { _exam_id: string; _max_attempts: number; _user_id: string }
+        Returns: number
+      }
       get_kb_quiz_questions: {
         Args: { _module_ids: string[] }
         Returns: {

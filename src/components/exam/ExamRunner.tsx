@@ -401,8 +401,11 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
             <p className="text-xs mt-0.5">
               {result.passed
                 ? "Curso concluído e certificado liberado."
-                : "Seu progresso foi reiniciado. Refaça todas as aulas para tentar novamente."}
+                : (result as any).course_reset
+                ? "Você esgotou as tentativas. Seu progresso foi reiniciado — refaça todo o curso para tentar novamente."
+                : `Você ainda tem ${result.attempts_left ?? 1} tentativa(s). Revise o conteúdo e tente novamente.`}
             </p>
+
           </div>
         </div>
 
@@ -425,9 +428,11 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
           ))}
         </div>
 
+        {result.passed ? (
         <div className="mt-6 space-y-4">
           <h4 className="text-sm font-semibold text-foreground">Gabarito</h4>
           {result.details.map((d: any, i: number) => (
+
             <div key={d.question_id} className="rounded-lg border border-border/50 p-4">
               <div className="flex items-start gap-2">
                 <span className="text-xs tabular-nums text-muted-foreground mt-0.5">{i + 1}.</span>
@@ -471,6 +476,12 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
             </div>
           ))}
         </div>
+        ) : (
+          <p className="mt-6 rounded-lg border border-border/50 p-4 text-xs text-muted-foreground">
+            O gabarito não é exibido em tentativas reprovadas. Revise o conteúdo do curso antes da próxima tentativa.
+          </p>
+        )}
+
       </div>
     );
   }
