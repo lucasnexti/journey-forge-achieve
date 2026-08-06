@@ -25,6 +25,9 @@ export interface ExamPayload {
   description: string | null;
   passing_score: number;
   time_limit_minutes: number | null;
+  max_attempts?: number | null;
+  attempts_used?: number | null;
+  attempts_left?: number | null;
   questions: ExamQuestion[];
 }
 
@@ -36,6 +39,9 @@ export interface ExamResult {
   passing_score: number;
   passed: boolean;
   attempt_number: number;
+  max_attempts?: number | null;
+  attempts_used?: number | null;
+  attempts_left?: number | null;
   details: any[];
 }
 
@@ -50,8 +56,10 @@ const ERROR_MESSAGES: Record<string, string> = {
   no_exam: "Nenhuma avaliação ativa foi configurada para este curso.",
   not_enrolled: "Você precisa estar matriculado neste curso.",
   lessons_incomplete: "Conclua 100% das aulas para liberar a avaliação.",
+  attempt_limit_reached: "Você atingiu o limite de tentativas desta avaliação.",
   unauthenticated: "Sessão expirada. Faça login novamente.",
 };
+
 
 // Rascunho local: mantém questões sorteadas, respostas e início da tentativa
 interface ExamDraft {
