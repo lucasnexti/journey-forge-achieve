@@ -1,0 +1,312 @@
+import { useEffect, useMemo, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { toast } from "sonner";
+import {
+  AlertCircle, CheckCircle2, ClipboardCheck, Clock, Lock, RotateCcw, XCircle,
+} from "lucide-react";
+
+export interface ExamQuestion {
+  id: string;
+  type: "multiple_choice" | "true_false" | "essay";
+  question: string;
+  options: { index: number; text: string }[];
+  points: number;
+}
+
+export interface ExamPayload {
+  exam_id: string;
+  title: string;
+  description: string | null;
+  passing_score: number;
+  time_limit_minutes: number | null;
+  questions: ExamQuestion[];
+}
+
+export interface ExamResult {
+  percent: number;
+  score: number;
+  correct: number;
+  total: number;
+  passing_score: number;
+  passed: boolean;
+  attempt_number: number;
+  details: any[];
+}
+
+interface ExamRunnerProps {
+  trackId: string;
+  locked: boolean;
+  lockedReason?: string;
+  onFinished: (result: ExamResult) => void;
+}
+
+const ERROR_MESSAGES: Record<string, string> = {
+  no_exam: "Nenhuma avaliação ativa foi configurada para este curso.",
+  not_enrolled: "Você precisa estar matriculado neste curso.",
+  lessons_incomplete: "Conclua 100% das aulas para liberar a avaliação.",
+  unauthenticated: "Sessão expirada. Faça login novamente.",
+};
+
+const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerProps) => {
+  const [exam, setExam] = useState<ExamPayload | null>(null);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [starting, setStarting] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [result, setResult] = useState<ExamResult | null>(null);
+  const [startedAt, setStartedAt] = useState<number | null>(null);
+  const [elapsed, setElapsed] = useState(0);
+
+  useEffect(() => {
+    if (!startedAt || result) return;
+    const t = setInterval(() => setElapsed(Math.floor((Date.now() - startedAt) / 1000)), 1000);
+    return () => clearInterval(t);
+  }, [startedAt, result]);
+
+  const timeLeft = useMemo(() => {
+    if (!exam?.time_limit_minutes) return null;
+    return Math.max(exam.time_limit_minutes * 60 - elapsed, 0);
+  }, [exam, elapsed]);
+
+  const answeredCount = exam ? exam.questions.filter((q) => answers[q.id]?.trim()).length : 0;
+  const allAnswered = exam ? answeredCount === exam.questions.length : false;
+
+  const handleStart = async () => {
+    setStarting(true);
+    const { data, error } = await supabase.rpc("start_exam_attempt", { _track_id: trackId });
+    setStarting(false);
+    if (error) { toast.error(error.message); return; }
+    const payload = data as unknown as (ExamPayload & { error?: string });
+    if (payload?.error) { toast.error(ERROR_MESSAGES[payload.error] || payload.error); return; }
+    if (!payload?.questions?.length) { toast.error("Esta avaliação ainda não possui questões cadastradas."); return; }
+    setExam(payload);
+    setAnswers({});
+    setResult(null);
+    setStartedAt(Date.now());
+    setElapsed(0);
+  };
+
+  const handleSubmit = async () => {
+    if (!exam) return;
+    setSubmitting(true);
+    const { data, error } = await supabase.rpc("submit_exam_attempt", {
+      _exam_id: exam.exam_id,
+      _answers: answers,
+      _duration_seconds: elapsed,
+    });
+    setSubmitting(false);
+    if (error) { toast.error(error.message); return; }
+    const res = data as unknown as (ExamResult & { error?: string });
+    if (res?.error) { toast.error(ERROR_MESSAGES[res.error] || res.error); return; }
+    setResult(res);
+    setStartedAt(null);
+    onFinished(res);
+  };
+
+  // Auto-submit when time runs out
+  useEffect(() => {
+    if (timeLeft === 0 && exam && !result && !submitting) {
+      toast.warning("Tempo esgotado — enviando respostas.");
+      handleSubmit();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeLeft]);
+
+  const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+
+  // ── Resultado ──
+  if (result) {
+    return (
+      <div className="card-surface p-6">
+        <div className={`flex items-center gap-3 rounded-lg p-4 ${result.passed ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"}`}>
+          {result.passed ? <CheckCircle2 className="h-6 w-6 shrink-0" /> : <XCircle className="h-6 w-6 shrink-0" />}
+          <div>
+            <p className="font-display text-base font-bold">
+              {result.passed ? "Aprovado! 🎉" : "Reprovado"}
+            </p>
+            <p className="text-xs mt-0.5">
+              {result.passed
+                ? "Curso concluído e certificado liberado."
+                : "Seu progresso foi reiniciado. Refaça todas as aulas para tentar novamente."}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {[
+            { label: "Aproveitamento", value: `${result.percent}%` },
+            { label: "Acertos", value: `${result.correct}/${result.total}` },
+            { label: "Nota mínima", value: `${result.passing_score}%` },
+            { label: "Tentativa", value: `#${result.attempt_number}` },
+          ].map((s) => (
+            <div key={s.label} className="rounded-lg border border-border/50 p-3 text-center">
+              <p className="text-[11px] uppercase tracking-wider text-muted-foreground">{s.label}</p>
+              <p className="mt-1 tabular-nums font-display text-lg font-bold text-foreground">{s.value}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-6 space-y-4">
+          <h4 className="text-sm font-semibold text-foreground">Gabarito</h4>
+          {result.details.map((d: any, i: number) => (
+            <div key={d.question_id} className="rounded-lg border border-border/50 p-4">
+              <div className="flex items-start gap-2">
+                <span className="text-xs tabular-nums text-muted-foreground mt-0.5">{i + 1}.</span>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-foreground">{d.question}</p>
+                  {d.pending_review ? (
+                    <div className="mt-2 space-y-1.5">
+                      <Badge variant="secondary" className="text-[10px]">Dissertativa · aguardando correção</Badge>
+                      <p className="text-xs text-muted-foreground">Sua resposta: {d.user_answer || "—"}</p>
+                      {d.expected_answer && (
+                        <p className="text-xs text-muted-foreground">Gabarito esperado: {d.expected_answer}</p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="mt-2 space-y-1">
+                      {(Array.isArray(d.options) ? d.options : []).map((opt: string, oi: number) => {
+                        const isCorrect = oi === d.correct_answer;
+                        const isChosen = oi === d.user_answer;
+                        return (
+                          <p
+                            key={oi}
+                            className={`rounded-md px-2 py-1 text-xs ${
+                              isCorrect
+                                ? "bg-success/10 text-success font-medium"
+                                : isChosen
+                                ? "bg-destructive/10 text-destructive font-medium"
+                                : "text-muted-foreground"
+                            }`}
+                          >
+                            {isCorrect ? "✓" : isChosen ? "✕" : "○"} {opt}
+                          </p>
+                        );
+                      })}
+                      {d.explanation && (
+                        <p className="mt-2 text-xs text-muted-foreground italic">{d.explanation}</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // ── Prova em andamento ──
+  if (exam) {
+    return (
+      <div className="card-surface p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 className="font-display text-lg font-semibold text-foreground">{exam.title}</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Nota mínima: {exam.passing_score}% · {exam.questions.length} questões
+            </p>
+          </div>
+          <div className="flex items-center gap-2 text-sm tabular-nums text-muted-foreground">
+            <Clock className="h-4 w-4" />
+            {timeLeft !== null ? fmt(timeLeft) : fmt(elapsed)}
+          </div>
+        </div>
+
+        <div className="mt-4 flex items-center gap-2">
+          <Progress value={(answeredCount / exam.questions.length) * 100} className="h-1.5 flex-1" />
+          <span className="text-xs tabular-nums text-muted-foreground">{answeredCount}/{exam.questions.length}</span>
+        </div>
+
+        <div className="mt-6 space-y-6">
+          {exam.questions.map((q, qi) => (
+            <div key={q.id}>
+              <div className="flex items-start gap-2">
+                <p className="text-sm font-medium text-foreground">{qi + 1}. {q.question}</p>
+              </div>
+              {q.type === "essay" ? (
+                <Textarea
+                  className="mt-3"
+                  rows={4}
+                  placeholder="Digite sua resposta..."
+                  value={answers[q.id] || ""}
+                  onChange={(e) => setAnswers({ ...answers, [q.id]: e.target.value })}
+                />
+              ) : (
+                <div className="mt-3 space-y-2">
+                  {q.options.map((opt) => {
+                    const selected = answers[q.id] === String(opt.index);
+                    return (
+                      <label
+                        key={opt.index}
+                        className={`flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-3 text-sm transition-colors ${
+                          selected
+                            ? "border-primary/50 bg-primary/5 text-foreground"
+                            : "border-border/50 text-muted-foreground hover:bg-secondary"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name={q.id}
+                          className="sr-only"
+                          checked={selected}
+                          onChange={() => setAnswers({ ...answers, [q.id]: String(opt.index) })}
+                        />
+                        <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${selected ? "border-primary bg-primary" : "border-border"}`}>
+                          {selected && <div className="h-2 w-2 rounded-full bg-primary-foreground" />}
+                        </div>
+                        {opt.text}
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {!allAnswered && (
+          <p className="mt-5 flex items-center gap-2 text-xs text-muted-foreground">
+            <AlertCircle className="h-3.5 w-3.5" /> Responda todas as questões para enviar.
+          </p>
+        )}
+
+        <Button
+          onClick={handleSubmit}
+          disabled={!allAnswered || submitting}
+          className="mt-5 w-full bg-gradient-nexti text-primary-foreground hover:opacity-90"
+        >
+          {submitting ? "Corrigindo..." : "Enviar Avaliação"}
+        </Button>
+      </div>
+    );
+  }
+
+  // ── Tela inicial ──
+  return (
+    <div className="card-surface p-6 text-center">
+      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+        {locked ? <Lock className="h-5 w-5 text-primary" /> : <ClipboardCheck className="h-5 w-5 text-primary" />}
+      </div>
+      <h3 className="mt-3 font-display text-base font-bold text-foreground">Avaliação Final</h3>
+      <p className="mt-1 text-sm text-muted-foreground">
+        {locked
+          ? lockedReason || "Conclua 100% das aulas para liberar a avaliação."
+          : "As questões e alternativas são embaralhadas a cada tentativa."}
+      </p>
+      <Button
+        onClick={handleStart}
+        disabled={locked || starting}
+        className="mt-4 w-full gap-2 bg-gradient-nexti text-primary-foreground hover:opacity-90 h-11"
+      >
+        {starting ? <RotateCcw className="h-4 w-4 animate-spin" /> : <ClipboardCheck className="h-4 w-4" />}
+        Realizar Avaliação
+      </Button>
+    </div>
+  );
+};
+
+export default ExamRunner;
