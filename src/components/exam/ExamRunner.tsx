@@ -88,6 +88,8 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
 
 
   const draftKey = user ? `nexti:exam-draft:${user.id}:${trackId}` : null;
+  const lockKey = user ? `nexti:exam-lock:${user.id}:${trackId}` : null;
+  const { acquire, release, isHeldByOtherTab, blockedByOtherTab } = useExamTabLock(lockKey);
 
   const clearDraft = useCallback(() => {
     if (draftKey) localStorage.removeItem(draftKey);
@@ -109,7 +111,10 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
         localStorage.removeItem(draftKey);
         return;
       }
+      // não recupera se outra aba já está com esta prova aberta
+      if (!acquire()) return;
       setExam(draft.exam);
+
       setAnswers(draft.answers || {});
       setStartedAt(draft.startedAt);
       setElapsed(Math.floor((Date.now() - draft.startedAt) / 1000));
