@@ -1662,6 +1662,7 @@ export type Database = {
       }
     }
     Functions: {
+      admin_enrollment_report: { Args: { _track_id?: string }; Returns: Json }
       award_coins: {
         Args: {
           _amount: number
