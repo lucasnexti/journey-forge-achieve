@@ -1,8 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import AppLayout from "@/components/AppLayout";
-import { History, CheckCircle2, XCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { exportAttemptsCsv, exportAttemptsPdf } from "@/lib/examExport";
+import { History, CheckCircle2, XCircle, Download, FileText } from "lucide-react";
+
 
 interface Attempt {
   id: string;
