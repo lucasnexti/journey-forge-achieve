@@ -227,6 +227,44 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
     setElapsed(serverElapsed);
   };
 
+  /** Retoma a prova nesta aba assim que o lock da outra aba expira. */
+  const handleResumeHere = async () => {
+    if (isHeldByOtherTab()) {
+      toast.error("A outra aba ainda está com a avaliação aberta.");
+      return;
+    }
+    if (!acquire()) {
+      toast.error("Não foi possível assumir a avaliação nesta aba.");
+      return;
+    }
+    setBlockedByOtherTab(false);
+
+    // 1) rascunho local — preserva respostas e tempo já decorrido
+    if (draftKey) {
+      try {
+        const raw = localStorage.getItem(draftKey);
+        if (raw) {
+          const draft = JSON.parse(raw) as ExamDraft;
+          if (draft?.exam?.questions?.length && draft.startedAt && Date.now() - draft.startedAt <= DRAFT_MAX_AGE_MS) {
+            setExam(draft.exam);
+            setAnswers(draft.answers || {});
+            setStartedAt(draft.startedAt);
+            setElapsed(Math.floor((Date.now() - draft.startedAt) / 1000));
+            setSavedAt(draft.savedAt || null);
+            setRestored(true);
+            toast.success("Avaliação retomada nesta aba — respostas e tempo mantidos.");
+            return;
+          }
+        }
+      } catch { /* segue para o servidor */ }
+    }
+
+    // 2) sem rascunho: o servidor devolve a mesma sessão em andamento (tempo real preservado)
+    await handleStart();
+  };
+
+
+
   const submittingRef = useRef(false);
 
   const handleSubmit = async () => {
