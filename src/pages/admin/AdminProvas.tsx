@@ -288,8 +288,9 @@ const AdminProvas = () => {
                   <p className="text-xs text-muted-foreground">
                     Após atingir o limite, o aluno fica bloqueado. Use 0 para tentativas ilimitadas.
                   </p>
-
+                </div>
               </div>
+
 
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 {([
