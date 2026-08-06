@@ -43,6 +43,9 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
   const [speed, setSpeed] = useState(1);
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
   const vimeo = isVimeoUrl(videoUrl);
+  const [vimeoStatus, setVimeoStatus] = useState<"loading" | "ready" | "slow" | "error">("loading");
+  const [reloadKey, setReloadKey] = useState(0);
+
   const vimeoPlayerRef = useRef<Player | null>(null);
   const lastSavedRef = useRef(0);
   const completedRef = useRef(false);
