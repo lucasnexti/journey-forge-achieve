@@ -488,7 +488,9 @@ const AdminProvas = () => {
                   </tbody>
                 </table>
               </div>
+              </>
             )}
+
           </TabsContent>
         </Tabs>
       )}
