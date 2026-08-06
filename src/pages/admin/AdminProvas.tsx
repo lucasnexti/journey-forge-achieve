@@ -12,8 +12,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import {
-  Plus, Trash2, Save, X, ClipboardCheck, Pencil, CheckCircle2, XCircle,
+  Plus, Trash2, Save, X, ClipboardCheck, Pencil, CheckCircle2, XCircle, Download, FileText,
 } from "lucide-react";
+import { exportAttemptsCsv, exportAttemptsPdf } from "@/lib/examExport";
+
 
 type QType = "multiple_choice" | "true_false" | "essay";
 
