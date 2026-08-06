@@ -8,6 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   AlertCircle, CheckCircle2, ClipboardCheck, Clock, Cloud, Lock, MonitorX, RotateCcw, XCircle,
 } from "lucide-react";
 
@@ -91,6 +95,7 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [restored, setRestored] = useState(false);
   const [blocked, setBlocked] = useState<{ used: number; max: number } | null>(null);
+  const [leaveOpen, setLeaveOpen] = useState(false);
 
 
   const draftKey = user ? `nexti:exam-draft:${user.id}:${trackId}` : null;
@@ -145,13 +150,32 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
     }
   }, [draftKey, exam, answers, startedAt, result]);
 
-  // Avisa antes de fechar a aba com prova em andamento
+  // Confirmação antes de fechar/atualizar a aba com prova em andamento
   useEffect(() => {
     if (!exam || result) return;
-    const handler = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = ""; };
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      // exigido por navegadores legados para exibir o diálogo nativo
+      e.returnValue = "Você tem uma avaliação em andamento. Se sair agora, respostas não enviadas podem ser perdidas.";
+      return e.returnValue;
+    };
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
   }, [exam, result]);
+
+  // Confirmação ao usar voltar/avançar do navegador durante a prova
+  useEffect(() => {
+    if (!exam || result) return;
+    window.history.pushState({ examGuard: true }, "");
+    const onPopState = () => {
+      setLeaveOpen(true);
+      // mantém o usuário na prova até ele confirmar a saída
+      window.history.pushState({ examGuard: true }, "");
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, [exam, result]);
+
 
   useEffect(() => {
     if (!startedAt || result) return;
@@ -365,6 +389,23 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
   if (exam) {
     return (
       <div className="card-surface p-6">
+        <AlertDialog open={leaveOpen} onOpenChange={setLeaveOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Sair da avaliação?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Você tem uma avaliação em andamento. Suas respostas ficam salvas como rascunho,
+                mas a tentativa continua contando e o tempo segue correndo no servidor.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Continuar prova</AlertDialogCancel>
+              <AlertDialogAction onClick={() => { setLeaveOpen(false); setExam(null); }}>
+                Sair mesmo assim
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h3 className="font-display text-lg font-semibold text-foreground">{exam.title}</h3>
