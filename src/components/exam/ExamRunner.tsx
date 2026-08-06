@@ -161,8 +161,15 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
     const { data, error } = await supabase.rpc("start_exam_attempt", { _track_id: trackId });
     setStarting(false);
     if (error) { toast.error(error.message); return; }
-    const payload = data as unknown as (ExamPayload & { error?: string });
-    if (payload?.error) { toast.error(ERROR_MESSAGES[payload.error] || payload.error); return; }
+    const payload = data as unknown as (ExamPayload & { error?: string; max_attempts?: number; attempts_used?: number });
+    if (payload?.error) {
+      if (payload.error === "attempt_limit_reached") {
+        setBlocked({ used: payload.attempts_used ?? 0, max: payload.max_attempts ?? 0 });
+      }
+      toast.error(ERROR_MESSAGES[payload.error] || payload.error);
+      return;
+    }
+
     if (!payload?.questions?.length) { toast.error("Esta avaliação ainda não possui questões cadastradas."); return; }
     clearDraft();
     setExam(payload);
