@@ -1,8 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import AppLayout from "@/components/AppLayout";
-import { History, CheckCircle2, XCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { exportAttemptsCsv, exportAttemptsPdf } from "@/lib/examExport";
+import { History, CheckCircle2, XCircle, Download, FileText } from "lucide-react";
+
 
 interface Attempt {
   id: string;
@@ -21,6 +25,32 @@ const QuizHistoryPage = () => {
   const { user } = useAuth();
   const [attempts, setAttempts] = useState<Attempt[]>([]);
   const [loading, setLoading] = useState(true);
+  const [trackFilter, setTrackFilter] = useState("all");
+
+  const trackOptions = useMemo(
+    () => [...new Set(attempts.map((a) => a.track_title))].sort(),
+    [attempts],
+  );
+  const filtered = useMemo(
+    () => (trackFilter === "all" ? attempts : attempts.filter((a) => a.track_title === trackFilter)),
+    [attempts, trackFilter],
+  );
+  const exportTitle = trackFilter === "all" ? "Todos os cursos" : trackFilter;
+  const exportRows = useMemo(
+    () =>
+      filtered.map((a) => ({
+        nome: `${a.track_title} — ${a.title} (${a.kind})`,
+        attempt_number: a.attempt_number ?? 1,
+        correct_count: a.correct ? Number(a.correct.split("/")[0]) : 0,
+        total_questions: a.correct ? Number(a.correct.split("/")[1]) : 0,
+        percent: a.score,
+        duration_seconds: a.duration_seconds ?? 0,
+        passed: a.passed,
+        created_at: a.attempted_at,
+      })),
+    [filtered],
+  );
+
 
   useEffect(() => {
     if (!user) return;
@@ -101,7 +131,26 @@ const QuizHistoryPage = () => {
             Nenhuma avaliação realizada ainda.
           </div>
         ) : (
+          <>
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <Select value={trackFilter} onValueChange={setTrackFilter}>
+              <SelectTrigger className="w-full sm:w-72"><SelectValue placeholder="Todos os cursos" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os cursos</SelectItem>
+                {trackOptions.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => exportAttemptsCsv(exportRows, exportTitle)}>
+                <Download className="mr-2 h-4 w-4" /> CSV
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => exportAttemptsPdf(exportRows, exportTitle)}>
+                <FileText className="mr-2 h-4 w-4" /> PDF
+              </Button>
+            </div>
+          </div>
           <div className="card-surface overflow-x-auto">
+
             <table className="w-full">
               <thead>
                 <tr className="border-b border-border/50 bg-secondary/50">
@@ -111,7 +160,7 @@ const QuizHistoryPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {attempts.map((a) => (
+                {filtered.map((a) => (
                   <tr key={`${a.kind}-${a.id}`} className="border-b border-border/30 last:border-0">
                     <td className="px-4 py-4 text-sm font-medium text-foreground">{a.track_title}</td>
                     <td className="px-4 py-4 text-sm text-muted-foreground">{a.title} · {a.kind}</td>
@@ -144,7 +193,9 @@ const QuizHistoryPage = () => {
               </tbody>
             </table>
           </div>
+          </>
         )}
+
       </main>
     </AppLayout>
   );
