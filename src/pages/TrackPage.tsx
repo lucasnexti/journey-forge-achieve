@@ -8,6 +8,8 @@ import { awardCoins, COIN_REWARDS } from "@/lib/gamification";
 import { triggerAchievement } from "@/components/AchievementPopup";
 import AppLayout from "@/components/AppLayout";
 import VideoPlayer from "@/components/VideoPlayer";
+import { useVideoPrefetch } from "@/hooks/useVideoPrefetch";
+
 import LessonSidebar from "@/components/LessonSidebar";
 import LessonNotes from "@/components/LessonNotes";
 import LessonMaterials from "@/components/LessonMaterials";
