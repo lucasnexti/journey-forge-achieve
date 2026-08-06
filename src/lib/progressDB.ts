@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { touchPresence } from "@/lib/presence";
 
 // ──────── Types ────────
 export interface LessonProgressDB {
@@ -152,19 +153,8 @@ export async function markLessonCompleteDB(
   if (error) console.error("markLessonCompleteDB error:", error);
   else lastPersisted.set(`${userId}:${lessonId}`, Math.max(0, Math.round(watchedSeconds)));
 
-  // Atualiza presença sem bloquear a conclusão da aula (no máximo 1x por minuto)
-  void touchLastActive(userId);
-}
-
-let lastActiveTouch = 0;
-async function touchLastActive(userId: string) {
-  const now = Date.now();
-  if (now - lastActiveTouch < 60_000) return;
-  lastActiveTouch = now;
-  await supabase
-    .from("profiles")
-    .update({ last_active_at: new Date().toISOString() })
-    .eq("user_id", userId);
+  // Presença atualizada pelo escritor único (não bloqueia a conclusão da aula)
+  void touchPresence(userId);
 }
 
 export async function saveQuizResultDB(
