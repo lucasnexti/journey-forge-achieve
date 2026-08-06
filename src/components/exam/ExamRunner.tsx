@@ -246,7 +246,27 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
   const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
 
 
+  // ── Bloqueio por outra aba ──
+  if (blockedByOtherTab && !result) {
+    return (
+      <div className="card-surface p-6 text-center">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-destructive/10">
+          <MonitorX className="h-5 w-5 text-destructive" />
+        </div>
+        <h3 className="mt-3 font-display text-base font-bold text-foreground">Avaliação aberta em outra aba</h3>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Para evitar tentativas duplicadas, esta prova só pode ser respondida em uma aba por vez.
+          Continue na aba onde a avaliação já está em andamento ou feche-a e recarregue esta página.
+        </p>
+        <Button variant="outline" className="mt-4 w-full gap-2" onClick={() => window.location.reload()}>
+          <RotateCcw className="h-4 w-4" /> Tentar nesta aba
+        </Button>
+      </div>
+    );
+  }
+
   // ── Resultado ──
+
   if (result) {
     return (
       <div className="card-surface p-6">
