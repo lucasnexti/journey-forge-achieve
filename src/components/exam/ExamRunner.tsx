@@ -410,27 +410,31 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
   }
 
   // ── Tela inicial ──
+  const attemptsExhausted = !!blocked && blocked.max > 0 && blocked.used >= blocked.max;
   return (
     <div className="card-surface p-6 text-center">
       <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-        {locked ? <Lock className="h-5 w-5 text-primary" /> : <ClipboardCheck className="h-5 w-5 text-primary" />}
+        {locked || attemptsExhausted ? <Lock className="h-5 w-5 text-primary" /> : <ClipboardCheck className="h-5 w-5 text-primary" />}
       </div>
       <h3 className="mt-3 font-display text-base font-bold text-foreground">Avaliação Final</h3>
       <p className="mt-1 text-sm text-muted-foreground">
-        {locked
-          ? lockedReason || "Conclua 100% das aulas para liberar a avaliação."
-          : "As questões e alternativas são embaralhadas a cada tentativa."}
+        {attemptsExhausted
+          ? `Limite de tentativas atingido (${blocked!.used}/${blocked!.max}). Procure o administrador para liberar uma nova tentativa.`
+          : locked
+            ? lockedReason || "Conclua 100% das aulas para liberar a avaliação."
+            : "As questões e alternativas são embaralhadas a cada tentativa."}
       </p>
       <Button
         onClick={handleStart}
-        disabled={locked || starting}
+        disabled={locked || starting || attemptsExhausted}
         className="mt-4 w-full gap-2 bg-gradient-nexti text-primary-foreground hover:opacity-90 h-11"
       >
         {starting ? <RotateCcw className="h-4 w-4 animate-spin" /> : <ClipboardCheck className="h-4 w-4" />}
-        Realizar Avaliação
+        {attemptsExhausted ? "Tentativas esgotadas" : "Realizar Avaliação"}
       </Button>
     </div>
   );
+
 };
 
 export default ExamRunner;
