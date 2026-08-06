@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
@@ -16,7 +17,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus, Pencil, Trash2, Save, Search, BookOpen, Clock, Users, BarChart3,
   Video, GripVertical, Eye, EyeOff, ChevronRight, Layers, ArrowUpDown,
-  FileText, ExternalLink, X
+  FileText, ExternalLink, X, ClipboardCheck
 } from "lucide-react";
 
 interface Track {
