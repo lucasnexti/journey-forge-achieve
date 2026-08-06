@@ -39,6 +39,9 @@ export const useExamTabLock = (lockKey: string | null) => {
   );
   const ownedRef = useRef(false);
   const [blockedByOtherTab, setBlockedByOtherTab] = useState(false);
+  /** segundos até o lock da outra aba expirar (null quando não bloqueado) */
+  const [lockSecondsLeft, setLockSecondsLeft] = useState<number | null>(null);
+
 
   const release = useCallback(() => {
     if (!lockKey) return;
@@ -104,14 +107,36 @@ export const useExamTabLock = (lockKey: string | null) => {
   // Libera o lock ao desmontar
   useEffect(() => () => { if (ownedRef.current) release(); }, [release]);
 
+  // Contagem regressiva enquanto esta aba está bloqueada por outra
+  useEffect(() => {
+    if (!lockKey || !blockedByOtherTab) {
+      setLockSecondsLeft(null);
+      return;
+    }
+    const tick = () => {
+      const current = readLock(lockKey);
+      if (!current || current.tabId === tabIdRef.current) {
+        setLockSecondsLeft(0);
+        return;
+      }
+      const left = Math.max(0, Math.ceil((STALE_MS - (Date.now() - current.ts)) / 1000));
+      setLockSecondsLeft(left);
+    };
+    tick();
+    const t = setInterval(tick, 1000);
+    return () => clearInterval(t);
+  }, [lockKey, blockedByOtherTab]);
+
   return {
     acquire,
     release,
     isHeldByOtherTab,
     blockedByOtherTab,
     setBlockedByOtherTab,
+    lockSecondsLeft,
     isOwner: () => ownedRef.current,
   };
 };
 
 export default useExamTabLock;
+
