@@ -13,9 +13,10 @@ const NotificationBell = () => {
     if (!user) return;
 
     const load = async () => {
-      const { data, count } = await supabase
+      // sem `count: exact` — evita uma segunda varredura da tabela por carga
+      const { data } = await supabase
         .from("notifications")
-        .select("id, title, message, created_at, read", { count: "exact" })
+        .select("id, title, message, created_at, read")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(10);
