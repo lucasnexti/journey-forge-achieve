@@ -1,14 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useExamTabLock } from "@/hooks/useExamTabLock";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import {
-  AlertCircle, CheckCircle2, ClipboardCheck, Clock, Cloud, Lock, RotateCcw, XCircle,
+  AlertCircle, CheckCircle2, ClipboardCheck, Clock, Cloud, Lock, MonitorX, RotateCcw, XCircle,
 } from "lucide-react";
+
 
 
 export interface ExamQuestion {
@@ -86,6 +88,8 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
 
 
   const draftKey = user ? `nexti:exam-draft:${user.id}:${trackId}` : null;
+  const lockKey = user ? `nexti:exam-lock:${user.id}:${trackId}` : null;
+  const { acquire, release, isHeldByOtherTab, blockedByOtherTab } = useExamTabLock(lockKey);
 
   const clearDraft = useCallback(() => {
     if (draftKey) localStorage.removeItem(draftKey);
@@ -107,7 +111,10 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
         localStorage.removeItem(draftKey);
         return;
       }
+      // não recupera se outra aba já está com esta prova aberta
+      if (!acquire()) return;
       setExam(draft.exam);
+
       setAnswers(draft.answers || {});
       setStartedAt(draft.startedAt);
       setElapsed(Math.floor((Date.now() - draft.startedAt) / 1000));
@@ -117,7 +124,7 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
     } catch {
       localStorage.removeItem(draftKey);
     }
-  }, [draftKey, exam, result]);
+  }, [draftKey, exam, result, acquire]);
 
   // ── Salvamento automático ──
   useEffect(() => {
@@ -159,12 +166,18 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
   const allAnswered = exam ? answeredCount === exam.questions.length : false;
 
   const handleStart = async () => {
+    // impede abrir a mesma prova em duas abas ao mesmo tempo
+    if (!acquire()) {
+      toast.error("Esta avaliação já está aberta em outra aba. Feche-a para continuar aqui.");
+      return;
+    }
     setStarting(true);
     const { data, error } = await supabase.rpc("start_exam_attempt", { _track_id: trackId });
     setStarting(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) { release(); toast.error(error.message); return; }
     const payload = data as unknown as (ExamPayload & { error?: string; max_attempts?: number; attempts_used?: number });
     if (payload?.error) {
+      release();
       if (payload.error === "attempt_limit_reached") {
         setBlocked({ used: payload.attempts_used ?? 0, max: payload.max_attempts ?? 0 });
       }
@@ -172,7 +185,7 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
       return;
     }
 
-    if (!payload?.questions?.length) { toast.error("Esta avaliação ainda não possui questões cadastradas."); return; }
+    if (!payload?.questions?.length) { release(); toast.error("Esta avaliação ainda não possui questões cadastradas."); return; }
     clearDraft();
     setExam(payload);
     setAnswers({});
@@ -186,6 +199,11 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
 
   const handleSubmit = async () => {
     if (!exam || submittingRef.current) return;
+    // se o lock foi tomado por outra aba, esta aba não pode enviar
+    if (isHeldByOtherTab()) {
+      toast.error("Esta avaliação foi assumida por outra aba. Continue por lá para enviar.");
+      return;
+    }
     submittingRef.current = true;
     setSubmitting(true);
     const { data, error } = await supabase.rpc("submit_exam_attempt", {
@@ -201,6 +219,7 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
       if (res.error === "attempt_limit_reached") {
         setBlocked({ used: res.attempts_used ?? 0, max: res.max_attempts ?? 0 });
         clearDraft();
+        release();
         setExam(null);
       }
       toast.error(ERROR_MESSAGES[res.error] || res.error);
@@ -208,10 +227,12 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
     }
 
     clearDraft();
+    release();
     setResult(res);
     setStartedAt(null);
     onFinished(res);
   };
+
 
   // Auto-submit when time runs out
   useEffect(() => {
@@ -225,7 +246,27 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
   const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
 
 
+  // ── Bloqueio por outra aba ──
+  if (blockedByOtherTab && !result) {
+    return (
+      <div className="card-surface p-6 text-center">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-destructive/10">
+          <MonitorX className="h-5 w-5 text-destructive" />
+        </div>
+        <h3 className="mt-3 font-display text-base font-bold text-foreground">Avaliação aberta em outra aba</h3>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Para evitar tentativas duplicadas, esta prova só pode ser respondida em uma aba por vez.
+          Continue na aba onde a avaliação já está em andamento ou feche-a e recarregue esta página.
+        </p>
+        <Button variant="outline" className="mt-4 w-full gap-2" onClick={() => window.location.reload()}>
+          <RotateCcw className="h-4 w-4" /> Tentar nesta aba
+        </Button>
+      </div>
+    );
+  }
+
   // ── Resultado ──
+
   if (result) {
     return (
       <div className="card-surface p-6">
