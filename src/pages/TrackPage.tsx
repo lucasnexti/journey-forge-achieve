@@ -88,33 +88,26 @@ const TrackPage = () => {
 
   const loadData = useCallback(async () => {
     if (!trackId || !user) return;
-    const [{ data: trackData }, { data: lessonData }, { data: quizData }, progressData, { data: profile }] = await Promise.all([
+    const [{ data: trackData }, { data: lessonData }, { data: examData }, { data: examAttempts }, progressData, { data: profile }] = await Promise.all([
       supabase.from("tracks").select("id, title, description, category").eq("id", trackId).maybeSingle(),
       supabase.from("lessons").select("id, title, description, video_url, duration, order_index").eq("track_id", trackId).order("order_index"),
-      supabase.from("quizzes").select("id, title, passing_score").eq("track_id", trackId),
+      supabase.from("exams").select("id").eq("track_id", trackId).eq("is_active", true).maybeSingle(),
+      supabase.from("exam_attempts").select("percent, passed, created_at").eq("user_id", user.id).eq("track_id", trackId).order("created_at", { ascending: false }).limit(20),
       getTrackProgressDB(user.id, trackId),
       supabase.from("profiles").select("nome").eq("user_id", user.id).maybeSingle(),
     ]);
     setTrack(trackData ? { ...trackData, description: trackData.description || "", category: trackData.category || "" } : null);
     setLessons(lessonData || []);
-    // Fetch quiz questions via secure RPC
-    const rawQuizzes = (quizData as unknown as QuizRowRaw[]) || [];
-    const quizzesWithQuestions: QuizRow[] = [];
-    for (const q of rawQuizzes) {
-      const { data: qQuestions } = await supabase.rpc("get_quiz_questions", { _quiz_id: q.id });
-      quizzesWithQuestions.push({
-        ...q,
-        quiz_questions: (qQuestions || []).map((qq: any) => ({
-          id: qq.id, question: qq.question, options: qq.options, order_index: qq.order_index,
-        })),
-      });
-    }
-    setQuizzes(quizzesWithQuestions);
+    setHasExam(!!examData);
     setProgress(progressData.lessons);
-    setQuizScore(progressData.quizScore);
-    setQuizPassed(progressData.quizPassed);
-    setCompletedAt(progressData.completedAt);
     setProfileName(profile?.nome || "Cooperado(a)");
+
+    const approved = (examAttempts || []).find((a) => a.passed);
+    const last = (examAttempts || [])[0];
+    setQuizPassed(!!approved);
+    setQuizScore(approved ? Number(approved.percent) : last ? Number(last.percent) : null);
+    setCompletedAt(approved ? approved.created_at : null);
+
     if (lessonData && lessonData.length > 0) {
       setCurrentLessonId(lessonData[0].id);
     }
