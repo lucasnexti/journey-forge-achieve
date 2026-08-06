@@ -243,13 +243,18 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
           </div>
         </div>
 
-        <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-5">
           {[
             { label: "Aproveitamento", value: `${result.percent}%` },
             { label: "Acertos", value: `${result.correct}/${result.total}` },
             { label: "Nota mínima", value: `${result.passing_score}%` },
             { label: "Tentativa", value: `#${result.attempt_number}` },
+            {
+              label: "Tentativas restantes",
+              value: result.max_attempts && result.max_attempts > 0 ? String(result.attempts_left ?? 0) : "∞",
+            },
           ].map((s) => (
+
             <div key={s.label} className="rounded-lg border border-border/50 p-3 text-center">
               <p className="text-[11px] uppercase tracking-wider text-muted-foreground">{s.label}</p>
               <p className="mt-1 tabular-nums font-display text-lg font-bold text-foreground">{s.value}</p>
