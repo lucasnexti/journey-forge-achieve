@@ -108,35 +108,47 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
     setSavedAt(null);
   }, [draftKey]);
 
-  // ── Recuperação após atualização/queda ──
+  // ── Retomada automática após atualizar/fechar a página ──
+  const restoredOnceRef = useRef(false);
   useEffect(() => {
-    if (!draftKey || exam || result) return;
+    if (!draftKey || exam || result || restoredOnceRef.current) return;
+    let draft: ExamDraft | null = null;
     try {
       const raw = localStorage.getItem(draftKey);
       if (!raw) return;
-      const draft = JSON.parse(raw) as ExamDraft;
-      if (!draft?.exam?.questions?.length || !draft.startedAt) {
+      draft = JSON.parse(raw) as ExamDraft;
+      if (!draft?.exam?.questions?.length || !draft.startedAt || Date.now() - draft.startedAt > DRAFT_MAX_AGE_MS) {
         localStorage.removeItem(draftKey);
         return;
       }
-      if (Date.now() - draft.startedAt > DRAFT_MAX_AGE_MS) {
-        localStorage.removeItem(draftKey);
-        return;
-      }
-      // não recupera se outra aba já está com esta prova aberta
-      if (!acquire()) return;
-      setExam(draft.exam);
-
-      setAnswers(draft.answers || {});
-      setStartedAt(draft.startedAt);
-      setElapsed(Math.floor((Date.now() - draft.startedAt) / 1000));
-      setSavedAt(draft.savedAt || null);
-      setRestored(true);
-      toast.info("Avaliação recuperada — suas respostas e o tempo foram mantidos.");
     } catch {
       localStorage.removeItem(draftKey);
+      return;
     }
-  }, [draftKey, exam, result, acquire]);
+    // não recupera se outra aba já está com esta prova aberta
+    if (!acquire()) return;
+    restoredOnceRef.current = true;
+
+    setExam(draft.exam);
+    setAnswers(draft.answers || {});
+    setStartedAt(draft.startedAt);
+    setElapsed(Math.floor((Date.now() - draft.startedAt) / 1000));
+    setSavedAt(draft.savedAt || null);
+    setRestored(true);
+    toast.info("Avaliação retomada — suas respostas e o tempo foram mantidos.");
+
+    // sincroniza o cronômetro com a sessão oficial do servidor
+    (async () => {
+      const { data, error } = await supabase.rpc("start_exam_attempt", { _track_id: trackId });
+      if (error) return;
+      const payload = data as unknown as (ExamPayload & { error?: string });
+      if (payload?.error || payload?.elapsed_seconds == null) return;
+      const serverElapsed = Math.max(payload.elapsed_seconds, 0);
+      setStartedAt(Date.now() - serverElapsed * 1000);
+      setElapsed(serverElapsed);
+    })();
+  }, [draftKey, exam, result, acquire, trackId]);
+
 
   // ── Salvamento automático (a cada alteração) ──
   const saveDraft = useCallback(() => {
