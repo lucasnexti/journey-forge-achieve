@@ -280,6 +280,8 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
 
   // ── Bloqueio por outra aba ──
   if (blockedByOtherTab && !result) {
+    const left = lockSecondsLeft ?? 0;
+    const released = left <= 0;
     return (
       <div className="card-surface p-6 text-center">
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-destructive/10">
@@ -290,12 +292,23 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
           Para evitar tentativas duplicadas, esta prova só pode ser respondida em uma aba por vez.
           Continue na aba onde a avaliação já está em andamento ou feche-a e recarregue esta página.
         </p>
+        <div className="mt-4 rounded-lg border border-border/60 bg-muted/30 p-3">
+          {released ? (
+            <p className="text-sm font-medium text-success">Bloqueio liberado — você já pode continuar nesta aba.</p>
+          ) : (
+            <>
+              <p className="text-xs text-muted-foreground">Liberação automática se a outra aba for fechada em</p>
+              <p className="mt-1 font-display text-2xl font-bold tabular-nums text-foreground">{fmt(left)}</p>
+            </>
+          )}
+        </div>
         <Button variant="outline" className="mt-4 w-full gap-2" onClick={() => window.location.reload()}>
           <RotateCcw className="h-4 w-4" /> Tentar nesta aba
         </Button>
       </div>
     );
   }
+
 
   // ── Resultado ──
 
