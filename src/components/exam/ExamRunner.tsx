@@ -30,6 +30,11 @@ export interface ExamPayload {
   max_attempts?: number | null;
   attempts_used?: number | null;
   attempts_left?: number | null;
+  session_id?: string;
+  server_now?: string;
+  started_at?: string;
+  expires_at?: string | null;
+  elapsed_seconds?: number;
   questions: ExamQuestion[];
 }
 
