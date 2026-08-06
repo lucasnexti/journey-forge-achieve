@@ -39,6 +39,9 @@ export const useExamTabLock = (lockKey: string | null) => {
   );
   const ownedRef = useRef(false);
   const [blockedByOtherTab, setBlockedByOtherTab] = useState(false);
+  /** segundos até o lock da outra aba expirar (null quando não bloqueado) */
+  const [lockSecondsLeft, setLockSecondsLeft] = useState<number | null>(null);
+
 
   const release = useCallback(() => {
     if (!lockKey) return;
