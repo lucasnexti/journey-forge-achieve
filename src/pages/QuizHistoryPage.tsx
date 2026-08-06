@@ -130,7 +130,7 @@ const QuizHistoryPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {attempts.map((a) => (
+                {filtered.map((a) => (
                   <tr key={`${a.kind}-${a.id}`} className="border-b border-border/30 last:border-0">
                     <td className="px-4 py-4 text-sm font-medium text-foreground">{a.track_title}</td>
                     <td className="px-4 py-4 text-sm text-muted-foreground">{a.title} · {a.kind}</td>
