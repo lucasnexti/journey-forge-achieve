@@ -124,7 +124,7 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
     } catch {
       localStorage.removeItem(draftKey);
     }
-  }, [draftKey, exam, result]);
+  }, [draftKey, exam, result, acquire]);
 
   // ── Salvamento automático ──
   useEffect(() => {
