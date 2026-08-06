@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import AppLayout from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { exportAttemptsCsv, exportAttemptsPdf } from "@/lib/examExport";
+import { exportAttemptsCsv, exportAttemptsPdf, rangeLabel, type ExamDateRange } from "@/lib/examExport";
+import ExamDateRangeFilter from "@/components/exam/ExamDateRangeFilter";
 import { History, CheckCircle2, XCircle, Download, FileText } from "lucide-react";
 
 
@@ -26,15 +27,22 @@ const QuizHistoryPage = () => {
   const [attempts, setAttempts] = useState<Attempt[]>([]);
   const [loading, setLoading] = useState(true);
   const [trackFilter, setTrackFilter] = useState("all");
+  const [dateRange, setDateRange] = useState<ExamDateRange>({});
 
   const trackOptions = useMemo(
     () => [...new Set(attempts.map((a) => a.track_title))].sort(),
     [attempts],
   );
-  const filtered = useMemo(
-    () => (trackFilter === "all" ? attempts : attempts.filter((a) => a.track_title === trackFilter)),
-    [attempts, trackFilter],
-  );
+  const filtered = useMemo(() => {
+    const start = dateRange.from ? new Date(`${dateRange.from}T00:00:00`).getTime() : -Infinity;
+    const end = dateRange.to ? new Date(`${dateRange.to}T23:59:59.999`).getTime() : Infinity;
+    return attempts
+      .filter((a) => trackFilter === "all" || a.track_title === trackFilter)
+      .filter((a) => {
+        const t = new Date(a.attempted_at).getTime();
+        return t >= start && t <= end;
+      });
+  }, [attempts, trackFilter, dateRange]);
   const exportTitle = trackFilter === "all" ? "Todos os cursos" : trackFilter;
   const exportRows = useMemo(
     () =>
@@ -140,11 +148,13 @@ const QuizHistoryPage = () => {
                 {trackOptions.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
               </SelectContent>
             </Select>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => exportAttemptsCsv(exportRows, exportTitle)}>
+            <ExamDateRangeFilter value={dateRange} onChange={setDateRange} />
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">{filtered.length} registro(s) · {rangeLabel(dateRange)}</span>
+              <Button variant="outline" size="sm" disabled={filtered.length === 0} onClick={() => exportAttemptsCsv(exportRows, exportTitle, dateRange)}>
                 <Download className="mr-2 h-4 w-4" /> CSV
               </Button>
-              <Button variant="outline" size="sm" onClick={() => exportAttemptsPdf(exportRows, exportTitle)}>
+              <Button variant="outline" size="sm" disabled={filtered.length === 0} onClick={() => exportAttemptsPdf(exportRows, exportTitle, dateRange)}>
                 <FileText className="mr-2 h-4 w-4" /> PDF
               </Button>
             </div>

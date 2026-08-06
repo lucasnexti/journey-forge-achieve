@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import AdminLayout from "@/components/admin/AdminLayout";
@@ -66,6 +66,8 @@ const AdminProvas = () => {
   const [exam, setExam] = useState<ExamRow | null>(null);
   const [questions, setQuestions] = useState<QuestionRow[]>([]);
   const [attempts, setAttempts] = useState<any[]>([]);
+  const [dateRange, setDateRange] = useState<ExamDateRange>({});
+  const visibleAttempts = useMemo(() => filterAttemptsByDate(attempts, dateRange), [attempts, dateRange]);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState(emptyQuestion);
   const [showForm, setShowForm] = useState(false);
