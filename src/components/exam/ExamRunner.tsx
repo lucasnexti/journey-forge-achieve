@@ -166,12 +166,18 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
   const allAnswered = exam ? answeredCount === exam.questions.length : false;
 
   const handleStart = async () => {
+    // impede abrir a mesma prova em duas abas ao mesmo tempo
+    if (!acquire()) {
+      toast.error("Esta avaliação já está aberta em outra aba. Feche-a para continuar aqui.");
+      return;
+    }
     setStarting(true);
     const { data, error } = await supabase.rpc("start_exam_attempt", { _track_id: trackId });
     setStarting(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) { release(); toast.error(error.message); return; }
     const payload = data as unknown as (ExamPayload & { error?: string; max_attempts?: number; attempts_used?: number });
     if (payload?.error) {
+      release();
       if (payload.error === "attempt_limit_reached") {
         setBlocked({ used: payload.attempts_used ?? 0, max: payload.max_attempts ?? 0 });
       }
@@ -179,7 +185,7 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
       return;
     }
 
-    if (!payload?.questions?.length) { toast.error("Esta avaliação ainda não possui questões cadastradas."); return; }
+    if (!payload?.questions?.length) { release(); toast.error("Esta avaliação ainda não possui questões cadastradas."); return; }
     clearDraft();
     setExam(payload);
     setAnswers({});
@@ -193,6 +199,11 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
 
   const handleSubmit = async () => {
     if (!exam || submittingRef.current) return;
+    // se o lock foi tomado por outra aba, esta aba não pode enviar
+    if (isHeldByOtherTab()) {
+      toast.error("Esta avaliação foi assumida por outra aba. Continue por lá para enviar.");
+      return;
+    }
     submittingRef.current = true;
     setSubmitting(true);
     const { data, error } = await supabase.rpc("submit_exam_attempt", {
@@ -208,6 +219,7 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
       if (res.error === "attempt_limit_reached") {
         setBlocked({ used: res.attempts_used ?? 0, max: res.max_attempts ?? 0 });
         clearDraft();
+        release();
         setExam(null);
       }
       toast.error(ERROR_MESSAGES[res.error] || res.error);
@@ -215,10 +227,12 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
     }
 
     clearDraft();
+    release();
     setResult(res);
     setStartedAt(null);
     onFinished(res);
   };
+
 
   // Auto-submit when time runs out
   useEffect(() => {
