@@ -308,9 +308,10 @@ const TrackPage = () => {
                           onProgress={handleProgress}
                           lessonTitle={currentLesson.title}
                           lessonDuration={currentLesson.duration || 0}
-                          initialWatchedSeconds={progress[currentLessonId]?.watched_seconds || 0}
-                          onPrev={currentIndex > 0 ? () => goToLesson(currentIndex - 1) : undefined}
-                          onNext={currentIndex < lessons.length - 1 ? () => goToLesson(currentIndex + 1) : undefined}
+                          initialWatchedSeconds={initialWatchedForLesson}
+                          onPrev={currentIndex > 0 ? handlePrevLesson : undefined}
+                          onNext={currentIndex < lessons.length - 1 ? handleNextLesson : undefined}
+
                         />
                       </div>
 
