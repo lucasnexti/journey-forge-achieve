@@ -138,8 +138,8 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
     }
   }, [draftKey, exam, result, acquire]);
 
-  // ── Salvamento automático ──
-  useEffect(() => {
+  // ── Salvamento automático (a cada alteração) ──
+  const saveDraft = useCallback(() => {
     if (!draftKey || !exam || !startedAt || result) return;
     const now = Date.now();
     try {
@@ -150,6 +150,25 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
       /* storage indisponível — a prova continua normalmente */
     }
   }, [draftKey, exam, answers, startedAt, result]);
+
+  useEffect(() => { saveDraft(); }, [saveDraft]);
+
+  // ── Auto-salvamento periódico (rede de segurança a cada 10s) ──
+  const saveDraftRef = useRef(saveDraft);
+  saveDraftRef.current = saveDraft;
+  useEffect(() => {
+    if (!exam || result) return;
+    const t = setInterval(() => saveDraftRef.current(), 10000);
+    const onHide = () => saveDraftRef.current();
+    document.addEventListener("visibilitychange", onHide);
+    window.addEventListener("pagehide", onHide);
+    return () => {
+      clearInterval(t);
+      document.removeEventListener("visibilitychange", onHide);
+      window.removeEventListener("pagehide", onHide);
+    };
+  }, [exam, result]);
+
 
   // Confirmação antes de fechar/atualizar a aba com prova em andamento
   useEffect(() => {
