@@ -341,9 +341,16 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
             </>
           )}
         </div>
-        <Button variant="outline" className="mt-4 w-full gap-2" onClick={() => window.location.reload()}>
-          <RotateCcw className="h-4 w-4" /> Tentar nesta aba
+        <Button
+          variant={released ? "default" : "outline"}
+          className="mt-4 w-full gap-2"
+          disabled={!released || starting}
+          onClick={handleResumeHere}
+        >
+          <RotateCcw className="h-4 w-4" />
+          {released ? "Retomar avaliação nesta aba" : "Aguardando liberação..."}
         </Button>
+
       </div>
     );
   }
