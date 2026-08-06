@@ -428,9 +428,11 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
           ))}
         </div>
 
+        {result.passed ? (
         <div className="mt-6 space-y-4">
           <h4 className="text-sm font-semibold text-foreground">Gabarito</h4>
           {result.details.map((d: any, i: number) => (
+
             <div key={d.question_id} className="rounded-lg border border-border/50 p-4">
               <div className="flex items-start gap-2">
                 <span className="text-xs tabular-nums text-muted-foreground mt-0.5">{i + 1}.</span>
