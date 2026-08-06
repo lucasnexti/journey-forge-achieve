@@ -53,7 +53,18 @@ const ERROR_MESSAGES: Record<string, string> = {
   unauthenticated: "Sessão expirada. Faça login novamente.",
 };
 
+// Rascunho local: mantém questões sorteadas, respostas e início da tentativa
+interface ExamDraft {
+  exam: ExamPayload;
+  answers: Record<string, string>;
+  startedAt: number;
+  savedAt: number;
+}
+
+const DRAFT_MAX_AGE_MS = 12 * 60 * 60 * 1000; // 12h
+
 const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerProps) => {
+  const { user } = useAuth();
   const [exam, setExam] = useState<ExamPayload | null>(null);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [starting, setStarting] = useState(false);
@@ -61,11 +72,72 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
   const [result, setResult] = useState<ExamResult | null>(null);
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [elapsed, setElapsed] = useState(0);
+  const [savedAt, setSavedAt] = useState<number | null>(null);
+  const [restored, setRestored] = useState(false);
+
+  const draftKey = user ? `nexti:exam-draft:${user.id}:${trackId}` : null;
+
+  const clearDraft = useCallback(() => {
+    if (draftKey) localStorage.removeItem(draftKey);
+    setSavedAt(null);
+  }, [draftKey]);
+
+  // ── Recuperação após atualização/queda ──
+  useEffect(() => {
+    if (!draftKey || exam || result) return;
+    try {
+      const raw = localStorage.getItem(draftKey);
+      if (!raw) return;
+      const draft = JSON.parse(raw) as ExamDraft;
+      if (!draft?.exam?.questions?.length || !draft.startedAt) {
+        localStorage.removeItem(draftKey);
+        return;
+      }
+      if (Date.now() - draft.startedAt > DRAFT_MAX_AGE_MS) {
+        localStorage.removeItem(draftKey);
+        return;
+      }
+      setExam(draft.exam);
+      setAnswers(draft.answers || {});
+      setStartedAt(draft.startedAt);
+      setElapsed(Math.floor((Date.now() - draft.startedAt) / 1000));
+      setSavedAt(draft.savedAt || null);
+      setRestored(true);
+      toast.info("Avaliação recuperada — suas respostas e o tempo foram mantidos.");
+    } catch {
+      localStorage.removeItem(draftKey);
+    }
+  }, [draftKey, exam, result]);
+
+  // ── Salvamento automático ──
+  useEffect(() => {
+    if (!draftKey || !exam || !startedAt || result) return;
+    const now = Date.now();
+    try {
+      const draft: ExamDraft = { exam, answers, startedAt, savedAt: now };
+      localStorage.setItem(draftKey, JSON.stringify(draft));
+      setSavedAt(now);
+    } catch {
+      /* storage indisponível — a prova continua normalmente */
+    }
+  }, [draftKey, exam, answers, startedAt, result]);
+
+  // Avisa antes de fechar a aba com prova em andamento
+  useEffect(() => {
+    if (!exam || result) return;
+    const handler = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = ""; };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [exam, result]);
 
   useEffect(() => {
     if (!startedAt || result) return;
-    const t = setInterval(() => setElapsed(Math.floor((Date.now() - startedAt) / 1000)), 1000);
-    return () => clearInterval(t);
+    const tick = () => setElapsed(Math.floor((Date.now() - startedAt) / 1000));
+    tick();
+    const t = setInterval(tick, 1000);
+    // recalcula ao voltar para a aba (timers são congelados em background)
+    document.addEventListener("visibilitychange", tick);
+    return () => { clearInterval(t); document.removeEventListener("visibilitychange", tick); };
   }, [startedAt, result]);
 
   const timeLeft = useMemo(() => {
@@ -84,15 +156,20 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
     const payload = data as unknown as (ExamPayload & { error?: string });
     if (payload?.error) { toast.error(ERROR_MESSAGES[payload.error] || payload.error); return; }
     if (!payload?.questions?.length) { toast.error("Esta avaliação ainda não possui questões cadastradas."); return; }
+    clearDraft();
     setExam(payload);
     setAnswers({});
     setResult(null);
+    setRestored(false);
     setStartedAt(Date.now());
     setElapsed(0);
   };
 
+  const submittingRef = useRef(false);
+
   const handleSubmit = async () => {
-    if (!exam) return;
+    if (!exam || submittingRef.current) return;
+    submittingRef.current = true;
     setSubmitting(true);
     const { data, error } = await supabase.rpc("submit_exam_attempt", {
       _exam_id: exam.exam_id,
@@ -100,9 +177,11 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
       _duration_seconds: elapsed,
     });
     setSubmitting(false);
+    submittingRef.current = false;
     if (error) { toast.error(error.message); return; }
     const res = data as unknown as (ExamResult & { error?: string });
     if (res?.error) { toast.error(ERROR_MESSAGES[res.error] || res.error); return; }
+    clearDraft();
     setResult(res);
     setStartedAt(null);
     onFinished(res);
@@ -118,6 +197,7 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
   }, [timeLeft]);
 
   const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+
 
   // ── Resultado ──
   if (result) {
