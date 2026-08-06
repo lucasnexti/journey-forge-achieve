@@ -25,6 +25,9 @@ export interface ExamPayload {
   description: string | null;
   passing_score: number;
   time_limit_minutes: number | null;
+  max_attempts?: number | null;
+  attempts_used?: number | null;
+  attempts_left?: number | null;
   questions: ExamQuestion[];
 }
 
@@ -36,6 +39,9 @@ export interface ExamResult {
   passing_score: number;
   passed: boolean;
   attempt_number: number;
+  max_attempts?: number | null;
+  attempts_used?: number | null;
+  attempts_left?: number | null;
   details: any[];
 }
 
@@ -50,8 +56,10 @@ const ERROR_MESSAGES: Record<string, string> = {
   no_exam: "Nenhuma avaliação ativa foi configurada para este curso.",
   not_enrolled: "Você precisa estar matriculado neste curso.",
   lessons_incomplete: "Conclua 100% das aulas para liberar a avaliação.",
+  attempt_limit_reached: "Você atingiu o limite de tentativas desta avaliação.",
   unauthenticated: "Sessão expirada. Faça login novamente.",
 };
+
 
 // Rascunho local: mantém questões sorteadas, respostas e início da tentativa
 interface ExamDraft {
@@ -74,6 +82,8 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
   const [elapsed, setElapsed] = useState(0);
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [restored, setRestored] = useState(false);
+  const [blocked, setBlocked] = useState<{ used: number; max: number } | null>(null);
+
 
   const draftKey = user ? `nexti:exam-draft:${user.id}:${trackId}` : null;
 
@@ -153,8 +163,15 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
     const { data, error } = await supabase.rpc("start_exam_attempt", { _track_id: trackId });
     setStarting(false);
     if (error) { toast.error(error.message); return; }
-    const payload = data as unknown as (ExamPayload & { error?: string });
-    if (payload?.error) { toast.error(ERROR_MESSAGES[payload.error] || payload.error); return; }
+    const payload = data as unknown as (ExamPayload & { error?: string; max_attempts?: number; attempts_used?: number });
+    if (payload?.error) {
+      if (payload.error === "attempt_limit_reached") {
+        setBlocked({ used: payload.attempts_used ?? 0, max: payload.max_attempts ?? 0 });
+      }
+      toast.error(ERROR_MESSAGES[payload.error] || payload.error);
+      return;
+    }
+
     if (!payload?.questions?.length) { toast.error("Esta avaliação ainda não possui questões cadastradas."); return; }
     clearDraft();
     setExam(payload);
@@ -179,8 +196,17 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
     setSubmitting(false);
     submittingRef.current = false;
     if (error) { toast.error(error.message); return; }
-    const res = data as unknown as (ExamResult & { error?: string });
-    if (res?.error) { toast.error(ERROR_MESSAGES[res.error] || res.error); return; }
+    const res = data as unknown as (ExamResult & { error?: string; max_attempts?: number; attempts_used?: number });
+    if (res?.error) {
+      if (res.error === "attempt_limit_reached") {
+        setBlocked({ used: res.attempts_used ?? 0, max: res.max_attempts ?? 0 });
+        clearDraft();
+        setExam(null);
+      }
+      toast.error(ERROR_MESSAGES[res.error] || res.error);
+      return;
+    }
+
     clearDraft();
     setResult(res);
     setStartedAt(null);
@@ -217,13 +243,18 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
           </div>
         </div>
 
-        <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-5">
           {[
             { label: "Aproveitamento", value: `${result.percent}%` },
             { label: "Acertos", value: `${result.correct}/${result.total}` },
             { label: "Nota mínima", value: `${result.passing_score}%` },
             { label: "Tentativa", value: `#${result.attempt_number}` },
+            {
+              label: "Tentativas restantes",
+              value: result.max_attempts && result.max_attempts > 0 ? String(result.attempts_left ?? 0) : "∞",
+            },
           ].map((s) => (
+
             <div key={s.label} className="rounded-lg border border-border/50 p-3 text-center">
               <p className="text-[11px] uppercase tracking-wider text-muted-foreground">{s.label}</p>
               <p className="mt-1 tabular-nums font-display text-lg font-bold text-foreground">{s.value}</p>
@@ -290,6 +321,10 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
             <h3 className="font-display text-lg font-semibold text-foreground">{exam.title}</h3>
             <p className="mt-1 text-sm text-muted-foreground">
               Nota mínima: {exam.passing_score}% · {exam.questions.length} questões
+              {exam.max_attempts && exam.max_attempts > 0
+                ? ` · Tentativa ${(exam.attempts_used ?? 0) + 1} de ${exam.max_attempts}`
+                : ""}
+
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -384,27 +419,31 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
   }
 
   // ── Tela inicial ──
+  const attemptsExhausted = !!blocked && blocked.max > 0 && blocked.used >= blocked.max;
   return (
     <div className="card-surface p-6 text-center">
       <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-        {locked ? <Lock className="h-5 w-5 text-primary" /> : <ClipboardCheck className="h-5 w-5 text-primary" />}
+        {locked || attemptsExhausted ? <Lock className="h-5 w-5 text-primary" /> : <ClipboardCheck className="h-5 w-5 text-primary" />}
       </div>
       <h3 className="mt-3 font-display text-base font-bold text-foreground">Avaliação Final</h3>
       <p className="mt-1 text-sm text-muted-foreground">
-        {locked
-          ? lockedReason || "Conclua 100% das aulas para liberar a avaliação."
-          : "As questões e alternativas são embaralhadas a cada tentativa."}
+        {attemptsExhausted
+          ? `Limite de tentativas atingido (${blocked!.used}/${blocked!.max}). Procure o administrador para liberar uma nova tentativa.`
+          : locked
+            ? lockedReason || "Conclua 100% das aulas para liberar a avaliação."
+            : "As questões e alternativas são embaralhadas a cada tentativa."}
       </p>
       <Button
         onClick={handleStart}
-        disabled={locked || starting}
+        disabled={locked || starting || attemptsExhausted}
         className="mt-4 w-full gap-2 bg-gradient-nexti text-primary-foreground hover:opacity-90 h-11"
       >
         {starting ? <RotateCcw className="h-4 w-4 animate-spin" /> : <ClipboardCheck className="h-4 w-4" />}
-        Realizar Avaliação
+        {attemptsExhausted ? "Tentativas esgotadas" : "Realizar Avaliação"}
       </Button>
     </div>
   );
+
 };
 
 export default ExamRunner;

@@ -27,6 +27,8 @@ interface ExamRow {
   passing_score: number;
   question_count: number;
   time_limit_minutes: number | null;
+  max_attempts: number;
+
   shuffle_questions: boolean;
   shuffle_options: boolean;
   is_active: boolean;
@@ -278,7 +280,17 @@ const AdminProvas = () => {
                     onChange={(e) => setExam({ ...exam, time_limit_minutes: e.target.value ? Number(e.target.value) : null })}
                     onBlur={(e) => saveExam({ time_limit_minutes: e.target.value ? Number(e.target.value) : null })} />
                 </div>
+                <div className="space-y-2">
+                  <Label>Limite de tentativas</Label>
+                  <Input type="number" min={0} value={exam.max_attempts ?? 0}
+                    onChange={(e) => setExam({ ...exam, max_attempts: Number(e.target.value) })}
+                    onBlur={(e) => saveExam({ max_attempts: Math.max(Number(e.target.value) || 0, 0) })} />
+                  <p className="text-xs text-muted-foreground">
+                    Após atingir o limite, o aluno fica bloqueado. Use 0 para tentativas ilimitadas.
+                  </p>
+                </div>
               </div>
+
 
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 {([
