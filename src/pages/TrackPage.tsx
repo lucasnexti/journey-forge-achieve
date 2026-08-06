@@ -165,16 +165,16 @@ const TrackPage = () => {
     }));
   }, [user, trackId, currentLessonId]);
 
-  const handleQuizSubmit = async (score: number, passed: boolean) => {
-    if (!user || !quiz) return;
-    await supabase.from("quiz_attempts").insert({ user_id: user.id, quiz_id: quiz.id, score, passed });
-    setQuizScore(score);
-    setQuizPassed(passed);
+  const handleExamFinished = async (result: ExamResult) => {
+    if (!user || !trackId) return;
+    setQuizScore(result.percent);
 
-    if (passed) {
-      const coinAmount = score === 100 ? COIN_REWARDS.quiz_perfect : COIN_REWARDS.quiz_pass;
-      awardCoins(user.id, coinAmount, score === 100 ? "Quiz nota máxima" : "Quiz aprovado", "quiz", quiz.id).catch(console.error);
-      awardCoins(user.id, COIN_REWARDS.track_complete, "Trilha concluída", "track", trackId!).catch(console.error);
+    if (result.passed) {
+      setQuizPassed(true);
+      setCompletedAt(new Date().toISOString());
+      const coinAmount = result.percent === 100 ? COIN_REWARDS.quiz_perfect : COIN_REWARDS.quiz_pass;
+      awardCoins(user.id, coinAmount, result.percent === 100 ? "Avaliação nota máxima" : "Avaliação aprovada", "exam", trackId).catch(console.error);
+      awardCoins(user.id, COIN_REWARDS.track_complete, "Trilha concluída", "track", trackId).catch(console.error);
 
       triggerAchievement({
         type: "track_complete",
@@ -182,14 +182,12 @@ const TrackPage = () => {
         description: `${track?.title} — Parabéns!`,
         value: COIN_REWARDS.track_complete,
       });
-
-      setCompletedAt(new Date().toISOString());
-      await supabase
-        .from("enrollments")
-        .update({ status: "completed", completed_at: new Date().toISOString() })
-        .eq("user_id", user.id)
-        .eq("track_id", trackId);
-      toast.success("Parabéns! Trilha concluída! 🪙 Moedas adicionadas!");
+      toast.success("Aprovado! Certificado liberado. 🪙 Moedas adicionadas!");
+    } else {
+      setQuizPassed(false);
+      setCompletedAt(null);
+      setProgress({});
+      toast.error("Reprovado. Seu progresso foi reiniciado — refaça as aulas para nova tentativa.");
     }
   };
 
@@ -200,19 +198,6 @@ const TrackPage = () => {
     }
   };
 
-  const quizForForm = quiz
-    ? {
-        quizId: quiz.id,
-        passingScore: quiz.passing_score || 70,
-        questions: quiz.quiz_questions
-          .sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
-          .map((q) => ({
-            id: q.id,
-            text: q.question,
-            options: Array.isArray(q.options) ? q.options as string[] : [],
-          })),
-      }
-    : null;
 
   const lessonSidebarProps = {
     lessons: lessons.map((l) => ({
@@ -393,13 +378,16 @@ const TrackPage = () => {
                     </>
                   )}
 
-                  {allLessonsComplete && !quizPassed && quizForForm && (
+                  {hasExam && !quizPassed && (
                     <Button
                       onClick={() => setShowQuiz(true)}
+                      disabled={!allLessonsComplete}
                       className="w-full gap-2 bg-gradient-nexti text-primary-foreground hover:opacity-90 h-12 text-sm"
                     >
                       <ClipboardCheck className="h-4 w-4" />
-                      Iniciar Avaliação Final
+                      {allLessonsComplete
+                        ? "Realizar Avaliação Final"
+                        : `Avaliação bloqueada — ${completedLessons}/${lessons.length} aulas concluídas`}
                     </Button>
                   )}
                 </motion.div>
@@ -411,8 +399,13 @@ const TrackPage = () => {
                   exit={{ opacity: 0, y: -8 }}
                   transition={{ duration: 0.2 }}
                 >
-                  {quizForForm && (
-                    <QuizForm quiz={quizForForm} onSubmit={handleQuizSubmit} previousScore={quizScore} />
+                  {trackId && (
+                    <ExamRunner
+                      trackId={trackId}
+                      locked={!allLessonsComplete}
+                      lockedReason={`Conclua 100% das aulas (${completedLessons}/${lessons.length}) para liberar a avaliação.`}
+                      onFinished={handleExamFinished}
+                    />
                   )}
                 </motion.div>
               )}
