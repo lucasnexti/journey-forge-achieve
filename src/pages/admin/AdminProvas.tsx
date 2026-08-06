@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { exportAttemptsCsv, exportAttemptsPdf, filterAttemptsByDate, rangeLabel, type ExamDateRange } from "@/lib/examExport";
 import ExamDateRangeFilter from "@/components/exam/ExamDateRangeFilter";
+import BatchExportDialog from "@/components/exam/BatchExportDialog";
 
 
 type QType = "multiple_choice" | "true_false" | "essay";
@@ -453,7 +454,10 @@ const AdminProvas = () => {
           {/* ── Resultados ── */}
           <TabsContent value="resultados" className="mt-4">
             {attempts.length === 0 ? (
-              <div className="card-surface p-10 text-center text-sm text-muted-foreground">Nenhuma tentativa registrada.</div>
+              <div className="card-surface flex flex-col items-center gap-3 p-10 text-center text-sm text-muted-foreground">
+                Nenhuma tentativa registrada neste curso.
+                <BatchExportDialog tracks={tracks} defaultTrackId={trackId} />
+              </div>
             ) : (
               <>
               <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
@@ -476,6 +480,7 @@ const AdminProvas = () => {
                   }}>
                     <FileText className="mr-2 h-4 w-4" /> Exportar PDF
                   </Button>
+                  <BatchExportDialog tracks={tracks} defaultTrackId={trackId} />
                 </div>
               </div>
               <div className="card-surface overflow-x-auto">

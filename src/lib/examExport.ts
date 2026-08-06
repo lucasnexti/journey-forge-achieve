@@ -1,5 +1,6 @@
 export interface ExamAttemptExportRow {
   nome?: string;
+  track_title?: string;
   attempt_number: number;
   correct_count: number;
   total_questions: number;
@@ -40,9 +41,16 @@ export function rangeLabel(range?: ExamDateRange): string {
 const rangeSuffix = (range?: ExamDateRange) =>
   range?.from || range?.to ? `-${range?.from || "inicio"}_${range?.to || "hoje"}` : "";
 
-const HEADERS = ["Aluno", "Tentativa", "Acertos", "Nota (%)", "Nota mínima (%)", "Tempo", "Situação", "Data"];
+const BASE_HEADERS = ["Aluno", "Tentativa", "Acertos", "Nota (%)", "Nota mínima (%)", "Tempo", "Situação", "Data"];
 
-const toRow = (a: ExamAttemptExportRow) => [
+const hasTracks = (rows: ExamAttemptExportRow[]) => rows.some((r) => !!r.track_title);
+const headersFor = (rows: ExamAttemptExportRow[]) =>
+  hasTracks(rows) ? ["Curso", ...BASE_HEADERS] : BASE_HEADERS;
+/** índice da coluna "Situação" (para colorir no PDF) */
+const statusIndex = (rows: ExamAttemptExportRow[]) => (hasTracks(rows) ? 7 : 6);
+
+const toRow = (a: ExamAttemptExportRow, withTrack: boolean) => [
+  ...(withTrack ? [a.track_title || "-"] : []),
   a.nome || "Aluno",
   `#${a.attempt_number}`,
   `${a.correct_count}/${a.total_questions}`,
@@ -56,7 +64,9 @@ const toRow = (a: ExamAttemptExportRow) => [
 export function exportAttemptsCsv(attempts: ExamAttemptExportRow[], trackTitle: string, range?: ExamDateRange) {
   attempts = filterAttemptsByDate(attempts, range);
   const esc = (v: string) => `"${v.replace(/"/g, '""')}"`;
-  const lines = [[`Período: ${rangeLabel(range)}`], HEADERS, ...attempts.map(toRow)].map((r) => r.map(esc).join(";"));
+  const withTrack = hasTracks(attempts);
+  const lines = [[`Período: ${rangeLabel(range)}`], headersFor(attempts), ...attempts.map((a) => toRow(a, withTrack))]
+    .map((r) => r.map(esc).join(";"));
   const blob = new Blob(["\uFEFF" + lines.join("\r\n")], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
@@ -73,11 +83,13 @@ export function exportAttemptsPdf(attempts: ExamAttemptExportRow[], trackTitle: 
     ? Math.round(attempts.reduce((s, a) => s + Number(a.percent), 0) / attempts.length)
     : 0;
 
+  const withTrack = hasTracks(attempts);
+  const sIdx = statusIndex(attempts);
   const rows = attempts
     .map(
       (a) =>
-        `<tr>${toRow(a)
-          .map((c, i) => `<td class="${i === 6 ? (a.passed ? "ok" : "bad") : ""}">${c}</td>`)
+        `<tr>${toRow(a, withTrack)
+          .map((c, i) => `<td class="${i === sIdx ? (a.passed ? "ok" : "bad") : ""}">${c}</td>`)
           .join("")}</tr>`,
     )
     .join("");
@@ -109,7 +121,7 @@ export function exportAttemptsPdf(attempts: ExamAttemptExportRow[], trackTitle: 
   <div>Reprovados <b>${attempts.length - approved}</b></div>
   <div>Média <b>${avg}%</b></div>
 </div>
-<table><thead><tr>${HEADERS.map((h) => `<th>${h}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table>
+<table><thead><tr>${headersFor(attempts).map((h) => `<th>${h}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table>
 <script>window.onload=()=>{window.print();}<\/script>
 </body></html>`;
 
