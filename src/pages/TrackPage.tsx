@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -106,6 +106,9 @@ const TrackPage = () => {
 
   const currentLesson = lessons.find((l) => l.id === currentLessonId);
   const currentIndex = lessons.findIndex((l) => l.id === currentLessonId);
+  const currentIndexRef = useRef(currentIndex);
+  currentIndexRef.current = currentIndex;
+
   const allLessonsComplete = lessons.length > 0 && lessons.every(isLessonComplete);
   const completedLessons = lessons.filter(isLessonComplete).length;
 
@@ -124,7 +127,7 @@ const TrackPage = () => {
 
   
 
-  const handleLessonComplete = async (watchedSeconds: number) => {
+  const handleLessonComplete = useCallback(async (watchedSeconds: number) => {
     if (!user || !trackId) return;
     setProgress((prev) => ({
       ...prev,
@@ -139,7 +142,8 @@ const TrackPage = () => {
       description: `+${COIN_REWARDS.lesson_complete} Nexti Coins`,
       value: COIN_REWARDS.lesson_complete,
     });
-  };
+  }, [user, trackId, currentLessonId]);
+
 
   const handleProgress = useCallback(async (watchedSeconds: number) => {
     if (!user || !trackId) return;
@@ -179,12 +183,27 @@ const TrackPage = () => {
     }
   };
 
-  const goToLesson = (index: number) => {
-    if (index >= 0 && index < lessons.length) {
-      setCurrentLessonId(lessons[index].id);
-      setShowQuiz(false);
-    }
-  };
+  const goToLesson = useCallback((index: number) => {
+    setLessons((prev) => {
+      if (index >= 0 && index < prev.length) {
+        setCurrentLessonId(prev[index].id);
+        setShowQuiz(false);
+      }
+      return prev;
+    });
+  }, []);
+
+  const handlePrevLesson = useCallback(() => goToLesson(currentIndexRef.current - 1), [goToLesson]);
+  const handleNextLesson = useCallback(() => goToLesson(currentIndexRef.current + 1), [goToLesson]);
+
+  // Congela a posição inicial por aula: evita reiniciar o player a cada salvamento de progresso
+  const progressRef = useRef(progress);
+  progressRef.current = progress;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const initialWatchedForLesson = useMemo(() => progressRef.current[currentLessonId]?.watched_seconds || 0, [currentLessonId, loading]);
+
+
+
 
 
   const lessonSidebarProps = {
@@ -297,9 +316,10 @@ const TrackPage = () => {
                           onProgress={handleProgress}
                           lessonTitle={currentLesson.title}
                           lessonDuration={currentLesson.duration || 0}
-                          initialWatchedSeconds={progress[currentLessonId]?.watched_seconds || 0}
-                          onPrev={currentIndex > 0 ? () => goToLesson(currentIndex - 1) : undefined}
-                          onNext={currentIndex < lessons.length - 1 ? () => goToLesson(currentIndex + 1) : undefined}
+                          initialWatchedSeconds={initialWatchedForLesson}
+                          onPrev={currentIndex > 0 ? handlePrevLesson : undefined}
+                          onNext={currentIndex < lessons.length - 1 ? handleNextLesson : undefined}
+
                         />
                       </div>
 

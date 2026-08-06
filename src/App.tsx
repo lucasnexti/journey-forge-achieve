@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
@@ -12,8 +13,9 @@ import AdminRoute from "@/components/AdminRoute";
 
 // Eagerly loaded (critical path)
 import LandingPage from "./pages/LandingPage";
-import AuthPage from "./pages/AuthPage";
-import Dashboard from "./pages/Dashboard";
+const AuthPage = lazy(() => import("./pages/AuthPage"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+
 
 // Lazy loaded
 const TrackPage = lazy(() => import("./pages/TrackPage"));
@@ -72,7 +74,7 @@ const PageLoader = () => (
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />
+    {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />}
     <TooltipProvider>
       <Toaster />
       <Sonner />

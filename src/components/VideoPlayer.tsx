@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useRef, useState, useEffect, useCallback, memo } from "react";
 import Player from "@vimeo/player";
 import { Play, Pause, Volume2, VolumeX, Maximize, SkipForward, SkipBack, RotateCcw } from "lucide-react";
 
@@ -47,33 +47,50 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
   const lastSavedRef = useRef(0);
   const completedRef = useRef(false);
   const currentTimeRef = useRef(initialWatchedSeconds);
+  const lastRenderedSecondRef = useRef(Math.floor(initialWatchedSeconds));
 
+  // Keep callbacks in refs so the Vimeo player is never re-created on parent re-render
+  const onCompleteRef = useRef(onComplete);
+  const onProgressRef = useRef(onProgress);
+  onCompleteRef.current = onComplete;
+  onProgressRef.current = onProgress;
+
+  // Freeze the resume position per video so progress saves don't restart the player
+  const resumeRef = useRef({ url: videoUrl, seconds: initialWatchedSeconds });
+  if (resumeRef.current.url !== videoUrl) {
+    resumeRef.current = { url: videoUrl, seconds: initialWatchedSeconds };
+  }
+  const resumeSeconds = resumeRef.current.seconds;
+
+  // Only push state (re-render) when the visible second actually changes
   const syncCurrentTime = useCallback((time: number) => {
     currentTimeRef.current = time;
-    setCurrentTime(time);
+    const second = Math.floor(time);
+    if (second !== lastRenderedSecondRef.current) {
+      lastRenderedSecondRef.current = second;
+      setCurrentTime(time);
+    }
   }, []);
 
   const persistProgress = useCallback((time?: number) => {
     const safeTime = Math.max(0, Math.round(time ?? currentTimeRef.current));
     if (safeTime > 0) {
       lastSavedRef.current = safeTime;
-      onProgress?.(safeTime);
+      onProgressRef.current?.(safeTime);
     }
-  }, [onProgress]);
+  }, []);
 
   useEffect(() => {
     setPlaying(false);
-    syncCurrentTime(initialWatchedSeconds);
+    currentTimeRef.current = resumeSeconds;
+    lastRenderedSecondRef.current = Math.floor(resumeSeconds);
+    setCurrentTime(resumeSeconds);
     setCompleted(false);
     completedRef.current = false;
     setSpeed(1);
     lastSavedRef.current = 0;
     if (videoRef.current) videoRef.current.playbackRate = 1;
-    if (vimeoPlayerRef.current) {
-      vimeoPlayerRef.current.destroy().catch(() => undefined);
-      vimeoPlayerRef.current = null;
-    }
-  }, [videoUrl, initialWatchedSeconds, syncCurrentTime]);
+  }, [videoUrl, resumeSeconds]);
 
   const saveProgressIfNeeded = useCallback((time: number) => {
     if (time - lastSavedRef.current >= PROGRESS_SAVE_INTERVAL) {
@@ -95,6 +112,7 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
     };
   }, [persistProgress, videoUrl]);
 
+
   useEffect(() => {
     if (!vimeo || !iframeRef.current) return;
     const player = new Player(iframeRef.current);
@@ -104,8 +122,9 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
       const playerDuration = await player.getDuration().catch(() => 0);
       const effectiveDuration = lessonDuration > 0 ? lessonDuration : playerDuration || 0;
       const resumeTime = effectiveDuration > 0
-        ? Math.min(initialWatchedSeconds, Math.max(effectiveDuration - 1, 0))
-        : initialWatchedSeconds;
+        ? Math.min(resumeSeconds, Math.max(effectiveDuration - 1, 0))
+        : resumeSeconds;
+
       if (resumeTime > 0) {
         await player.setCurrentTime(resumeTime).catch(() => undefined);
         syncCurrentTime(resumeTime);
@@ -131,7 +150,7 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
       if (!completedRef.current && effectiveDuration > 0 && clampedSeconds >= effectiveDuration * 0.9) {
         completedRef.current = true;
         setCompleted(true);
-        onComplete(Math.round(effectiveDuration));
+        onCompleteRef.current(Math.round(effectiveDuration));
         persistProgress(effectiveDuration);
       }
     });
@@ -143,7 +162,7 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
       if (!completedRef.current) {
         completedRef.current = true;
         setCompleted(true);
-        onComplete(Math.round(finalSeconds));
+        onCompleteRef.current(Math.round(finalSeconds));
       }
       persistProgress(finalSeconds);
     });
@@ -152,7 +171,8 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
       player.destroy().catch(() => undefined);
       vimeoPlayerRef.current = null;
     };
-  }, [vimeo, videoUrl, lessonDuration, initialWatchedSeconds, onComplete, persistProgress, syncCurrentTime]);
+  }, [vimeo, videoUrl, lessonDuration, resumeSeconds, persistProgress, syncCurrentTime]);
+
 
   const togglePlay = async () => {
     if (vimeo) {
@@ -310,8 +330,9 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
           onLoadedMetadata={() => {
             setDuration(videoRef.current?.duration || 0);
             // Auto-seek to last watched position
-            if (videoRef.current && initialWatchedSeconds > 0) {
-              videoRef.current.currentTime = Math.min(initialWatchedSeconds, (videoRef.current.duration || Infinity) - 1);
+            if (videoRef.current && resumeSeconds > 0) {
+              videoRef.current.currentTime = Math.min(resumeSeconds, (videoRef.current.duration || Infinity) - 1);
+
             }
           }}
           onPause={() => persistProgress(videoRef.current?.currentTime || 0)}
@@ -413,4 +434,4 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
   );
 };
 
-export default VideoPlayer;
+export default memo(VideoPlayer);
