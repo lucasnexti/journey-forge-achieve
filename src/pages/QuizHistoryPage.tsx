@@ -163,7 +163,9 @@ const QuizHistoryPage = () => {
               </tbody>
             </table>
           </div>
+          </>
         )}
+
       </main>
     </AppLayout>
   );
