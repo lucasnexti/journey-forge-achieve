@@ -196,6 +196,14 @@ const TrackPage = () => {
   const handlePrevLesson = useCallback(() => goToLesson(currentIndexRef.current - 1), [goToLesson]);
   const handleNextLesson = useCallback(() => goToLesson(currentIndexRef.current + 1), [goToLesson]);
 
+  // Congela a posição inicial por aula: evita reiniciar o player a cada salvamento de progresso
+  const progressRef = useRef(progress);
+  progressRef.current = progress;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const initialWatchedForLesson = useMemo(() => progressRef.current[currentLessonId]?.watched_seconds || 0, [currentLessonId, loading]);
+
+
+
 
 
   const lessonSidebarProps = {
