@@ -1,13 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import {
-  AlertCircle, CheckCircle2, ClipboardCheck, Clock, Lock, RotateCcw, XCircle,
+  AlertCircle, CheckCircle2, ClipboardCheck, Clock, Cloud, Lock, RotateCcw, XCircle,
 } from "lucide-react";
+
 
 export interface ExamQuestion {
   id: string;
