@@ -292,11 +292,27 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
               Nota mínima: {exam.passing_score}% · {exam.questions.length} questões
             </p>
           </div>
-          <div className="flex items-center gap-2 text-sm tabular-nums text-muted-foreground">
-            <Clock className="h-4 w-4" />
-            {timeLeft !== null ? fmt(timeLeft) : fmt(elapsed)}
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Cloud className="h-3.5 w-3.5" />
+              {savedAt
+                ? `Salvo às ${new Date(savedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`
+                : "Salvamento automático"}
+            </span>
+            <div className="flex items-center gap-2 text-sm tabular-nums text-muted-foreground">
+              <Clock className="h-4 w-4" />
+              {timeLeft !== null ? fmt(timeLeft) : fmt(elapsed)}
+            </div>
           </div>
         </div>
+
+        {restored && (
+          <div className="mt-3 flex items-center gap-2 rounded-lg bg-primary/5 px-3 py-2 text-xs text-muted-foreground">
+            <RotateCcw className="h-3.5 w-3.5 text-primary" />
+            Tentativa recuperada automaticamente — respostas e tempo total preservados.
+          </div>
+        )}
+
 
         <div className="mt-4 flex items-center gap-2">
           <Progress value={(answeredCount / exam.questions.length) * 100} className="h-1.5 flex-1" />
