@@ -401,8 +401,11 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
             <p className="text-xs mt-0.5">
               {result.passed
                 ? "Curso concluído e certificado liberado."
-                : "Seu progresso foi reiniciado. Refaça todas as aulas para tentar novamente."}
+                : (result as any).course_reset
+                ? "Você esgotou as tentativas. Seu progresso foi reiniciado — refaça todo o curso para tentar novamente."
+                : `Você ainda tem ${result.attempts_left ?? 1} tentativa(s). Revise o conteúdo e tente novamente.`}
             </p>
+
           </div>
         </div>
 
