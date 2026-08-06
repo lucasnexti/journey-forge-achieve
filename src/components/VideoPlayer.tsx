@@ -114,11 +114,28 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
 
 
   useEffect(() => {
+    if (!vimeo) return;
+    setVimeoStatus("loading");
+  }, [vimeo, videoUrl, reloadKey]);
+
+  // Detecta player lento ou com falha para liberar o fallback
+  useEffect(() => {
+    if (!vimeo || vimeoStatus !== "loading") return;
+    const slowTimer = window.setTimeout(() => setVimeoStatus((s) => (s === "loading" ? "slow" : s)), 8000);
+    const errorTimer = window.setTimeout(() => setVimeoStatus((s) => (s === "ready" ? s : "error")), 20000);
+    return () => {
+      window.clearTimeout(slowTimer);
+      window.clearTimeout(errorTimer);
+    };
+  }, [vimeo, vimeoStatus, videoUrl, reloadKey]);
+
+  useEffect(() => {
     if (!vimeo || !iframeRef.current) return;
     const player = new Player(iframeRef.current);
     vimeoPlayerRef.current = player;
 
     player.ready().then(async () => {
+      setVimeoStatus("ready");
       const playerDuration = await player.getDuration().catch(() => 0);
       const effectiveDuration = lessonDuration > 0 ? lessonDuration : playerDuration || 0;
       const resumeTime = effectiveDuration > 0
@@ -129,7 +146,8 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
         await player.setCurrentTime(resumeTime).catch(() => undefined);
         syncCurrentTime(resumeTime);
       }
-    }).catch(() => undefined);
+    }).catch(() => setVimeoStatus("error"));
+
 
     player.on("play", () => setPlaying(true));
     player.on("pause", async () => {
