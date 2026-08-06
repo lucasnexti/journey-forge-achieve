@@ -180,12 +180,19 @@ const TrackPage = () => {
     }
   };
 
-  const goToLesson = (index: number) => {
-    if (index >= 0 && index < lessons.length) {
-      setCurrentLessonId(lessons[index].id);
-      setShowQuiz(false);
-    }
-  };
+  const goToLesson = useCallback((index: number) => {
+    setLessons((prev) => {
+      if (index >= 0 && index < prev.length) {
+        setCurrentLessonId(prev[index].id);
+        setShowQuiz(false);
+      }
+      return prev;
+    });
+  }, []);
+
+  const handlePrevLesson = useCallback(() => goToLesson(currentIndexRef.current - 1), [goToLesson]);
+  const handleNextLesson = useCallback(() => goToLesson(currentIndexRef.current + 1), [goToLesson]);
+
 
 
   const lessonSidebarProps = {
