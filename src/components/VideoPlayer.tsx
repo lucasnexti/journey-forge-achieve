@@ -330,8 +330,9 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
           onLoadedMetadata={() => {
             setDuration(videoRef.current?.duration || 0);
             // Auto-seek to last watched position
-            if (videoRef.current && initialWatchedSeconds > 0) {
-              videoRef.current.currentTime = Math.min(initialWatchedSeconds, (videoRef.current.duration || Infinity) - 1);
+            if (videoRef.current && resumeSeconds > 0) {
+              videoRef.current.currentTime = Math.min(resumeSeconds, (videoRef.current.duration || Infinity) - 1);
+
             }
           }}
           onPause={() => persistProgress(videoRef.current?.currentTime || 0)}
