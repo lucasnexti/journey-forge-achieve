@@ -258,6 +258,184 @@ export type Database = {
           },
         ]
       }
+      exam_attempts: {
+        Row: {
+          answers: Json
+          attempt_number: number
+          correct_count: number
+          created_at: string
+          details: Json
+          duration_seconds: number
+          exam_id: string
+          id: string
+          passed: boolean
+          passing_score: number
+          percent: number
+          score: number
+          total_questions: number
+          track_id: string
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          attempt_number?: number
+          correct_count?: number
+          created_at?: string
+          details?: Json
+          duration_seconds?: number
+          exam_id: string
+          id?: string
+          passed?: boolean
+          passing_score?: number
+          percent?: number
+          score?: number
+          total_questions?: number
+          track_id: string
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          attempt_number?: number
+          correct_count?: number
+          created_at?: string
+          details?: Json
+          duration_seconds?: number
+          exam_id?: string
+          id?: string
+          passed?: boolean
+          passing_score?: number
+          percent?: number
+          score?: number
+          total_questions?: number
+          track_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_attempts_exam_id_fkey"
+            columns: ["exam_id"]
+            isOneToOne: false
+            referencedRelation: "exams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exam_attempts_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exam_questions: {
+        Row: {
+          correct_answer: number | null
+          created_at: string
+          exam_id: string
+          expected_answer: string | null
+          explanation: string | null
+          id: string
+          is_active: boolean
+          options: Json
+          order_index: number
+          points: number
+          question: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          correct_answer?: number | null
+          created_at?: string
+          exam_id: string
+          expected_answer?: string | null
+          explanation?: string | null
+          id?: string
+          is_active?: boolean
+          options?: Json
+          order_index?: number
+          points?: number
+          question: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          correct_answer?: number | null
+          created_at?: string
+          exam_id?: string
+          expected_answer?: string | null
+          explanation?: string | null
+          id?: string
+          is_active?: boolean
+          options?: Json
+          order_index?: number
+          points?: number
+          question?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_questions_exam_id_fkey"
+            columns: ["exam_id"]
+            isOneToOne: false
+            referencedRelation: "exams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exams: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          passing_score: number
+          question_count: number
+          shuffle_options: boolean
+          shuffle_questions: boolean
+          time_limit_minutes: number | null
+          title: string
+          track_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          passing_score?: number
+          question_count?: number
+          shuffle_options?: boolean
+          shuffle_questions?: boolean
+          time_limit_minutes?: number | null
+          title?: string
+          track_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          passing_score?: number
+          question_count?: number
+          shuffle_options?: boolean
+          shuffle_questions?: boolean
+          time_limit_minutes?: number | null
+          title?: string
+          track_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exams_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: true
+            referencedRelation: "tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       forum_posts: {
         Row: {
           content: string
@@ -1469,6 +1647,10 @@ export type Database = {
       }
       get_user_coins: { Args: { _user_id: string }; Returns: number }
       get_user_empresa: { Args: { _user_id: string }; Returns: string }
+      has_completed_all_lessons: {
+        Args: { _track_id: string; _user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1477,6 +1659,11 @@ export type Database = {
         Returns: boolean
       }
       is_same_company: { Args: { _user_id: string }; Returns: boolean }
+      start_exam_attempt: { Args: { _track_id: string }; Returns: Json }
+      submit_exam_attempt: {
+        Args: { _answers: Json; _duration_seconds: number; _exam_id: string }
+        Returns: Json
+      }
       update_user_streak: { Args: { _user_id: string }; Returns: undefined }
       validate_kb_quiz_attempt: {
         Args: { _answers: Json; _module_ids: string[]; _user_id: string }
