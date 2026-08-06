@@ -263,14 +263,63 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
         {/* Video container — full width on mobile */}
         <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
           <iframe
+            key={reloadKey}
             ref={iframeRef}
             src={embedUrl}
             className="absolute inset-0 h-full w-full"
             allow="autoplay; fullscreen; picture-in-picture"
             allowFullScreen
             title={lessonTitle}
+            onError={() => setVimeoStatus("error")}
           />
+
+          {(vimeoStatus === "slow" || vimeoStatus === "error") && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-background/92 backdrop-blur-sm p-4 text-center">
+              <AlertTriangle className={vimeoStatus === "error" ? "h-7 w-7 text-destructive" : "h-7 w-7 text-primary"} />
+              <div>
+                <p className="text-sm font-semibold text-foreground">
+                  {vimeoStatus === "error" ? "Não foi possível carregar o vídeo" : "O vídeo está demorando para carregar"}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Use uma das alternativas abaixo para continuar a aula sem ficar bloqueado.
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <button
+                  onClick={() => { setVimeoStatus("loading"); setReloadKey((k) => k + 1); }}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-medium text-primary-foreground hover:opacity-90 transition-opacity"
+                >
+                  <RotateCcw className="h-3.5 w-3.5" /> Tentar novamente
+                </button>
+                <a
+                  href={videoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-foreground hover:bg-secondary transition-colors"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" /> Abrir em nova aba
+                </a>
+                {onNext && (
+                  <button
+                    onClick={onNext}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-foreground hover:bg-secondary transition-colors"
+                  >
+                    <SkipForward className="h-3.5 w-3.5" /> Pular para a próxima aula
+                  </button>
+                )}
+              </div>
+              {vimeoStatus === "slow" && (
+                <button
+                  onClick={() => setVimeoStatus("ready")}
+                  className="text-[11px] text-muted-foreground underline underline-offset-2 hover:text-foreground"
+                >
+                  Continuar aguardando
+                </button>
+              )}
+            </div>
+          )}
         </div>
+
 
         {/* Progress bar — thicker on mobile for easier touch */}
         <div className="relative h-2 sm:h-1.5 bg-border">
