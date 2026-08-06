@@ -122,7 +122,7 @@ const TrackPage = () => {
       )
     : 0;
 
-  const quiz = quizzes[0];
+  
 
   const handleLessonComplete = async (watchedSeconds: number) => {
     if (!user || !trackId) return;
