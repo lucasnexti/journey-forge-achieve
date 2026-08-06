@@ -389,6 +389,7 @@ export type Database = {
           description: string | null
           id: string
           is_active: boolean
+          max_attempts: number
           passing_score: number
           question_count: number
           shuffle_options: boolean
@@ -403,6 +404,7 @@ export type Database = {
           description?: string | null
           id?: string
           is_active?: boolean
+          max_attempts?: number
           passing_score?: number
           question_count?: number
           shuffle_options?: boolean
@@ -417,6 +419,7 @@ export type Database = {
           description?: string | null
           id?: string
           is_active?: boolean
+          max_attempts?: number
           passing_score?: number
           question_count?: number
           shuffle_options?: boolean
