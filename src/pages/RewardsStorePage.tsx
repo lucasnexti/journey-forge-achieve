@@ -49,16 +49,23 @@ const RewardsStorePage = () => {
       toast.error("Moedas insuficientes para este prêmio."); return;
     }
     setRedeeming(reward.id);
-    await supabase.rpc("award_coins", {
-      _user_id: user.id, _amount: -reward.cost,
-      _reason: `Resgate: ${reward.name}`, _reference_type: "redemption", _reference_id: reward.id,
-    });
-    await supabase.from("reward_redemptions").insert({
-      user_id: user.id, reward_id: reward.id, cost: reward.cost,
-    });
-    setGamification((prev) => ({ ...prev, coins: prev.coins - reward.cost }));
-    toast.success(`🎉 Prêmio "${reward.name}" resgatado! Aguarde a aprovação.`);
+    const { data, error } = await supabase.rpc("redeem_reward", { _reward_id: reward.id });
+    const res = (data ?? {}) as { ok?: boolean; error?: string; balance?: number };
     setRedeeming(null);
+
+    if (error || !res.ok) {
+      const messages: Record<string, string> = {
+        insufficient_coins: "Moedas insuficientes para este prêmio.",
+        out_of_stock: "Este prêmio está sem estoque.",
+        reward_unavailable: "Prêmio indisponível no momento.",
+      };
+      toast.error(messages[res.error ?? ""] ?? "Não foi possível concluir o resgate.");
+      queryClient.invalidateQueries({ queryKey: ["rewards", "store", user.id] });
+      return;
+    }
+
+    setGamification((prev) => ({ ...prev, coins: res.balance ?? prev.coins - reward.cost }));
+    toast.success(`🎉 Prêmio "${reward.name}" resgatado! Aguarde a aprovação.`);
     queryClient.invalidateQueries({ queryKey: ["rewards", "store", user.id] });
   };
 

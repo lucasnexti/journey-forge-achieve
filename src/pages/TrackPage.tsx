@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { markLessonCompleteDB, getTrackProgressDB, savePartialProgressDB } from "@/lib/progressDB";
-import { awardCoins, COIN_REWARDS } from "@/lib/gamification";
+import { claimReward, evaluateBadges, COIN_REWARDS } from "@/lib/gamification";
 import { triggerAchievement } from "@/components/AchievementPopup";
 import AppLayout from "@/components/AppLayout";
 import VideoPlayer from "@/components/VideoPlayer";
@@ -136,7 +136,7 @@ const TrackPage = () => {
       [currentLessonId]: { completed: true, watched_seconds: watchedSeconds },
     }));
     markLessonCompleteDB(user.id, trackId, currentLessonId, watchedSeconds).catch(console.error);
-    awardCoins(user.id, COIN_REWARDS.lesson_complete, "Aula concluída", "lesson", currentLessonId).catch(console.error);
+    claimReward("lesson_complete", currentLessonId).catch(console.error);
 
     triggerAchievement({
       type: "coins",
@@ -166,9 +166,9 @@ const TrackPage = () => {
     if (result.passed) {
       setQuizPassed(true);
       setCompletedAt(new Date().toISOString());
-      const coinAmount = result.percent === 100 ? COIN_REWARDS.quiz_perfect : COIN_REWARDS.quiz_pass;
-      awardCoins(user.id, coinAmount, result.percent === 100 ? "Avaliação nota máxima" : "Avaliação aprovada", "exam", trackId).catch(console.error);
-      awardCoins(user.id, COIN_REWARDS.track_complete, "Trilha concluída", "track", trackId).catch(console.error);
+      claimReward(result.percent === 100 ? "exam_perfect" : "exam_pass", trackId).catch(console.error);
+      claimReward("track_complete", trackId).catch(console.error);
+      evaluateBadges().catch(console.error);
 
       triggerAchievement({
         type: "track_complete",

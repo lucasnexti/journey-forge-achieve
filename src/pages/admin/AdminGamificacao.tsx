@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import AdminLayout from "@/components/admin/AdminLayout";
+import AntiFraudPanel from "@/components/admin/AntiFraudPanel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -124,6 +125,10 @@ const AdminGamificacao = () => {
           <Button onClick={handleAssignBadge} className="bg-primary text-primary-foreground">Atribuir</Button>
         </div>
       )}
+
+      <div className="mt-6">
+        <AntiFraudPanel />
+      </div>
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Badges */}

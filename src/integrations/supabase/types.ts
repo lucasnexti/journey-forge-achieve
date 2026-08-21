@@ -193,6 +193,36 @@ export type Database = {
           },
         ]
       }
+      coin_rules: {
+        Row: {
+          amount: number
+          daily_cap: number | null
+          is_active: boolean
+          key: string
+          label: string
+          reference_type: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          daily_cap?: number | null
+          is_active?: boolean
+          key: string
+          label: string
+          reference_type: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          daily_cap?: number | null
+          is_active?: boolean
+          key?: string
+          label?: string
+          reference_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       coin_transactions: {
         Row: {
           amount: number
@@ -1665,6 +1695,15 @@ export type Database = {
       }
     }
     Functions: {
+      admin_adjust_coins: {
+        Args: {
+          _amount: number
+          _reason: string
+          _reference_id?: string
+          _user_id: string
+        }
+        Returns: Json
+      }
       admin_enrollment_report: { Args: { _track_id?: string }; Returns: Json }
       award_coins: {
         Args: {
@@ -1677,10 +1716,20 @@ export type Database = {
         Returns: undefined
       }
       award_xp: { Args: { _user_id: string; _xp: number }; Returns: undefined }
+      claim_coin_reward: {
+        Args: { _key: string; _reference_id: string }
+        Returns: Json
+      }
+      coin_evidence_ok: {
+        Args: { _key: string; _reference_id: string; _user_id: string }
+        Returns: boolean
+      }
+      evaluate_user_badges: { Args: never; Returns: Json }
       exam_current_cycle: {
         Args: { _exam_id: string; _max_attempts: number; _user_id: string }
         Returns: number
       }
+      gamification_fraud_report: { Args: { _days?: number }; Returns: Json }
       get_kb_quiz_questions: {
         Args: { _module_ids: string[] }
         Returns: {
@@ -1718,6 +1767,7 @@ export type Database = {
         Returns: boolean
       }
       is_same_company: { Args: { _user_id: string }; Returns: boolean }
+      redeem_reward: { Args: { _reward_id: string }; Returns: Json }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
       start_exam_attempt: { Args: { _track_id: string }; Returns: Json }
@@ -1725,6 +1775,7 @@ export type Database = {
         Args: { _answers: Json; _duration_seconds: number; _exam_id: string }
         Returns: Json
       }
+      touch_my_streak: { Args: never; Returns: Json }
       update_user_streak: { Args: { _user_id: string }; Returns: undefined }
       validate_kb_quiz_attempt: {
         Args: { _answers: Json; _module_ids: string[]; _user_id: string }

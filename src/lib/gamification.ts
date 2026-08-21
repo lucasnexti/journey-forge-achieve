@@ -1,16 +1,44 @@
 import { supabase } from "@/integrations/supabase/client";
 
-// ── Coin amounts ──
-export const COIN_REWARDS = {
+/**
+ * Todas as concessões de moedas/XP acontecem no servidor.
+ * O cliente apenas "reivindica" uma conquista informando a chave da regra e
+ * a evidência (id da aula, trilha, quiz...). O banco valida a evidência,
+ * aplica o valor oficial e garante idempotência.
+ */
+export type CoinRuleKey =
+  | "lesson_complete"
+  | "track_complete"
+  | "exam_pass"
+  | "exam_perfect"
+  | "quiz_pass"
+  | "quiz_perfect"
+  | "daily_login"
+  | "streak_3"
+  | "streak_7"
+  | "forum_post";
+
+// Valores exibidos na UI (fonte de verdade continua sendo public.coin_rules)
+export const COIN_REWARDS: Record<CoinRuleKey, number> = {
   lesson_complete: 10,
   track_complete: 50,
+  exam_pass: 25,
+  exam_perfect: 40,
   quiz_pass: 25,
   quiz_perfect: 40,
+  daily_login: 5,
   streak_3: 15,
   streak_7: 50,
-  daily_login: 5,
   forum_post: 5,
-} as const;
+};
+
+export async function loadCoinRules() {
+  const { data } = await supabase.from("coin_rules").select("key, label, amount").eq("is_active", true);
+  (data ?? []).forEach((r) => {
+    if (r.key in COIN_REWARDS) COIN_REWARDS[r.key as CoinRuleKey] = r.amount;
+  });
+  return COIN_REWARDS;
+}
 
 // ── Level thresholds ──
 export const LEVELS = [
@@ -38,77 +66,50 @@ export function getLevelInfo(xp: number) {
   return { ...current, nextLevel: next, progressToNext, totalXp: xp };
 }
 
-// ── Award coins (idempotent for unique actions) ──
-export async function awardCoins(
-  userId: string,
-  amount: number,
-  reason: string,
-  referenceType: string,
-  referenceId?: string
-) {
-  // Check for duplicate award (same user, reason, reference)
-  if (referenceId) {
-    const { data: existing } = await supabase
-      .from("coin_transactions")
-      .select("id")
-      .eq("user_id", userId)
-      .eq("reason", reason)
-      .eq("reference_id", referenceId)
-      .limit(1);
-    if (existing && existing.length > 0) return; // Already awarded
-  }
-
-  // Use server-side secure functions
-  await supabase.rpc("award_coins", {
-    _user_id: userId,
-    _amount: amount,
-    _reason: reason,
-    _reference_type: referenceType,
-    _reference_id: referenceId ?? null,
-  });
-
-  // Update XP via server-side function
-  await supabase.rpc("award_xp", { _user_id: userId, _xp: amount });
+export interface ClaimResult {
+  ok: boolean;
+  duplicate: boolean;
+  amount: number;
+  error?: string;
 }
 
-// ── Streak management ──
-export async function updateStreak(userId: string) {
+/** Reivindica uma recompensa — o servidor valida a evidência e o valor. */
+export async function claimReward(key: CoinRuleKey, referenceId: string): Promise<ClaimResult> {
+  const { data, error } = await supabase.rpc("claim_coin_reward", {
+    _key: key,
+    _reference_id: referenceId,
+  });
+  if (error) return { ok: false, duplicate: false, amount: 0, error: error.message };
+  const res = (data ?? {}) as { ok?: boolean; duplicate?: boolean; amount?: number; error?: string };
+  return {
+    ok: !!res.ok,
+    duplicate: !!res.duplicate,
+    amount: res.amount ?? 0,
+    error: res.error,
+  };
+}
+
+/** Reavalia badges no servidor; retorna apenas os realmente conquistados. */
+export async function evaluateBadges(): Promise<{ id: string; name: string; icon: string | null }[]> {
+  const { data, error } = await supabase.rpc("evaluate_user_badges");
+  if (error) return [];
+  return ((data as any)?.earned ?? []) as { id: string; name: string; icon: string | null }[];
+}
+
+// ── Streak management (servidor) ──
+export async function updateStreak(_userId?: string) {
   const today = new Date().toISOString().split("T")[0];
 
-  const { data: streak } = await supabase
-    .from("user_streaks")
-    .select("*")
-    .eq("user_id", userId)
-    .maybeSingle();
+  const { data } = await supabase.rpc("touch_my_streak");
+  const streak = (data ?? {}) as { current_streak?: number; longest_streak?: number };
+  const current = streak.current_streak ?? 1;
+  const longest = streak.longest_streak ?? 1;
 
-  // Use server-side streak update
-  await supabase.rpc("update_user_streak", { _user_id: userId });
+  await claimReward("daily_login", `daily-${today}`);
+  if (current >= 3) await claimReward("streak_3", `streak3-${today}`);
+  if (current >= 7) await claimReward("streak_7", `streak7-${today}`);
 
-  // Daily login bonus
-  await awardCoins(userId, COIN_REWARDS.daily_login, "Acesso diário", "daily", `daily-${today}`);
-
-  // Re-fetch streak data after server update
-  const { data: updatedStreak } = await supabase
-    .from("user_streaks")
-    .select("current_streak, longest_streak")
-    .eq("user_id", userId)
-    .maybeSingle();
-
-  const newStreak = updatedStreak?.current_streak || 1;
-  const newLongest = updatedStreak?.longest_streak || 1;
-
-  // Streak milestones
-  if (newStreak === 3) {
-    await awardCoins(userId, COIN_REWARDS.streak_3, "Streak de 3 dias", "streak", `streak3-${today}`);
-  }
-  if (newStreak === 7) {
-    await awardCoins(userId, COIN_REWARDS.streak_7, "Streak de 7 dias", "streak", `streak7-${today}`);
-  }
-  if (newStreak > 7 && newStreak % 7 === 0) {
-    await awardCoins(userId, COIN_REWARDS.streak_7, `Streak de ${newStreak} dias`, "streak", `streak${newStreak}-${today}`);
-  }
-
-  return { current_streak: newStreak, longest_streak: newLongest };
+  return { current_streak: current, longest_streak: longest };
 }
 
 // ── Get user gamification data ──
