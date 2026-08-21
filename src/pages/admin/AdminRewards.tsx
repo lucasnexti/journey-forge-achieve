@@ -100,11 +100,10 @@ const AdminRewards = () => {
       // Refund coins
       const redemption = redemptions.find((r) => r.id === id);
       if (redemption) {
-        await supabase.rpc("award_coins", {
+        await supabase.rpc("admin_adjust_coins", {
           _user_id: redemption.user_id,
           _amount: redemption.cost,
           _reason: `Reembolso: resgate rejeitado`,
-          _reference_type: "refund",
           _reference_id: id,
         });
       }
