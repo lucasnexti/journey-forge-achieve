@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { evaluateBadges } from "@/lib/gamification";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import AppLayout from "@/components/AppLayout";
@@ -205,7 +206,7 @@ const QuizNextiPage = () => {
       });
 
       const { data: result } = await supabase.rpc("validate_kb_quiz_attempt", {
-        _user_id: user?.id || "",
+        _user_id: user?.id ?? "00000000-0000-0000-0000-000000000000",
         _module_ids: Array.from(selectedModules),
         _answers: answerMap,
       });
@@ -230,33 +231,9 @@ const QuizNextiPage = () => {
           });
         }
 
-        // Check and award badges
-        const earned: string[] = [];
-        if (passed) {
-          const { data: allBadges } = await supabase
-            .from("badges")
-            .select("id, name, criteria_type, criteria_value");
-
-          const { data: userBadges } = await supabase
-            .from("user_badges")
-            .select("badge_id")
-            .eq("user_id", user.id);
-
-          const earnedIds = new Set((userBadges || []).map((ub: any) => ub.badge_id));
-
-          for (const badge of (allBadges || [])) {
-            if (earnedIds.has(badge.id)) continue;
-
-            if (badge.criteria_type === "quiz_module_pass" && passed) {
-              await supabase.from("user_badges").insert({ user_id: user.id, badge_id: badge.id });
-              earned.push(badge.name);
-            }
-            if (badge.criteria_type === "quiz_score" && pct >= (badge.criteria_value || 90)) {
-              await supabase.from("user_badges").insert({ user_id: user.id, badge_id: badge.id });
-              earned.push(badge.name);
-            }
-          }
-        }
+        // Badges são concedidos e validados no servidor
+        const earnedBadges = await evaluateBadges();
+        const earned = earnedBadges.map((b) => b.name);
 
         setNewBadges(earned);
       }
