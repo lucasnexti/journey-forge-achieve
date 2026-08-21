@@ -1775,6 +1775,7 @@ export type Database = {
         Args: { _answers: Json; _duration_seconds: number; _exam_id: string }
         Returns: Json
       }
+      touch_my_streak: { Args: never; Returns: Json }
       update_user_streak: { Args: { _user_id: string }; Returns: undefined }
       validate_kb_quiz_attempt: {
         Args: { _answers: Json; _module_ids: string[]; _user_id: string }
