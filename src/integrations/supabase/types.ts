@@ -983,6 +983,7 @@ export type Database = {
           cargo: string | null
           cpf: string | null
           created_at: string
+          email: string | null
           empresa: string | null
           id: string
           interests: string[] | null
@@ -998,6 +999,7 @@ export type Database = {
           cargo?: string | null
           cpf?: string | null
           created_at?: string
+          email?: string | null
           empresa?: string | null
           id?: string
           interests?: string[] | null
@@ -1013,6 +1015,7 @@ export type Database = {
           cargo?: string | null
           cpf?: string | null
           created_at?: string
+          email?: string | null
           empresa?: string | null
           id?: string
           interests?: string[] | null

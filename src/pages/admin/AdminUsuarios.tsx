@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Search, UserCircle, Pencil, Upload, Shield, UserX, UserCheck, Users } from "lucide-react";
+import { Search, UserCircle, Pencil, Upload, Shield, UserX, UserCheck, Users, Eye, Plus } from "lucide-react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { z } from "zod";
 import { motion } from "framer-motion";
@@ -19,12 +19,25 @@ interface Profile {
   id: string;
   user_id: string;
   nome: string;
+  email: string | null;
   cpf: string | null;
   empresa: string | null;
   cargo: string | null;
   is_active: boolean;
   created_at: string;
+  last_active_at?: string | null;
 }
+
+const roleLabel: Record<string, string> = { admin: "Administrador", moderator: "Moderador", user: "Aluno" };
+
+const inviteSchema = z.object({
+  nome: z.string().trim().min(2, "Nome deve ter ao menos 2 caracteres").max(100, "Nome muito longo"),
+  email: z.string().trim().email("E-mail inválido").max(255),
+  empresa: z.string().trim().max(100),
+  cargo: z.string().trim().max(100),
+  role: z.enum(["user", "moderator", "admin"]),
+});
+const emptyInvite = { nome: "", email: "", empresa: "", cargo: "", role: "user" as "user" | "moderator" | "admin" };
 
 const profileSchema = z.object({
   nome: z.string().trim().min(2, "Nome deve ter ao menos 2 caracteres").max(100, "Nome muito longo"),
@@ -50,6 +63,26 @@ const AdminUsuarios = () => {
   const [toggleConfirm, setToggleConfirm] = useState<Profile | null>(null);
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [viewing, setViewing] = useState<Profile | null>(null);
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [invite, setInvite] = useState(emptyInvite);
+  const [inviting, setInviting] = useState(false);
+
+  const handleInvite = async () => {
+    const r = inviteSchema.safeParse(invite);
+    if (!r.success) { toast.error(r.error.errors[0].message); return; }
+    setInviting(true);
+    const { data, error } = await supabase.functions.invoke("admin-create-user", {
+      body: { ...r.data, redirectTo: window.location.origin },
+    });
+    setInviting(false);
+    const msg = (data as any)?.error || (error ? await (error as any).context?.json?.().then((j: any) => j?.error).catch(() => null) || error.message : null);
+    if (msg) { toast.error(msg); return; }
+    toast.success(`Convite enviado para ${r.data.email}`);
+    setInviteOpen(false);
+    fetchProfiles(); fetchRoles(); fetchStats();
+  };
+
 
   // Stats
   const [stats, setStats] = useState({ total: 0, active: 0, inactive: 0, admins: 0 });
@@ -92,7 +125,8 @@ const AdminUsuarios = () => {
       .range(from, to);
 
     if (debouncedSearch) {
-      query = query.or(`nome.ilike.%${debouncedSearch}%,empresa.ilike.%${debouncedSearch}%,cargo.ilike.%${debouncedSearch}%,cpf.ilike.%${debouncedSearch}%`);
+      const s = debouncedSearch.replace(/[%,()*]/g, " ").trim();
+      if (s) query = query.or(`nome.ilike.%${s}%,email.ilike.%${s}%`);
     }
 
     if (statusFilter === "active") query = query.eq("is_active", true);
@@ -242,6 +276,9 @@ const AdminUsuarios = () => {
           <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} className="gap-1">
             <Upload className="h-3.5 w-3.5" /> Importar CSV
           </Button>
+          <Button size="sm" onClick={() => { setInvite(emptyInvite); setInviteOpen(true); }} className="gap-1 bg-gradient-nexti text-primary-foreground hover:opacity-90">
+            <Plus className="h-3.5 w-3.5" /> Cadastrar usuário
+          </Button>
         </div>
       </div>
 
@@ -266,7 +303,7 @@ const AdminUsuarios = () => {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Buscar por nome, empresa, cargo ou CPF..."
+            placeholder="Buscar por nome ou e-mail..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-10"
@@ -314,7 +351,7 @@ const AdminUsuarios = () => {
                       </div>
                       <div>
                         <span className="text-sm font-medium text-foreground">{p.nome}</span>
-                        <p className="text-xs text-muted-foreground tabular-nums">{p.cpf || "—"}</p>
+                        <p className="text-xs text-muted-foreground">{p.email || "—"}</p>
                       </div>
                     </div>
                   </td>
@@ -335,6 +372,9 @@ const AdminUsuarios = () => {
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-1">
+                      <button onClick={() => setViewing(p)} className="p-1.5 text-muted-foreground hover:text-foreground transition-colors" title="Visualizar">
+                        <Eye className="h-3.5 w-3.5" />
+                      </button>
                       <button onClick={() => setEditingProfile(p)} className="p-1.5 text-muted-foreground hover:text-foreground transition-colors" title="Editar">
                         <Pencil className="h-3.5 w-3.5" />
                       </button>
@@ -360,6 +400,70 @@ const AdminUsuarios = () => {
           onPageSizeChange={(s) => { setPageSize(s); setPage(1); }}
         />
       </div>
+
+      {/* Invite Dialog */}
+      <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Cadastrar usuário</DialogTitle></DialogHeader>
+          <p className="text-xs text-muted-foreground -mt-2">A pessoa receberá um convite por e-mail para criar a própria senha.</p>
+          <div className="space-y-4">
+            <div className="space-y-2"><Label>Nome *</Label><Input value={invite.nome} maxLength={100} onChange={e => setInvite({ ...invite, nome: e.target.value })} /></div>
+            <div className="space-y-2"><Label>E-mail *</Label><Input type="email" value={invite.email} maxLength={255} onChange={e => setInvite({ ...invite, email: e.target.value })} /></div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2"><Label>Empresa</Label><Input value={invite.empresa} maxLength={100} onChange={e => setInvite({ ...invite, empresa: e.target.value })} /></div>
+              <div className="space-y-2"><Label>Cargo</Label><Input value={invite.cargo} maxLength={100} onChange={e => setInvite({ ...invite, cargo: e.target.value })} /></div>
+            </div>
+            <div className="space-y-2">
+              <Label>Perfil de acesso *</Label>
+              <Select value={invite.role} onValueChange={(v) => setInvite({ ...invite, role: v as any })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="user">Aluno</SelectItem>
+                  <SelectItem value="moderator">Moderador</SelectItem>
+                  <SelectItem value="admin">Administrador</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setInviteOpen(false)}>Cancelar</Button>
+            <Button onClick={handleInvite} disabled={inviting} className="bg-gradient-nexti text-primary-foreground hover:opacity-90">
+              {inviting ? "Enviando..." : "Enviar convite"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Dialog */}
+      <Dialog open={!!viewing} onOpenChange={() => setViewing(null)}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Detalhes do usuário</DialogTitle></DialogHeader>
+          {viewing && (
+            <dl className="grid grid-cols-3 gap-y-3 text-sm">
+              {[
+                ["Nome", viewing.nome],
+                ["E-mail", viewing.email],
+                ["Empresa", viewing.empresa],
+                ["Cargo", viewing.cargo],
+                ["CPF", viewing.cpf],
+                ["Perfil", roleLabel[roles[viewing.user_id] || "user"]],
+                ["Status", viewing.is_active !== false ? "Ativo" : "Inativo"],
+                ["Cadastro", new Date(viewing.created_at).toLocaleDateString("pt-BR")],
+                ["Último acesso", viewing.last_active_at ? new Date(viewing.last_active_at).toLocaleString("pt-BR") : null],
+              ].map(([k, v]) => (
+                <div key={k as string} className="contents">
+                  <dt className="text-muted-foreground">{k}</dt>
+                  <dd className="col-span-2 text-foreground break-all">{v || "—"}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewing(null)}>Fechar</Button>
+            <Button onClick={() => { setEditingProfile(viewing); setViewing(null); }}>Editar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Edit Profile Dialog */}
       <Dialog open={!!editingProfile} onOpenChange={() => setEditingProfile(null)}>
