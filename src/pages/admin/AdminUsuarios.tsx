@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Search, UserCircle, Pencil, Upload, Shield, UserX, UserCheck, Users } from "lucide-react";
+import { Search, UserCircle, Pencil, Upload, Shield, UserX, UserCheck, Users, Eye, Plus } from "lucide-react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { z } from "zod";
 import { motion } from "framer-motion";
@@ -63,6 +63,26 @@ const AdminUsuarios = () => {
   const [toggleConfirm, setToggleConfirm] = useState<Profile | null>(null);
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [viewing, setViewing] = useState<Profile | null>(null);
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [invite, setInvite] = useState(emptyInvite);
+  const [inviting, setInviting] = useState(false);
+
+  const handleInvite = async () => {
+    const r = inviteSchema.safeParse(invite);
+    if (!r.success) { toast.error(r.error.errors[0].message); return; }
+    setInviting(true);
+    const { data, error } = await supabase.functions.invoke("admin-create-user", {
+      body: { ...r.data, redirectTo: window.location.origin },
+    });
+    setInviting(false);
+    const msg = (data as any)?.error || (error ? await (error as any).context?.json?.().then((j: any) => j?.error).catch(() => null) || error.message : null);
+    if (msg) { toast.error(msg); return; }
+    toast.success(`Convite enviado para ${r.data.email}`);
+    setInviteOpen(false);
+    fetchProfiles(); fetchRoles(); fetchStats();
+  };
+
 
   // Stats
   const [stats, setStats] = useState({ total: 0, active: 0, inactive: 0, admins: 0 });
@@ -256,6 +276,9 @@ const AdminUsuarios = () => {
           <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} className="gap-1">
             <Upload className="h-3.5 w-3.5" /> Importar CSV
           </Button>
+          <Button size="sm" onClick={() => { setInvite(emptyInvite); setInviteOpen(true); }} className="gap-1 bg-gradient-nexti text-primary-foreground hover:opacity-90">
+            <Plus className="h-3.5 w-3.5" /> Cadastrar usuário
+          </Button>
         </div>
       </div>
 
@@ -328,7 +351,7 @@ const AdminUsuarios = () => {
                       </div>
                       <div>
                         <span className="text-sm font-medium text-foreground">{p.nome}</span>
-                        <p className="text-xs text-muted-foreground tabular-nums">{p.cpf || "—"}</p>
+                        <p className="text-xs text-muted-foreground">{p.email || "—"}</p>
                       </div>
                     </div>
                   </td>
@@ -349,6 +372,9 @@ const AdminUsuarios = () => {
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-1">
+                      <button onClick={() => setViewing(p)} className="p-1.5 text-muted-foreground hover:text-foreground transition-colors" title="Visualizar">
+                        <Eye className="h-3.5 w-3.5" />
+                      </button>
                       <button onClick={() => setEditingProfile(p)} className="p-1.5 text-muted-foreground hover:text-foreground transition-colors" title="Editar">
                         <Pencil className="h-3.5 w-3.5" />
                       </button>
