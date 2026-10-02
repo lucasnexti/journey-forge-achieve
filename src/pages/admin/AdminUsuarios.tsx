@@ -401,6 +401,70 @@ const AdminUsuarios = () => {
         />
       </div>
 
+      {/* Invite Dialog */}
+      <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Cadastrar usuário</DialogTitle></DialogHeader>
+          <p className="text-xs text-muted-foreground -mt-2">A pessoa receberá um convite por e-mail para criar a própria senha.</p>
+          <div className="space-y-4">
+            <div className="space-y-2"><Label>Nome *</Label><Input value={invite.nome} maxLength={100} onChange={e => setInvite({ ...invite, nome: e.target.value })} /></div>
+            <div className="space-y-2"><Label>E-mail *</Label><Input type="email" value={invite.email} maxLength={255} onChange={e => setInvite({ ...invite, email: e.target.value })} /></div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2"><Label>Empresa</Label><Input value={invite.empresa} maxLength={100} onChange={e => setInvite({ ...invite, empresa: e.target.value })} /></div>
+              <div className="space-y-2"><Label>Cargo</Label><Input value={invite.cargo} maxLength={100} onChange={e => setInvite({ ...invite, cargo: e.target.value })} /></div>
+            </div>
+            <div className="space-y-2">
+              <Label>Perfil de acesso *</Label>
+              <Select value={invite.role} onValueChange={(v) => setInvite({ ...invite, role: v as any })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="user">Aluno</SelectItem>
+                  <SelectItem value="moderator">Moderador</SelectItem>
+                  <SelectItem value="admin">Administrador</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setInviteOpen(false)}>Cancelar</Button>
+            <Button onClick={handleInvite} disabled={inviting} className="bg-gradient-nexti text-primary-foreground hover:opacity-90">
+              {inviting ? "Enviando..." : "Enviar convite"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Dialog */}
+      <Dialog open={!!viewing} onOpenChange={() => setViewing(null)}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Detalhes do usuário</DialogTitle></DialogHeader>
+          {viewing && (
+            <dl className="grid grid-cols-3 gap-y-3 text-sm">
+              {[
+                ["Nome", viewing.nome],
+                ["E-mail", viewing.email],
+                ["Empresa", viewing.empresa],
+                ["Cargo", viewing.cargo],
+                ["CPF", viewing.cpf],
+                ["Perfil", roleLabel[roles[viewing.user_id] || "user"]],
+                ["Status", viewing.is_active !== false ? "Ativo" : "Inativo"],
+                ["Cadastro", new Date(viewing.created_at).toLocaleDateString("pt-BR")],
+                ["Último acesso", viewing.last_active_at ? new Date(viewing.last_active_at).toLocaleString("pt-BR") : null],
+              ].map(([k, v]) => (
+                <div key={k as string} className="contents">
+                  <dt className="text-muted-foreground">{k}</dt>
+                  <dd className="col-span-2 text-foreground break-all">{v || "—"}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewing(null)}>Fechar</Button>
+            <Button onClick={() => { setEditingProfile(viewing); setViewing(null); }}>Editar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Edit Profile Dialog */}
       <Dialog open={!!editingProfile} onOpenChange={() => setEditingProfile(null)}>
         <DialogContent>
