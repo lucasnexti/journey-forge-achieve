@@ -180,8 +180,12 @@ const TrackPage = () => {
     } else {
       setQuizPassed(false);
       setCompletedAt(null);
-      setProgress({});
-      toast.error("Reprovado. Seu progresso foi reiniciado — refaça as aulas para nova tentativa.");
+      if ((result as any).course_reset) {
+        setProgress({});
+        toast.error("Reprovado. Seu progresso foi reiniciado — refaça as aulas para nova tentativa.");
+      } else {
+        toast.error("Reprovado. Você ainda tem uma nova tentativa disponível.");
+      }
     }
   };
 
