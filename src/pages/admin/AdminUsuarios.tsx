@@ -19,12 +19,25 @@ interface Profile {
   id: string;
   user_id: string;
   nome: string;
+  email: string | null;
   cpf: string | null;
   empresa: string | null;
   cargo: string | null;
   is_active: boolean;
   created_at: string;
+  last_active_at?: string | null;
 }
+
+const roleLabel: Record<string, string> = { admin: "Administrador", moderator: "Moderador", user: "Aluno" };
+
+const inviteSchema = z.object({
+  nome: z.string().trim().min(2, "Nome deve ter ao menos 2 caracteres").max(100, "Nome muito longo"),
+  email: z.string().trim().email("E-mail inválido").max(255),
+  empresa: z.string().trim().max(100),
+  cargo: z.string().trim().max(100),
+  role: z.enum(["user", "moderator", "admin"]),
+});
+const emptyInvite = { nome: "", email: "", empresa: "", cargo: "", role: "user" as "user" | "moderator" | "admin" };
 
 const profileSchema = z.object({
   nome: z.string().trim().min(2, "Nome deve ter ao menos 2 caracteres").max(100, "Nome muito longo"),
@@ -92,7 +105,8 @@ const AdminUsuarios = () => {
       .range(from, to);
 
     if (debouncedSearch) {
-      query = query.or(`nome.ilike.%${debouncedSearch}%,empresa.ilike.%${debouncedSearch}%,cargo.ilike.%${debouncedSearch}%,cpf.ilike.%${debouncedSearch}%`);
+      const s = debouncedSearch.replace(/[%,()*]/g, " ").trim();
+      if (s) query = query.or(`nome.ilike.%${s}%,email.ilike.%${s}%`);
     }
 
     if (statusFilter === "active") query = query.eq("is_active", true);
