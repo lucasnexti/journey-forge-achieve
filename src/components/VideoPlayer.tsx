@@ -167,11 +167,14 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
     player.on("timeupdate", ({ seconds, duration: playerDuration }) => {
       const effectiveDuration = lessonDuration > 0 ? lessonDuration : playerDuration || 0;
       const clampedSeconds = effectiveDuration > 0 ? Math.min(seconds, effectiveDuration) : seconds;
+      const prevSeconds = currentTimeRef.current;
+      // Saltos (seek, restauração de posição, retorno à aba) não contam como reprodução real
+      const isNaturalPlayback = clampedSeconds - prevSeconds >= 0 && clampedSeconds - prevSeconds < 2;
       syncCurrentTime(clampedSeconds);
       if (clampedSeconds - lastSavedRef.current >= PROGRESS_SAVE_INTERVAL) {
         persistProgress(clampedSeconds);
       }
-      if (!completedRef.current && effectiveDuration > 0 && clampedSeconds >= effectiveDuration * 0.9) {
+      if (!completedRef.current && isNaturalPlayback && effectiveDuration > 0 && clampedSeconds >= effectiveDuration * 0.9) {
         completedRef.current = true;
         setCompleted(true);
         onCompleteRef.current(Math.round(effectiveDuration));
@@ -231,11 +234,14 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
   const handleTimeUpdate = () => {
     if (!videoRef.current) return;
     const time = videoRef.current.currentTime;
+    const delta = time - currentTimeRef.current;
+    const isNaturalPlayback = delta >= 0 && delta < 2 && !videoRef.current.paused;
     syncCurrentTime(time);
     saveProgressIfNeeded(time);
-    if (time >= videoRef.current.duration * 0.9 && !completed) {
+    if (isNaturalPlayback && !completedRef.current && time >= videoRef.current.duration * 0.9) {
+      completedRef.current = true;
       setCompleted(true);
-      onComplete(Math.round(time));
+      onCompleteRef.current(Math.round(time));
     }
   };
 
