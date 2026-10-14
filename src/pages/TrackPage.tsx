@@ -78,25 +78,33 @@ const TrackPage = () => {
 
   const loadData = useCallback(async () => {
     if (!trackId || !user) return;
-    const [{ data: trackData }, { data: lessonData }, { data: examData }, { data: examAttempts }, progressData, { data: profile }] = await Promise.all([
+    const [{ data: trackData }, { data: lessonData }, { data: examData }, { data: examAttempts }, progressData, { data: profile }, { data: enrollment }] = await Promise.all([
       supabase.from("tracks").select("id, title, description, category").eq("id", trackId).maybeSingle(),
       supabase.from("lessons").select("id, title, description, video_url, duration, order_index").eq("track_id", trackId).order("order_index"),
-      supabase.from("exams").select("id").eq("track_id", trackId).eq("is_active", true).maybeSingle(),
+      supabase.rpc("track_has_exam", { _track_id: trackId }),
       supabase.from("exam_attempts").select("percent, passed, created_at").eq("user_id", user.id).eq("track_id", trackId).order("created_at", { ascending: false }).limit(20),
       getTrackProgressDB(user.id, trackId, false),
       supabase.from("profiles").select("nome").eq("user_id", user.id).maybeSingle(),
+      supabase.from("enrollments").select("status, completed_at").eq("user_id", user.id).eq("track_id", trackId).maybeSingle(),
     ]);
     setTrack(trackData ? { ...trackData, description: trackData.description || "", category: trackData.category || "" } : null);
     setLessons(lessonData || []);
-    setHasExam(!!examData);
+    const trackHasExam = !!examData;
+    setHasExam(trackHasExam);
     setProgress(progressData.lessons);
     setProfileName(profile?.nome || "Cooperado(a)");
 
     const approved = (examAttempts || []).find((a) => a.passed);
     const last = (examAttempts || [])[0];
-    setQuizPassed(!!approved);
     setQuizScore(approved ? Number(approved.percent) : last ? Number(last.percent) : null);
-    setCompletedAt(approved ? approved.created_at : null);
+    if (trackHasExam) {
+      setQuizPassed(!!approved);
+      setCompletedAt(approved ? approved.created_at : null);
+    } else {
+      const done = enrollment?.status === "completed";
+      setQuizPassed(done);
+      setCompletedAt(done ? enrollment?.completed_at || new Date().toISOString() : null);
+    }
 
     if (lessonData && lessonData.length > 0) {
       setCurrentLessonId(lessonData[0].id);
