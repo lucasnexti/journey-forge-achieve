@@ -78,25 +78,33 @@ const TrackPage = () => {
 
   const loadData = useCallback(async () => {
     if (!trackId || !user) return;
-    const [{ data: trackData }, { data: lessonData }, { data: examData }, { data: examAttempts }, progressData, { data: profile }] = await Promise.all([
+    const [{ data: trackData }, { data: lessonData }, { data: examData }, { data: examAttempts }, progressData, { data: profile }, { data: enrollment }] = await Promise.all([
       supabase.from("tracks").select("id, title, description, category").eq("id", trackId).maybeSingle(),
       supabase.from("lessons").select("id, title, description, video_url, duration, order_index").eq("track_id", trackId).order("order_index"),
-      supabase.from("exams").select("id").eq("track_id", trackId).eq("is_active", true).maybeSingle(),
+      supabase.rpc("track_has_exam", { _track_id: trackId }),
       supabase.from("exam_attempts").select("percent, passed, created_at").eq("user_id", user.id).eq("track_id", trackId).order("created_at", { ascending: false }).limit(20),
       getTrackProgressDB(user.id, trackId, false),
       supabase.from("profiles").select("nome").eq("user_id", user.id).maybeSingle(),
+      supabase.from("enrollments").select("status, completed_at").eq("user_id", user.id).eq("track_id", trackId).maybeSingle(),
     ]);
     setTrack(trackData ? { ...trackData, description: trackData.description || "", category: trackData.category || "" } : null);
     setLessons(lessonData || []);
-    setHasExam(!!examData);
+    const trackHasExam = !!examData;
+    setHasExam(trackHasExam);
     setProgress(progressData.lessons);
     setProfileName(profile?.nome || "Cooperado(a)");
 
     const approved = (examAttempts || []).find((a) => a.passed);
     const last = (examAttempts || [])[0];
-    setQuizPassed(!!approved);
     setQuizScore(approved ? Number(approved.percent) : last ? Number(last.percent) : null);
-    setCompletedAt(approved ? approved.created_at : null);
+    if (trackHasExam) {
+      setQuizPassed(!!approved);
+      setCompletedAt(approved ? approved.created_at : null);
+    } else {
+      const done = enrollment?.status === "completed";
+      setQuizPassed(done);
+      setCompletedAt(done ? enrollment?.completed_at || new Date().toISOString() : null);
+    }
 
     if (lessonData && lessonData.length > 0) {
       setCurrentLessonId(lessonData[0].id);
@@ -105,6 +113,32 @@ const TrackPage = () => {
   }, [trackId, user]);
 
   useEffect(() => { loadData(); }, [loadData]);
+
+  // Curso sem prova: concluir automaticamente quando todas as aulas forem concluídas
+  const noExamCompletingRef = useRef(false);
+  const allDoneNoExam = !loading && !hasExam && !quizPassed && lessons.length > 0 && lessons.every((l) => {
+    const lp = progress[l.id];
+    if (!lp) return false;
+    if (lp.completed) return true;
+    const d = l.duration || 0;
+    return d > 0 && lp.watched_seconds >= d * 0.9;
+  });
+  useEffect(() => {
+    if (!allDoneNoExam || !trackId || noExamCompletingRef.current) return;
+    noExamCompletingRef.current = true;
+    (async () => {
+      // aguarda a gravação da última aula
+      await new Promise((r) => setTimeout(r, 800));
+      const { data, error } = await supabase.rpc("complete_track_without_exam", { _track_id: trackId });
+      const res = data as { completed?: boolean; completed_at?: string } | null;
+      if (error || !res?.completed) { noExamCompletingRef.current = false; return; }
+      setQuizPassed(true);
+      setQuizScore(100);
+      setCompletedAt(res.completed_at || new Date().toISOString());
+      evaluateBadges().catch(console.error);
+      triggerAchievement({ type: "track_complete", title: "Curso concluído! 🎉", description: `${track?.title} — Parabéns!`, value: 0 });
+    })();
+  }, [allDoneNoExam, trackId, track?.title]);
 
   const currentLesson = lessons.find((l) => l.id === currentLessonId);
   const currentIndex = lessons.findIndex((l) => l.id === currentLessonId);
@@ -288,6 +322,7 @@ const TrackPage = () => {
           <div className="flex-1 flex items-center gap-2 ml-2">
             <Progress value={overallPercent} className="h-1.5 flex-1" />
             <span className="text-xs font-bold text-primary tabular-nums shrink-0">{overallPercent}%</span>
+            {quizPassed && <Badge className="text-[10px] shrink-0 bg-success text-success-foreground"><CheckCircle2 className="h-3 w-3 mr-1" />Concluído</Badge>}
           </div>
 
           <div className="flex items-center gap-1.5 shrink-0">

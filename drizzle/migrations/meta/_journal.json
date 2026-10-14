@@ -15,6 +15,13 @@
       "when": 1791981209176,
       "tag": "0001_reward_images_in_avatars_bucket",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791982331064,
+      "tag": "0002_complete_track_without_exam",
+      "breakpoints": true
     }
   ]
 }
