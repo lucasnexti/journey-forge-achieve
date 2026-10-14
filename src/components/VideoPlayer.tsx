@@ -522,6 +522,8 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
         <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 border-t border-border/50 bg-green-50 dark:bg-green-900/10 px-4 py-2.5 sm:py-2 text-center text-xs font-medium text-green-700 dark:text-green-400">
           <span>
           ✓ Aula concluída — "{lessonTitle}"
+          </span>
+          {onNext && <NextStepCta onNext={onNext} />}
         </div>
       )}
     </div>
