@@ -322,6 +322,7 @@ const TrackPage = () => {
           <div className="flex-1 flex items-center gap-2 ml-2">
             <Progress value={overallPercent} className="h-1.5 flex-1" />
             <span className="text-xs font-bold text-primary tabular-nums shrink-0">{overallPercent}%</span>
+            {quizPassed && <Badge className="text-[10px] shrink-0 bg-success text-success-foreground"><CheckCircle2 className="h-3 w-3 mr-1" />Concluído</Badge>}
           </div>
 
           <div className="flex items-center gap-1.5 shrink-0">
