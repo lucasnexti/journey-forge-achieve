@@ -114,6 +114,32 @@ const TrackPage = () => {
 
   useEffect(() => { loadData(); }, [loadData]);
 
+  // Curso sem prova: concluir automaticamente quando todas as aulas forem concluídas
+  const noExamCompletingRef = useRef(false);
+  const allDoneNoExam = !loading && !hasExam && !quizPassed && lessons.length > 0 && lessons.every((l) => {
+    const lp = progress[l.id];
+    if (!lp) return false;
+    if (lp.completed) return true;
+    const d = l.duration || 0;
+    return d > 0 && lp.watched_seconds >= d * 0.9;
+  });
+  useEffect(() => {
+    if (!allDoneNoExam || !trackId || noExamCompletingRef.current) return;
+    noExamCompletingRef.current = true;
+    (async () => {
+      // aguarda a gravação da última aula
+      await new Promise((r) => setTimeout(r, 800));
+      const { data, error } = await supabase.rpc("complete_track_without_exam", { _track_id: trackId });
+      const res = data as { completed?: boolean; completed_at?: string } | null;
+      if (error || !res?.completed) { noExamCompletingRef.current = false; return; }
+      setQuizPassed(true);
+      setQuizScore(100);
+      setCompletedAt(res.completed_at || new Date().toISOString());
+      evaluateBadges().catch(console.error);
+      triggerAchievement({ type: "track_complete", title: "Curso concluído! 🎉", description: `${track?.title} — Parabéns!`, value: 0 });
+    })();
+  }, [allDoneNoExam, trackId, track?.title]);
+
   const currentLesson = lessons.find((l) => l.id === currentLessonId);
   const currentIndex = lessons.findIndex((l) => l.id === currentLessonId);
   const currentIndexRef = useRef(currentIndex);
