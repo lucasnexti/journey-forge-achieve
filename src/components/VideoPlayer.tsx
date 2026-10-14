@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect, useCallback, memo } from "react";
 import Player from "@vimeo/player";
-import { Play, Pause, Volume2, VolumeX, Maximize, SkipForward, SkipBack, RotateCcw, AlertTriangle, ExternalLink } from "lucide-react";
+import { Play, Pause, Volume2, VolumeX, Maximize, SkipForward, SkipBack, RotateCcw, AlertTriangle, ExternalLink, ArrowRight } from "lucide-react";
 
 interface VideoPlayerProps {
   videoUrl: string;
@@ -12,6 +12,17 @@ interface VideoPlayerProps {
   initialWatchedSeconds?: number;
   lessonDuration?: number;
 }
+
+const NextStepCta = ({ onNext }: { onNext: () => void }) => (
+  <button
+    onClick={onNext}
+    className="group inline-flex w-full sm:w-auto items-center justify-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 sm:py-1.5 text-xs font-semibold text-primary-foreground shadow-sm hover:opacity-90 active:opacity-80 touch-manipulation transition-opacity animate-pulse hover:animate-none"
+    aria-label="Avançar para a próxima etapa"
+  >
+    Próxima etapa
+    <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+  </button>
+);
 
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
 // Intervalo mínimo (em segundos de vídeo) entre gravações de progresso.
@@ -389,8 +400,11 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
 
         {/* Completion banner */}
         {completed && (
-          <div className="border-t border-border/50 bg-green-50 dark:bg-green-900/10 px-4 py-2.5 sm:py-2 text-center text-xs font-medium text-green-700 dark:text-green-400">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 border-t border-border/50 bg-green-50 dark:bg-green-900/10 px-4 py-2.5 sm:py-2 text-center text-xs font-medium text-green-700 dark:text-green-400">
+          <span>
             ✓ Aula concluída — "{lessonTitle}"
+          </span>
+          {onNext && <NextStepCta onNext={onNext} />}
           </div>
         )}
       </div>
@@ -505,8 +519,11 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
       </div>
 
       {completed && (
-        <div className="border-t border-border/50 bg-green-50 dark:bg-green-900/10 px-4 py-2.5 sm:py-2 text-center text-xs font-medium text-green-700 dark:text-green-400">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 border-t border-border/50 bg-green-50 dark:bg-green-900/10 px-4 py-2.5 sm:py-2 text-center text-xs font-medium text-green-700 dark:text-green-400">
+          <span>
           ✓ Aula concluída — "{lessonTitle}"
+          </span>
+          {onNext && <NextStepCta onNext={onNext} />}
         </div>
       )}
     </div>
