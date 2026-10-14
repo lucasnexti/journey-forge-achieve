@@ -1,7 +1,14 @@
-import { Check, PlayCircle, Circle, Clock } from "lucide-react";
+import { Check, PlayCircle, Clock, ClipboardCheck, Lock, ChevronRight } from "lucide-react";
 import { Lesson } from "@/lib/data";
 import { LessonProgress } from "@/lib/progress";
 import { motion } from "framer-motion";
+
+interface ExamStep {
+  unlocked: boolean;
+  passed: boolean;
+  active: boolean;
+  onSelect: () => void;
+}
 
 interface LessonSidebarProps {
   lessons: Lesson[];
@@ -9,9 +16,10 @@ interface LessonSidebarProps {
   progress: Record<string, LessonProgress>;
   onSelectLesson: (lessonId: string) => void;
   trackTitle?: string;
+  exam?: ExamStep;
 }
 
-const LessonSidebar = ({ lessons, currentLessonId, progress, onSelectLesson, trackTitle }: LessonSidebarProps) => {
+const LessonSidebar = ({ lessons, currentLessonId, progress, onSelectLesson, trackTitle, exam }: LessonSidebarProps) => {
   const totalLessons = lessons.length;
 
   const isLessonDone = (lesson: Lesson) => {
