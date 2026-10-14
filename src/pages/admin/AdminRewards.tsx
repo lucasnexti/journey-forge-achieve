@@ -170,6 +170,8 @@ const AdminRewards = () => {
       category: reward.category || "geral",
       image_url: reward.image_url || "",
     });
+    setImageFile(null);
+    setPreviewUrl(reward.image_url || null);
     setShowForm(true);
   };
 
@@ -196,7 +198,7 @@ const AdminRewards = () => {
           </h3>
           <Button
             size="sm"
-            onClick={() => { setEditingReward(null); setForm({ name: "", description: "", cost: 100, stock: "", category: "geral", image_url: "" }); setShowForm(true); }}
+            onClick={() => { setEditingReward(null); resetForm(); setShowForm(true); }}
             className="gap-1.5 bg-gradient-nexti text-primary-foreground hover:opacity-90"
           >
             <Plus className="h-4 w-4" /> Novo Prêmio
@@ -351,7 +353,7 @@ const AdminRewards = () => {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowForm(false)}>Cancelar</Button>
-            <Button onClick={handleSaveReward} disabled={!form.name} className="bg-gradient-nexti text-primary-foreground hover:opacity-90">
+            <Button onClick={handleSaveReward} disabled={!form.name || saving} className="bg-gradient-nexti text-primary-foreground hover:opacity-90">
               {editingReward ? "Salvar" : "Criar Prêmio"}
             </Button>
           </DialogFooter>
