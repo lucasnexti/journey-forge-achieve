@@ -15,7 +15,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     return (
       <div className="min-h-screen min-h-dvh bg-background">
         <MobileHeader />
-        {children}
+        <main className="px-4 py-5 sm:px-6 overflow-x-hidden">{children}</main>
       </div>
     );
   }
@@ -30,7 +30,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
             <div className="flex-1" />
             <NotificationBell />
           </header>
-          <main className="flex-1">{children}</main>
+          <main className="flex-1 min-w-0 overflow-x-hidden px-4 py-6 sm:px-6 lg:px-8"><div className="mx-auto w-full max-w-[1600px]">{children}</div></main>
         </div>
       </div>
     </SidebarProvider>
