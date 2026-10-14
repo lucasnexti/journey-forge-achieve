@@ -1,7 +1,14 @@
-import { Check, PlayCircle, Circle, Clock } from "lucide-react";
+import { Check, PlayCircle, Clock, ClipboardCheck, Lock, ChevronRight } from "lucide-react";
 import { Lesson } from "@/lib/data";
 import { LessonProgress } from "@/lib/progress";
 import { motion } from "framer-motion";
+
+interface ExamStep {
+  unlocked: boolean;
+  passed: boolean;
+  active: boolean;
+  onSelect: () => void;
+}
 
 interface LessonSidebarProps {
   lessons: Lesson[];
@@ -9,9 +16,10 @@ interface LessonSidebarProps {
   progress: Record<string, LessonProgress>;
   onSelectLesson: (lessonId: string) => void;
   trackTitle?: string;
+  exam?: ExamStep;
 }
 
-const LessonSidebar = ({ lessons, currentLessonId, progress, onSelectLesson, trackTitle }: LessonSidebarProps) => {
+const LessonSidebar = ({ lessons, currentLessonId, progress, onSelectLesson, trackTitle, exam }: LessonSidebarProps) => {
   const totalLessons = lessons.length;
 
   const isLessonDone = (lesson: Lesson) => {
@@ -54,7 +62,7 @@ const LessonSidebar = ({ lessons, currentLessonId, progress, onSelectLesson, tra
       {/* Lesson list */}
       <div className="space-y-0.5 pb-1">
         {lessons.map((lesson, index) => {
-          const isCurrent = lesson.id === currentLessonId;
+          const isCurrent = lesson.id === currentLessonId && !exam?.active;
           const done = isLessonDone(lesson);
           const watchedSecs = progress[lesson.id]?.watchedSeconds || 0;
           const lessonDuration = lesson.duration || 1;
@@ -116,6 +124,51 @@ const LessonSidebar = ({ lessons, currentLessonId, progress, onSelectLesson, tra
           );
         })}
       </div>
+
+      {exam && (
+        <div className="border-t border-border/50 mt-1 pt-2 pb-1">
+          <p className="px-4 pb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Etapa final
+          </p>
+          <button
+            onClick={exam.unlocked || exam.passed ? exam.onSelect : undefined}
+            disabled={!exam.unlocked && !exam.passed}
+            aria-label={exam.unlocked ? "Abrir prova" : "Prova bloqueada"}
+            className={`flex w-full items-center gap-3 rounded-lg px-3 sm:px-4 py-3.5 sm:py-3 text-left transition-colors touch-manipulation ${
+              exam.active
+                ? "bg-primary/10 text-foreground"
+                : exam.passed
+                  ? "text-muted-foreground hover:bg-secondary/50"
+                  : exam.unlocked
+                    ? "border border-primary/30 bg-primary/5 hover:bg-primary/10 text-foreground"
+                    : "opacity-70 cursor-not-allowed text-muted-foreground"
+            }`}
+          >
+            <div
+              className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
+                exam.passed
+                  ? "bg-success text-success-foreground"
+                  : exam.unlocked
+                    ? "bg-gradient-nexti text-primary-foreground"
+                    : "bg-secondary text-muted-foreground"
+              }`}
+            >
+              {exam.passed ? <Check className="h-4 w-4" /> : exam.unlocked ? <ClipboardCheck className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold leading-snug">Prova</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                {exam.passed
+                  ? "Aprovado"
+                  : exam.unlocked
+                    ? "Liberada — próximo passo"
+                    : `Bloqueada — conclua os módulos (${completedLessons}/${totalLessons})`}
+              </p>
+            </div>
+            {exam.unlocked && !exam.passed && <ChevronRight className="h-4 w-4 text-primary shrink-0" />}
+          </button>
+        </div>
+      )}
     </div>
   );
 };

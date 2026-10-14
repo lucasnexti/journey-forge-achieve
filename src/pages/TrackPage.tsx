@@ -281,6 +281,18 @@ const TrackPage = () => {
     ),
     onSelectLesson: (id: string) => { setCurrentLessonId(id); setShowQuiz(false); },
     trackTitle: track?.title,
+    exam: hasExam
+      ? {
+          unlocked: allLessonsComplete,
+          passed: quizPassed,
+          active: showQuiz,
+          onSelect: () => {
+            setShowQuiz(true);
+            setSidebarOpen(false);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          },
+        }
+      : undefined,
   };
 
   if (loading) {
