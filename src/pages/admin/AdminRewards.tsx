@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import AdminPageShell from "@/components/admin/AdminPageShell";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Gift, Plus, Pencil, Trash2, Package, CheckCircle2, XCircle, Coins } from "lucide-react";
+import { Gift, Plus, Pencil, Trash2, Package, CheckCircle2, XCircle, Coins, ImageUp } from "lucide-react";
+
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const MAX_BYTES = 5 * 1024 * 1024;
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
@@ -45,6 +48,11 @@ const AdminRewards = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingReward, setEditingReward] = useState<Reward | null>(null);
   const [form, setForm] = useState({ name: "", description: "", cost: 100, stock: "", category: "geral", image_url: "" });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [dragOver, setDragOver] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const load = async () => {
     const [{ data: rewardData }, { data: redemptionData }] = await Promise.all([
@@ -62,28 +70,67 @@ const AdminRewards = () => {
 
   useEffect(() => { load(); }, []);
 
+  const pickFile = (file?: File | null) => {
+    if (!file) return;
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      toast.error("Formato inválido. Envie uma imagem JPG, PNG ou WEBP.");
+      return;
+    }
+    if (file.size > MAX_BYTES) {
+      toast.error("Imagem muito grande. O tamanho máximo é 5 MB.");
+      return;
+    }
+    setImageFile(file);
+    setPreviewUrl(URL.createObjectURL(file));
+  };
+
+  const clearImage = () => {
+    setImageFile(null);
+    setPreviewUrl(null);
+    setForm((f) => ({ ...f, image_url: "" }));
+  };
+
+  const resetForm = () => {
+    setForm({ name: "", description: "", cost: 100, stock: "", category: "geral", image_url: "" });
+    setImageFile(null);
+    setPreviewUrl(null);
+  };
+
   const handleSaveReward = async () => {
+    setSaving(true);
+    let imageUrl = form.image_url || null;
+    if (imageFile) {
+      const ext = imageFile.name.split(".").pop()?.toLowerCase() || "jpg";
+      const path = `rewards/${crypto.randomUUID()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("avatars").upload(path, imageFile, { contentType: imageFile.type });
+      if (upErr) {
+        setSaving(false);
+        toast.error("Não foi possível enviar a imagem. Tente novamente.");
+        return;
+      }
+      imageUrl = supabase.storage.from("avatars").getPublicUrl(path).data.publicUrl;
+    }
+
     const payload = {
       name: form.name,
       description: form.description || null,
       cost: form.cost,
       stock: form.stock ? parseInt(form.stock) : null,
       category: form.category,
-      image_url: form.image_url || null,
+      image_url: imageUrl,
       is_active: true,
     };
 
-    if (editingReward) {
-      await supabase.from("rewards").update(payload).eq("id", editingReward.id);
-      toast.success("Prêmio atualizado!");
-    } else {
-      await supabase.from("rewards").insert(payload);
-      toast.success("Prêmio criado!");
-    }
+    const { error } = editingReward
+      ? await supabase.from("rewards").update(payload).eq("id", editingReward.id)
+      : await supabase.from("rewards").insert(payload);
+    setSaving(false);
+    if (error) { toast.error("Erro ao salvar prêmio."); return; }
+    toast.success(editingReward ? "Prêmio atualizado!" : "Prêmio criado!");
 
     setShowForm(false);
     setEditingReward(null);
-    setForm({ name: "", description: "", cost: 100, stock: "", category: "geral", image_url: "" });
+    resetForm();
     load();
   };
 
@@ -123,6 +170,8 @@ const AdminRewards = () => {
       category: reward.category || "geral",
       image_url: reward.image_url || "",
     });
+    setImageFile(null);
+    setPreviewUrl(reward.image_url || null);
     setShowForm(true);
   };
 
@@ -149,7 +198,7 @@ const AdminRewards = () => {
           </h3>
           <Button
             size="sm"
-            onClick={() => { setEditingReward(null); setForm({ name: "", description: "", cost: 100, stock: "", category: "geral", image_url: "" }); setShowForm(true); }}
+            onClick={() => { setEditingReward(null); resetForm(); setShowForm(true); }}
             className="gap-1.5 bg-gradient-nexti text-primary-foreground hover:opacity-90"
           >
             <Plus className="h-4 w-4" /> Novo Prêmio
@@ -270,13 +319,41 @@ const AdminRewards = () => {
               <Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="ex: acessório, experiência" />
             </div>
             <div className="space-y-1.5">
-              <Label>URL da imagem</Label>
-              <Input value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} placeholder="https://..." />
+              <Label>Imagem do prêmio</Label>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={(e) => { pickFile(e.target.files?.[0]); e.target.value = ""; }}
+              />
+              {previewUrl ? (
+                <div className="space-y-2">
+                  <img src={previewUrl} alt="Pré-visualização" className="h-40 w-full rounded-lg border border-border object-cover" />
+                  <div className="flex gap-2">
+                    <Button type="button" variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>Trocar imagem</Button>
+                    <Button type="button" variant="ghost" size="sm" onClick={clearImage}>Remover</Button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                  onDragLeave={() => setDragOver(false)}
+                  onDrop={(e) => { e.preventDefault(); setDragOver(false); pickFile(e.dataTransfer.files?.[0]); }}
+                  className={`flex h-32 w-full flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed text-sm text-muted-foreground transition-colors ${dragOver ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}
+                >
+                  <ImageUp className="h-6 w-6" />
+                  Arraste uma imagem aqui ou clique para selecionar
+                  <span className="text-xs">JPG, PNG ou WEBP — até 5 MB</span>
+                </button>
+              )}
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowForm(false)}>Cancelar</Button>
-            <Button onClick={handleSaveReward} disabled={!form.name} className="bg-gradient-nexti text-primary-foreground hover:opacity-90">
+            <Button onClick={handleSaveReward} disabled={!form.name || saving} className="bg-gradient-nexti text-primary-foreground hover:opacity-90">
               {editingReward ? "Salvar" : "Criar Prêmio"}
             </Button>
           </DialogFooter>
