@@ -1727,6 +1727,10 @@ export type Database = {
         Args: { _key: string; _reference_id: string; _user_id: string }
         Returns: boolean
       }
+      complete_track_without_exam: {
+        Args: { _track_id: string }
+        Returns: Json
+      }
       evaluate_user_badges: { Args: never; Returns: Json }
       exam_current_cycle: {
         Args: { _exam_id: string; _max_attempts: number; _user_id: string }
@@ -1779,6 +1783,7 @@ export type Database = {
         Returns: Json
       }
       touch_my_streak: { Args: never; Returns: Json }
+      track_has_exam: { Args: { _track_id: string }; Returns: boolean }
       update_user_streak: { Args: { _user_id: string }; Returns: undefined }
       validate_kb_quiz_attempt: {
         Args: { _answers: Json; _module_ids: string[]; _user_id: string }
