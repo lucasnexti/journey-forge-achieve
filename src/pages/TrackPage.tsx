@@ -129,14 +129,31 @@ const TrackPage = () => {
 
   
 
+  const progressRef = useRef(progress);
+  progressRef.current = progress;
+  const celebratedRef = useRef<Set<string>>(new Set());
+
   const handleLessonComplete = useCallback(async (watchedSeconds: number) => {
-    if (!user || !trackId) return;
-    setProgress((prev) => ({
-      ...prev,
-      [currentLessonId]: { completed: true, watched_seconds: watchedSeconds },
+    if (!user || !trackId || !currentLessonId) return;
+    const lessonId = currentLessonId;
+    const prev = progressRef.current[lessonId];
+    const lesson = lessons.find((l) => l.id === lessonId);
+    const dur = lesson?.duration || 0;
+    const alreadyDone =
+      !!prev?.completed || (dur > 0 && (prev?.watched_seconds ?? 0) >= dur * 0.9) || celebratedRef.current.has(lessonId);
+
+    setProgress((p) => ({
+      ...p,
+      [lessonId]: { completed: true, watched_seconds: Math.max(watchedSeconds, p[lessonId]?.watched_seconds || 0) },
     }));
-    markLessonCompleteDB(user.id, trackId, currentLessonId, watchedSeconds).catch(console.error);
-    claimReward("lesson_complete", currentLessonId).catch(console.error);
+    // Só dispara conclusão/celebração na primeira conclusão real desta aula
+    if (alreadyDone) {
+      if (!prev?.completed) markLessonCompleteDB(user.id, trackId, lessonId, watchedSeconds).catch(console.error);
+      return;
+    }
+    celebratedRef.current.add(lessonId);
+    markLessonCompleteDB(user.id, trackId, lessonId, watchedSeconds).catch(console.error);
+    claimReward("lesson_complete", lessonId).catch(console.error);
 
     triggerAchievement({
       type: "coins",
@@ -144,7 +161,7 @@ const TrackPage = () => {
       description: `+${COIN_REWARDS.lesson_complete} Nexti Coins`,
       value: COIN_REWARDS.lesson_complete,
     });
-  }, [user, trackId, currentLessonId]);
+  }, [user, trackId, currentLessonId, lessons]);
 
 
   const handleProgress = useCallback(async (watchedSeconds: number) => {
