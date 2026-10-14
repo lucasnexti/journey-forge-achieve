@@ -1,0 +1,3 @@
+CREATE POLICY "Admins upload reward images" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = 'rewards' AND public.has_role(auth.uid(), 'admin'));
+CREATE POLICY "Admins update reward images" ON storage.objects FOR UPDATE TO authenticated USING (bucket_id = 'rewards' AND public.has_role(auth.uid(), 'admin'));
+CREATE POLICY "Admins delete reward images" ON storage.objects FOR DELETE TO authenticated USING (bucket_id = 'rewards' AND public.has_role(auth.uid(), 'admin'));
