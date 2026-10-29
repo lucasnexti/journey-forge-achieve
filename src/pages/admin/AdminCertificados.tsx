@@ -134,9 +134,17 @@ const AdminCertificados = () => {
 
   return (
     <AdminLayout>
-      <div>
-        <h1 className="font-display text-xl font-bold text-primary">Certificados</h1>
-        <div className="mt-1 h-1 w-12 rounded-full bg-gradient-nexti" />
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="font-display text-xl font-bold text-primary">Certificados</h1>
+          <div className="mt-1 h-1 w-12 rounded-full bg-gradient-nexti" />
+          <p className="mt-2 text-sm text-muted-foreground">Todos os cursos usam o layout oficial Nexti com QR Code, exceto os que tiverem um modelo próprio vinculado.</p>
+        </div>
+        <Button variant="outline" className="gap-2" onClick={async () => {
+          const { data, error } = await supabase.functions.invoke("generate-certificate", { body: { mode: "preview_official" } });
+          if (error || !(data instanceof Blob)) return toast.error("Não foi possível gerar a prévia.");
+          window.open(URL.createObjectURL(new Blob([data], { type: "application/pdf" })), "_blank");
+        }}><Eye className="h-4 w-4" /> Prévia do layout oficial</Button>
       </div>
 
       <Tabs defaultValue="modelos" className="mt-4">
