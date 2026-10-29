@@ -320,7 +320,7 @@ const RewardsStorePage = () => {
                           <div className="mt-auto pt-4 space-y-3">
                             {/* Price & afford progress */}
                             <div>
-                              <div className="flex items-center justify-between mb-1.5">
+                              <div className="flex flex-wrap items-center justify-between gap-1 mb-1.5">
                                 <span className="flex items-center gap-1.5 rounded-full bg-warning/10 px-2.5 py-1 text-sm sm:text-base font-extrabold text-foreground">
                                   <Coins className="h-4 w-4 text-warning" />
                                   {reward.cost.toLocaleString("pt-BR")}
