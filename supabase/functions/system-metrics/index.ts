@@ -24,14 +24,15 @@ serve(async (req) => {
     const { data: { user }, error: authError } = await userClient.auth.getUser();
     if (authError || !user) throw new Error("Unauthorized");
 
-    if (user.email !== "robson@nexti.com") {
-      return new Response(JSON.stringify({ error: "Forbidden — super admin only" }), {
+    const admin = createClient(supabaseUrl, serviceKey);
+
+    const { data: isAdmin } = await admin.rpc("has_role", { _user_id: user.id, _role: "admin" });
+    if (!isAdmin) {
+      return new Response(JSON.stringify({ error: "Forbidden — admin only" }), {
         status: 403,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-
-    const admin = createClient(supabaseUrl, serviceKey);
 
     const now = new Date();
     const fiveMinAgo = new Date(now.getTime() - 5 * 60 * 1000).toISOString();
