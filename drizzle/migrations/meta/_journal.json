@@ -43,6 +43,13 @@
       "when": 1793292936086,
       "tag": "0005_course_covers_storage",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793302733647,
+      "tag": "0006_enforce_real_lesson_completion",
+      "breakpoints": true
     }
   ]
 }
