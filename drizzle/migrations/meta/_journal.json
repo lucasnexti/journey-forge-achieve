@@ -22,6 +22,13 @@
       "when": 1791982331064,
       "tag": "0002_complete_track_without_exam",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793284893025,
+      "tag": "0003_redemption_refunds",
+      "breakpoints": true
     }
   ]
 }

@@ -1138,7 +1138,12 @@ export type Database = {
           admin_note: string | null
           cost: number
           created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          decision_reason: string | null
           id: string
+          refund_email_status: string | null
+          refunded_at: string | null
           reward_id: string
           status: string
           updated_at: string
@@ -1148,7 +1153,12 @@ export type Database = {
           admin_note?: string | null
           cost: number
           created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_reason?: string | null
           id?: string
+          refund_email_status?: string | null
+          refunded_at?: string | null
           reward_id: string
           status?: string
           updated_at?: string
@@ -1158,7 +1168,12 @@ export type Database = {
           admin_note?: string | null
           cost?: number
           created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_reason?: string | null
           id?: string
+          refund_email_status?: string | null
+          refunded_at?: string | null
           reward_id?: string
           status?: string
           updated_at?: string
@@ -1708,6 +1723,10 @@ export type Database = {
         Returns: Json
       }
       admin_enrollment_report: { Args: { _track_id?: string }; Returns: Json }
+      admin_update_redemption: {
+        Args: { _id: string; _reason?: string; _status: string }
+        Returns: Json
+      }
       award_coins: {
         Args: {
           _amount: number
