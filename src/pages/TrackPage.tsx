@@ -175,19 +175,22 @@ const TrackPage = () => {
     const dur = lesson?.duration || 0;
     const alreadyDone =
       !!prev?.completed || (dur > 0 && (prev?.watched_seconds ?? 0) >= dur * 0.9) || celebratedRef.current.has(lessonId);
-
-    setProgress((p) => ({
-      ...p,
-      [lessonId]: { completed: true, watched_seconds: Math.max(watchedSeconds, p[lessonId]?.watched_seconds || 0) },
-    }));
-    // Só dispara conclusão/celebração na primeira conclusão real desta aula
     if (alreadyDone) {
       if (!prev?.completed) markLessonCompleteDB(user.id, trackId, lessonId, watchedSeconds).catch(console.error);
       return;
     }
+    // A conclusão é decidida pelo servidor (tempo real assistido); só celebra se confirmada.
     celebratedRef.current.add(lessonId);
-    markLessonCompleteDB(user.id, trackId, lessonId, watchedSeconds).catch(console.error);
+    const saved = await markLessonCompleteDB(user.id, trackId, lessonId, watchedSeconds).catch(() => null);
+    if (!saved?.completed) {
+      celebratedRef.current.delete(lessonId);
+      if (saved) setProgress((p) => ({ ...p, [lessonId]: { completed: false, watched_seconds: saved.watched_seconds } }));
+      toast.info("Continue assistindo: a aula só é concluída após assistir ao vídeo até o final.");
+      return;
+    }
+    setProgress((p) => ({ ...p, [lessonId]: { completed: true, watched_seconds: saved.watched_seconds } }));
     claimReward("lesson_complete", lessonId).catch(console.error);
+
 
     triggerAchievement({
       type: "coins",
@@ -460,16 +463,45 @@ const TrackPage = () => {
                   )}
 
                   {hasExam && !quizPassed && (
-                    <Button
-                      onClick={() => setShowQuiz(true)}
-                      disabled={!allLessonsComplete}
-                      className="w-full gap-2 bg-gradient-nexti text-primary-foreground hover:opacity-90 h-12 text-sm"
-                    >
-                      <ClipboardCheck className="h-4 w-4" />
-                      {allLessonsComplete
-                        ? "Realizar Avaliação Final"
-                        : `Avaliação bloqueada — ${completedLessons}/${lessons.length} aulas concluídas`}
-                    </Button>
+                    <div className="space-y-2">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+                        {[
+                          ["Vídeos obrigatórios", lessons.length],
+                          ["Concluídos", completedLessons],
+                          ["Pendentes", lessons.length - completedLessons],
+                          ["Progresso", `${overallPercent}%`],
+                        ].map(([label, value]) => (
+                          <div key={label as string} className="rounded-lg border border-border bg-card px-2 py-2">
+                            <p className="text-sm font-bold text-foreground tabular-nums">{value}</p>
+                            <p className="text-[10px] text-muted-foreground">{label}</p>
+                          </div>
+                        ))}
+                      </div>
+                      {!allLessonsComplete && (
+                        <p className="text-xs text-muted-foreground text-center">
+                          Para realizar a avaliação final, assista a todos os vídeos obrigatórios do curso.
+                        </p>
+                      )}
+                      <Button
+                        onClick={() => {
+                          if (!allLessonsComplete) {
+                            const pending = lessons.filter((l) => !isLessonComplete(l)).map((l) => l.title);
+                            toast.error("Avaliação bloqueada", {
+                              description: `Vídeos pendentes: ${pending.slice(0, 5).join(", ")}${pending.length > 5 ? ` e mais ${pending.length - 5}` : ""}.`,
+                            });
+                            return;
+                          }
+                          setShowQuiz(true);
+                        }}
+                        aria-disabled={!allLessonsComplete}
+                        className={`w-full gap-2 bg-gradient-nexti text-primary-foreground hover:opacity-90 h-12 text-sm ${allLessonsComplete ? "" : "opacity-60"}`}
+                      >
+                        <ClipboardCheck className="h-4 w-4" />
+                        {allLessonsComplete
+                          ? "Prova liberada — Realizar Avaliação Final"
+                          : `Avaliação bloqueada — ${completedLessons}/${lessons.length} aulas concluídas`}
+                      </Button>
+                    </div>
                   )}
                 </motion.div>
               ) : (
