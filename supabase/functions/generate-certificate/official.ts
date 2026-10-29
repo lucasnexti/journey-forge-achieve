@@ -1,6 +1,6 @@
 // Layout oficial do certificado Nexti Academy (A4 paisagem), fiel ao modelo Certificado.tsx enviado pela Nexti.
 // Coordenadas em px do modelo (1123 × 794) convertidas para pontos PDF.
-import { PDFDocument, rgb, PDFFont } from "npm:pdf-lib@1.17.1";
+import { PDFDocument, rgb, PDFFont, PDFName, PDFString } from "npm:pdf-lib@1.17.1";
 import fontkit from "npm:@pdf-lib/fontkit@1.1.1";
 import QRCode from "npm:qrcode@1.5.4";
 import * as A from "./assets.ts";
@@ -136,18 +136,16 @@ export async function renderOfficial(d: OfficialData): Promise<Uint8Array> {
   for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
     if (qr.modules.get(r, c)) rect(qx + (c + quiet) * cell, qy + (r + quiet) * cell, cell + 0.05, cell + 0.05, C.tinta);
   }
-  page.drawRectangle({ x: 0, y: 0, width: 0, height: 0 }); // no-op keeps graphics state clean
   let ty = qy + q;
   if (codeLines.length) { ty += 10; for (const l of codeLines) { text(l, cx + (cardW - tw(l, F.r600, 11)) / 2, ty, F.r600, 11, C.tinta); ty += 11 * 1.2; } }
   ty += 4; for (const l of note) { text(l, cx + (cardW - tw(l, F.r400, 10)) / 2, ty, F.r400, 10, C.cinza, 1.35); ty += 10 * 1.35; }
 
-  page.node.set(pdf.context.obj("Annots") as any, pdf.context.obj([]));
   // Link clicável sobre o QR Code (útil no PDF digital).
   const link = pdf.context.obj({
     Type: "Annot", Subtype: "Link", Rect: [qx * K, (H - qy - q) * K, (qx + q) * K, (H - qy) * K], Border: [0, 0, 0],
-    A: { Type: "Action", S: "URI", URI: pdf.context.obj(d.verifyUrl) as any },
+    A: { Type: "Action", S: "URI", URI: PDFString.of(d.verifyUrl) },
   });
-  page.node.set(pdf.context.obj("Annots") as any, pdf.context.obj([pdf.context.register(link)]));
+  page.node.set(PDFName.of("Annots"), pdf.context.obj([pdf.context.register(link)]));
   return await pdf.save();
 }
 
