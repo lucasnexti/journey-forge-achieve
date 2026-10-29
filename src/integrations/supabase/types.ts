@@ -158,32 +158,105 @@ export type Database = {
         }
         Relationships: []
       }
+      certificate_templates: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          fields: Json
+          file_name: string | null
+          file_path: string
+          id: string
+          is_active: boolean
+          is_default: boolean
+          name: string
+          track_ids: string[]
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          fields?: Json
+          file_name?: string | null
+          file_path: string
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          name: string
+          track_ids?: string[]
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          fields?: Json
+          file_name?: string | null
+          file_path?: string
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          name?: string
+          track_ids?: string[]
+          updated_at?: string
+          version?: number
+        }
+        Relationships: []
+      }
       certificates: {
         Row: {
           certificate_code: string | null
+          file_path: string | null
+          generated_at: string | null
+          generation_count: number
+          generation_error: string | null
           id: string
           issued_at: string | null
+          revoked_at: string | null
+          status: string
+          template_id: string | null
           track_id: string
           user_id: string
           valid_until: string | null
         }
         Insert: {
           certificate_code?: string | null
+          file_path?: string | null
+          generated_at?: string | null
+          generation_count?: number
+          generation_error?: string | null
           id?: string
           issued_at?: string | null
+          revoked_at?: string | null
+          status?: string
+          template_id?: string | null
           track_id: string
           user_id: string
           valid_until?: string | null
         }
         Update: {
           certificate_code?: string | null
+          file_path?: string | null
+          generated_at?: string | null
+          generation_count?: number
+          generation_error?: string | null
           id?: string
           issued_at?: string | null
+          revoked_at?: string | null
+          status?: string
+          template_id?: string | null
           track_id?: string
           user_id?: string
           valid_until?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "certificates_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "certificate_templates"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "certificates_track_id_fkey"
             columns: ["track_id"]
@@ -1932,6 +2005,7 @@ export type Database = {
         Args: { _answers: Json; _quiz_id: string; _user_id: string }
         Returns: Json
       }
+      verify_certificate: { Args: { _code: string }; Returns: Json }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"

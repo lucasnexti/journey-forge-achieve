@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { openCertificatePdf } from "@/lib/certificates";
 import { User, Award, FileText, Save, Camera, Eye, EyeOff, KeyRound, Loader2 } from "lucide-react";
 
 interface ProfileData {
@@ -292,10 +293,20 @@ const ProfilePage = () => {
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-foreground truncate">{cert.track_title}</p>
                         <p className="text-[11px] sm:text-xs text-muted-foreground">
-                          Emitido em {new Date(cert.issued_at).toLocaleDateString("pt-BR")} · Código: {cert.certificate_code?.slice(0, 8)}
+                          Emitido em {new Date(cert.issued_at).toLocaleDateString("pt-BR")} · Código: {cert.certificate_code}
                         </p>
                       </div>
-                      <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                      <div className="flex shrink-0 gap-1.5">
+                        <Button size="sm" variant="outline" className="h-8 gap-1 text-xs" onClick={async () => {
+                          const w = window.open("", "_blank");
+                          try { const url = await openCertificatePdf({ certificateId: cert.id }); if (w) w.location.href = url; else window.location.href = url; }
+                          catch (e) { w?.close(); toast.error((e as Error).message); }
+                        }}><Eye className="h-3.5 w-3.5" /> Ver</Button>
+                        <Button size="sm" className="h-8 gap-1 text-xs" onClick={async () => {
+                          try { window.location.href = await openCertificatePdf({ certificateId: cert.id, download: true }); }
+                          catch (e) { toast.error((e as Error).message); }
+                        }}><FileText className="h-3.5 w-3.5" /> PDF</Button>
+                      </div>
                     </div>
                   ))}
                 </div>
