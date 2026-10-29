@@ -57,6 +57,13 @@
       "when": 1793302849473,
       "tag": "0007_progress_guards_invoker",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793303287342,
+      "tag": "0008_certificate_templates",
+      "breakpoints": true
     }
   ]
 }
