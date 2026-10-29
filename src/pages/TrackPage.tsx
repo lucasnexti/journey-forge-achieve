@@ -17,6 +17,7 @@ import TrackRating from "@/components/TrackRating";
 import LessonForum from "@/components/LessonForum";
 import ExamRunner, { ExamResult } from "@/components/exam/ExamRunner";
 import Certificate from "@/components/Certificate";
+import { openCertificatePdf } from "@/lib/certificates";
 import { ArrowLeft, ClipboardCheck, BookOpen, CheckCircle2, List, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -136,6 +137,7 @@ const TrackPage = () => {
       setQuizScore(100);
       setCompletedAt(res.completed_at || new Date().toISOString());
       evaluateBadges().catch(console.error);
+      openCertificatePdf({ trackId }).catch(() => {});
       triggerAchievement({ type: "track_complete", title: "Curso concluído! 🎉", description: `${track?.title} — Parabéns!`, value: 0 });
     })();
   }, [allDoneNoExam, trackId, track?.title]);
@@ -231,6 +233,7 @@ const TrackPage = () => {
         value: COIN_REWARDS.track_complete,
       });
       toast.success("Aprovado! Certificado liberado. 🪙 Moedas adicionadas!");
+      openCertificatePdf({ trackId }).catch(() => { /* gerado depois em "Meus certificados" */ });
     } else {
       setQuizPassed(false);
       setCompletedAt(null);
@@ -527,6 +530,12 @@ const TrackPage = () => {
             {quizPassed && completedAt && (
               <div className="space-y-4 mt-5">
                 <Certificate userName={profileName} trackTitle={track.title} completedAt={completedAt} score={quizScore || 0} />
+                <Button variant="outline" className="w-full gap-2" onClick={async () => {
+                  try { window.open(await openCertificatePdf({ trackId: track.id, download: true }), "_blank"); }
+                  catch (e) { toast.error((e as Error).message); }
+                }}>
+                  <ClipboardCheck className="h-4 w-4" /> Baixar certificado oficial (PDF)
+                </Button>
                 <TrackRating trackId={track.id} />
               </div>
             )}
