@@ -213,6 +213,8 @@ export type Database = {
           id: string
           issued_at: string | null
           revoked_at: string | null
+          revoked_by: string | null
+          revoked_reason: string | null
           status: string
           template_id: string | null
           track_id: string
@@ -228,6 +230,8 @@ export type Database = {
           id?: string
           issued_at?: string | null
           revoked_at?: string | null
+          revoked_by?: string | null
+          revoked_reason?: string | null
           status?: string
           template_id?: string | null
           track_id: string
@@ -243,6 +247,8 @@ export type Database = {
           id?: string
           issued_at?: string | null
           revoked_at?: string | null
+          revoked_by?: string | null
+          revoked_reason?: string | null
           status?: string
           template_id?: string | null
           track_id?: string
@@ -1916,6 +1922,10 @@ export type Database = {
         Returns: Json
       }
       admin_enrollment_report: { Args: { _track_id?: string }; Returns: Json }
+      admin_revoke_certificate: {
+        Args: { _id: string; _reason: string }
+        Returns: Json
+      }
       admin_update_redemption: {
         Args: { _id: string; _reason?: string; _status: string }
         Returns: Json
