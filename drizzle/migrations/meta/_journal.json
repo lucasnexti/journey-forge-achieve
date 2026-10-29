@@ -50,6 +50,13 @@
       "when": 1793302733647,
       "tag": "0006_enforce_real_lesson_completion",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793302849473,
+      "tag": "0007_progress_guards_invoker",
+      "breakpoints": true
     }
   ]
 }
