@@ -11,6 +11,25 @@ import { Gift, Plus, Pencil, Trash2, Package, CheckCircle2, XCircle, Coins, Imag
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_BYTES = 5 * 1024 * 1024;
+
+const statusLabels: Record<string, { label: string; color: string }> = {
+  pending: { label: "Aguardando contato", color: "bg-warning/10 text-warning" },
+  approved: { label: "Aprovado", color: "bg-primary/10 text-primary" },
+  awaiting_address: { label: "Aguardando endereço", color: "bg-warning/10 text-warning" },
+  ready_to_ship: { label: "Pronto para envio", color: "bg-primary/10 text-primary" },
+  shipped: { label: "Enviado", color: "bg-primary/10 text-primary" },
+  delivered: { label: "Entregue", color: "bg-success/10 text-success" },
+  rejected: { label: "Reprovado", color: "bg-destructive/10 text-destructive" },
+  cancelled: { label: "Cancelado", color: "bg-muted text-muted-foreground" },
+};
+const OPEN_STATUSES = ["pending", "approved", "awaiting_address", "ready_to_ship"];
+const NEXT_STEP: Record<string, { to: string; label: string } | undefined> = {
+  pending: { to: "awaiting_address", label: "Aprovar resgate" },
+  approved: { to: "awaiting_address", label: "Aguardar endereço" },
+  awaiting_address: { to: "ready_to_ship", label: "Pronto para envio" },
+  ready_to_ship: { to: "shipped", label: "Marcar enviado" },
+  shipped: { to: "delivered", label: "Marcar entregue" },
+};
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
