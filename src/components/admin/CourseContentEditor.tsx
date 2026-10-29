@@ -144,11 +144,10 @@ export default function CourseContentEditor({ trackId, onChanged }: { trackId: s
     if (!f.title.trim()) return toast.error("Informe o título da aula.");
     if (f.video_url && !/^https:\/\//i.test(f.video_url)) return toast.error("O link do vídeo deve começar com https://");
     const payload = { title: f.title.trim(), description: f.description || null, video_url: f.video_url || null, duration: f.duration || 0, is_published: f.is_published };
-    const inModule = lessons.filter((l) => l.module_id === lesDialog.moduleId);
     const maxOrder = Math.max(0, ...lessons.map((l) => l.order_index || 0));
     const ok = await run(async () => lesDialog.editing
       ? supabase.from("lessons").update(payload).eq("id", lesDialog.editing.id)
-      : supabase.from("lessons").insert({ ...payload, track_id: trackId, module_id: lesDialog.moduleId, order_index: maxOrder + 1 + inModule.length * 0 }),
+      : supabase.from("lessons").insert({ ...payload, track_id: trackId, module_id: lesDialog.moduleId, order_index: maxOrder + 1 }),
       lesDialog.editing ? "Aula atualizada." : "Aula adicionada.");
     if (ok) setLesDialog((d) => ({ ...d, open: false }));
   };

@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import AdminLayout from "@/components/admin/AdminLayout";
+import CourseContentEditor from "@/components/admin/CourseContentEditor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,6 +32,8 @@ interface Track {
   created_at: string | null;
   published_at: string | null;
   prerequisite_track_id: string | null;
+  cover_image_url?: string | null;
+  instructor?: string | null;
 }
 
 interface Lesson {
@@ -413,7 +416,7 @@ const AdminTrilhasGestao = () => {
       {/* Main content */}
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-5">
         {/* Track list - 3 cols */}
-        <div className="lg:col-span-3">
+        <div className="lg:col-span-2">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold text-foreground">
               Trilhas <span className="text-muted-foreground font-normal">({filteredTracks.length})</span>
@@ -550,124 +553,23 @@ const AdminTrilhasGestao = () => {
           )}
         </div>
 
-        {/* Lesson panel - 2 cols */}
-        <div className="lg:col-span-2">
+        {/* Course content editor */}
+        <div className="lg:col-span-3">
           {selectedTrack ? (
-            <div className="card-surface p-0 overflow-hidden sticky top-4">
-              {/* Track header */}
-              <div className="bg-gradient-nexti p-4 text-primary-foreground">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-display text-sm font-semibold truncate">{selectedTrack.title}</h3>
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={openNewLesson}
-                    className="gap-1 h-7 text-xs bg-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/30 border-0"
-                  >
-                    <Plus className="h-3 w-3" /> Aula
-                  </Button>
-                </div>
-                <div className="flex items-center gap-3 mt-2 text-[11px] text-primary-foreground/75">
-                  <span>{lessons.length} aulas</span>
-                  <span>·</span>
-                  <span>{selectedTrack.estimated_hours || 0}h estimadas</span>
+            <div className="space-y-3 lg:sticky lg:top-4">
+              <div className="flex items-center gap-3">
+                {selectedTrack.cover_image_url && <img src={selectedTrack.cover_image_url} alt="" className="h-12 w-20 rounded-md object-cover" />}
+                <div className="min-w-0">
+                  <h3 className="font-display text-base font-semibold text-foreground truncate">{selectedTrack.title}</h3>
+                  <Badge variant="outline" className="text-[10px]">{selectedTrack.is_active ? "Publicado" : "Rascunho"}</Badge>
                 </div>
               </div>
-
-              {/* Lesson list */}
-              <div className="divide-y divide-border max-h-[60vh] overflow-y-auto">
-                {lessons.length === 0 ? (
-                  <div className="p-8 text-center">
-                    <Video className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground">Nenhuma aula cadastrada.</p>
-                    <Button size="sm" variant="outline" onClick={openNewLesson} className="mt-3 gap-1">
-                      <Plus className="h-3 w-3" /> Adicionar Aula
-                    </Button>
-                  </div>
-                ) : (
-                  lessons.map((lesson, i) => (
-                    <div key={lesson.id} className="flex items-center gap-3 px-4 py-3 group hover:bg-secondary/20 transition-colors">
-                      {/* Order controls */}
-                      <div className="flex flex-col gap-0.5 shrink-0">
-                        <button
-                          onClick={() => handleMoveLessonOrder(lesson.id, "up")}
-                          disabled={i === 0}
-                          className="p-0.5 text-muted-foreground/40 hover:text-foreground disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
-                        >
-                          <ArrowUpDown className="h-3 w-3 rotate-180" />
-                        </button>
-                      </div>
-
-                      {/* Lesson number */}
-                      <span className="tabular-nums text-xs font-bold text-muted-foreground w-5 text-center shrink-0">
-                        {i + 1}
-                      </span>
-
-                      {/* Icon */}
-                      <div className="rounded-md bg-primary/10 p-1.5 shrink-0">
-                        <Video className="h-3.5 w-3.5 text-primary" />
-                      </div>
-
-                      {/* Info */}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">{lesson.title}</p>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-[10px] text-muted-foreground">
-                            {lesson.duration ? `${Math.round(lesson.duration / 60)} min` : "—"}
-                          </span>
-                          {lesson.video_url && (
-                            <a
-                              href={lesson.video_url}
-                              target="_blank"
-                              rel="noreferrer"
-                              onClick={(e) => e.stopPropagation()}
-                              className="text-[10px] text-primary hover:underline flex items-center gap-0.5"
-                            >
-                              <ExternalLink className="h-2.5 w-2.5" /> vídeo
-                            </a>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Actions */}
-                      <div className="flex items-center gap-0.5 shrink-0">
-                        <button
-                          onClick={() => openEditLesson(lesson)}
-                          className="p-1.5 text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                          <Pencil className="h-3 w-3" />
-                        </button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <button className="p-1.5 text-muted-foreground hover:text-destructive transition-colors">
-                              <Trash2 className="h-3 w-3" />
-                            </button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Excluir aula?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                A aula "{lesson.title}" será excluída permanentemente.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDeleteLesson(lesson.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                                Excluir
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
+              <CourseContentEditor key={selectedTrack.id} trackId={selectedTrack.id} onChanged={() => { fetchTrackStats(tracks.map((t) => t.id)); fetchGlobalStats(); }} />
             </div>
           ) : (
-            <div className="card-surface p-12 text-center sticky top-4">
+            <div className="card-surface p-12 text-center">
               <ChevronRight className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">Selecione uma trilha para gerenciar suas aulas</p>
+              <p className="text-sm text-muted-foreground">Selecione um curso para organizar módulos, vídeos e materiais</p>
             </div>
           )}
         </div>
