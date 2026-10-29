@@ -73,7 +73,7 @@ const AdminUsuarios = () => {
     if (!r.success) { toast.error(r.error.errors[0].message); return; }
     setInviting(true);
     const { data, error } = await supabase.functions.invoke("admin-create-user", {
-      body: { ...r.data, redirectTo: window.location.origin },
+      body: { ...r.data, redirectTo: "https://journey-forge-achieve.lovable.app" },
     });
     setInviting(false);
     const msg = (data as any)?.error || (error ? await (error as any).context?.json?.().then((j: any) => j?.error).catch(() => null) || error.message : null);

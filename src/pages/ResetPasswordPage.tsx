@@ -17,15 +17,28 @@ const ResetPasswordPage = () => {
   const [success, setSuccess] = useState(false);
   const [isRecovery, setIsRecovery] = useState(false);
 
-  useEffect(() => {
-    // Check for recovery token in URL hash
-    const hash = window.location.hash;
-    if (hash.includes("type=recovery")) {
-      setIsRecovery(true);
-    }
+  const [linkError, setLinkError] = useState<string | null>(null);
+  const [isInvite, setIsInvite] = useState(false);
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") {
+  useEffect(() => {
+    // Accept both recovery and invite links (invites arrive with type=invite)
+    const hash = window.location.hash;
+    const params = new URLSearchParams(hash.replace(/^#/, "") || window.location.search);
+    const errCode = params.get("error_code") || new URLSearchParams(window.location.search).get("error_code");
+    if (errCode) {
+      setLinkError(
+        errCode === "otp_expired"
+          ? "Este link de acesso expirou ou já foi utilizado. Peça ao administrador da plataforma para enviar um novo convite."
+          : "Não foi possível validar este link de acesso. Peça ao administrador um novo convite."
+      );
+    }
+    if (hash.includes("type=recovery")) setIsRecovery(true);
+    if (hash.includes("type=invite")) { setIsInvite(true); setIsRecovery(true); }
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY") setIsRecovery(true);
+      if (event === "SIGNED_IN" && session && window.location.hash.includes("type=invite")) {
+        setIsInvite(true);
         setIsRecovery(true);
       }
     });
@@ -62,7 +75,7 @@ const ResetPasswordPage = () => {
         <div className="text-center space-y-4">
           <KeyRound className="h-12 w-12 text-muted-foreground mx-auto" />
           <h1 className="font-display text-xl font-bold text-foreground">Link inválido ou expirado</h1>
-          <p className="text-sm text-muted-foreground">Solicite um novo link de recuperação de senha.</p>
+          <p className="text-sm text-muted-foreground max-w-sm mx-auto">{linkError ?? "Solicite um novo link de recuperação de senha ou peça ao administrador um novo convite."}</p>
           <Button onClick={() => navigate("/auth")} variant="outline">Voltar ao login</Button>
         </div>
       </div>
@@ -134,7 +147,7 @@ const ResetPasswordPage = () => {
             </div>
 
             <Button type="submit" disabled={loading} className="w-full h-11 bg-gradient-nexti text-primary-foreground hover:opacity-90 font-semibold">
-              {loading ? "Salvando..." : "Redefinir Senha"}
+              {loading ? "Salvando..." : isInvite ? "Criar senha e acessar" : "Redefinir Senha"}
             </Button>
           </form>
         </div>
