@@ -253,6 +253,44 @@ export type Database = {
         }
         Relationships: []
       }
+      course_modules: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          order_index: number
+          title: string
+          track_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          order_index?: number
+          title: string
+          track_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          order_index?: number
+          title?: string
+          track_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_modules_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       enrollments: {
         Row: {
           completed_at: string | null
@@ -813,6 +851,8 @@ export type Database = {
           description: string | null
           duration: number | null
           id: string
+          is_published: boolean
+          module_id: string | null
           order_index: number | null
           title: string
           track_id: string
@@ -823,6 +863,8 @@ export type Database = {
           description?: string | null
           duration?: number | null
           id?: string
+          is_published?: boolean
+          module_id?: string | null
           order_index?: number | null
           title: string
           track_id: string
@@ -833,6 +875,8 @@ export type Database = {
           description?: string | null
           duration?: number | null
           id?: string
+          is_published?: boolean
+          module_id?: string | null
           order_index?: number | null
           title?: string
           track_id?: string
@@ -840,10 +884,80 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "lessons_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "course_modules"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "lessons_track_id_fkey"
             columns: ["track_id"]
             isOneToOne: false
             referencedRelation: "tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      module_materials: {
+        Row: {
+          created_at: string
+          description: string | null
+          external_url: string | null
+          file_name: string | null
+          file_path: string | null
+          file_size: number | null
+          id: string
+          kind: string
+          lesson_id: string | null
+          mime_type: string | null
+          module_id: string
+          order_index: number
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          external_url?: string | null
+          file_name?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          id?: string
+          kind?: string
+          lesson_id?: string | null
+          mime_type?: string | null
+          module_id: string
+          order_index?: number
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          external_url?: string | null
+          file_name?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          id?: string
+          kind?: string
+          lesson_id?: string | null
+          mime_type?: string | null
+          module_id?: string
+          order_index?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "module_materials_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "module_materials_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "course_modules"
             referencedColumns: ["id"]
           },
         ]
@@ -1372,10 +1486,12 @@ export type Database = {
       tracks: {
         Row: {
           category: string | null
+          cover_image_url: string | null
           created_at: string | null
           description: string | null
           estimated_hours: number | null
           id: string
+          instructor: string | null
           is_active: boolean | null
           order_index: number | null
           prerequisite_track_id: string | null
@@ -1385,10 +1501,12 @@ export type Database = {
         }
         Insert: {
           category?: string | null
+          cover_image_url?: string | null
           created_at?: string | null
           description?: string | null
           estimated_hours?: number | null
           id?: string
+          instructor?: string | null
           is_active?: boolean | null
           order_index?: number | null
           prerequisite_track_id?: string | null
@@ -1398,10 +1516,12 @@ export type Database = {
         }
         Update: {
           category?: string | null
+          cover_image_url?: string | null
           created_at?: string | null
           description?: string | null
           estimated_hours?: number | null
           id?: string
+          instructor?: string | null
           is_active?: boolean | null
           order_index?: number | null
           prerequisite_track_id?: string | null
