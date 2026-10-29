@@ -147,7 +147,7 @@ const ResetPasswordPage = () => {
             </div>
 
             <Button type="submit" disabled={loading} className="w-full h-11 bg-gradient-nexti text-primary-foreground hover:opacity-90 font-semibold">
-              {loading ? "Salvando..." : "Redefinir Senha"}
+              {loading ? "Salvando..." : isInvite ? "Criar senha e acessar" : "Redefinir Senha"}
             </Button>
           </form>
         </div>
