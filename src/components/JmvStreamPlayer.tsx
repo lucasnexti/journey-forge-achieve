@@ -135,14 +135,9 @@ const JmvStreamPlayer = ({ videoUrl, lessonTitle, lessonDuration = 0, initialWat
         </span>
         <div className="flex-1" />
         {!completed && (
-          <button
-            onClick={markDone}
-            disabled={!canComplete}
-            title={canComplete ? undefined : "Assista ao vídeo até o final para concluir"}
-            className="rounded-lg border border-border bg-secondary px-3 py-2 sm:py-1.5 text-xs font-medium text-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {canComplete ? "Marcar como assistida" : "Assista até o final para concluir"}
-          </button>
+          <span className="text-[11px] text-muted-foreground">
+            {lessonDuration > 0 ? "Assista até o final para concluir" : "Duração do vídeo não configurada"}
+          </span>
         )}
       </div>
 
