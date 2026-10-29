@@ -79,10 +79,14 @@ const RewardsStorePage = () => {
     : rewards;
 
   const statusLabels: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
-    pending: { label: "Pendente", icon: <Clock className="h-3.5 w-3.5" />, color: "bg-warning/10 text-warning border-warning/20" },
+    pending: { label: "Aguardando contato", icon: <Clock className="h-3.5 w-3.5" />, color: "bg-warning/10 text-warning border-warning/20" },
     approved: { label: "Aprovado", icon: <Star className="h-3.5 w-3.5" />, color: "bg-primary/10 text-primary border-primary/20" },
+    awaiting_address: { label: "Aguardando endereço", icon: <Clock className="h-3.5 w-3.5" />, color: "bg-warning/10 text-warning border-warning/20" },
+    ready_to_ship: { label: "Pronto para envio", icon: <Package className="h-3.5 w-3.5" />, color: "bg-primary/10 text-primary border-primary/20" },
+    shipped: { label: "Enviado", icon: <Package className="h-3.5 w-3.5" />, color: "bg-primary/10 text-primary border-primary/20" },
     delivered: { label: "Entregue", icon: <Package className="h-3.5 w-3.5" />, color: "bg-success/10 text-success border-success/20" },
-    rejected: { label: "Recusado", icon: <Zap className="h-3.5 w-3.5" />, color: "bg-destructive/10 text-destructive border-destructive/20" },
+    rejected: { label: "Reprovado · moedas devolvidas", icon: <Zap className="h-3.5 w-3.5" />, color: "bg-destructive/10 text-destructive border-destructive/20" },
+    cancelled: { label: "Cancelado · moedas devolvidas", icon: <Zap className="h-3.5 w-3.5" />, color: "bg-muted text-muted-foreground border-border" },
   };
 
   if (loading) {
