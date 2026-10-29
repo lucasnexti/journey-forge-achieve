@@ -255,7 +255,7 @@ const RewardsStorePage = () => {
                   <p className="text-sm text-muted-foreground mt-1">Continue acumulando moedas! Novos prêmios em breve.</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
                   {filteredRewards.map((reward, i) => {
                     const canAfford = gamification.coins >= reward.cost;
                     const outOfStock = reward.stock !== null && reward.stock <= 0;
@@ -267,15 +267,16 @@ const RewardsStorePage = () => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.04 }}
-                        className="group card-surface-hover overflow-hidden flex flex-col"
+                        className="group card-surface-hover overflow-hidden flex flex-col h-full"
                       >
                         {/* Image */}
-                        <div className="relative h-40 sm:h-44 bg-gradient-to-br from-muted/80 to-muted flex items-center justify-center overflow-hidden">
+                        <div className="relative aspect-square w-full bg-gradient-to-br from-muted/40 to-muted/80 border-b border-border/50 flex items-center justify-center overflow-hidden p-4 sm:p-6">
                           {reward.image_url ? (
                             <img
                               src={reward.image_url}
                               alt={reward.name}
-                              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                              className="max-h-full max-w-full h-full w-full object-contain drop-shadow-sm transition-transform duration-300 group-hover:scale-105"
+                              loading="lazy"
                             />
                           ) : (
                             <div className="flex flex-col items-center gap-2">
@@ -310,8 +311,8 @@ const RewardsStorePage = () => {
                         </div>
 
                         {/* Content */}
-                        <div className="p-4 flex flex-col flex-1">
-                          <h3 className="font-display text-sm font-bold text-foreground leading-snug">{reward.name}</h3>
+                        <div className="p-3 sm:p-4 flex flex-col flex-1">
+                          <h3 className="font-display text-sm font-bold text-foreground leading-snug line-clamp-2 min-h-[2.5rem]">{reward.name}</h3>
                           {reward.description && (
                             <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2 leading-relaxed">{reward.description}</p>
                           )}
@@ -319,10 +320,11 @@ const RewardsStorePage = () => {
                           <div className="mt-auto pt-4 space-y-3">
                             {/* Price & afford progress */}
                             <div>
-                              <div className="flex items-center justify-between mb-1.5">
-                                <span className="flex items-center gap-1.5 text-sm font-extrabold text-foreground">
+                              <div className="flex flex-wrap items-center justify-between gap-1 mb-1.5">
+                                <span className="flex items-center gap-1.5 rounded-full bg-warning/10 px-2.5 py-1 text-sm sm:text-base font-extrabold text-foreground">
                                   <Coins className="h-4 w-4 text-warning" />
                                   {reward.cost.toLocaleString("pt-BR")}
+                                  <span className="text-[10px] font-semibold text-muted-foreground">moedas</span>
                                 </span>
                                 {!canAfford && (
                                   <span className="text-[10px] text-muted-foreground">
@@ -339,7 +341,7 @@ const RewardsStorePage = () => {
                               size="sm"
                               disabled={!canAfford || outOfStock || redeeming === reward.id}
                               onClick={() => handleRedeem(reward)}
-                              className={`w-full h-9 text-xs font-bold ${
+                              className={`w-full h-9 text-[11px] sm:text-xs font-bold ${
                                 canAfford && !outOfStock
                                   ? "bg-gradient-nexti text-primary-foreground hover:opacity-90 shadow-sm"
                                   : ""
@@ -354,7 +356,7 @@ const RewardsStorePage = () => {
                                 </span>
                               ) : canAfford ? (
                                 <span className="flex items-center gap-1.5">
-                                  Resgatar
+                                  Resgatar prêmio
                                   <ArrowRight className="h-3.5 w-3.5" />
                                 </span>
                               ) : (
