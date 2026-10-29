@@ -54,7 +54,7 @@ const VerifyCertificatePage = () => {
             <p className="flex items-center gap-2 font-semibold text-success text-base mb-2"><CheckCircle2 className="h-5 w-5" /> Certificado válido</p>
             <Row label="Aluno" value={result.student} />
             <Row label="Curso" value={result.course} />
-            {result.hours ? <Row label="Carga horária" value={`${Number(result.hours).toLocaleString("pt-BR")} horas`} /> : null}
+            {result.hours ? <Row label="Carga horária" value={`${Number(result.hours).toLocaleString("pt-BR")} ${Number(result.hours) === 1 ? "hora" : "horas"}`} /> : null}
             <Row label="Data de conclusão" value={fmt(result.completed_at)} />
             <Row label="Data de emissão" value={fmt(result.issued_at)} />
             <Row label="Identificador" value={result.code} />
