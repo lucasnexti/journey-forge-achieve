@@ -111,10 +111,11 @@ const AdminCertificados = () => {
   };
 
   const revoke = async (c: any) => {
-    if (!confirm("Revogar este certificado? Ele deixará de ser válido na verificação.")) return;
-    await supabase.from("certificates").update({ revoked_at: new Date().toISOString(), status: "revoked" }).eq("id", c.id);
-    const { data: u } = await supabase.auth.getUser();
-    await supabase.from("audit_logs").insert({ user_id: u.user?.id || "", action: "revoke_certificate", entity_type: "certificate", entity_id: c.id, details: { code: c.certificate_code } });
+    const reason = prompt("Revogar este certificado? Ele deixará de ser válido na validação pública.\n\nInforme o motivo da revogação:");
+    if (reason === null) return;
+    if (reason.trim().length < 3) { toast.error("Informe o motivo da revogação."); return; }
+    const { error } = await supabase.rpc("admin_revoke_certificate", { _id: c.id, _reason: reason.trim() });
+    if (error) { toast.error(error.message); return; }
     toast.success("Certificado revogado."); load();
   };
 
