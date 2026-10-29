@@ -75,7 +75,7 @@ const ResetPasswordPage = () => {
         <div className="text-center space-y-4">
           <KeyRound className="h-12 w-12 text-muted-foreground mx-auto" />
           <h1 className="font-display text-xl font-bold text-foreground">Link inválido ou expirado</h1>
-          <p className="text-sm text-muted-foreground">Solicite um novo link de recuperação de senha.</p>
+          <p className="text-sm text-muted-foreground max-w-sm mx-auto">{linkError ?? "Solicite um novo link de recuperação de senha ou peça ao administrador um novo convite."}</p>
           <Button onClick={() => navigate("/auth")} variant="outline">Voltar ao login</Button>
         </div>
       </div>
