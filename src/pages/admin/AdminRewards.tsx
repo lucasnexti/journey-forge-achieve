@@ -319,6 +319,34 @@ const AdminRewards = () => {
         )}
       </div>
 
+      <Dialog open={!!closing} onOpenChange={(o) => !o && setClosing(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{closing?.status === "rejected" ? "Reprovar resgate" : "Cancelar pedido"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              {(closing?.r.profiles as any)?.nome || "Aluno"} → {(closing?.r.rewards as any)?.name || "Prêmio"}
+            </p>
+            <p className="rounded-md bg-primary/10 p-3 text-sm text-foreground">
+              Os <strong>{closing?.r.cost} moedas</strong> usadas neste resgate serão devolvidas automaticamente ao saldo do aluno, uma única vez.
+            </p>
+            <div className="space-y-1.5">
+              <Label>Motivo (opcional)</Label>
+              <Textarea value={closeReason} onChange={(e) => setCloseReason(e.target.value)} maxLength={500}
+                placeholder="Ex.: prêmio indisponível no momento" />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setClosing(null)} disabled={busy}>Voltar</Button>
+            <Button variant="destructive" disabled={busy}
+              onClick={() => closing && handleUpdateRedemptionStatus(closing.r.id, closing.status, closeReason)}>
+              {busy ? "Processando..." : closing?.status === "rejected" ? "Confirmar reprovação" : "Confirmar cancelamento"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Reward Form Dialog */}
       <Dialog open={showForm} onOpenChange={setShowForm}>
         <DialogContent>
