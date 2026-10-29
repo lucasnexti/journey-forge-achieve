@@ -390,18 +390,8 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
           <div className="flex-1" />
 
           {/* Actions */}
-          {!completed && lessonDuration <= 0 && (
-            <button
-              onClick={() => {
-                completedRef.current = true;
-                setCompleted(true);
-                onComplete(Math.round(currentTime || 60));
-                persistProgress(currentTime || 60);
-              }}
-              className="rounded-lg border border-border bg-secondary px-3 py-2 sm:py-1.5 text-xs font-medium text-foreground hover:bg-muted active:bg-muted/80 touch-manipulation transition-colors"
-            >
-              Marcar como assistida
-            </button>
+          {!completed && (
+            <span className="text-[11px] text-muted-foreground">Assista até o final para concluir</span>
           )}
 
           {completed && (

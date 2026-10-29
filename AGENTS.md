@@ -1,2 +1,3 @@
 - Course content hierarchy is tracks → course_modules → lessons (lessons.module_id) + module_materials; lesson_materials is legacy/unused. Why: modules were added additively without breaking existing lessons/progress.
 - Course material files live in the private `course-materials` bucket and are opened only via short-lived signed URLs (src/lib/courseMaterials.ts). Why: materials are for signed-in students only.
+- Lesson completion and enrollment status are decided by database triggers (enforce_lesson_progress / enforce_enrollment_status, SECURITY INVOKER so trusted RPCs bypass them); the browser only reports watch time. Why: students must not be able to mark videos or courses complete themselves.

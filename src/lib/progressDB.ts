@@ -133,28 +133,38 @@ export async function savePartialProgressDB(
   await flushProgress(key, userId, trackId, lessonId);
 }
 
+/**
+ * Pede a conclusão da aula. O servidor valida o tempo realmente assistido e
+ * devolve o estado confirmado — o navegador não decide a conclusão.
+ */
 export async function markLessonCompleteDB(
   userId: string,
   trackId: string,
   lessonId: string,
   watchedSeconds: number
-) {
-  const { error } = await supabase.from("lesson_progress").upsert(
-    {
-      user_id: userId,
-      track_id: trackId,
-      lesson_id: lessonId,
-      completed: true,
-      watched_seconds: watchedSeconds,
-      last_watched_at: new Date().toISOString(),
-    },
-    { onConflict: "user_id,lesson_id" }
-  );
-  if (error) console.error("markLessonCompleteDB error:", error);
-  else lastPersisted.set(`${userId}:${lessonId}`, Math.max(0, Math.round(watchedSeconds)));
-
-  // Presença atualizada pelo escritor único (não bloqueia a conclusão da aula)
+): Promise<{ completed: boolean; watched_seconds: number } | null> {
+  const { data, error } = await supabase
+    .from("lesson_progress")
+    .upsert(
+      {
+        user_id: userId,
+        track_id: trackId,
+        lesson_id: lessonId,
+        completed: true,
+        watched_seconds: Math.round(watchedSeconds),
+        last_watched_at: new Date().toISOString(),
+      },
+      { onConflict: "user_id,lesson_id" }
+    )
+    .select("completed, watched_seconds")
+    .single();
   void touchPresence(userId);
+  if (error || !data) {
+    console.error("markLessonCompleteDB error:", error);
+    return null;
+  }
+  lastPersisted.set(`${userId}:${lessonId}`, data.watched_seconds ?? 0);
+  return { completed: !!data.completed, watched_seconds: data.watched_seconds ?? 0 };
 }
 
 export async function saveQuizResultDB(

@@ -73,16 +73,22 @@ const JmvStreamPlayer = ({ videoUrl, lessonTitle, lessonDuration = 0, initialWat
     if (watchedRef.current > lastSaved.current) onProgressRef.current?.(Math.round(watchedRef.current));
   }, [videoUrl]);
 
-  const canComplete = lessonDuration <= 0 || watched >= lessonDuration * 0.9;
+  const canComplete = lessonDuration > 0 && watched >= lessonDuration * 0.9;
   const percent = lessonDuration > 0 ? Math.min(100, Math.round((watched / lessonDuration) * 100)) : completed ? 100 : 0;
 
   const markDone = () => {
     if (completed || !canComplete) return;
     setCompleted(true);
-    const secs = Math.round(lessonDuration > 0 ? Math.max(watched, lessonDuration) : watched || 60);
+    const secs = Math.round(watchedRef.current);
     onProgressRef.current?.(secs);
     onComplete(secs);
   };
+
+  // Conclusão automática ao atingir o critério (sem botão manual); o servidor revalida o tempo.
+  useEffect(() => {
+    if (canComplete && !completed) markDone();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canComplete, completed]);
 
   return (
     <div className="overflow-hidden rounded-lg sm:rounded-xl bg-foreground/5">
@@ -135,14 +141,9 @@ const JmvStreamPlayer = ({ videoUrl, lessonTitle, lessonDuration = 0, initialWat
         </span>
         <div className="flex-1" />
         {!completed && (
-          <button
-            onClick={markDone}
-            disabled={!canComplete}
-            title={canComplete ? undefined : "Assista ao vídeo até o final para concluir"}
-            className="rounded-lg border border-border bg-secondary px-3 py-2 sm:py-1.5 text-xs font-medium text-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {canComplete ? "Marcar como assistida" : "Assista até o final para concluir"}
-          </button>
+          <span className="text-[11px] text-muted-foreground">
+            {lessonDuration > 0 ? "Assista até o final para concluir" : "Duração do vídeo não configurada"}
+          </span>
         )}
       </div>
 
