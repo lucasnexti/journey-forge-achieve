@@ -140,23 +140,38 @@ const AdminRewards = () => {
     load();
   };
 
-  const handleUpdateRedemptionStatus = async (id: string, status: string) => {
-    await supabase.from("reward_redemptions").update({ status, updated_at: new Date().toISOString() }).eq("id", id);
+  const [closing, setClosing] = useState<{ r: Redemption; status: "rejected" | "cancelled" } | null>(null);
+  const [closeReason, setCloseReason] = useState("");
+  const [busy, setBusy] = useState(false);
 
-    if (status === "rejected") {
-      // Refund coins
-      const redemption = redemptions.find((r) => r.id === id);
-      if (redemption) {
-        await supabase.rpc("admin_adjust_coins", {
-          _user_id: redemption.user_id,
-          _amount: redemption.cost,
-          _reason: `Reembolso: resgate rejeitado`,
-          _reference_id: id,
-        });
-      }
+  const errorMessages: Record<string, string> = {
+    forbidden: "Apenas administradores podem alterar resgates.",
+    already_closed: "Este pedido já foi reprovado ou cancelado — os pontos já foram devolvidos.",
+    already_shipped: "O pedido já foi enviado. Não há devolução automática.",
+    already_delivered: "O pedido já foi entregue. Não há devolução automática.",
+    not_found: "Pedido não encontrado.",
+  };
+
+  const handleUpdateRedemptionStatus = async (id: string, status: string, reason?: string) => {
+    if (busy) return;
+    setBusy(true);
+    const { data, error } = await (supabase.rpc as any)("admin_update_redemption", {
+      _id: id, _status: status, _reason: reason || null,
+    });
+    setBusy(false);
+    const res = data as any;
+    if (error || !res?.ok) {
+      toast.error(errorMessages[res?.error] || error?.message || "Não foi possível atualizar o pedido.");
+      load();
+      return;
     }
-
-    toast.success(`Resgate ${status === "approved" ? "aprovado" : status === "delivered" ? "marcado como entregue" : "rejeitado"}!`);
+    toast.success(
+      res.refunded
+        ? `Pedido ${status === "rejected" ? "reprovado" : "cancelado"}. ${res.amount} moedas devolvidas ao aluno.`
+        : `Status atualizado: ${statusLabels[status]?.label || status}.`
+    );
+    setClosing(null);
+    setCloseReason("");
     load();
   };
 
@@ -173,13 +188,6 @@ const AdminRewards = () => {
     setImageFile(null);
     setPreviewUrl(reward.image_url || null);
     setShowForm(true);
-  };
-
-  const statusLabels: Record<string, { label: string; color: string }> = {
-    pending: { label: "Pendente", color: "bg-warning/10 text-warning" },
-    approved: { label: "Aprovado", color: "bg-primary/10 text-primary" },
-    delivered: { label: "Entregue", color: "bg-green-500/10 text-green-600" },
-    rejected: { label: "Rejeitado", color: "bg-destructive/10 text-destructive" },
   };
 
   const pendingCount = redemptions.filter((r) => r.status === "pending").length;
@@ -264,22 +272,25 @@ const AdminRewards = () => {
                       {new Date(r.created_at).toLocaleDateString("pt-BR")} · {r.cost} moedas
                     </p>
                   </div>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 flex-wrap">
                     <Badge variant="secondary" className={`text-[10px] ${st.color}`}>{st.label}</Badge>
-                    {r.status === "pending" && (
+                    {NEXT_STEP[r.status] && (
+                      <Button size="sm" variant="outline" className="h-7 text-xs" disabled={busy}
+                        onClick={() => handleUpdateRedemptionStatus(r.id, NEXT_STEP[r.status]!.to)}>
+                        <CheckCircle2 className="h-3 w-3 mr-1" /> {NEXT_STEP[r.status]!.label}
+                      </Button>
+                    )}
+                    {OPEN_STATUSES.includes(r.status) && (
                       <>
-                        <Button size="sm" variant="outline" className="h-7 text-xs text-green-600" onClick={() => handleUpdateRedemptionStatus(r.id, "approved")}>
-                          <CheckCircle2 className="h-3 w-3 mr-1" /> Aprovar
+                        <Button size="sm" variant="outline" className="h-7 text-xs text-destructive" disabled={busy}
+                          onClick={() => { setCloseReason(""); setClosing({ r, status: "rejected" }); }}>
+                          <XCircle className="h-3 w-3 mr-1" /> Reprovar resgate
                         </Button>
-                        <Button size="sm" variant="outline" className="h-7 text-xs text-destructive" onClick={() => handleUpdateRedemptionStatus(r.id, "rejected")}>
-                          <XCircle className="h-3 w-3 mr-1" /> Rejeitar
+                        <Button size="sm" variant="ghost" className="h-7 text-xs text-muted-foreground" disabled={busy}
+                          onClick={() => { setCloseReason(""); setClosing({ r, status: "cancelled" }); }}>
+                          Cancelar
                         </Button>
                       </>
-                    )}
-                    {r.status === "approved" && (
-                      <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => handleUpdateRedemptionStatus(r.id, "delivered")}>
-                        Marcar entregue
-                      </Button>
                     )}
                   </div>
                 </div>
