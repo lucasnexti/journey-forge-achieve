@@ -26,6 +26,7 @@ const QuizHistoryPage = lazy(() => import("./pages/QuizHistoryPage"));
 const KnowledgeBasePage = lazy(() => import("./pages/KnowledgeBasePage"));
 const QuizNextiPage = lazy(() => import("./pages/QuizNextiPage"));
 const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
+import VerifyCertificatePage from "./pages/VerifyCertificatePage";
 const RewardsStorePage = lazy(() => import("./pages/RewardsStorePage"));
 const BadgesPage = lazy(() => import("./pages/BadgesPage"));
 const TrainingPage = lazy(() => import("./pages/TrainingPage"));
@@ -86,6 +87,7 @@ const App = () => (
               <Route path="/" element={<LandingPage />} />
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/reset-password" element={<ResetPasswordPage />} />
+              <Route path="/verificar/:code?" element={<VerifyCertificatePage />} />
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/trilha/:trackId" element={<ProtectedRoute><TrackPage /></ProtectedRoute>} />
               <Route path="/relatorios" element={<ProtectedRoute><ReportPage /></ProtectedRoute>} />
