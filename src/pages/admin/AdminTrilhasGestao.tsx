@@ -89,7 +89,7 @@ const AdminTrilhasGestao = () => {
   const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
 
   // Forms
-  const [trackForm, setTrackForm] = useState({ title: "", description: "", category: "", estimated_hours: 0, is_active: true, prerequisite_track_id: "" });
+  const [trackForm, setTrackForm] = useState({ title: "", description: "", category: "", estimated_hours: 0, is_active: false, prerequisite_track_id: "", instructor: "", cover_image_url: "" });
   const [lessonForm, setLessonForm] = useState({ title: "", description: "", video_url: "", duration: 0 });
 
   // Filters
@@ -176,7 +176,7 @@ const AdminTrilhasGestao = () => {
   // ─── Track CRUD ───
   const openNewTrack = () => {
     setEditingTrack(null);
-    setTrackForm({ title: "", description: "", category: "", estimated_hours: 0, is_active: true, prerequisite_track_id: "" });
+    setTrackForm({ title: "", description: "", category: "", estimated_hours: 0, is_active: false, prerequisite_track_id: "", instructor: "", cover_image_url: "" });
     setTrackDialogOpen(true);
   };
 
@@ -189,12 +189,34 @@ const AdminTrilhasGestao = () => {
       estimated_hours: track.estimated_hours || 0,
       is_active: track.is_active ?? true,
       prerequisite_track_id: track.prerequisite_track_id || "",
+      instructor: track.instructor || "",
+      cover_image_url: track.cover_image_url || "",
     });
     setTrackDialogOpen(true);
   };
 
+  const [savingTrack, setSavingTrack] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const handleCoverFile = async (file: File | undefined) => {
+    if (!file) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) { toast.error("Use uma imagem JPG, PNG ou WEBP."); return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error("A imagem passa do limite de 5 MB."); return; }
+    setUploadingCover(true);
+    const path = `course-covers/${crypto.randomUUID()}.${file.name.split(".").pop()}`;
+    const { error } = await supabase.storage.from("avatars").upload(path, file, { contentType: file.type });
+    setUploadingCover(false);
+    if (error) { toast.error(error.message); return; }
+    const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+    setTrackForm((f) => ({ ...f, cover_image_url: data.publicUrl }));
+  };
+
   const handleSaveTrack = async () => {
-    if (!trackForm.title.trim()) { toast.error("Informe o título da trilha."); return; }
+    if (savingTrack) return;
+    if (!trackForm.title.trim()) { toast.error("Informe o título do curso."); return; }
+    setSavingTrack(true);
+    try { await doSaveTrack(); } finally { setSavingTrack(false); }
+  };
+  const doSaveTrack = async () => {
 
     if (editingTrack) {
       const { error } = await supabase.from("tracks").update({
@@ -204,6 +226,8 @@ const AdminTrilhasGestao = () => {
         estimated_hours: trackForm.estimated_hours,
         is_active: trackForm.is_active,
         prerequisite_track_id: trackForm.prerequisite_track_id || null,
+        instructor: trackForm.instructor || null,
+        cover_image_url: trackForm.cover_image_url || null,
       }).eq("id", editingTrack.id);
       if (error) { toast.error(error.message); return; }
       toast.success("Trilha atualizada!");
@@ -216,6 +240,8 @@ const AdminTrilhasGestao = () => {
         order_index: tracks.length + 1,
         is_active: trackForm.is_active,
         prerequisite_track_id: trackForm.prerequisite_track_id || null,
+        instructor: trackForm.instructor || null,
+        cover_image_url: trackForm.cover_image_url || null,
       });
       if (error) { toast.error(error.message); return; }
       toast.success("Trilha criada!");
@@ -577,7 +603,7 @@ const AdminTrilhasGestao = () => {
 
       {/* Track Dialog */}
       <Dialog open={trackDialogOpen} onOpenChange={setTrackDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingTrack ? "Editar Trilha" : "Nova Trilha"}</DialogTitle>
             <DialogDescription>
@@ -617,14 +643,27 @@ const AdminTrilhasGestao = () => {
                 </SelectContent>
               </Select>
             </div>
+            <div className="space-y-2">
+              <Label>Instrutor ou responsável</Label>
+              <Input value={trackForm.instructor} onChange={(e) => setTrackForm({ ...trackForm, instructor: e.target.value })} placeholder="Opcional" />
+            </div>
+            <div className="space-y-2">
+              <Label>Imagem de capa</Label>
+              {trackForm.cover_image_url && <img src={trackForm.cover_image_url} alt="Capa" className="h-28 w-full rounded-md object-cover" />}
+              <div className="flex gap-2">
+                <Input type="file" accept="image/jpeg,image/png,image/webp" disabled={uploadingCover} onChange={(e) => handleCoverFile(e.target.files?.[0])} />
+                {trackForm.cover_image_url && <Button type="button" variant="outline" size="sm" onClick={() => setTrackForm({ ...trackForm, cover_image_url: "" })}>Remover</Button>}
+              </div>
+              {uploadingCover && <p className="text-[11px] text-muted-foreground">Enviando imagem…</p>}
+            </div>
             <div className="flex items-center gap-3">
               <Switch checked={trackForm.is_active} onCheckedChange={(v) => setTrackForm({ ...trackForm, is_active: v })} />
-              <Label className="text-sm">Trilha ativa (visível para alunos)</Label>
+              <Label className="text-sm">{trackForm.is_active ? "Publicado (visível para alunos)" : "Rascunho (só administradores veem)"}</Label>
             </div>
           </div>
           <DialogFooter className="mt-4">
             <Button variant="outline" onClick={() => setTrackDialogOpen(false)}>Cancelar</Button>
-            <Button onClick={handleSaveTrack} className="bg-gradient-nexti text-primary-foreground hover:opacity-90 gap-1">
+            <Button disabled={savingTrack || uploadingCover} onClick={handleSaveTrack} className="bg-gradient-nexti text-primary-foreground hover:opacity-90 gap-1">
               <Save className="h-4 w-4" /> {editingTrack ? "Salvar" : "Criar Trilha"}
             </Button>
           </DialogFooter>
