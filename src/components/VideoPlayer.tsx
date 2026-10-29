@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect, useCallback, memo } from "react";
 import Player from "@vimeo/player";
+import JmvStreamPlayer, { isJmvStreamUrl } from "./JmvStreamPlayer";
 import { Play, Pause, Volume2, VolumeX, Maximize, SkipForward, SkipBack, RotateCcw, AlertTriangle, ExternalLink, ArrowRight } from "lucide-react";
 
 interface VideoPlayerProps {
@@ -269,6 +270,22 @@ const VideoPlayer = ({ videoUrl, onComplete, onProgress, lessonTitle, onNext, on
   };
 
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
+
+  // ── JMVStream (página de player incorporável, não arquivo de vídeo) ──
+  if (isJmvStreamUrl(videoUrl)) {
+    return (
+      <JmvStreamPlayer
+        videoUrl={videoUrl}
+        lessonTitle={lessonTitle}
+        lessonDuration={lessonDuration}
+        initialWatchedSeconds={initialWatchedSeconds}
+        onComplete={onComplete}
+        onProgress={onProgress}
+        onNext={onNext}
+        onPrev={onPrev}
+      />
+    );
+  }
 
   // ── Vimeo player ──
   if (vimeo) {
