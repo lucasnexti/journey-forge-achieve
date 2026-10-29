@@ -111,10 +111,11 @@ const AdminCertificados = () => {
   };
 
   const revoke = async (c: any) => {
-    if (!confirm("Revogar este certificado? Ele deixará de ser válido na verificação.")) return;
-    await supabase.from("certificates").update({ revoked_at: new Date().toISOString(), status: "revoked" }).eq("id", c.id);
-    const { data: u } = await supabase.auth.getUser();
-    await supabase.from("audit_logs").insert({ user_id: u.user?.id || "", action: "revoke_certificate", entity_type: "certificate", entity_id: c.id, details: { code: c.certificate_code } });
+    const reason = prompt("Revogar este certificado? Ele deixará de ser válido na validação pública.\n\nInforme o motivo da revogação:");
+    if (reason === null) return;
+    if (reason.trim().length < 3) { toast.error("Informe o motivo da revogação."); return; }
+    const { error } = await supabase.rpc("admin_revoke_certificate", { _id: c.id, _reason: reason.trim() });
+    if (error) { toast.error(error.message); return; }
     toast.success("Certificado revogado."); load();
   };
 
@@ -133,9 +134,17 @@ const AdminCertificados = () => {
 
   return (
     <AdminLayout>
-      <div>
-        <h1 className="font-display text-xl font-bold text-primary">Certificados</h1>
-        <div className="mt-1 h-1 w-12 rounded-full bg-gradient-nexti" />
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="font-display text-xl font-bold text-primary">Certificados</h1>
+          <div className="mt-1 h-1 w-12 rounded-full bg-gradient-nexti" />
+          <p className="mt-2 text-sm text-muted-foreground">Todos os cursos usam o layout oficial Nexti com QR Code, exceto os que tiverem um modelo próprio vinculado.</p>
+        </div>
+        <Button variant="outline" className="gap-2" onClick={async () => {
+          const { data, error } = await supabase.functions.invoke("generate-certificate", { body: { mode: "preview_official" } });
+          if (error || !(data instanceof Blob)) return toast.error("Não foi possível gerar a prévia.");
+          window.open(URL.createObjectURL(new Blob([data], { type: "application/pdf" })), "_blank");
+        }}><Eye className="h-4 w-4" /> Prévia do layout oficial</Button>
       </div>
 
       <Tabs defaultValue="modelos" className="mt-4">

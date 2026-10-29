@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { PDFDocument, StandardFonts, rgb } from "npm:pdf-lib@1.17.1";
+import { renderOfficial } from "./official.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -68,6 +69,10 @@ async function render(templateBytes: Uint8Array, fields: Field[], values: Record
 
 const fmtDate = (d: string | null) =>
   d ? new Date(d).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric", timeZone: "America/Sao_Paulo" }) : "";
+const fmtLong = (d: string | null | undefined) =>
+  d ? new Date(d).toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric", timeZone: "America/Sao_Paulo" }) : "";
+const OFFICIAL_ORIGIN = "https://journey-forge-achieve.lovable.app";
+const verifyUrl = (code: string) => `${OFFICIAL_ORIGIN}/validar-certificado/${encodeURIComponent(code)}`;
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -84,6 +89,16 @@ Deno.serve(async (req) => {
   const origin = typeof body.origin === "string" && /^https:\/\//.test(body.origin) ? body.origin : "https://journey-forge-achieve.lovable.app";
 
   // ── Prévia do modelo (admin): dados de exemplo, nada é salvo ──
+  if (body.mode === "preview_official") {
+    if (!isAdmin) return json({ error: "Acesso restrito a administradores" }, 403);
+    const out = await renderOfficial({
+      name: "Maria Aparecida dos Santos Oliveira", course: "Compliance Trabalhista na Gestão de Equipes",
+      hours: "8", startDate: fmtLong("2026-01-16T12:00:00Z"), endDate: fmtLong("2026-02-20T12:00:00Z"),
+      place: "São Paulo", issueDate: fmtLong(new Date().toISOString()), code: "ABC123XYZ9",
+      verifyUrl: verifyUrl("ABC123XYZ9"), signerName: "Marcelo Araújo Gomes", signerRole: "CEO",
+    });
+    return new Response(out, { headers: { ...corsHeaders, "Content-Type": "application/pdf" } });
+  }
   if (body.mode === "preview") {
     if (!isAdmin) return json({ error: "Acesso restrito a administradores" }, 403);
     const { data: tpl } = await admin.from("certificate_templates").select("file_path").eq("id", body.template_id).maybeSingle();
@@ -127,7 +142,7 @@ Deno.serve(async (req) => {
   const [{ data: profile }, { data: track }, { data: enrollment }, { data: templates }] = await Promise.all([
     admin.from("profiles").select("nome").eq("user_id", cert.user_id).maybeSingle(),
     admin.from("tracks").select("title, estimated_hours, instructor").eq("id", cert.track_id).maybeSingle(),
-    admin.from("enrollments").select("completed_at").eq("user_id", cert.user_id).eq("track_id", cert.track_id).maybeSingle(),
+    admin.from("enrollments").select("completed_at, enrolled_at").eq("user_id", cert.user_id).eq("track_id", cert.track_id).maybeSingle(),
     admin.from("certificate_templates").select("*").eq("is_active", true).order("updated_at", { ascending: false }),
   ]);
 
@@ -135,26 +150,28 @@ Deno.serve(async (req) => {
   if (name.split(" ").length < 2 || name.includes("@")) {
     return fail("Nome completo do aluno ausente ou incompleto no cadastro. Corrija o cadastro antes de emitir.");
   }
-  const tpl = (templates || []).find((t: any) => (t.track_ids || []).includes(cert.track_id))
-    || (templates || []).find((t: any) => t.is_default);
-  if (!tpl) return fail("Nenhum modelo de certificado configurado para este curso.");
-
-  const { data: file, error: dlErr } = await admin.storage.from("certificates").download(tpl.file_path);
-  if (dlErr || !file) return fail("Não foi possível ler o modelo do certificado.", 500);
-
-  const hours = track?.estimated_hours ? `${Number(track.estimated_hours).toLocaleString("pt-BR")} horas` : "";
+  // Modelo enviado pelo admin só é usado quando vinculado explicitamente ao curso; senão, layout oficial Nexti.
+  const tpl = (templates || []).find((t: any) => (t.track_ids || []).includes(cert.track_id)) || null;
+  const code = cert.certificate_code || "";
   let out: Uint8Array;
   try {
-    out = await render(new Uint8Array(await file.arrayBuffer()), tpl.fields || [], {
-      student_name: name,
-      course: track?.title || "",
-      completion_date: fmtDate(enrollment?.completed_at || cert.issued_at),
-      hours,
-      instructor: track?.instructor || "",
-      code: cert.certificate_code || "",
-      institution: "Nexti Academy",
-      verify_url: `${origin}/verificar/${cert.certificate_code}`,
-    });
+    if (tpl) {
+      const { data: file, error: dlErr } = await admin.storage.from("certificates").download(tpl.file_path);
+      if (dlErr || !file) return fail("Não foi possível ler o modelo do certificado.", 500);
+      const hours = track?.estimated_hours ? `${Number(track.estimated_hours).toLocaleString("pt-BR")} horas` : "";
+      out = await render(new Uint8Array(await file.arrayBuffer()), tpl.fields || [], {
+        student_name: name, course: track?.title || "", completion_date: fmtDate(enrollment?.completed_at || cert.issued_at),
+        hours, instructor: track?.instructor || "", code, institution: "Nexti Academy", verify_url: verifyUrl(code),
+      });
+    } else {
+      out = await renderOfficial({
+        name, course: track?.title || "",
+        hours: track?.estimated_hours ? Number(track.estimated_hours).toLocaleString("pt-BR") : "",
+        startDate: fmtLong(enrollment?.enrolled_at), endDate: fmtLong(enrollment?.completed_at || cert.issued_at),
+        place: "São Paulo", issueDate: fmtLong(new Date().toISOString()), code, verifyUrl: verifyUrl(code),
+        signerName: "Marcelo Araújo Gomes", signerRole: "CEO",
+      });
+    }
   } catch (e) {
     return fail(`Falha ao gerar o PDF: ${(e as Error).message}`, 500);
   }
@@ -164,14 +181,14 @@ Deno.serve(async (req) => {
   if (upErr) return fail("Falha ao salvar o PDF do certificado.", 500);
 
   await admin.from("certificates").update({
-    status: "issued", file_path: path, template_id: tpl.id, generated_at: new Date().toISOString(),
+    status: "issued", file_path: path, template_id: tpl?.id ?? null, generated_at: new Date().toISOString(),
     generation_error: null, generation_count: (cert.generation_count || 0) + 1,
   }).eq("id", cert.id);
 
   if (force) {
     await admin.from("audit_logs").insert({
       user_id: user.id, action: "reissue_certificate", entity_type: "certificate", entity_id: cert.id,
-      details: { code: cert.certificate_code, template_id: tpl.id },
+      details: { code: cert.certificate_code, template_id: tpl?.id ?? "oficial" },
     });
   }
   return json({ ok: true, certificate_id: cert.id, file_path: path });

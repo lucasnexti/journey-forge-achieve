@@ -88,6 +88,7 @@ const App = () => (
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path="/verificar/:code?" element={<VerifyCertificatePage />} />
+              <Route path="/validar-certificado/:code?" element={<VerifyCertificatePage />} />
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/trilha/:trackId" element={<ProtectedRoute><TrackPage /></ProtectedRoute>} />
               <Route path="/relatorios" element={<ProtectedRoute><ReportPage /></ProtectedRoute>} />
