@@ -85,6 +85,13 @@
       "when": 1793826548821,
       "tag": "0011_learning_paths_access",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1793827030847,
+      "tag": "0012_learning_paths_atomic_grants",
+      "breakpoints": true
     }
   ]
 }

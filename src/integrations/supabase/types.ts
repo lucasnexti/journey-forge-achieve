@@ -2193,6 +2193,7 @@ export type Database = {
       }
       learning_path_report: { Args: { _path: string }; Returns: Json }
       learning_path_snapshot: { Args: { _path: string }; Returns: Json }
+      learning_quiz_access: { Args: { _quiz: string }; Returns: boolean }
       redeem_reward: { Args: { _reward_id: string }; Returns: Json }
       save_learning_path: {
         Args: { _data: Json; _id: string }
@@ -2205,6 +2206,15 @@ export type Database = {
           _empresa: string
           _nome: string
           _telefone: string
+        }
+        Returns: undefined
+      }
+      set_learning_path_access: {
+        Args: {
+          _company?: string
+          _path: string
+          _revoke?: boolean
+          _users?: string[]
         }
         Returns: undefined
       }
