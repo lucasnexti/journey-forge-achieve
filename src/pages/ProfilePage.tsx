@@ -9,10 +9,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { openCertificatePdf } from "@/lib/certificates";
+import { maskPhone, personalDataSchema } from "@/lib/personalData";
 import { User, Award, FileText, Save, Camera, Eye, EyeOff, KeyRound, Loader2 } from "lucide-react";
 
 interface ProfileData {
   nome: string;
+  email: string;
+  telefone: string;
+  workplace_empresa: string;
   cpf: string | null;
   empresa: string | null;
   cargo: string | null;
@@ -25,7 +29,13 @@ const ProfilePage = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { data: pageData, isLoading: loading } = useProfilePageData();
 
-  const [profile, setProfile] = useState<ProfileData>({ nome: "", cpf: null, empresa: null, cargo: null, avatar_url: null });
+  const [profile, setProfile] = useState<ProfileData>({ nome: "", email: "", telefone: "", workplace_empresa: "", cpf: null, empresa: null, cargo: null, avatar_url: null });
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const validation = personalDataSchema.safeParse({ ...profile, cargo: profile.cargo || "" });
+  const errors: Record<string, string> = {};
+  if (!validation.success) for (const issue of validation.error.issues) errors[String(issue.path[0])] ??= issue.message;
+  const fieldError = (key: string) => touched[key] ? errors[key] : undefined;
+  const touch = (key: string) => setTouched(prev => ({ ...prev, [key]: true }));
   const [badges, setBadges] = useState<{ name: string; icon: string; earned_at: string }[]>([]);
   const [certificates, setCertificates] = useState<{ id: string; track_title: string; issued_at: string; certificate_code: string }[]>([]);
   const [saving, setSaving] = useState(false);
@@ -42,21 +52,31 @@ const ProfilePage = () => {
   // Sync from query data
   useEffect(() => {
     if (pageData) {
-      setProfile(pageData.profile as ProfileData);
+      setProfile({ ...pageData.profile, email: pageData.profile.email ?? user?.email ?? "", telefone: maskPhone(pageData.profile.telefone ?? ""), workplace_empresa: pageData.profile.workplace_empresa ?? pageData.profile.empresa ?? "" });
       setBadges(pageData.badges);
       setCertificates(pageData.certificates);
     }
-  }, [pageData]);
+  }, [pageData, user?.email]);
 
-  const handleSave = async () => {
+  const handleSave = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setTouched({ nome: true, email: true, telefone: true, workplace_empresa: true, cargo: true });
     if (!user) return;
+    if (!validation.success) return;
     setSaving(true);
-    await supabase
-      .from("profiles")
-      .update({ nome: profile.nome, cargo: profile.cargo })
-      .eq("user_id", user.id);
-    setSaving(false);
-    toast.success("Perfil atualizado!");
+    try {
+      const values = validation.data;
+      const { error } = await supabase.rpc("save_my_personal_data", {
+        _nome: values.nome, _email: values.email, _telefone: values.telefone,
+        _empresa: values.workplace_empresa, _cargo: values.cargo,
+      });
+      if (error) throw error;
+      setProfile(prev => ({ ...prev, ...values, telefone: maskPhone(values.telefone) }));
+      await queryClient.invalidateQueries({ queryKey: ["profile"] });
+      toast.success("Perfil atualizado!");
+    } catch {
+      toast.error("Não foi possível salvar seus dados. Confira os campos e tente novamente.");
+    } finally { setSaving(false); }
   };
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -188,32 +208,42 @@ const ProfilePage = () => {
                 <User className="h-4 w-4 text-primary" />
                 Dados Pessoais
               </h2>
+              <form onSubmit={handleSave} noValidate>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="space-y-1.5 sm:space-y-2">
-                  <Label className="text-sm font-medium text-foreground">Nome</Label>
-                  <Input value={profile.nome} onChange={(e) => setProfile({ ...profile, nome: e.target.value })} />
+                  <Label htmlFor="personal-nome" className="text-sm font-medium text-foreground">Nome completo *</Label>
+                  <Input id="personal-nome" autoComplete="name" required maxLength={255} value={profile.nome} onBlur={() => touch("nome")} aria-invalid={!!fieldError("nome")} aria-describedby={fieldError("nome") ? "personal-nome-error" : undefined} onChange={(e) => setProfile({ ...profile, nome: e.target.value })} />
+                  {fieldError("nome") && <p id="personal-nome-error" className="text-xs text-destructive">{fieldError("nome")}</p>}
                 </div>
                 <div className="space-y-1.5 sm:space-y-2">
-                  <Label className="text-sm font-medium text-foreground">Cargo</Label>
-                  <Input value={profile.cargo || ""} onChange={(e) => setProfile({ ...profile, cargo: e.target.value })} />
+                  <Label htmlFor="personal-email" className="text-sm font-medium text-foreground">E-mail *</Label>
+                  <Input id="personal-email" type="email" autoComplete="email" required maxLength={255} value={profile.email} onBlur={() => touch("email")} aria-invalid={!!fieldError("email")} aria-describedby={fieldError("email") ? "personal-email-error" : undefined} onChange={(e) => setProfile({ ...profile, email: e.target.value })} />
+                  {fieldError("email") && <p id="personal-email-error" className="text-xs text-destructive">{fieldError("email")}</p>}
                 </div>
                 <div className="space-y-1.5 sm:space-y-2">
-                  <Label className="text-sm font-medium text-muted-foreground">CPF</Label>
-                  <Input value={profile.cpf ? profile.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4") : ""} disabled className="bg-muted/50" />
+                  <Label htmlFor="personal-telefone" className="text-sm font-medium text-foreground">Telefone *</Label>
+                  <Input id="personal-telefone" type="tel" inputMode="tel" autoComplete="tel-national" placeholder="(11) 99999-9999" required maxLength={15} value={profile.telefone} onBlur={() => touch("telefone")} aria-invalid={!!fieldError("telefone")} aria-describedby={fieldError("telefone") ? "personal-telefone-error" : undefined} onChange={(e) => setProfile({ ...profile, telefone: maskPhone(e.target.value) })} />
+                  {fieldError("telefone") && <p id="personal-telefone-error" className="text-xs text-destructive">{fieldError("telefone")}</p>}
                 </div>
                 <div className="space-y-1.5 sm:space-y-2">
-                  <Label className="text-sm font-medium text-muted-foreground">Empresa</Label>
-                  <Input value={profile.empresa || ""} disabled className="bg-muted/50" />
+                  <Label htmlFor="personal-empresa" className="text-sm font-medium text-foreground">Empresa em que trabalha *</Label>
+                  <Input id="personal-empresa" autoComplete="organization" required maxLength={255} value={profile.workplace_empresa} onBlur={() => touch("workplace_empresa")} aria-invalid={!!fieldError("workplace_empresa")} aria-describedby={fieldError("workplace_empresa") ? "personal-empresa-error" : undefined} onChange={(e) => setProfile({ ...profile, workplace_empresa: e.target.value })} />
+                  {fieldError("workplace_empresa") && <p id="personal-empresa-error" className="text-xs text-destructive">{fieldError("workplace_empresa")}</p>}
                 </div>
-                <div className="space-y-1.5 sm:space-y-2 sm:col-span-2">
-                  <Label className="text-sm font-medium text-muted-foreground">E-mail</Label>
-                  <Input value={user?.email || ""} disabled className="bg-muted/50" />
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="personal-cargo" className="text-sm font-medium text-foreground">Cargo</Label>
+                  <Input id="personal-cargo" maxLength={255} value={profile.cargo || ""} onChange={(e) => setProfile({ ...profile, cargo: e.target.value })} />
+                </div>
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="personal-cpf" className="text-sm font-medium text-muted-foreground">CPF</Label>
+                  <Input id="personal-cpf" value={profile.cpf ? profile.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4") : ""} disabled className="bg-muted/50" />
                 </div>
               </div>
-              <Button onClick={handleSave} disabled={saving} className="mt-4 gap-2 bg-gradient-nexti text-primary-foreground hover:opacity-90 w-full sm:w-auto">
+              <Button type="submit" disabled={saving || !validation.success} className="mt-4 gap-2 bg-gradient-nexti text-primary-foreground hover:opacity-90 w-full sm:w-auto">
                 <Save className="h-4 w-4" />
                 {saving ? "Salvando..." : "Salvar Alterações"}
               </Button>
+              </form>
             </div>
 
             {/* Change Password */}

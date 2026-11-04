@@ -1184,8 +1184,10 @@ export type Database = {
           last_active_at: string | null
           nome: string
           onboarding_completed: boolean | null
+          telefone: string | null
           updated_at: string
           user_id: string
+          workplace_empresa: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -1200,8 +1202,10 @@ export type Database = {
           last_active_at?: string | null
           nome: string
           onboarding_completed?: boolean | null
+          telefone?: string | null
           updated_at?: string
           user_id: string
+          workplace_empresa?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -1216,8 +1220,10 @@ export type Database = {
           last_active_at?: string | null
           nome?: string
           onboarding_completed?: boolean | null
+          telefone?: string | null
           updated_at?: string
           user_id?: string
+          workplace_empresa?: string | null
         }
         Relationships: []
       }
@@ -1997,6 +2003,16 @@ export type Database = {
       }
       is_same_company: { Args: { _user_id: string }; Returns: boolean }
       redeem_reward: { Args: { _reward_id: string }; Returns: Json }
+      save_my_personal_data: {
+        Args: {
+          _cargo?: string
+          _email: string
+          _empresa: string
+          _nome: string
+          _telefone: string
+        }
+        Returns: undefined
+      }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
       start_exam_attempt: { Args: { _track_id: string }; Returns: Json }
