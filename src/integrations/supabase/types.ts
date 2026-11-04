@@ -2101,6 +2101,10 @@ export type Database = {
         Returns: Json
       }
       admin_enrollment_report: { Args: { _track_id?: string }; Returns: Json }
+      admin_learning_access_check: {
+        Args: { _path: string; _user: string }
+        Returns: Json
+      }
       admin_revoke_certificate: {
         Args: { _id: string; _reason: string }
         Returns: Json
