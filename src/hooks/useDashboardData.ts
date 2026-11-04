@@ -294,12 +294,12 @@ export function useProfilePageData() {
     queryKey: ["profile", "page", user?.id ?? ""],
     queryFn: async () => {
       const [{ data: profileData }, { data: badgeData }, { data: certData }] = await Promise.all([
-        supabase.from("profiles").select("nome, cpf, empresa, cargo, avatar_url").eq("user_id", user!.id).maybeSingle(),
+        supabase.from("profiles").select("nome, email, telefone, workplace_empresa, cpf, empresa, cargo, avatar_url").eq("user_id", user?.id ?? "").maybeSingle(),
         supabase.from("user_badges").select("earned_at, badges(name, icon)").eq("user_id", user!.id),
         supabase.from("certificates").select("id, issued_at, certificate_code, tracks(title)").eq("user_id", user!.id),
       ]);
       return {
-        profile: profileData || { nome: "", cpf: null, empresa: null, cargo: null, avatar_url: null },
+        profile: profileData || { nome: "", email: null, telefone: null, workplace_empresa: null, cpf: null, empresa: null, cargo: null, avatar_url: null },
         badges: (badgeData || []).map((b: any) => ({
           name: b.badges?.name || "", icon: b.badges?.icon || "award", earned_at: b.earned_at,
         })),
