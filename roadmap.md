@@ -1,11 +1,11 @@
-# Roadmap — Cursos com módulos
 # Roadmap — Trilhas de aprendizagem
-- [ ] Gestão administrativa, conteúdo ordenado, capa e validações
-- [ ] Acessos por empresa validada e usuários, revogação sem perda de histórico
-- [ ] Permissões de conteúdo e progressão sequencial no servidor
-- [ ] Minhas trilhas, detalhe e reaproveitamento de progresso
-- [ ] Relatórios reais, filtros e exportação CSV
-- [ ] Testes das regras e fluxo administrador/aluno autorizado/não autorizado
+- [x] Gestão administrativa, conteúdo ordenado, capa e validações
+- [x] Acessos por empresa validada e usuários, revogação sem perda de histórico
+- [x] Permissões de conteúdo e progressão sequencial no servidor (verificadas com diagnóstico admin-only)
+- [x] Minhas trilhas, detalhe e reaproveitamento de progresso
+- [x] Relatórios reais, filtros e exportação CSV
+- [x] Testes das regras, fluxo administrativo autenticado, empresa, CSV e celular
+- [ ] Fluxo de reprodução completo como aluno comum — bloqueado: não foi permitido criar sessão de outra conta; precisa de sessão do aluno
 
 # Roadmap — Cursos com módulos
 - [x] Etapa 1: área do administrador (módulos, vídeos, materiais, capa, rascunho/publicado)
