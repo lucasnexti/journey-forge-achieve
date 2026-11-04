@@ -6,7 +6,8 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/hooks/useTheme";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useProfile } from "@/hooks/useDashboardData";
 import { cn } from "@/lib/utils";
 import {
   Sidebar,
@@ -87,6 +88,7 @@ export function AdminAppSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut, user } = useAuth();
+  const { data: profile } = useProfile();
   const { theme, toggleTheme } = useTheme();
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
@@ -199,6 +201,7 @@ export function AdminAppSidebar() {
               collapsed && "justify-center px-2"
             )}>
               <Avatar className="h-8 w-8 border border-border shrink-0">
+                <AvatarImage src={profile?.avatar_url || undefined} alt="Foto do perfil" className="object-cover" />
                 <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">{userInitials}</AvatarFallback>
               </Avatar>
               {!collapsed && (
