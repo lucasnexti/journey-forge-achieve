@@ -1,0 +1,115 @@
+CREATE TABLE public.learning_companies(id uuid PRIMARY KEY DEFAULT gen_random_uuid(), name text NOT NULL UNIQUE CHECK(btrim(name)<>''), created_at timestamptz NOT NULL DEFAULT now());
+GRANT SELECT,INSERT,UPDATE,DELETE ON public.learning_companies TO authenticated; GRANT ALL ON public.learning_companies TO service_role;
+ALTER TABLE public.learning_companies ENABLE ROW LEVEL SECURITY;
+CREATE POLICY companies_admin ON public.learning_companies FOR ALL TO authenticated USING(public.has_role(auth.uid(),'admin')) WITH CHECK(public.has_role(auth.uid(),'admin'));
+CREATE TABLE public.learning_company_memberships(user_id uuid NOT NULL, company_id uuid NOT NULL REFERENCES public.learning_companies(id), validated_by uuid NOT NULL, validated_at timestamptz NOT NULL DEFAULT now(), revoked_at timestamptz, PRIMARY KEY(user_id,company_id));
+GRANT SELECT,INSERT,UPDATE,DELETE ON public.learning_company_memberships TO authenticated; GRANT ALL ON public.learning_company_memberships TO service_role;
+ALTER TABLE public.learning_company_memberships ENABLE ROW LEVEL SECURITY;
+CREATE POLICY memberships_admin ON public.learning_company_memberships FOR ALL TO authenticated USING(public.has_role(auth.uid(),'admin')) WITH CHECK(public.has_role(auth.uid(),'admin'));
+CREATE POLICY memberships_self ON public.learning_company_memberships FOR SELECT TO authenticated USING(user_id=auth.uid());
+CREATE TABLE public.learning_paths(id uuid PRIMARY KEY DEFAULT gen_random_uuid(), name text NOT NULL CHECK(btrim(name)<>''), description text NOT NULL CHECK(btrim(description)<>''), cover_path text, status text NOT NULL DEFAULT 'draft' CHECK(status IN ('draft','published','archived')), progression text NOT NULL DEFAULT 'free' CHECK(progression IN ('free','sequential')), categories jsonb NOT NULL DEFAULT '["Cursos"]'::jsonb, created_by uuid NOT NULL, created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NOT NULL DEFAULT now());
+GRANT SELECT,INSERT,UPDATE,DELETE ON public.learning_paths TO authenticated; GRANT ALL ON public.learning_paths TO service_role;
+ALTER TABLE public.learning_paths ENABLE ROW LEVEL SECURITY;
+CREATE POLICY paths_admin ON public.learning_paths FOR ALL TO authenticated USING(public.has_role(auth.uid(),'admin')) WITH CHECK(public.has_role(auth.uid(),'admin'));
+CREATE TABLE public.learning_path_courses(path_id uuid NOT NULL REFERENCES public.learning_paths(id) ON DELETE CASCADE, track_id uuid NOT NULL REFERENCES public.tracks(id), category text NOT NULL, position integer NOT NULL, PRIMARY KEY(path_id,track_id), UNIQUE(path_id,position));
+GRANT SELECT ON public.learning_path_courses TO authenticated; GRANT ALL ON public.learning_path_courses TO service_role;
+ALTER TABLE public.learning_path_courses ENABLE ROW LEVEL SECURITY;
+CREATE POLICY path_courses_admin ON public.learning_path_courses FOR ALL TO authenticated USING(public.has_role(auth.uid(),'admin')) WITH CHECK(public.has_role(auth.uid(),'admin'));
+CREATE TABLE public.learning_path_grants(id uuid PRIMARY KEY DEFAULT gen_random_uuid(), path_id uuid NOT NULL REFERENCES public.learning_paths(id) ON DELETE CASCADE, user_id uuid, company_id uuid REFERENCES public.learning_companies(id), granted_by uuid NOT NULL, granted_at timestamptz NOT NULL DEFAULT now(), revoked_at timestamptz, CHECK((user_id IS NOT NULL)::int + (company_id IS NOT NULL)::int = 1));
+CREATE UNIQUE INDEX path_user_grant ON public.learning_path_grants(path_id,user_id) WHERE user_id IS NOT NULL;
+CREATE UNIQUE INDEX path_company_grant ON public.learning_path_grants(path_id,company_id) WHERE company_id IS NOT NULL;
+GRANT SELECT,INSERT,UPDATE,DELETE ON public.learning_path_grants TO authenticated; GRANT ALL ON public.learning_path_grants TO service_role;
+ALTER TABLE public.learning_path_grants ENABLE ROW LEVEL SECURITY;
+CREATE POLICY path_grants_admin ON public.learning_path_grants FOR ALL TO authenticated USING(public.has_role(auth.uid(),'admin')) WITH CHECK(public.has_role(auth.uid(),'admin'));
+ALTER TABLE public.tracks ADD COLUMN learning_path_restricted boolean NOT NULL DEFAULT false;
+CREATE FUNCTION public.learning_path_authorized(_path uuid,_user uuid) RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT _user IS NOT NULL AND EXISTS(SELECT 1 FROM learning_path_grants g WHERE g.path_id=_path AND g.revoked_at IS NULL AND (g.user_id=_user OR EXISTS(SELECT 1 FROM learning_company_memberships m WHERE m.user_id=_user AND m.company_id=g.company_id AND m.revoked_at IS NULL))) AND EXISTS(SELECT 1 FROM profiles WHERE user_id=_user AND coalesce(is_active,true)); $$;
+REVOKE ALL ON FUNCTION public.learning_path_authorized(uuid,uuid) FROM PUBLIC,anon,authenticated;
+CREATE FUNCTION public.can_access_learning_path(_path uuid) RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT has_role(auth.uid(),'admin') OR (EXISTS(SELECT 1 FROM learning_paths WHERE id=_path AND status='published') AND learning_path_authorized(_path,auth.uid())); $$;
+REVOKE ALL ON FUNCTION public.can_access_learning_path(uuid) FROM PUBLIC,anon; GRANT EXECUTE ON FUNCTION public.can_access_learning_path(uuid) TO authenticated,service_role;
+CREATE POLICY paths_student ON public.learning_paths FOR SELECT TO authenticated USING(public.can_access_learning_path(id));
+CREATE POLICY path_courses_student ON public.learning_path_courses FOR SELECT TO authenticated USING(public.can_access_learning_path(path_id));
+CREATE FUNCTION public.learning_course_access(_track uuid,_user uuid) RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$
+ SELECT _user IS NOT NULL AND (has_role(_user,'admin') OR EXISTS(SELECT 1 FROM tracks t WHERE t.id=_track AND t.is_active AND (NOT t.learning_path_restricted OR EXISTS(SELECT 1 FROM learning_path_courses c JOIN learning_paths p ON p.id=c.path_id WHERE c.track_id=_track AND p.status='published' AND learning_path_authorized(p.id,_user) AND (p.progression='free' OR NOT EXISTS(SELECT 1 FROM learning_path_courses prior WHERE prior.path_id=p.id AND prior.position<c.position AND NOT EXISTS(SELECT 1 FROM enrollments e WHERE e.track_id=prior.track_id AND e.user_id=_user AND e.status='completed')))))));
+$$;
+REVOKE ALL ON FUNCTION public.learning_course_access(uuid,uuid) FROM PUBLIC,anon,authenticated;
+CREATE FUNCTION public.can_access_learning_course(_track uuid) RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT learning_course_access(_track,auth.uid()); $$;
+REVOKE ALL ON FUNCTION public.can_access_learning_course(uuid) FROM PUBLIC,anon; GRANT EXECUTE ON FUNCTION public.can_access_learning_course(uuid) TO authenticated,service_role;
+CREATE POLICY learning_tracks_gate ON public.tracks AS RESTRICTIVE FOR SELECT TO authenticated USING(public.can_access_learning_course(id));
+CREATE POLICY learning_lessons_gate ON public.lessons AS RESTRICTIVE FOR SELECT TO authenticated USING(public.can_access_learning_course(track_id) AND (is_published OR public.has_role(auth.uid(),'admin')));
+CREATE POLICY learning_modules_gate ON public.course_modules AS RESTRICTIVE FOR SELECT TO authenticated USING(public.can_access_learning_course(track_id));
+CREATE POLICY learning_exams_gate ON public.exams AS RESTRICTIVE FOR SELECT TO authenticated USING(public.can_access_learning_course(track_id));
+CREATE POLICY learning_quizzes_gate ON public.quizzes AS RESTRICTIVE FOR SELECT TO authenticated USING(public.can_access_learning_course(track_id));
+CREATE FUNCTION public.learning_module_access(_module uuid) RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT EXISTS(SELECT 1 FROM course_modules WHERE id=_module AND learning_course_access(track_id,auth.uid())); $$;
+REVOKE ALL ON FUNCTION public.learning_module_access(uuid) FROM PUBLIC,anon; GRANT EXECUTE ON FUNCTION public.learning_module_access(uuid) TO authenticated,service_role;
+CREATE FUNCTION public.learning_lesson_access(_lesson uuid) RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT EXISTS(SELECT 1 FROM lessons WHERE id=_lesson AND (is_published OR has_role(auth.uid(),'admin')) AND learning_course_access(track_id,auth.uid())); $$;
+REVOKE ALL ON FUNCTION public.learning_lesson_access(uuid) FROM PUBLIC,anon; GRANT EXECUTE ON FUNCTION public.learning_lesson_access(uuid) TO authenticated,service_role;
+CREATE POLICY learning_materials_gate ON public.module_materials AS RESTRICTIVE FOR SELECT TO authenticated USING(public.learning_module_access(module_id) AND (lesson_id IS NULL OR public.learning_lesson_access(lesson_id)));
+CREATE POLICY learning_legacy_materials_gate ON public.lesson_materials AS RESTRICTIVE FOR SELECT TO authenticated USING(public.learning_lesson_access(lesson_id));
+CREATE POLICY learning_notes_gate ON public.lesson_notes AS RESTRICTIVE FOR ALL TO authenticated USING(public.learning_lesson_access(lesson_id)) WITH CHECK(public.learning_lesson_access(lesson_id));
+CREATE POLICY learning_forum_gate ON public.forum_posts AS RESTRICTIVE FOR ALL TO authenticated USING(track_id IS NULL OR public.can_access_learning_course(track_id)) WITH CHECK(track_id IS NULL OR public.can_access_learning_course(track_id));
+CREATE POLICY learning_progress_insert_gate ON public.lesson_progress AS RESTRICTIVE FOR INSERT TO authenticated WITH CHECK(public.can_access_learning_course(track_id) AND public.learning_lesson_access(lesson_id));
+CREATE POLICY learning_progress_update_gate ON public.lesson_progress AS RESTRICTIVE FOR UPDATE TO authenticated USING(public.can_access_learning_course(track_id)) WITH CHECK(public.can_access_learning_course(track_id) AND public.learning_lesson_access(lesson_id));
+CREATE POLICY learning_enrollment_insert_gate ON public.enrollments AS RESTRICTIVE FOR INSERT TO authenticated WITH CHECK(public.can_access_learning_course(track_id));
+CREATE POLICY learning_enrollment_update_gate ON public.enrollments AS RESTRICTIVE FOR UPDATE TO authenticated USING(public.can_access_learning_course(track_id)) WITH CHECK(public.can_access_learning_course(track_id));
+CREATE FUNCTION public.learning_material_file_access(_path text) RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT has_role(auth.uid(),'admin') OR EXISTS(SELECT 1 FROM module_materials m JOIN course_modules cm ON cm.id=m.module_id WHERE m.file_path=_path AND learning_course_access(cm.track_id,auth.uid()) AND (m.lesson_id IS NULL OR learning_lesson_access(m.lesson_id))); $$;
+REVOKE ALL ON FUNCTION public.learning_material_file_access(text) FROM PUBLIC,anon; GRANT EXECUTE ON FUNCTION public.learning_material_file_access(text) TO authenticated,service_role;
+CREATE POLICY learning_files_gate ON storage.objects AS RESTRICTIVE FOR SELECT TO authenticated USING(bucket_id<>'course-materials' OR public.learning_material_file_access(name));
+CREATE POLICY learning_cover_admin ON storage.objects FOR ALL TO authenticated USING(bucket_id='learning-path-covers' AND public.has_role(auth.uid(),'admin')) WITH CHECK(bucket_id='learning-path-covers' AND public.has_role(auth.uid(),'admin'));
+CREATE POLICY learning_cover_student ON storage.objects FOR SELECT TO authenticated USING(bucket_id='learning-path-covers' AND EXISTS(SELECT 1 FROM public.learning_paths p WHERE p.cover_path=name AND public.can_access_learning_path(p.id)));
+CREATE FUNCTION public.save_learning_path(_id uuid,_data jsonb) RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
+DECLARE pid uuid:=coalesce(_id,gen_random_uuid()); item jsonb; idx integer:=0;
+BEGIN
+ IF NOT has_role(auth.uid(),'admin') THEN RAISE EXCEPTION 'Acesso restrito a administradores'; END IF;
+ IF btrim(coalesce(_data->>'name',''))='' OR btrim(coalesce(_data->>'description',''))='' THEN RAISE EXCEPTION 'Informe nome e descrição.'; END IF;
+ IF jsonb_typeof(_data->'courses') IS DISTINCT FROM 'array' THEN RAISE EXCEPTION 'Conteúdo inválido'; END IF;
+ IF _data->>'status'='published' AND jsonb_array_length(_data->'courses')=0 THEN RAISE EXCEPTION 'Adicione pelo menos um curso antes de publicar.'; END IF;
+ IF jsonb_typeof(_data->'categories') IS DISTINCT FROM 'array' OR EXISTS(SELECT 1 FROM jsonb_array_elements_text(_data->'categories') v WHERE btrim(v)='') THEN RAISE EXCEPTION 'Informe os nomes das categorias'; END IF;
+ IF (SELECT count(*) FROM jsonb_array_elements(_data->'courses'))<>(SELECT count(DISTINCT v->>'track_id') FROM jsonb_array_elements(_data->'courses') v) THEN RAISE EXCEPTION 'Um curso não pode aparecer duas vezes na mesma trilha.'; END IF;
+ IF _id IS NOT NULL AND NOT EXISTS(SELECT 1 FROM learning_paths WHERE id=_id) THEN RAISE EXCEPTION 'Trilha não encontrada'; END IF;
+ INSERT INTO learning_paths(id,name,description,cover_path,status,progression,categories,created_by) VALUES(pid,btrim(_data->>'name'),btrim(_data->>'description'),nullif(_data->>'cover_path',''),_data->>'status',_data->>'progression',_data->'categories',auth.uid()) ON CONFLICT(id) DO UPDATE SET name=excluded.name,description=excluded.description,cover_path=excluded.cover_path,status=excluded.status,progression=excluded.progression,categories=excluded.categories,updated_at=now();
+ DELETE FROM learning_path_courses WHERE path_id=pid;
+ FOR item IN SELECT value FROM jsonb_array_elements(_data->'courses') LOOP
+  IF NOT (_data->'categories' ? (item->>'category')) THEN RAISE EXCEPTION 'Categoria inválida'; END IF;
+  INSERT INTO learning_path_courses(path_id,track_id,category,position) VALUES(pid,(item->>'track_id')::uuid,item->>'category',idx);
+  UPDATE tracks SET learning_path_restricted=true WHERE id=(item->>'track_id')::uuid;
+  idx:=idx+1;
+ END LOOP;
+ INSERT INTO audit_logs(user_id,action,entity_type,entity_id) VALUES(auth.uid(),'learning_path.save','learning_paths',pid::text);
+ RETURN pid;
+END; $$;
+REVOKE ALL ON FUNCTION public.save_learning_path(uuid,jsonb) FROM PUBLIC,anon; GRANT EXECUTE ON FUNCTION public.save_learning_path(uuid,jsonb) TO authenticated,service_role;
+CREATE FUNCTION public.validate_learning_company(_company uuid,_users uuid[],_revoke boolean DEFAULT false) RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$ BEGIN
+ IF NOT has_role(auth.uid(),'admin') THEN RAISE EXCEPTION 'Acesso restrito a administradores'; END IF;
+ IF EXISTS(SELECT 1 FROM unnest(_users) u WHERE NOT EXISTS(SELECT 1 FROM profiles WHERE user_id=u)) THEN RAISE EXCEPTION 'Usuário não encontrado'; END IF;
+ IF _revoke THEN UPDATE learning_company_memberships SET revoked_at=now() WHERE company_id=_company AND user_id=ANY(_users); ELSE
+ INSERT INTO learning_company_memberships(user_id,company_id,validated_by) SELECT u,_company,auth.uid() FROM unnest(_users) u ON CONFLICT(user_id,company_id) DO UPDATE SET revoked_at=NULL,validated_by=auth.uid(),validated_at=now(); END IF;
+ INSERT INTO audit_logs(user_id,action,entity_type,entity_id,details) VALUES(auth.uid(),CASE WHEN _revoke THEN 'company.revoke' ELSE 'company.validate' END,'learning_companies',_company::text,jsonb_build_object('users',_users));
+END; $$;
+REVOKE ALL ON FUNCTION public.validate_learning_company(uuid,uuid[],boolean) FROM PUBLIC,anon; GRANT EXECUTE ON FUNCTION public.validate_learning_company(uuid,uuid[],boolean) TO authenticated,service_role;
+CREATE FUNCTION public.learning_path_snapshot(_path uuid) RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$ DECLARE res jsonb; BEGIN
+ IF NOT can_access_learning_path(_path) THEN RAISE EXCEPTION 'Você não tem acesso a esta trilha.'; END IF;
+ SELECT to_jsonb(p)||jsonb_build_object('courses',coalesce((SELECT jsonb_agg(jsonb_build_object('track_id',c.track_id,'category',c.category,'position',c.position,'title',t.title,'description',t.description,'cover_image_url',t.cover_image_url,'completed',EXISTS(SELECT 1 FROM enrollments e WHERE e.user_id=auth.uid() AND e.track_id=c.track_id AND e.status='completed'),'started',EXISTS(SELECT 1 FROM lesson_progress lp WHERE lp.user_id=auth.uid() AND lp.track_id=c.track_id AND coalesce(lp.watched_seconds,0)>0),'unlocked',learning_course_access(c.track_id,auth.uid())) ORDER BY c.position) FROM learning_path_courses c JOIN tracks t ON t.id=c.track_id WHERE c.path_id=p.id),'[]'::jsonb)) INTO res FROM learning_paths p WHERE p.id=_path;
+ RETURN res;
+END; $$;
+REVOKE ALL ON FUNCTION public.learning_path_snapshot(uuid) FROM PUBLIC,anon; GRANT EXECUTE ON FUNCTION public.learning_path_snapshot(uuid) TO authenticated,service_role;
+CREATE FUNCTION public.learning_path_report(_path uuid) RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$ DECLARE res jsonb; BEGIN
+ IF NOT has_role(auth.uid(),'admin') THEN RAISE EXCEPTION 'Acesso restrito a administradores'; END IF;
+ SELECT coalesce(jsonb_agg(jsonb_build_object('user_id',p.user_id,'name',p.nome,'email',p.email,'companies',coalesce((SELECT jsonb_agg(jsonb_build_object('id',c.id,'name',c.name)) FROM learning_company_memberships m JOIN learning_companies c ON c.id=m.company_id WHERE m.user_id=p.user_id AND m.revoked_at IS NULL),'[]'::jsonb),'completed_courses',coalesce((SELECT jsonb_agg(pc.track_id) FROM learning_path_courses pc WHERE pc.path_id=_path AND EXISTS(SELECT 1 FROM enrollments e WHERE e.user_id=p.user_id AND e.track_id=pc.track_id AND e.status='completed')),'[]'::jsonb),'started',EXISTS(SELECT 1 FROM lesson_progress lp JOIN learning_path_courses pc ON pc.track_id=lp.track_id WHERE pc.path_id=_path AND lp.user_id=p.user_id AND coalesce(lp.watched_seconds,0)>0))), '[]'::jsonb) INTO res FROM profiles p WHERE learning_path_authorized(_path,p.user_id);
+ RETURN res;
+END; $$;
+REVOKE ALL ON FUNCTION public.learning_path_report(uuid) FROM PUBLIC,anon; GRANT EXECUTE ON FUNCTION public.learning_path_report(uuid) TO authenticated,service_role;
+CREATE FUNCTION public.guard_learning_path_publication() RETURNS trigger LANGUAGE plpgsql SET search_path=public AS $$ BEGIN IF NEW.status='published' AND NOT EXISTS(SELECT 1 FROM learning_path_courses WHERE path_id=NEW.id) THEN RAISE EXCEPTION 'Adicione pelo menos um curso antes de publicar.'; END IF; RETURN NEW; END; $$;
+CREATE CONSTRAINT TRIGGER learning_path_publication AFTER INSERT OR UPDATE ON public.learning_paths DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION public.guard_learning_path_publication();
+DO $$ DECLARE f record; def text; guard text; BEGIN
+ FOR f IN SELECT oid,proname FROM pg_proc WHERE pronamespace='public'::regnamespace AND proname IN ('start_exam_attempt','submit_exam_attempt','complete_track_without_exam','validate_quiz_attempt') LOOP
+ def:=pg_get_functiondef(f.oid);
+ guard:=CASE f.proname WHEN 'start_exam_attempt' THEN 'IF NOT public.can_access_learning_course(_track_id) THEN RAISE EXCEPTION ''Curso não autorizado ou anterior pendente''; END IF;' WHEN 'complete_track_without_exam' THEN 'IF NOT public.can_access_learning_course(_track_id) THEN RAISE EXCEPTION ''Curso não autorizado ou anterior pendente''; END IF;' WHEN 'submit_exam_attempt' THEN 'IF NOT EXISTS(SELECT 1 FROM public.exams WHERE id=_exam_id AND public.can_access_learning_course(track_id)) THEN RAISE EXCEPTION ''Curso não autorizado ou anterior pendente''; END IF;' ELSE 'IF NOT EXISTS(SELECT 1 FROM public.quizzes WHERE id=_quiz_id AND public.can_access_learning_course(track_id)) THEN RAISE EXCEPTION ''Curso não autorizado ou anterior pendente''; END IF;' END;
+ def:=regexp_replace(def,E'BEGIN',E'BEGIN\n'||guard); EXECUTE def;
+ END LOOP;
+END $$;
+CREATE OR REPLACE FUNCTION public.get_quiz_questions(_quiz_id uuid) RETURNS TABLE(id uuid,quiz_id uuid,question text,options jsonb,order_index integer) LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT q.id,q.quiz_id,q.question,q.options,q.order_index FROM quiz_questions q JOIN quizzes z ON z.id=q.quiz_id WHERE q.quiz_id=_quiz_id AND can_access_learning_course(z.track_id) ORDER BY q.order_index; $$;
+CREATE OR REPLACE FUNCTION public.is_same_company(_user_id uuid) RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT EXISTS(SELECT 1 FROM learning_company_memberships a JOIN learning_company_memberships b ON b.company_id=a.company_id WHERE a.user_id=auth.uid() AND b.user_id=_user_id AND a.revoked_at IS NULL AND b.revoked_at IS NULL); $$;
+DROP POLICY "Users can view same company enrollments" ON public.enrollments;
+CREATE POLICY learning_company_enrollments ON public.enrollments FOR SELECT TO authenticated USING(public.is_same_company(user_id));
+DROP POLICY "Same company can view lesson progress" ON public.lesson_progress;
+CREATE POLICY learning_company_progress ON public.lesson_progress FOR SELECT TO authenticated USING(public.is_same_company(user_id));
