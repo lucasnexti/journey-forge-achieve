@@ -7,7 +7,7 @@ import * as A from "./assets.ts";
 
 export type OfficialData = {
   name: string; course?: string; hours?: string; startDate?: string; endDate?: string;
-  place?: string; issueDate?: string; code?: string; verifyUrl: string;
+  issueDate?: string; code?: string; verifyUrl: string;
   signerName?: string; signerRole?: string;
 };
 
@@ -107,7 +107,7 @@ export async function renderOfficial(d: OfficialData): Promise<Uint8Array> {
     y += s * lh;
   }
 
-  // Rodapé: assinatura (esquerda) e local/data (direita), alinhados à base 737.
+  // Rodapé: assinatura (esquerda) e data de emissão (direita), alinhados à base 737.
   const bottom = H - 57;
   const sigTop = bottom - (64 + 6 + 1.25 + 9 + 15 * 1.2 + (tem(d.signerRole) ? 1 + 13 * 1.2 : 0));
   const sh = Math.min(64, 260 * sig.height / sig.width), sw = sh * sig.width / sig.height;
@@ -116,9 +116,9 @@ export async function renderOfficial(d: OfficialData): Promise<Uint8Array> {
   text(d.signerName || "Marcelo Araújo Gomes", L, fy, F.r600, 15, C.tinta); fy += 15 * 1.2;
   if (tem(d.signerRole)) text(d.signerRole!, L, fy + 1, F.r400, 13, C.cinza);
 
-  const emissao = [d.place, d.issueDate].filter(tem).join(", ");
+  const emissao = d.issueDate?.trim();
   if (emissao) {
-    const lines = wrap(`Local e data de emissão: ${emissao}.`, F.r400, 13, 340);
+    const lines = wrap(`Data de emissão: ${emissao}.`, F.r400, 13, 340);
     let ey = bottom - 2 - lines.length * 13 * 1.5;
     for (const l of lines) { text(l, L + CW - tw(l, F.r400, 13), ey, F.r400, 13, C.cinza, 1.5); ey += 13 * 1.5; }
   }
