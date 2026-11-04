@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useState,useEffect} from 'react';
 import {useQuery} from '@tanstack/react-query';
 import {supabase} from '@/integrations/supabase/client';
 import {Button} from '@/components/ui/button';
@@ -13,6 +13,7 @@ import PathCover from './PathCover';
 export default function PathEditor({path,onClose,onSaved}:{path:LearningPath|null;onClose:()=>void;onSaved:()=>void}){
   const [form,setForm]=useState(path?{...path}:{name:'',description:'',cover_path:null as string|null,status:'draft',progression:'free',categories:['Cursos'],courses:[] as PathCourse[]});
   const [errors,setErrors]=useState<Record<string,string>>({}); const [search,setSearch]=useState('');const [busy,setBusy]=useState(false);const [image,setImage]=useState<File|null>(null);const [preview,setPreview]=useState(path?.coverUrl);
+  useEffect(()=>()=>{if(preview?.startsWith('blob:'))URL.revokeObjectURL(preview);},[preview]);
   const courses=useQuery({queryKey:['learning-course-options'],queryFn:async()=>{const {data,error}=await supabase.from('tracks').select('id,title,category,course_modules(title)').order('title');if(error)throw error;return data;}});
   const reorder=(list:PathCourse[])=>{const sorted=form.categories.flatMap(cat=>list.filter(c=>c.category===cat));setForm({...form,courses:sorted.map((c,position)=>({...c,position}))});};
   const moveCategory=(i:number,delta:number)=>{const cats=[...form.categories];const j=i+delta;if(j<0||j>=cats.length)return;[cats[i],cats[j]]=[cats[j],cats[i]];setForm({...form,categories:cats,courses:cats.flatMap(cat=>form.courses.filter(c=>c.category===cat)).map((c,position)=>({...c,position}))});};
