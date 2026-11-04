@@ -1,0 +1,5 @@
+CREATE FUNCTION public.admin_learning_access_check(_path uuid,_user uuid) RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$ BEGIN
+ IF NOT has_role(auth.uid(),'admin') THEN RAISE EXCEPTION 'Acesso restrito a administradores'; END IF;
+ RETURN jsonb_build_object('authorized',learning_path_authorized(_path,_user),'courses',coalesce((SELECT jsonb_agg(jsonb_build_object('track_id',c.track_id,'allowed',learning_course_access(c.track_id,_user),'completed',EXISTS(SELECT 1 FROM enrollments e WHERE e.user_id=_user AND e.track_id=c.track_id AND e.status='completed')) ORDER BY c.position) FROM learning_path_courses c WHERE c.path_id=_path),'[]'::jsonb));
+END; $$;
+REVOKE ALL ON FUNCTION public.admin_learning_access_check(uuid,uuid) FROM PUBLIC,anon; GRANT EXECUTE ON FUNCTION public.admin_learning_access_check(uuid,uuid) TO authenticated,service_role;

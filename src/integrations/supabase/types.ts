@@ -803,6 +803,176 @@ export type Database = {
           },
         ]
       }
+      learning_companies: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      learning_company_memberships: {
+        Row: {
+          company_id: string
+          revoked_at: string | null
+          user_id: string
+          validated_at: string
+          validated_by: string
+        }
+        Insert: {
+          company_id: string
+          revoked_at?: string | null
+          user_id: string
+          validated_at?: string
+          validated_by: string
+        }
+        Update: {
+          company_id?: string
+          revoked_at?: string | null
+          user_id?: string
+          validated_at?: string
+          validated_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learning_company_memberships_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "learning_companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      learning_path_courses: {
+        Row: {
+          category: string
+          path_id: string
+          position: number
+          track_id: string
+        }
+        Insert: {
+          category: string
+          path_id: string
+          position: number
+          track_id: string
+        }
+        Update: {
+          category?: string
+          path_id?: string
+          position?: number
+          track_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learning_path_courses_path_id_fkey"
+            columns: ["path_id"]
+            isOneToOne: false
+            referencedRelation: "learning_paths"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "learning_path_courses_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      learning_path_grants: {
+        Row: {
+          company_id: string | null
+          granted_at: string
+          granted_by: string
+          id: string
+          path_id: string
+          revoked_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          company_id?: string | null
+          granted_at?: string
+          granted_by: string
+          id?: string
+          path_id: string
+          revoked_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          company_id?: string | null
+          granted_at?: string
+          granted_by?: string
+          id?: string
+          path_id?: string
+          revoked_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learning_path_grants_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "learning_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "learning_path_grants_path_id_fkey"
+            columns: ["path_id"]
+            isOneToOne: false
+            referencedRelation: "learning_paths"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      learning_paths: {
+        Row: {
+          categories: Json
+          cover_path: string | null
+          created_at: string
+          created_by: string
+          description: string
+          id: string
+          name: string
+          progression: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          categories?: Json
+          cover_path?: string | null
+          created_at?: string
+          created_by: string
+          description: string
+          id?: string
+          name: string
+          progression?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          categories?: Json
+          cover_path?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string
+          id?: string
+          name?: string
+          progression?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       lesson_materials: {
         Row: {
           created_at: string | null
@@ -1578,6 +1748,7 @@ export type Database = {
           id: string
           instructor: string | null
           is_active: boolean | null
+          learning_path_restricted: boolean
           order_index: number | null
           prerequisite_track_id: string | null
           published_at: string | null
@@ -1593,6 +1764,7 @@ export type Database = {
           id?: string
           instructor?: string | null
           is_active?: boolean | null
+          learning_path_restricted?: boolean
           order_index?: number | null
           prerequisite_track_id?: string | null
           published_at?: string | null
@@ -1608,6 +1780,7 @@ export type Database = {
           id?: string
           instructor?: string | null
           is_active?: boolean | null
+          learning_path_restricted?: boolean
           order_index?: number | null
           prerequisite_track_id?: string | null
           published_at?: string | null
@@ -1928,6 +2101,10 @@ export type Database = {
         Returns: Json
       }
       admin_enrollment_report: { Args: { _track_id?: string }; Returns: Json }
+      admin_learning_access_check: {
+        Args: { _path: string; _user: string }
+        Returns: Json
+      }
       admin_revoke_certificate: {
         Args: { _id: string; _reason: string }
         Returns: Json
@@ -1947,6 +2124,8 @@ export type Database = {
         Returns: undefined
       }
       award_xp: { Args: { _user_id: string; _xp: number }; Returns: undefined }
+      can_access_learning_course: { Args: { _track: string }; Returns: boolean }
+      can_access_learning_path: { Args: { _path: string }; Returns: boolean }
       claim_coin_reward: {
         Args: { _key: string; _reference_id: string }
         Returns: Json
@@ -2002,7 +2181,28 @@ export type Database = {
         Returns: boolean
       }
       is_same_company: { Args: { _user_id: string }; Returns: boolean }
+      learning_course_access: {
+        Args: { _track: string; _user: string }
+        Returns: boolean
+      }
+      learning_lesson_access: { Args: { _lesson: string }; Returns: boolean }
+      learning_material_file_access: {
+        Args: { _path: string }
+        Returns: boolean
+      }
+      learning_module_access: { Args: { _module: string }; Returns: boolean }
+      learning_path_authorized: {
+        Args: { _path: string; _user: string }
+        Returns: boolean
+      }
+      learning_path_report: { Args: { _path: string }; Returns: Json }
+      learning_path_snapshot: { Args: { _path: string }; Returns: Json }
+      learning_quiz_access: { Args: { _quiz: string }; Returns: boolean }
       redeem_reward: { Args: { _reward_id: string }; Returns: Json }
+      save_learning_path: {
+        Args: { _data: Json; _id: string }
+        Returns: string
+      }
       save_my_personal_data: {
         Args: {
           _cargo?: string
@@ -2010,6 +2210,15 @@ export type Database = {
           _empresa: string
           _nome: string
           _telefone: string
+        }
+        Returns: undefined
+      }
+      set_learning_path_access: {
+        Args: {
+          _company?: string
+          _path: string
+          _revoke?: boolean
+          _users?: string[]
         }
         Returns: undefined
       }
@@ -2026,6 +2235,10 @@ export type Database = {
       validate_kb_quiz_attempt: {
         Args: { _answers: Json; _module_ids: string[]; _user_id: string }
         Returns: Json
+      }
+      validate_learning_company: {
+        Args: { _company: string; _revoke?: boolean; _users: string[] }
+        Returns: undefined
       }
       validate_quiz_attempt: {
         Args: { _answers: Json; _quiz_id: string; _user_id: string }

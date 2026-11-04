@@ -79,9 +79,11 @@ const TrackPage = () => {
 
   const loadData = useCallback(async () => {
     if (!trackId || !user) return;
+    const access = await supabase.rpc("can_access_learning_course", { _track: trackId });
+    if (access.error || !access.data) { setTrack(null); setLessons([]); setLoading(false); return; }
     const [{ data: trackData }, { data: lessonData }, { data: examData }, { data: examAttempts }, progressData, { data: profile }, { data: enrollment }] = await Promise.all([
       supabase.from("tracks").select("id, title, description, category").eq("id", trackId).maybeSingle(),
-      supabase.from("lessons").select("id, title, description, video_url, duration, order_index").eq("track_id", trackId).order("order_index"),
+      supabase.from("lessons").select("id, title, description, video_url, duration, order_index").eq("track_id", trackId).eq("is_published", true).order("order_index"),
       supabase.rpc("track_has_exam", { _track_id: trackId }),
       supabase.from("exam_attempts").select("percent, passed, created_at").eq("user_id", user.id).eq("track_id", trackId).order("created_at", { ascending: false }).limit(20),
       getTrackProgressDB(user.id, trackId, false),
@@ -315,7 +317,8 @@ const TrackPage = () => {
     return (
       <AppLayout fullWidth>
         <div className="py-16 text-center px-4">
-          <p className="text-muted-foreground">Trilha não encontrada.</p>
+          <p className="text-muted-foreground">Curso indisponível ou sem acesso. Se ele faz parte de uma trilha sequencial, conclua os cursos anteriores.</p>
+          <Link to="/minhas-trilhas" className="mt-4 block text-sm text-primary underline">Ver minhas trilhas</Link>
           <Link to="/dashboard" className="mt-4 inline-block text-sm text-primary underline">Voltar</Link>
         </div>
       </AppLayout>

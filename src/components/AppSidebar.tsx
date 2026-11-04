@@ -28,7 +28,8 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 const navItems = [
-  { to: "/dashboard", label: "Trilhas", icon: BookOpen },
+  { to: "/dashboard", label: "Cursos", icon: BookOpen },
+  { to: "/minhas-trilhas", label: "Minhas trilhas", icon: Library },
   { to: "/loja", label: "Loja de Prêmios", icon: Coins },
   { to: "/relatorios", label: "Relatórios", icon: BarChart3 },
   { to: "/base-conhecimento", label: "Base de Conhecimento", icon: Library },
@@ -117,7 +118,7 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map((item) => {
-                const isActive = location.pathname === item.to || (item.to === "/dashboard" && location.pathname.startsWith("/trilha/"));
+                const isActive = location.pathname === item.to || (item.to === "/dashboard" && location.pathname.startsWith("/trilha/")) || (item.to === "/minhas-trilhas" && location.pathname.startsWith("/minhas-trilhas/"));
                 return (
                   <SidebarMenuItem key={item.to}>
                     <SidebarMenuButton

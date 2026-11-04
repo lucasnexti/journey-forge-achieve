@@ -36,7 +36,8 @@ const navGroups: NavGroup[] = [
     icon: BookOpen,
     items: [
       { to: "/admin/cursos-ead", label: "Cursos EAD", icon: BookOpen },
-      { to: "/admin/trilhas-gestao", label: "Trilhas", icon: Route },
+      { to: "/admin/trilhas-gestao", label: "Gestão de cursos", icon: BookOpen },
+      { to: "/admin/trilhas", label: "Trilhas", icon: Route },
       { to: "/admin/quizzes", label: "Quizzes", icon: ClipboardCheck },
       { to: "/admin/quiz-nexti", label: "Quiz Nexti", icon: Zap },
       { to: "/admin/treinamentos", label: "Trein. Presenciais", icon: Layers },

@@ -4,6 +4,11 @@
 @tailwind components;
 @tailwind utilities;
 
+.learning-paths, .learning-paths h1, .learning-paths h2, .learning-paths h3 {
+  font-family: 'Montserrat', 'IBM Plex Sans', sans-serif;
+  letter-spacing: 0;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
