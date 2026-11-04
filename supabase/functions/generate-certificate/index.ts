@@ -94,7 +94,7 @@ Deno.serve(async (req) => {
     const out = await renderOfficial({
       name: "Maria Aparecida dos Santos Oliveira", course: "Compliance Trabalhista na Gestão de Equipes",
       hours: "8", startDate: fmtLong("2026-01-16T12:00:00Z"), endDate: fmtLong("2026-02-20T12:00:00Z"),
-      place: "São Paulo", issueDate: fmtLong(new Date().toISOString()), code: "ABC123XYZ9",
+      issueDate: fmtLong(new Date().toISOString()), code: "ABC123XYZ9",
       verifyUrl: verifyUrl("ABC123XYZ9"), signerName: "Marcelo Araújo Gomes", signerRole: "CEO",
     });
     return new Response(out, { headers: { ...corsHeaders, "Content-Type": "application/pdf" } });
@@ -168,7 +168,7 @@ Deno.serve(async (req) => {
         name, course: track?.title || "",
         hours: track?.estimated_hours ? Number(track.estimated_hours).toLocaleString("pt-BR") : "",
         startDate: fmtLong(enrollment?.enrolled_at), endDate: fmtLong(enrollment?.completed_at || cert.issued_at),
-        place: "São Paulo", issueDate: fmtLong(new Date().toISOString()), code, verifyUrl: verifyUrl(code),
+        issueDate: fmtLong(new Date().toISOString()), code, verifyUrl: verifyUrl(code),
         signerName: "Marcelo Araújo Gomes", signerRole: "CEO",
       });
     }
