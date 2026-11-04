@@ -112,12 +112,18 @@ const ProfilePage = () => {
     const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(filePath);
     const avatarUrl = urlData.publicUrl + `?t=${Date.now()}`;
 
-    await supabase
+    const { error: profileError } = await supabase
       .from("profiles")
       .update({ avatar_url: avatarUrl })
       .eq("user_id", user.id);
 
+    if (profileError) {
+      setUploadingAvatar(false);
+      toast.error("Não foi possível salvar a foto. Tente novamente.");
+      return;
+    }
     setProfile((prev) => ({ ...prev, avatar_url: avatarUrl }));
+    await queryClient.invalidateQueries({ queryKey: ["profile"] });
     setUploadingAvatar(false);
     toast.success("Foto atualizada!");
   };
