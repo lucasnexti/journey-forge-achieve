@@ -18,6 +18,8 @@ const Dashboard = lazy(() => import("./pages/Dashboard"));
 
 // Lazy loaded
 const TrackPage = lazy(() => import("./pages/TrackPage"));
+const LearningPathsPage = lazy(() => import("./pages/LearningPathsPage"));
+const AdminLearningPaths = lazy(() => import("./pages/admin/AdminLearningPaths"));
 const ReportPage = lazy(() => import("./pages/ReportPage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const LeaderboardPage = lazy(() => import("./pages/LeaderboardPage"));
@@ -88,6 +90,8 @@ const App = () => (
               <Route path="/verificar/:code?" element={<VerifyCertificatePage />} />
               <Route path="/validar-certificado/:code?" element={<VerifyCertificatePage />} />
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/minhas-trilhas" element={<ProtectedRoute><LearningPathsPage /></ProtectedRoute>} />
+              <Route path="/minhas-trilhas/:pathId" element={<ProtectedRoute><LearningPathsPage /></ProtectedRoute>} />
               <Route path="/trilha/:trackId" element={<ProtectedRoute><TrackPage /></ProtectedRoute>} />
               <Route path="/relatorios" element={<ProtectedRoute><ReportPage /></ProtectedRoute>} />
               <Route path="/perfil" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
@@ -101,7 +105,7 @@ const App = () => (
 
               {/* Admin routes */}
               <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
-              <Route path="/admin/trilhas" element={<AdminRoute><AdminTrilhas /></AdminRoute>} />
+              <Route path="/admin/trilhas" element={<AdminRoute><AdminLearningPaths /></AdminRoute>} />
               <Route path="/admin/anotacoes" element={<AdminRoute><AdminAnotacoes /></AdminRoute>} />
               <Route path="/admin/foruns" element={<AdminRoute><AdminForuns /></AdminRoute>} />
               <Route path="/admin/cursos-ead" element={<AdminRoute><AdminCursosEad /></AdminRoute>} />
