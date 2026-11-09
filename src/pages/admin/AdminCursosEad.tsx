@@ -1,3 +1,4 @@
+import { formatDuration } from "@/lib/duration";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import AdminLayout from "@/components/admin/AdminLayout";
@@ -128,7 +129,7 @@ const AdminCursosEad = () => {
                     {t.category ? <Badge variant="secondary" className="text-[10px]">{t.category}</Badge> : <span className="text-xs text-muted-foreground">—</span>}
                   </td>
                   <td className="px-5 py-4 text-center text-sm tabular-nums text-foreground">{t.lessons?.length || 0}</td>
-                  <td className="px-5 py-4 text-center text-sm tabular-nums text-muted-foreground">{t.estimated_hours || 0}h</td>
+                  <td className="px-5 py-4 text-center text-sm tabular-nums text-muted-foreground">{formatDuration(t.estimated_hours)}</td>
                   <td className="px-5 py-4 text-center">
                     <Badge variant={t.is_active ? "default" : "destructive"} className="text-[10px]">
                       {t.is_active ? "Ativo" : "Inativo"}

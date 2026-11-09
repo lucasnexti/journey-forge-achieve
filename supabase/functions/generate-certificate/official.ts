@@ -83,7 +83,7 @@ export async function renderOfficial(d: OfficialData): Promise<Uint8Array> {
 
   // Frase de carga horária + período, com trechos em destaque.
   const segs: { t: string; b?: boolean }[] = [];
-  if (tem(d.hours)) { const h = d.hours!.trim(); segs.push({ t: "com carga horária de " }, { t: `${h} ${h === "1" ? "hora" : "horas"}`, b: true }); }
+  if (tem(d.hours)) { const h = d.hours!.trim(); segs.push({ t: "com carga horária de " }, { t: h, b: true }); }
   if (tem(d.startDate) && tem(d.endDate)) {
     if (segs.length) segs.push({ t: ", " });
     segs.push({ t: "realizado no período de " }, { t: d.startDate!, b: true }, { t: " a " }, { t: d.endDate!, b: true });

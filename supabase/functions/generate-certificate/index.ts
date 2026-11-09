@@ -158,7 +158,7 @@ Deno.serve(async (req) => {
     if (tpl) {
       const { data: file, error: dlErr } = await admin.storage.from("certificates").download(tpl.file_path);
       if (dlErr || !file) return fail("Não foi possível ler o modelo do certificado.", 500);
-      const hours = track?.estimated_hours ? `${Number(track.estimated_hours).toLocaleString("pt-BR")} horas` : "";
+      const hours = track?.estimated_hours ? fmtHours(Number(track.estimated_hours)) : "";
       out = await render(new Uint8Array(await file.arrayBuffer()), tpl.fields || [], {
         student_name: name, course: track?.title || "", completion_date: fmtDate(enrollment?.completed_at || cert.issued_at),
         hours, instructor: track?.instructor || "", code, institution: "Nexti Academy", verify_url: verifyUrl(code),
@@ -166,7 +166,7 @@ Deno.serve(async (req) => {
     } else {
       out = await renderOfficial({
         name, course: track?.title || "",
-        hours: track?.estimated_hours ? Number(track.estimated_hours).toLocaleString("pt-BR") : "",
+        hours: track?.estimated_hours ? fmtHours(Number(track.estimated_hours)) : "",
         startDate: fmtLong(enrollment?.enrolled_at), endDate: fmtLong(enrollment?.completed_at || cert.issued_at),
         issueDate: fmtLong(new Date().toISOString()), code, verifyUrl: verifyUrl(code),
         signerName: "Marcelo Araújo Gomes", signerRole: "CEO",
@@ -193,3 +193,9 @@ Deno.serve(async (req) => {
   }
   return json({ ok: true, certificate_id: cert.id, file_path: path });
 });
+
+function fmtHours(h: number): string {
+  const t = Math.round(h * 60), hh = Math.floor(t / 60), mm = t % 60;
+  if (!mm) return `${hh} ${hh === 1 ? "hora" : "horas"}`;
+  return hh ? `${hh}h${String(mm).padStart(2, "0")}min` : `${mm} minutos`;
+}
