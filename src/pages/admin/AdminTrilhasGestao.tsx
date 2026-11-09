@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import { parseDurationHHMM, hoursToHHMM, formatDuration } from "@/lib/duration";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus, Pencil, Trash2, Save, Search, BookOpen, Clock, Users, BarChart3,
@@ -89,7 +90,7 @@ const AdminTrilhasGestao = () => {
   const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
 
   // Forms
-  const [trackForm, setTrackForm] = useState({ title: "", description: "", category: "", estimated_hours: 0, is_active: false, prerequisite_track_id: "", instructor: "", cover_image_url: "" });
+  const [trackForm, setTrackForm] = useState({ title: "", description: "", category: "", estimated_hours: "0:00", is_active: false, prerequisite_track_id: "", instructor: "", cover_image_url: "" });
   const [lessonForm, setLessonForm] = useState({ title: "", description: "", video_url: "", duration: 0 });
 
   // Filters
@@ -176,7 +177,7 @@ const AdminTrilhasGestao = () => {
   // ─── Track CRUD ───
   const openNewTrack = () => {
     setEditingTrack(null);
-    setTrackForm({ title: "", description: "", category: "", estimated_hours: 0, is_active: false, prerequisite_track_id: "", instructor: "", cover_image_url: "" });
+    setTrackForm({ title: "", description: "", category: "", estimated_hours: "0:00", is_active: false, prerequisite_track_id: "", instructor: "", cover_image_url: "" });
     setTrackDialogOpen(true);
   };
 
@@ -186,7 +187,7 @@ const AdminTrilhasGestao = () => {
       title: track.title,
       description: track.description || "",
       category: track.category || "",
-      estimated_hours: track.estimated_hours || 0,
+      estimated_hours: hoursToHHMM(track.estimated_hours),
       is_active: track.is_active ?? true,
       prerequisite_track_id: track.prerequisite_track_id || "",
       instructor: track.instructor || "",
@@ -213,6 +214,7 @@ const AdminTrilhasGestao = () => {
   const handleSaveTrack = async () => {
     if (savingTrack) return;
     if (!trackForm.title.trim()) { toast.error("Informe o título do curso."); return; }
+    if (parseDurationHHMM(trackForm.estimated_hours) === null) { toast.error("Informe a duração no formato HH:MM (ex.: 1:30)."); return; }
     setSavingTrack(true);
     try { await doSaveTrack(); } finally { setSavingTrack(false); }
   };
@@ -223,7 +225,7 @@ const AdminTrilhasGestao = () => {
         title: trackForm.title,
         description: trackForm.description || null,
         category: trackForm.category || null,
-        estimated_hours: trackForm.estimated_hours,
+        estimated_hours: parseDurationHHMM(trackForm.estimated_hours) ?? 0,
         is_active: trackForm.is_active,
         prerequisite_track_id: trackForm.prerequisite_track_id || null,
         instructor: trackForm.instructor || null,
@@ -236,7 +238,7 @@ const AdminTrilhasGestao = () => {
         title: trackForm.title,
         description: trackForm.description || null,
         category: trackForm.category || null,
-        estimated_hours: trackForm.estimated_hours,
+        estimated_hours: parseDurationHHMM(trackForm.estimated_hours) ?? 0,
         order_index: tracks.length + 1,
         is_active: trackForm.is_active,
         prerequisite_track_id: trackForm.prerequisite_track_id || null,
@@ -508,7 +510,7 @@ const AdminTrilhasGestao = () => {
                                 <Users className="h-3 w-3" /> {stats.enrollmentCount} alunos
                               </span>
                               <span className="flex items-center gap-1">
-                                <Clock className="h-3 w-3" /> {track.estimated_hours || 0}h
+                                <Clock className="h-3 w-3" /> {formatDuration(track.estimated_hours)}
                               </span>
                               {stats.enrollmentCount > 0 && (
                                 <span className="flex items-center gap-1">
@@ -626,7 +628,7 @@ const AdminTrilhasGestao = () => {
               </div>
               <div className="space-y-2">
                 <Label>Horas estimadas</Label>
-                <Input type="number" value={trackForm.estimated_hours} onChange={(e) => setTrackForm({ ...trackForm, estimated_hours: Number(e.target.value) })} />
+                <Input inputMode="numeric" placeholder="HH:MM (ex.: 1:30)" value={trackForm.estimated_hours} onChange={(e) => setTrackForm({ ...trackForm, estimated_hours: e.target.value.replace(/[^\d:]/g, "") })} />
               </div>
             </div>
             <div className="space-y-2">
