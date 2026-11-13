@@ -113,6 +113,13 @@
       "when": 1794589458794,
       "tag": "0015_bind_course_material_reads_to_access",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1794589592971,
+      "tag": "0016_replace_open_read_rules",
+      "breakpoints": true
     }
   ]
 }
