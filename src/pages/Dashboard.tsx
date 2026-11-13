@@ -10,6 +10,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import AppLayout from "@/components/AppLayout";
 import TrackCard from "@/components/TrackCard";
 import OnboardingWizard from "@/components/OnboardingWizard";
+import { shouldShowOnboarding } from "@/lib/onboarding";
 import { BookOpen, Clock, Trophy, Play, Search, Heart, TrendingUp, Target, Award, Coins, Flame, ArrowRight, Sparkles } from "lucide-react";
 import LinkedInShare from "@/components/LinkedInShare";
 import { motion } from "framer-motion";
@@ -62,9 +63,7 @@ const Dashboard = () => {
 
   // Check onboarding
   useEffect(() => {
-    if (profileData && !profileData.onboarding_completed) {
-      setShowOnboarding(true);
-    }
+    setShowOnboarding(shouldShowOnboarding(profileData));
   }, [profileData]);
 
   // Update streak once on mount
@@ -142,7 +141,12 @@ const Dashboard = () => {
 
   return (
     <AppLayout>
-      {showOnboarding && <OnboardingWizard onComplete={() => setShowOnboarding(false)} />}
+      {showOnboarding && (
+        <OnboardingWizard
+          onComplete={() => setShowOnboarding(false)}
+          initial={{ nome: profileData?.nome, empresa: profileData?.workplace_empresa ?? profileData?.empresa, cargo: profileData?.cargo }}
+        />
+      )}
 
       {/* Hero Banner */}
       <div className="relative overflow-hidden bg-gradient-nexti">

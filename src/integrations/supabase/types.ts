@@ -1370,11 +1370,13 @@ export type Database = {
           email: string | null
           empresa: string | null
           id: string
+          interest_areas: string[]
           interests: string[] | null
           is_active: boolean | null
           last_active_at: string | null
           nome: string
           onboarding_completed: boolean | null
+          onboarding_completed_at: string | null
           telefone: string | null
           updated_at: string
           user_id: string
@@ -1388,11 +1390,13 @@ export type Database = {
           email?: string | null
           empresa?: string | null
           id?: string
+          interest_areas?: string[]
           interests?: string[] | null
           is_active?: boolean | null
           last_active_at?: string | null
           nome: string
           onboarding_completed?: boolean | null
+          onboarding_completed_at?: string | null
           telefone?: string | null
           updated_at?: string
           user_id: string
@@ -1406,11 +1410,13 @@ export type Database = {
           email?: string | null
           empresa?: string | null
           id?: string
+          interest_areas?: string[]
           interests?: string[] | null
           is_active?: boolean | null
           last_active_at?: string | null
           nome?: string
           onboarding_completed?: boolean | null
+          onboarding_completed_at?: string | null
           telefone?: string | null
           updated_at?: string
           user_id?: string
@@ -2154,6 +2160,15 @@ export type Database = {
       coin_evidence_ok: {
         Args: { _key: string; _reference_id: string; _user_id: string }
         Returns: boolean
+      }
+      complete_onboarding: {
+        Args: {
+          _cargo: string
+          _interest_areas: string[]
+          _nome: string
+          _workplace_empresa: string
+        }
+        Returns: Json
       }
       complete_track_without_exam: {
         Args: { _track_id: string }

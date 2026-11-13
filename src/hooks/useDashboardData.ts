@@ -29,7 +29,7 @@ export function useProfile() {
     queryFn: async () => {
       const { data } = await supabase
         .from("profiles")
-        .select("nome, onboarding_completed, empresa, cargo, avatar_url, cpf")
+        .select("nome, onboarding_completed, onboarding_completed_at, interest_areas, empresa, workplace_empresa, cargo, avatar_url, cpf")
         .eq("user_id", user!.id)
         .maybeSingle();
       return data;

@@ -1,53 +1,61 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Rocket, User, Building2, Briefcase, BookOpen, ChevronRight, ChevronLeft, Check } from "lucide-react";
+import { Rocket, User, BookOpen, ChevronRight, ChevronLeft, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { queryKeys } from "@/hooks/useQueryKeys";
+import { INTEREST_AREAS, toggleInterestArea } from "@/lib/onboarding";
 
 interface OnboardingWizardProps {
   onComplete: () => void;
+  initial?: { nome?: string | null; empresa?: string | null; cargo?: string | null };
 }
 
-const CATEGORIES = ["Fundamentos", "Gestão", "Finanças", "Tecnologia", "Liderança", "Compliance"];
-
-const OnboardingWizard = ({ onComplete }: OnboardingWizardProps) => {
+const OnboardingWizard = ({ onComplete, initial }: OnboardingWizardProps) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [step, setStep] = useState(0);
-  const [nome, setNome] = useState("");
-  const [cargo, setCargo] = useState("");
-  const [empresa, setEmpresa] = useState("");
+  const [nome, setNome] = useState(initial?.nome ?? "");
+  const [cargo, setCargo] = useState(initial?.cargo ?? "");
+  const [empresa, setEmpresa] = useState(initial?.empresa ?? "");
   const [interests, setInterests] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
 
-  const toggleInterest = (cat: string) => {
-    setInterests((prev) =>
-      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
-    );
-  };
+  useEffect(() => {
+    if (!initial) return;
+    setNome((v) => v || initial.nome || "");
+    setEmpresa((v) => v || initial.empresa || "");
+    setCargo((v) => v || initial.cargo || "");
+  }, [initial?.nome, initial?.empresa, initial?.cargo]);
 
   const handleComplete = async () => {
-    if (!user) return;
+    if (!user || saving) return;
     setSaving(true);
-
-    await supabase
-      .from("profiles")
-      .update({
-        nome: nome || undefined,
-        cargo: cargo || undefined,
-        empresa: empresa || undefined,
-        interests,
-        onboarding_completed: true,
-      })
-      .eq("user_id", user.id);
-
+    const { error } = await supabase.rpc("complete_onboarding", {
+      _nome: nome,
+      _workplace_empresa: empresa,
+      _cargo: cargo,
+      _interest_areas: interests,
+    });
     setSaving(false);
-    toast.success("Bem-vindo à Universidade Nexti!");
+    if (error) {
+      toast.error(error.message || "Não foi possível salvar. Tente novamente.");
+      return;
+    }
+    queryClient.setQueryData(queryKeys.profile.user(user.id), (old: Record<string, unknown> | null | undefined) =>
+      old ? { ...old, onboarding_completed: true, interest_areas: interests } : old,
+    );
+    queryClient.invalidateQueries({ queryKey: ["profile"] });
+    toast.success("Perfil concluído com sucesso! Bem-vindo à Universidade Nexti!");
     onComplete();
+    navigate("/dashboard", { replace: true });
   };
 
   const steps = [
@@ -73,17 +81,17 @@ const OnboardingWizard = ({ onComplete }: OnboardingWizardProps) => {
       </div>
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label>Nome completo</Label>
-          <Input value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Seu nome" />
+          <Label htmlFor="onb-nome">Nome completo</Label>
+          <Input id="onb-nome" maxLength={255} value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Seu nome" />
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label>Empresa</Label>
-            <Input value={empresa} onChange={(e) => setEmpresa(e.target.value)} placeholder="Sua empresa" />
+            <Label htmlFor="onb-empresa">Empresa</Label>
+            <Input id="onb-empresa" maxLength={255} value={empresa} onChange={(e) => setEmpresa(e.target.value)} placeholder="Sua empresa" />
           </div>
           <div className="space-y-2">
-            <Label>Cargo</Label>
-            <Input value={cargo} onChange={(e) => setCargo(e.target.value)} placeholder="Seu cargo" />
+            <Label htmlFor="onb-cargo">Cargo</Label>
+            <Input id="onb-cargo" maxLength={255} value={cargo} onChange={(e) => setCargo(e.target.value)} placeholder="Seu cargo" />
           </div>
         </div>
       </div>
@@ -100,29 +108,41 @@ const OnboardingWizard = ({ onComplete }: OnboardingWizardProps) => {
       <div className="text-center">
         <BookOpen className="mx-auto h-8 w-8 text-primary" />
         <h2 className="mt-2 font-display text-xl font-bold text-foreground">Áreas de Interesse</h2>
-        <p className="mt-1 text-sm text-muted-foreground">Selecione as áreas que mais te interessam</p>
+        <p className="mt-1 text-sm text-muted-foreground">Selecione uma ou mais áreas que mais te interessam</p>
       </div>
-      <div className="grid grid-cols-2 gap-3">
-        {CATEGORIES.map((cat) => {
-          const selected = interests.includes(cat);
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2" role="group" aria-label="Áreas de interesse">
+        {INTEREST_AREAS.map((area) => {
+          const selected = interests.includes(area.key);
           return (
             <button
-              key={cat}
-              onClick={() => toggleInterest(cat)}
-              className={`rounded-xl border-2 px-4 py-4 text-sm font-medium transition-all ${
+              type="button"
+              key={area.key}
+              aria-pressed={selected}
+              onClick={() => setInterests((prev) => toggleInterestArea(prev, area.key))}
+              className={`relative rounded-xl border-2 px-4 py-3 text-left transition-all ${
                 selected
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "border-border text-muted-foreground hover:border-primary/30"
+                  ? "border-primary bg-primary/10"
+                  : "border-border hover:border-primary/30"
               }`}
             >
-              {selected && <Check className="inline h-4 w-4 mr-1" />}
-              {cat}
+              <span className={`flex items-start gap-2 pr-6 text-sm font-semibold ${selected ? "text-primary" : "text-foreground"}`}>
+                {area.label}
+              </span>
+              <span className="mt-1 block text-xs text-muted-foreground">{area.description}</span>
+              {selected && (
+                <span className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                  <Check className="h-3 w-3" />
+                </span>
+              )}
             </button>
           );
         })}
       </div>
-      <div className="flex justify-between">
+      <div className="flex items-center justify-between gap-3">
         <Button variant="outline" onClick={() => setStep(1)}><ChevronLeft className="h-4 w-4 mr-1" /> Voltar</Button>
+        <span className="text-xs text-muted-foreground">
+          {interests.length > 0 ? `${interests.length} selecionada${interests.length > 1 ? "s" : ""}` : ""}
+        </span>
         <Button onClick={handleComplete} disabled={saving} className="gap-2 bg-gradient-nexti text-primary-foreground hover:opacity-90">
           {saving ? "Salvando..." : "Concluir"} <Check className="h-4 w-4" />
         </Button>
@@ -131,17 +151,19 @@ const OnboardingWizard = ({ onComplete }: OnboardingWizardProps) => {
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-sm">
-      <div className="w-full max-w-md p-6">
-        {/* Progress dots */}
-        <div className="flex justify-center gap-2 mb-8">
-          {[0, 1, 2].map((i) => (
-            <div key={i} className={`h-2 rounded-full transition-all ${i === step ? "w-8 bg-primary" : "w-2 bg-border"}`} />
-          ))}
-        </div>
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-background/95 backdrop-blur-sm">
+      <div className="flex min-h-full items-center justify-center p-4">
+        <div className={`w-full p-2 sm:p-6 ${step === 2 ? "max-w-2xl" : "max-w-md"}`}>
+          {/* Progress dots */}
+          <div className="flex justify-center gap-2 mb-8">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className={`h-2 rounded-full transition-all ${i === step ? "w-8 bg-primary" : "w-2 bg-border"}`} />
+            ))}
+          </div>
 
-        <div className="card-surface p-8">
-          <AnimatePresence mode="wait">{steps[step]}</AnimatePresence>
+          <div className="card-surface p-6 sm:p-8">
+            <AnimatePresence mode="wait">{steps[step]}</AnimatePresence>
+          </div>
         </div>
       </div>
     </div>
