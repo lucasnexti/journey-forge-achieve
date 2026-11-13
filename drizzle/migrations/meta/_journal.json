@@ -106,6 +106,13 @@
       "when": 1794587854240,
       "tag": "0014_knowledge_base_content",
       "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1794589458794,
+      "tag": "0015_bind_course_material_reads_to_access",
+      "breakpoints": true
     }
   ]
 }
