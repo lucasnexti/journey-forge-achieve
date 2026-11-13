@@ -1,6 +1,10 @@
 import { useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import AppLayout from "@/components/AppLayout";
+import { installNextiNaPraticaBridge } from "@/lib/nextiNaPraticaBridge";
+
+// Must exist before the iframe script runs; the embedded site reads it from window.parent.
+installNextiNaPraticaBridge();
 
 const BASE = "/nexti-na-pratica";
 

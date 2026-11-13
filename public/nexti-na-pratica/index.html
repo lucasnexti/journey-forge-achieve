@@ -444,7 +444,14 @@ mark{background:#FFE7B8;color:inherit;border-radius:3px;padding:0 1px}
   }
   function hasLocalEdits(){ return !!(LOCAL && LOCAL.dados) && JSON.stringify(W) !== JSON.stringify(PUB); }
 
-  var S = { preview:false, expanded:{}, route:null, firstRender:true, adminTab:"orientacoes", adminSel:null, rated:{}, lastTrigger:null, gal:{} };
+  var S = { preview:false, expanded:{}, route:null, firstRender:true, adminTab:"orientacoes", adminSel:null, rated:{}, lastTrigger:null, gal:{}, publicando:false };
+
+  /* ---------- Plataforma (Nexti Academy) ----------
+     Dentro da Universidade, o conteúdo vem do banco da plataforma e só administradores editam e publicam.
+     Aberto sozinho (fora da plataforma), o site continua usando data/dados.js e a edição local. */
+  var BR = null;
+  try{ BR = window.parent !== window ? (window.parent.__nextiNaPratica || null) : null; }catch(e){ BR = null; }
+  var REMOTO = { pronto: !BR, podeEditar: !BR, atualizadoEm: null, erro: false };
 
   function DB(){ return S.preview ? W : PUB; }
   function visiveis(db){ return db.orientacoes.filter(function(o){ return S.preview || o.status === "publicado"; }); }
@@ -614,6 +621,7 @@ mark{background:#FFE7B8;color:inherit;border-radius:3px;padding:0 1px}
       h += '</ul></li>';
     });
     h += '</ul>';
+    if(BR && REMOTO.podeEditar) h += '<p class="side-label">Administração</p><a class="side-link" href="#/admin"' + (r.nome === "admin" ? ' aria-current="page"' : '') + '>' + I.cadastros + 'Editar conteúdo</a>';
     $("sidebar").innerHTML = h;
     var ativo = $("sidebar").querySelector('.sub-link[aria-current="page"]');
     if(ativo && ativo.scrollIntoView){ var sb = $("sidebar"); var top = ativo.offsetTop - sb.clientHeight / 2; if(ativo.offsetTop < sb.scrollTop || ativo.offsetTop > sb.scrollTop + sb.clientHeight - 40) sb.scrollTop = Math.max(0, top); }
@@ -1073,6 +1081,10 @@ mark{background:#FFE7B8;color:inherit;border-radius:3px;padding:0 1px}
     var pubN = PUB.orientacoes.filter(function(o){ return o.status === "publicado"; }).length;
     var omit = PUB.rascunhosOmitidos || 0;
     var loc = hasLocalEdits(), salvo = LOCAL && LOCAL.salvoEm, exp = LOCAL && LOCAL.exportadoEm;
+    if(BR) return '<div class="status-grid" id="statusGrid">' +
+      '<div class="status-card"><h3>Publicado na Universidade</h3><p><strong>' + plural(pubN, "orientação publicada", "orientações publicadas") + '</strong></p><p class="muted">' + (REMOTO.atualizadoEm ? 'Última publicação em ' + fmtStamp(REMOTO.atualizadoEm) + '.' : 'Conteúdo original, ainda sem publicações feitas por aqui.') + '</p></div>' +
+      '<div class="status-card"><h3>Suas edições</h3>' + (loc ? '<p><strong>Alterações ainda não publicadas</strong></p><p class="muted">Guardadas neste navegador em ' + fmtStamp(salvo) + '. Ninguém mais vê até você publicar.</p>' : '<p><strong>Nenhuma alteração pendente</strong></p><p class="muted">O conteúdo em edição é igual ao publicado.</p>') + '</div>' +
+      '</div>';
     return '<div class="status-grid" id="statusGrid">' +
       '<div class="status-card"><h3>Publicado no site</h3><p><strong>' + plural(pubN, "orientação publicada", "orientações publicadas") + '</strong></p><p class="muted">Arquivo dados.js gerado em ' + (fmtDate(PUB.gerado) || "data não informada") + '.' + (omit ? ' O repositório tem ' + plural(omit, "rascunho que não vai", "rascunhos que não vão") + ' para o site.' : '') + '</p></div>' +
       '<div class="status-card"><h3>Neste navegador</h3>' + (loc ? '<p><strong>Edições ainda não publicadas</strong></p><p class="muted">Salvas aqui em ' + fmtStamp(salvo) + '. Só você vê, neste navegador.</p>' : '<p><strong>Nenhuma edição local</strong></p><p class="muted">O conteúdo em edição é igual ao publicado.</p>') + '</div>' +
@@ -1080,17 +1092,23 @@ mark{background:#FFE7B8;color:inherit;border-radius:3px;padding:0 1px}
       '</div>';
   }
   function atualizarStatus(){ var g = $("statusGrid"); if(g) g.outerHTML = statusHTML(); var e = $("errBox"); if(e) e.innerHTML = errosHTML(validar(W)); }
-  function errosHTML(erros){ return erros.length ? '<div class="errors"><strong>Corrija antes de exportar:</strong><ul>' + erros.map(function(x){ return '<li>' + esc(x) + '</li>'; }).join("") + '</ul></div>' : ''; }
+  function errosHTML(erros){ return erros.length ? '<div class="errors"><strong>Corrija antes de ' + (BR ? 'publicar' : 'exportar') + ':</strong><ul>' + erros.map(function(x){ return '<li>' + esc(x) + '</li>'; }).join("") + '</ul></div>' : ''; }
 
   function pAdmin(){
+    if(BR && !REMOTO.pronto) return '<div class="page"><h1 tabindex="-1">Administração do conteúdo</h1><p class="lede">Carregando…</p></div>';
+    if(BR && !REMOTO.podeEditar) return '<div class="page">' + crumbs([["Início", "#/"], ["Administração"]]) + '<h1 tabindex="-1">Acesso restrito</h1><p class="lede">Somente administradores da Universidade Nexti podem editar este conteúdo.</p><p><a class="btn btn-primary" href="#/">Voltar ao início</a></p></div>';
     var erros = validar(W);
     var h = '<div class="page admin" style="max-width:1100px">' + crumbs([["Início", "#/"], ["Administração"]]) +
-      '<h1 tabindex="-1">Administração do conteúdo</h1><p class="lede">As alterações feitas aqui ficam salvas só neste navegador. Para publicar, exporte o arquivo dados.js e substitua o data/dados.js no GitLab.</p>' +
+      '<h1 tabindex="-1">Administração do conteúdo</h1>' + (BR
+        ? '<p class="lede">Suas alterações ficam guardadas neste navegador enquanto você edita. Quando terminar, clique em “Publicar alterações”: todos os usuários da Universidade passam a ver o novo conteúdo. Rascunhos continuam visíveis só para administradores.</p>'
+        : '<p class="lede">As alterações feitas aqui ficam salvas só neste navegador. Para publicar, exporte o arquivo dados.js e substitua o data/dados.js no GitLab.</p>') +
       statusHTML() +
-      '<div class="toolbar"><button class="btn btn-primary" type="button" data-act="export">Exportar dados.js</button>' +
+      '<div class="toolbar">' + (BR
+        ? '<button class="btn btn-primary" type="button" data-act="publish"' + (S.publicando ? ' disabled' : '') + '>' + (S.publicando ? 'Publicando…' : 'Publicar alterações') + '</button><button class="btn" type="button" data-act="export">Baixar cópia (dados.js)</button>'
+        : '<button class="btn btn-primary" type="button" data-act="export">Exportar dados.js</button>') +
       '<label class="btn" for="impFile">Importar dados.js</label><input id="impFile" type="file" accept=".js,.json" hidden>' +
       '<button class="btn" type="button" data-act="previewSite">Pré-visualizar no site</button>' +
-      '<button class="btn btn-danger" type="button" data-act="discard">Descartar edições locais</button></div>' +
+      '<button class="btn btn-danger" type="button" data-act="discard">' + (BR ? 'Descartar alterações não publicadas' : 'Descartar edições locais') + '</button></div>' +
       '<div id="errBox" aria-live="polite">' + errosHTML(erros) + '</div>' +
       '<div class="tabs" role="tablist">' + [["orientacoes","Orientações"],["modulos","Módulos e assuntos"],["metricas","Métricas"]].map(function(t){
         return '<button type="button" role="tab" data-act="tab" data-tab="' + t[0] + '" aria-selected="' + (S.adminTab === t[0]) + '">' + t[1] + '</button>';
@@ -1123,13 +1141,13 @@ mark{background:#FFE7B8;color:inherit;border-radius:3px;padding:0 1px}
       '<div class="field"><span class="flabel">Antes de começar</span>' + arrEd(b + ".preparacao", "texto", "Adicionar item") + '</div>' +
       '<div class="field"><span class="flabel">Pontos de atenção</span>' + arrEd(b + ".atencao", "texto", "Adicionar ponto") + '</div></section>';
     h += '<section class="panel"><h3>Resumo do procedimento</h3><p class="hint">Etapas curtas, numeradas, na ordem em que o usuário executa.</p>' + arrEd(b + ".resumoProcedimento", "resumo", "Adicionar etapa") + '</section>';
-    h += '<section class="panel"><h3>Passo a passo com as telas</h3><p class="hint">Galeria com uma imagem por vez e os botões Anterior e Próxima. Cada aba agrupa as imagens de um cadastro. Para usar uma imagem nova, envie o arquivo para a pasta src/assets/telas no GitLab e informe aqui o caminho assets/telas/nome-do-arquivo.jpg.</p>' +
+    h += '<section class="panel"><h3>Passo a passo com as telas</h3><p class="hint">Galeria com uma imagem por vez e os botões Anterior e Próxima. Cada aba agrupa as imagens de um cadastro. ' + (BR ? 'Use as imagens já existentes (caminho assets/telas/nome-do-arquivo.jpg) ou um link https de uma imagem.' : 'Para usar uma imagem nova, envie o arquivo para a pasta src/assets/telas no GitLab e informe aqui o caminho assets/telas/nome-do-arquivo.jpg.') + '</p>' +
       fIn(b + ".fonteTelas", "Origem das telas (opcional)", {hint:"Aparece abaixo da galeria, por exemplo: Guia Rápido Nexti “Cadastro Escala e Horário”."}) + arrEd(b + ".telas", "telas", "Adicionar aba") + '</section>';
     h += '<section class="panel"><h3>Passo a passo detalhado (opcional)</h3><p class="hint">Use quando a orientação precisar de explicações mais longas por etapa. Se ficar vazio, não aparece no site.</p>' + arrEd(b + ".passos", "passos", "Adicionar passo") + '</section>';
     h += '<section class="panel"><h3>Detalhes dos campos</h3>' + arrEd(b + ".campos", "campos", "Adicionar campo") + '</section>';
     h += '<section class="panel"><h3>Confira antes de finalizar</h3>' + arrEd(b + ".checklist", "texto", "Adicionar item") + '</section>';
     h += '<section class="panel"><h3>Perguntas frequentes</h3>' + arrEd(b + ".faq", "faq", "Adicionar pergunta") + '</section>';
-    h += '<section class="panel"><h3>Materiais de apoio</h3><p class="hint">Arquivos ficam na pasta src/materiais do GitLab. Use o caminho materiais/nome-do-arquivo.pdf.</p>' + arrEd(b + ".materiais", "materiais", "Adicionar material") + '</section>';
+    h += '<section class="panel"><h3>Materiais de apoio</h3><p class="hint">' + (BR ? 'Use os arquivos já existentes (caminho materiais/nome-do-arquivo.pdf) ou um link https.' : 'Arquivos ficam na pasta src/materiais do GitLab. Use o caminho materiais/nome-do-arquivo.pdf.') + '</p>' + arrEd(b + ".materiais", "materiais", "Adicionar material") + '</section>';
     var outras = W.orientacoes.filter(function(x){ return x.id !== o.id; });
     h += '<section class="panel"><h3>Orientações relacionadas</h3>' + (outras.length ? '<div class="checks-inline">' + outras.map(function(x){
       return '<label><input type="checkbox" id="c-' + b.replace(/\./g, "-") + '-rel-' + esc(x.id) + '" data-set="' + b + '.relacionadas" value="' + esc(x.id) + '"' + (o.relacionadas.indexOf(x.id) > -1 ? " checked" : "") + '>' + esc(x.titulo || x.id) + '</label>'; }).join("") + '</div>' : '<p class="hint">Ainda não há outras orientações.</p>') + '</section>';
@@ -1177,6 +1195,25 @@ mark{background:#FFE7B8;color:inherit;border-radius:3px;padding:0 1px}
     toast("dados.js exportado. Substitua o data/dados.js no GitLab para publicar.");
   }
 
+  function publicar(){
+    if(!BR || S.publicando) return;
+    var erros = validar(W);
+    if(erros.length){ toast("Corrija os itens destacados antes de publicar."); renderAdminKeep(); return; }
+    if(!confirm("Publicar as alterações? Todos os usuários da Universidade passam a ver o novo conteúdo.")) return;
+    var saida = clone(W); delete saida.rascunhosOmitidos; saida.versao = 2; saida.gerado = today();
+    S.publicando = true; renderAdminKeep();
+    BR.save(saida, REMOTO.atualizadoEm).then(function(res){
+      REMOTO.atualizadoEm = res.updatedAt;
+      PUB = normalizeData(saida); W = clone(PUB);
+      try{ localStorage.removeItem(KEY); }catch(x){}
+      LOCAL = null; S.preview = false;
+      toast("Alterações publicadas para todos.");
+    }).catch(function(err){
+      if(err && err.message === "conflict") toast("Outra pessoa publicou mudanças enquanto você editava. Recarregue a página para ver a versão nova; suas edições continuam guardadas neste navegador.");
+      else toast("Não foi possível publicar. Verifique a conexão e tente de novo.");
+    }).then(function(){ S.publicando = false; if(S.route && S.route.nome === "admin") renderAdminKeep(); });
+  }
+
   function adminAction(e){
     var a = e.target.closest("[data-act]"); if(!a) return;
     var act = a.getAttribute("data-act"), path = a.getAttribute("data-path"), i = +a.getAttribute("data-i");
@@ -1203,8 +1240,9 @@ mark{background:#FFE7B8;color:inherit;border-radius:3px;padding:0 1px}
       case "addMod": W.modulos.push({id:"", nome:"", descricao:"", submodulos:[]}); salvarLocal(); break;
       case "delMod": if(!confirm("Remover este módulo e todos os assuntos dele?")) return; W.modulos.splice(i, 1); salvarLocal(); break;
       case "export": exportar(); return;
+      case "publish": publicar(); return;
       case "discard":
-        if(!confirm("Descartar as edições deste navegador e voltar ao conteúdo publicado?")) return;
+        if(!confirm(BR ? "Descartar as alterações ainda não publicadas e voltar ao conteúdo publicado?" : "Descartar as edições deste navegador e voltar ao conteúdo publicado?")) return;
         try{ localStorage.removeItem(KEY); }catch(x){}
         LOCAL = null; W = clone(PUB); S.preview = false; toast("Edições locais descartadas"); break;
       default: return;
@@ -1259,6 +1297,19 @@ mark{background:#FFE7B8;color:inherit;border-radius:3px;padding:0 1px}
   Met.iniciar();
   window.addEventListener("hashchange", render);
   render();
+  if(BR){
+    BR.load().then(function(r){
+      REMOTO.podeEditar = !!r.canEdit; REMOTO.atualizadoEm = r.updatedAt || null;
+      if(r.dados){
+        PUB = normalizeData(r.dados);
+        if(!(LOCAL && LOCAL.dados)) W = clone(PUB);
+      }
+      if(!REMOTO.podeEditar){ LOCAL = null; W = clone(PUB); S.preview = false; }
+    }).catch(function(){ REMOTO.erro = true; REMOTO.podeEditar = false; }).then(function(){
+      REMOTO.pronto = true;
+      render();
+    });
+  }
 })();
 </script>
 </body>

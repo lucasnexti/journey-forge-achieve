@@ -99,6 +99,13 @@
       "when": 1793827123116,
       "tag": "0013_learning_path_access_diagnostics",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1794587854240,
+      "tag": "0014_knowledge_base_content",
+      "breakpoints": true
     }
   ]
 }

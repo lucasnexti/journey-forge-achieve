@@ -803,6 +803,27 @@ export type Database = {
           },
         ]
       }
+      knowledge_base_content: {
+        Row: {
+          dados: Json
+          id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          dados: Json
+          id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          dados?: Json
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       learning_companies: {
         Row: {
           created_at: string
@@ -2156,6 +2177,7 @@ export type Database = {
           type: string
         }[]
       }
+      get_knowledge_base: { Args: { _id: string }; Returns: Json }
       get_level_from_xp: { Args: { _xp: number }; Returns: number }
       get_quiz_questions: {
         Args: { _quiz_id: string }
@@ -2199,6 +2221,10 @@ export type Database = {
       learning_path_snapshot: { Args: { _path: string }; Returns: Json }
       learning_quiz_access: { Args: { _quiz: string }; Returns: boolean }
       redeem_reward: { Args: { _reward_id: string }; Returns: Json }
+      save_knowledge_base: {
+        Args: { _dados: Json; _expected: string; _id: string }
+        Returns: string
+      }
       save_learning_path: {
         Args: { _data: Json; _id: string }
         Returns: string
