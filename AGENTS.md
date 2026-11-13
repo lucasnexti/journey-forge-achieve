@@ -8,3 +8,5 @@
 - Learning paths aggregate existing tracks through ordered associations; canonical companies and admin-validated memberships authorize company grants. Why: preserve course history and prevent self-declared affiliation from granting access.
 - Save learning-path content through the transactional save_learning_path RPC; restricted courses stay restricted after removal, and server predicates enforce grants and sequence across content/RPC/storage paths. Why: revocation and direct links must not bypass access checks.
 - Learning-path grants use the admin-only set_learning_path_access RPC with serialized, idempotent writes; diagnostics evaluate access server-side without minting learner sessions. Why: stale clients must not break re-grants or expose access checks to learners.
+
+- The "Nexti na Prática" knowledge base is the original static site copied into public/nexti-na-pratica/ and shown in an iframe at /nexti-na-pratica/*, which mirrors the hash route (#/x ↔ /nexti-na-pratica/x). Why: keeps its exact layout and styles isolated from the app; edit content in public/nexti-na-pratica/dados.js.

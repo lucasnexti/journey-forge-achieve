@@ -25,6 +25,7 @@ const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const LeaderboardPage = lazy(() => import("./pages/LeaderboardPage"));
 const QuizHistoryPage = lazy(() => import("./pages/QuizHistoryPage"));
 const KnowledgeBasePage = lazy(() => import("./pages/KnowledgeBasePage"));
+const NextiNaPraticaPage = lazy(() => import("./pages/NextiNaPraticaPage"));
 const QuizNextiPage = lazy(() => import("./pages/QuizNextiPage"));
 const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
 import VerifyCertificatePage from "./pages/VerifyCertificatePage";
@@ -98,6 +99,7 @@ const App = () => (
               <Route path="/ranking" element={<ProtectedRoute><LeaderboardPage /></ProtectedRoute>} />
               <Route path="/historico-avaliacoes" element={<ProtectedRoute><QuizHistoryPage /></ProtectedRoute>} />
               <Route path="/base-conhecimento" element={<ProtectedRoute><KnowledgeBasePage /></ProtectedRoute>} />
+              <Route path="/nexti-na-pratica/*" element={<ProtectedRoute><NextiNaPraticaPage /></ProtectedRoute>} />
               <Route path="/quiz-nexti" element={<ProtectedRoute><QuizNextiPage /></ProtectedRoute>} />
               <Route path="/loja" element={<ProtectedRoute><RewardsStorePage /></ProtectedRoute>} />
               <Route path="/insignias" element={<ProtectedRoute><BadgesPage /></ProtectedRoute>} />

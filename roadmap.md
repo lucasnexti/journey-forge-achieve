@@ -25,4 +25,5 @@
 - [x] Revogação pelo admin com motivo e auditoria
 - [ ] Teste completo com aluno real (concluir curso, baixar PDF, escanear no celular, revogar)
 
-- [ ] Aba "Nexti na Prática": reproduzir fielmente a base do GitLab (nexti-na-pratica-44100a.gitlab.io), módulos/submódulos, busca, links diretos; aguardando arquivos-fonte citados
+- [x] Aba "Nexti na Prática": base do GitLab reproduzida + 8 guias da Mesa de operações
+- [ ] Nexti na Prática: guias da Mesa em formato de páginas; reescrita em passos fica para depois, se desejado
