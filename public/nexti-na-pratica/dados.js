@@ -1,7 +1,7 @@
 /* Conteúdo publicado do Nexti na Prática. Gerado pelo build a partir de data/dados.js; rascunhos ficam de fora. */
 window.DADOS = {
   "versao": 2,
-  "gerado": "2026-11-13",
+  "gerado": "2026-11-16",
   "modulos": [
     {
       "id": "cadastros",
@@ -61,7 +61,7 @@ window.DADOS = {
         {
           "id": "dispositivos",
           "nome": "Dispositivos",
-          "descricao": ""
+          "descricao": "Cadastro de celulares e tablets usados no modo Quiosque Facial para registrar o ponto."
         },
         {
           "id": "empresa",
@@ -207,8 +207,19 @@ window.DADOS = {
     {
       "id": "rh-digital",
       "nome": "RH Digital",
-      "descricao": "",
-      "submodulos": []
+      "descricao": "Comunicação digital com os colaboradores: avisos, convocações e checklists exibidos no terminal e no aplicativo Nexti.",
+      "submodulos": [
+        {
+          "id": "avisos-e-convocacoes",
+          "nome": "Avisos e Convocações",
+          "descricao": "Envio de avisos e convocações para o terminal e o aplicativo, com período de exibição e lista de quem recebe."
+        },
+        {
+          "id": "checklist",
+          "nome": "Checklist",
+          "descricao": "Perguntas enviadas a colaboradores ou postos, com aviso de Não Conforme por e-mail."
+        }
+      ]
     },
     {
       "id": "movimentacoes-em-lote",
@@ -231,14 +242,76 @@ window.DADOS = {
     {
       "id": "nexti-control",
       "nome": "Nexti Control",
-      "descricao": "",
-      "submodulos": []
+      "descricao": "Roteiros de visita com checklists, fotos, QR Code, painel operacional e tratamento de não conformidades.",
+      "submodulos": [
+        {
+          "id": "checklist-control",
+          "nome": "Checklist Control",
+          "descricao": "Perguntas aplicadas nas visitas."
+        },
+        {
+          "id": "roteiro",
+          "nome": "Roteiro",
+          "descricao": "Roteiros, opções de foto e localização e agendamento das visitas."
+        },
+        {
+          "id": "qr-code",
+          "nome": "QR Code",
+          "descricao": "QR Code ligado ao posto e ao checklist."
+        },
+        {
+          "id": "painel-operacional",
+          "nome": "Painel Operacional",
+          "descricao": "Acompanhamento das tarefas e criação de novas visitas."
+        },
+        {
+          "id": "nao-conformidade",
+          "nome": "Não conformidade",
+          "descricao": "Tratamento dos checklists que geraram não conformidade."
+        }
+      ]
     },
     {
       "id": "nexti-control-2-0",
       "nome": "Nexti Control 2.0",
-      "descricao": "",
-      "submodulos": []
+      "descricao": "Visitas de supervisão e rondas operacionais com locais, pontos de atividade, cronogramas, QR Code e geolocalização.",
+      "submodulos": [
+        {
+          "id": "local",
+          "nome": "Local",
+          "descricao": "Agrupa os postos do mesmo endereço físico."
+        },
+        {
+          "id": "ponto-de-atividade",
+          "nome": "Ponto de atividade",
+          "descricao": "Pontos de passagem da ronda, como um bastão de ronda."
+        },
+        {
+          "id": "atividade",
+          "nome": "Atividade",
+          "descricao": "Programação da ronda e das regras de execução."
+        },
+        {
+          "id": "checklist",
+          "nome": "Checklist",
+          "descricao": "Perguntas da visita ou da ronda."
+        },
+        {
+          "id": "cronograma",
+          "nome": "Cronograma",
+          "descricao": "Programação das visitas e rondas no período e na frequência definidos."
+        },
+        {
+          "id": "qr-code",
+          "nome": "QR Code",
+          "descricao": "QR Code gerado para cada local."
+        },
+        {
+          "id": "aplicativo",
+          "nome": "Aplicativo",
+          "descricao": "Execução das visitas e rondas pelo aplicativo Nexti."
+        }
+      ]
     },
     {
       "id": "livro-de-ocorrencia",
@@ -249,14 +322,31 @@ window.DADOS = {
     {
       "id": "nexti-direct",
       "nome": "Nexti Direct",
-      "descricao": "",
-      "submodulos": []
+      "descricao": "Canal de atendimento entre a empresa e os colaboradores pelo aplicativo Nexti, organizado por grupos e assuntos.",
+      "submodulos": [
+        {
+          "id": "direct",
+          "nome": "Direct",
+          "descricao": "Configuração de grupos, assuntos e atendentes e atendimento das conversas."
+        }
+      ]
     },
     {
       "id": "nexti-docs",
       "nome": "Nexti Docs",
-      "descricao": "",
-      "submodulos": []
+      "descricao": "Gestão do vencimento de documentos de colaboradores e postos, com avisos antes, no dia e depois do vencimento.",
+      "submodulos": [
+        {
+          "id": "modelo-de-documento",
+          "nome": "Modelo de documento",
+          "descricao": "Modelos com vínculo, tipo, e-mails e regras de aviso de vencimento."
+        },
+        {
+          "id": "documento",
+          "nome": "Documento",
+          "descricao": "Vínculo do documento ao colaborador ou posto, com emissão, vencimento e anexo."
+        }
+      ]
     },
     {
       "id": "nexti-time",
@@ -3491,6 +3581,1982 @@ window.DADOS = {
         }
       ],
       "relacionadas": []
+    },
+    {
+      "id": "ori-0016",
+      "slug": "como-configurar-o-quiosque-facial",
+      "titulo": "Como configurar o Quiosque Facial e cadastrar a face dos colaboradores?",
+      "modulo": "cadastros",
+      "submodulos": [
+        "dispositivos"
+      ],
+      "status": "publicado",
+      "revisao": "2026-11-16",
+      "resumo": "Ative o modo quiosque, cadastre o celular ou tablet, vincule-o ao posto e cadastre a face dos colaboradores para registrar o ponto pelo aplicativo Nexti Smart.",
+      "palavrasChave": [
+        "quiosque",
+        "quiosque facial",
+        "reconhecimento facial",
+        "facial",
+        "face",
+        "dispositivo",
+        "celular",
+        "tablet",
+        "Nexti Smart",
+        "código de ativação",
+        "registro de ponto",
+        "sincronizar"
+      ],
+      "finalidade": "O Modo Quiosque Facial é uma forma de registrar o ponto pelo celular ou tablet, com o aplicativo Nexti Smart, sem precisar do terminal TBI. Ele facilita o registro, tem configuração simplificada e captura a geolocalização e a imagem no momento do registro.",
+      "preparacao": [
+        "O módulo precisa estar liberado para a sua empresa pela Nexti.",
+        "Tenha o celular ou tablet com o aplicativo Nexti Smart instalado.",
+        "Saiba o nome da empresa usado no aplicativo e o posto em que o dispositivo vai ficar.",
+        "Para cadastrar a face dos colaboradores, use um usuário com perfil de supervisor, administrador ou responsável.",
+        "Você precisa de acesso à configuração global do sistema e ao menu Cadastros > Dispositivos."
+      ],
+      "resumoProcedimento": [
+        {
+          "titulo": "Ative o modo quiosque",
+          "texto": "No menu do seu usuário, abra Configuração (configuração global do sistema) e ligue a opção Habilitar modo quiosque."
+        },
+        {
+          "titulo": "Cadastre o dispositivo",
+          "texto": "Em Cadastros > Dispositivos, clique em Novo, informe o nome do dispositivo, escolha o tipo de registro Reconhecimento facial e clique em Criar dispositivo."
+        },
+        {
+          "titulo": "Ative o aparelho",
+          "texto": "No Nexti Smart, informe o nome da empresa, confirme, digite o código de ativação gerado no cadastro e confirme de novo."
+        },
+        {
+          "titulo": "Vincule o dispositivo ao posto",
+          "texto": "Em Cadastros > Dispositivos, clique no nome do dispositivo, localize o posto e salve. Outra forma: na Mesa de operação, clique no posto, em Dispositivos, localize o dispositivo e salve."
+        },
+        {
+          "titulo": "Cadastre a face",
+          "texto": "No aplicativo Nexti, abra Cadastro facial, escolha o colaborador, posicione o rosto dele no círculo e toque em Cadastrar."
+        },
+        {
+          "titulo": "Sincronize e registre o ponto",
+          "texto": "No dispositivo, toque em Sincronizar dados. Depois, o colaborador toca em Registrar e posiciona o rosto no círculo até ver Ponto registrado com sucesso."
+        }
+      ],
+      "atencao": [
+        "O código de ativação é exclusivo de cada dispositivo. Não compartilhe nem publique esse código.",
+        "Depois da ativação, Cadastros > Dispositivos mostra o status Ativo e a data de ativação. Dispositivos que não são mais usados aparecem como Cancelado.",
+        "Os colaboradores só ficam liberados para registrar o ponto depois que o dispositivo é vinculado ao posto deles e os dados são sincronizados no aparelho."
+      ],
+      "passos": [],
+      "telas": [
+        {
+          "aba": "Ativação e dispositivo",
+          "imagens": [
+            {
+              "src": "assets/telas/quiosque-facial-01.jpg",
+              "legenda": "Abra Configuração no menu do usuário e ligue Habilitar modo quiosque.",
+              "alt": "Configurações do sistema com a opção Habilitar modo quiosque destacada."
+            },
+            {
+              "src": "assets/telas/quiosque-facial-02.jpg",
+              "legenda": "Em Cadastros > Dispositivos, clique em Novo.",
+              "alt": "Lista de dispositivos com o menu Dispositivos e o botão Novo destacados."
+            },
+            {
+              "src": "assets/telas/quiosque-facial-03.jpg",
+              "legenda": "Informe o nome, escolha Reconhecimento facial e clique em Criar dispositivo.",
+              "alt": "Tela Novo dispositivo com os campos Nome do dispositivo e Tipo de registro."
+            },
+            {
+              "src": "assets/telas/quiosque-facial-04.jpg",
+              "legenda": "A lista mostra o código de ativação, quem criou, as datas e o status.",
+              "alt": "Lista de dispositivos com o código de ativação ocultado e o status destacado."
+            },
+            {
+              "src": "assets/telas/quiosque-facial-05.jpg",
+              "legenda": "No Nexti Smart, informe a empresa e o código de ativação e confirme.",
+              "alt": "Telas do aplicativo Nexti Smart para informar a empresa e o código de ativação."
+            }
+          ]
+        },
+        {
+          "aba": "Vínculo com o posto",
+          "imagens": [
+            {
+              "src": "assets/telas/quiosque-facial-06.jpg",
+              "legenda": "Depois da ativação, o status fica Ativo. Clique no nome do dispositivo para vincular o posto.",
+              "alt": "Lista de dispositivos com o status Ativo e a data de ativação destacados."
+            },
+            {
+              "src": "assets/telas/quiosque-facial-07.jpg",
+              "legenda": "Localize o posto em Postos vinculados e salve.",
+              "alt": "Detalhes do dispositivo com o campo Posto destacado."
+            },
+            {
+              "src": "assets/telas/quiosque-facial-08.jpg",
+              "legenda": "Outra forma: na Mesa de operação, clique no posto, em Dispositivos, localize o dispositivo e salve.",
+              "alt": "Mesa de operação com o posto selecionado e a janela Adicionar dispositivo."
+            }
+          ]
+        },
+        {
+          "aba": "Face e registro do ponto",
+          "imagens": [
+            {
+              "src": "assets/telas/quiosque-facial-09.jpg",
+              "legenda": "No aplicativo Nexti, abra Cadastro facial e escolha o colaborador.",
+              "alt": "Telas do aplicativo com a opção Cadastro facial e a lista de colaboradores."
+            },
+            {
+              "src": "assets/telas/quiosque-facial-10.jpg",
+              "legenda": "Posicione o rosto no círculo e toque em Cadastrar.",
+              "alt": "Tela de captura da face e confirmação do cadastro facial."
+            },
+            {
+              "src": "assets/telas/quiosque-facial-11.jpg",
+              "legenda": "No dispositivo, toque em Sincronizar dados para liberar os colaboradores do posto.",
+              "alt": "Tela do Nexti Smart com o botão de sincronização e a mensagem Sincronização realizada."
+            },
+            {
+              "src": "assets/telas/quiosque-facial-12.jpg",
+              "legenda": "Para registrar o ponto, toque em Registrar e posicione o rosto no círculo.",
+              "alt": "Telas de registro do ponto com reconhecimento facial e a mensagem de sucesso."
+            }
+          ]
+        }
+      ],
+      "fonteTelas": "Guia Rápido Nexti “Quiosque Facial”, da base de conhecimento Nexti no Octadesk, com nomes e códigos ocultados",
+      "campos": [
+        {
+          "grupo": "Novo dispositivo",
+          "termo": "Nome do dispositivo",
+          "descricao": "Identificação do celular ou tablet, por exemplo o nome do posto ou do local onde ele vai ficar."
+        },
+        {
+          "grupo": "Novo dispositivo",
+          "termo": "Tipo de registro",
+          "descricao": "Forma de registro do ponto no dispositivo. Para o Quiosque Facial, escolha Reconhecimento facial."
+        },
+        {
+          "grupo": "Lista de dispositivos",
+          "termo": "Código de ativação",
+          "descricao": "Código usado para liberar o dispositivo no aplicativo Nexti Smart."
+        },
+        {
+          "grupo": "Lista de dispositivos",
+          "termo": "Criado por, Data de registro e Data de ativação",
+          "descricao": "Mostram quem criou o dispositivo, quando ele foi cadastrado e quando foi ativado no aparelho."
+        },
+        {
+          "grupo": "Lista de dispositivos",
+          "termo": "Situação/status",
+          "descricao": "Ativo depois da ativação no aparelho; Cancelado quando o dispositivo deixa de ser usado."
+        },
+        {
+          "grupo": "Detalhes do dispositivo",
+          "termo": "Postos vinculados",
+          "descricao": "Postos cujos colaboradores podem registrar o ponto nesse dispositivo."
+        }
+      ],
+      "checklist": [
+        "A opção Habilitar modo quiosque está ligada na configuração global.",
+        "O dispositivo foi criado com o tipo de registro Reconhecimento facial.",
+        "O aparelho foi ativado com o código e aparece como Ativo em Cadastros > Dispositivos.",
+        "O dispositivo está vinculado ao posto dos colaboradores.",
+        "A face de cada colaborador foi cadastrada no aplicativo.",
+        "Os dados foram sincronizados e um registro de teste mostrou Ponto registrado com sucesso."
+      ],
+      "faq": [
+        {
+          "pergunta": "Preciso do terminal TBI para usar o Quiosque Facial?",
+          "resposta": "Não. O registro do ponto é feito pelo celular ou tablet, com o aplicativo Nexti Smart."
+        },
+        {
+          "pergunta": "Quem pode cadastrar a face dos colaboradores?",
+          "resposta": "Usuários com perfil de supervisor, administrador ou responsável, pelo aplicativo Nexti."
+        }
+      ],
+      "materiais": [
+        {
+          "titulo": "Guia Rápido: Quiosque Facial (dados ocultados)",
+          "url": "materiais/guia-rapido-quiosque-facial.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "relacionadas": [
+        "ori-0003"
+      ],
+      "origem": {
+        "fonte": "Base de conhecimento Nexti (Octadesk)",
+        "artigos": [
+          {
+            "titulo": "Reconhecimento Facial",
+            "url": "https://nexti.octadesk.com/kb/article/https-drive-google-com-file-d-1ukrn64u1p-qz4-pts1h-9qiluzt0mcsc-view",
+            "arquivo": "GUIA - Quiosque Facial (17 páginas)",
+            "dataArquivo": "2023-06-06"
+          },
+          {
+            "titulo": "Cadastro de Facial",
+            "url": "https://nexti.octadesk.com/kb/article/cadastro-de-facial",
+            "arquivo": "GUIA - Reconhecimento Facial (4 páginas, mesmas telas do cadastro da face)",
+            "dataArquivo": "2025-04-10"
+          }
+        ],
+        "atualizacaoFonte": "Não informada no artigo; datas acima são as dos arquivos PDF.",
+        "importadoEm": "2026-11-16"
+      }
+    },
+    {
+      "id": "ori-0017",
+      "slug": "como-enviar-um-aviso-ou-uma-convocacao",
+      "titulo": "Como enviar um aviso ou uma convocação?",
+      "modulo": "rh-digital",
+      "submodulos": [
+        "avisos-e-convocacoes"
+      ],
+      "status": "publicado",
+      "revisao": "2026-11-16",
+      "resumo": "Crie avisos e convocações no RH Digital, escolha onde serão exibidos e quem vai recebê-los, confira a pré-visualização e envie.",
+      "palavrasChave": [
+        "aviso",
+        "convocação",
+        "comunicado",
+        "férias",
+        "RH Digital",
+        "terminal",
+        "TBI",
+        "aplicativo",
+        "documento",
+        "assinatura",
+        "pré-visualização"
+      ],
+      "finalidade": "Avisos servem para comunicar datas comemorativas, metas e outros recados. Convocações servem para enviar convocação de férias ou documentos que pedem a assinatura do colaborador. As mensagens podem aparecer no terminal (TBI), no aplicativo Nexti ou nos dois.",
+      "preparacao": [
+        "Defina o texto, o período em que a mensagem ficará disponível e se ela é um aviso ou uma convocação.",
+        "Saiba onde o colaborador deve ver a mensagem: no terminal, no aplicativo ou nos dois.",
+        "Se for enviar um documento, tenha o arquivo pronto. No terminal não é possível baixar o documento; isso só é possível no aplicativo.",
+        "Você precisa de acesso ao menu RH Digital > Avisos e Convocações."
+      ],
+      "resumoProcedimento": [
+        {
+          "titulo": "Crie o aviso",
+          "texto": "Em RH Digital > Avisos e Convocações, clique em Novo aviso/convocação."
+        },
+        {
+          "titulo": "Identifique e defina o período",
+          "texto": "Informe o nome do aviso ou da convocação e as datas de início e de fim."
+        },
+        {
+          "titulo": "Escolha onde aparece",
+          "texto": "Em Enviar para, escolha Terminal, Aplicativo ou Ambos. Para o terminal, escolha em Mostrar no se aparece na Entrada, na Saída ou em ambas."
+        },
+        {
+          "titulo": "Escolha o tipo",
+          "texto": "Marque Aviso ou Convocação. Marque Enviar para todos os colaboradores ativos só se a mensagem for para todos."
+        },
+        {
+          "titulo": "Escreva a mensagem",
+          "texto": "Escreva o texto. Com o Editor avançado, você inclui imagem, formatação e um arquivo em Envio de arquivo. Clique em Próximo."
+        },
+        {
+          "titulo": "Escolha quem recebe",
+          "texto": "Em Locais para envio, clique no ícone de filtro, use os filtros (por exemplo, Colaborador ou Posto) e clique em Filtrar."
+        },
+        {
+          "titulo": "Confira e envie",
+          "texto": "Confira a lista Colaboradores a Receber, remova ou adicione pessoas, clique em Enviar, revise a pré-visualização e confirme com Sim."
+        }
+      ],
+      "atencao": [
+        "Fora do período entre a data de início e a data de fim, a mensagem não é exibida, mesmo que o colaborador não a tenha visto ou confirmado com a digital.",
+        "Enviar para todos os colaboradores ativos manda a mensagem para todos os colaboradores ativos da plataforma.",
+        "Na pré-visualização, se precisar ajustar algo, clique em Não e volte à primeira etapa."
+      ],
+      "passos": [],
+      "telas": [
+        {
+          "aba": "Criar aviso ou convocação",
+          "imagens": [
+            {
+              "src": "assets/telas/avisos-e-convocacoes-01.jpg",
+              "legenda": "Em RH Digital > Avisos e Convocações, clique em Novo aviso/convocação.",
+              "alt": "Lista de avisos e convocações com o menu RH Digital e o botão Novo destacados."
+            },
+            {
+              "src": "assets/telas/avisos-e-convocacoes-02.jpg",
+              "legenda": "Informe o nome, as datas de início e fim, onde será enviado e, no terminal, se aparece na entrada ou na saída.",
+              "alt": "Tela Criar um aviso/convocação com nome, datas, Enviar para e Mostrar no destacados."
+            },
+            {
+              "src": "assets/telas/avisos-e-convocacoes-03.jpg",
+              "legenda": "Marque Aviso ou Convocação, escreva a mensagem e, se quiser, use o Editor avançado e o Envio de arquivo.",
+              "alt": "Opções Aviso e Convocação, opção para todos os ativos e Editor avançado destacados."
+            }
+          ]
+        },
+        {
+          "aba": "Escolher quem recebe e enviar",
+          "imagens": [
+            {
+              "src": "assets/telas/avisos-e-convocacoes-04.jpg",
+              "legenda": "Na etapa Locais para envio, clique no ícone de filtro.",
+              "alt": "Etapa Locais para envio com o ícone de filtro destacado."
+            },
+            {
+              "src": "assets/telas/avisos-e-convocacoes-05.jpg",
+              "legenda": "Use os filtros, por exemplo Colaborador, e clique em Filtrar.",
+              "alt": "Janela Filtrar com os filtros disponíveis destacados."
+            },
+            {
+              "src": "assets/telas/avisos-e-convocacoes-06.jpg",
+              "legenda": "Confira a lista Colaboradores a Receber e clique em Enviar.",
+              "alt": "Lista Colaboradores a Receber e botão Enviar destacados."
+            },
+            {
+              "src": "assets/telas/avisos-e-convocacoes-07.jpg",
+              "legenda": "Confira a pré-visualização. Se estiver certo, clique em Sim.",
+              "alt": "Pré-visualização do aviso no terminal e pergunta de confirmação do envio."
+            }
+          ]
+        }
+      ],
+      "fonteTelas": "Guia Avisos e Convocações, da base de conhecimento Nexti no Octadesk",
+      "campos": [
+        {
+          "grupo": "Criar um aviso/convocação",
+          "termo": "Nome do aviso/convocação",
+          "descricao": "Título que identifica a mensagem."
+        },
+        {
+          "grupo": "Criar um aviso/convocação",
+          "termo": "Início em e Finaliza em",
+          "descricao": "Período em que o aviso ou a convocação aparece para o colaborador."
+        },
+        {
+          "grupo": "Criar um aviso/convocação",
+          "termo": "Enviar para",
+          "descricao": "Onde a mensagem será exibida: Terminal (TBI), Aplicativo Nexti ou Ambos."
+        },
+        {
+          "grupo": "Criar um aviso/convocação",
+          "termo": "Mostrar no",
+          "descricao": "Para o terminal: define se a mensagem aparece no registro de Entrada, de Saída ou em Ambos."
+        },
+        {
+          "grupo": "Criar um aviso/convocação",
+          "termo": "Aviso",
+          "descricao": "Para datas comemorativas, metas e outros recados."
+        },
+        {
+          "grupo": "Criar um aviso/convocação",
+          "termo": "Convocação",
+          "descricao": "Para convocação de férias ou documentos que pedem a assinatura do colaborador."
+        },
+        {
+          "grupo": "Criar um aviso/convocação",
+          "termo": "Enviar para todos os colaboradores ativos",
+          "descricao": "Envia a mensagem para todos os colaboradores ativos da plataforma."
+        },
+        {
+          "grupo": "Criar um aviso/convocação",
+          "termo": "Editor avançado e Envio de arquivo",
+          "descricao": "Permitem incluir imagem, formatar o texto e anexar um documento. O documento não pode ser baixado no terminal, só no aplicativo."
+        },
+        {
+          "grupo": "Locais para envio",
+          "termo": "Filtros",
+          "descricao": "Unidade de negócios, Cliente, Tipo de serviço, Tipo de cliente, Posto, Empresa, Cargo, Grupo de escala, Escala, Turno de escala, Colaborador e Área."
+        },
+        {
+          "grupo": "Locais para envio",
+          "termo": "Colaboradores a Receber e Colaboradores Removidos",
+          "descricao": "Mostram quem vai receber a mensagem e quem foi retirado. É possível remover ou adicionar de novo."
+        }
+      ],
+      "checklist": [
+        "O nome e o período de exibição estão corretos.",
+        "O destino (terminal, aplicativo ou ambos) e, no terminal, a Entrada ou Saída estão certos.",
+        "O tipo (aviso ou convocação) foi marcado.",
+        "O arquivo anexado, se houver, pode ser aberto pelo aplicativo.",
+        "A lista Colaboradores a Receber tem só as pessoas certas.",
+        "A pré-visualização foi conferida antes de confirmar o envio."
+      ],
+      "faq": [
+        {
+          "pergunta": "O colaborador consegue baixar o documento no terminal?",
+          "resposta": "Não. O documento anexado só pode ser baixado pelo aplicativo Nexti."
+        }
+      ],
+      "materiais": [
+        {
+          "titulo": "Guia Rápido: Avisos e Convocações",
+          "url": "materiais/guia-rapido-avisos-e-convocacoes.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "relacionadas": [
+        "ori-0018",
+        "ori-0019"
+      ],
+      "origem": {
+        "fonte": "Base de conhecimento Nexti (Octadesk)",
+        "artigos": [
+          {
+            "titulo": "Guia Avisos e Convocações",
+            "url": "https://nexti.octadesk.com/kb/article/guia-avisos-e-convocacoes",
+            "arquivo": "Guia Avisos e Convocações (9 páginas)",
+            "dataArquivo": ""
+          },
+          {
+            "titulo": "Guia RH Digital Completo",
+            "url": "https://nexti.octadesk.com/kb/article/guia-rh-digital-completo",
+            "arquivo": "Guia RH Digital Completo (38 páginas; páginas 6 a 12 têm o mesmo conteúdo)",
+            "dataArquivo": ""
+          }
+        ],
+        "atualizacaoFonte": "Não informada no artigo nem no arquivo PDF.",
+        "importadoEm": "2026-11-16"
+      }
+    },
+    {
+      "id": "ori-0018",
+      "slug": "como-criar-e-enviar-um-checklist",
+      "titulo": "Como criar e enviar um checklist?",
+      "modulo": "rh-digital",
+      "submodulos": [
+        "checklist"
+      ],
+      "status": "publicado",
+      "revisao": "2026-11-16",
+      "resumo": "Crie um checklist com perguntas de vários tipos, defina quem pode ver as respostas e envie para colaboradores ou postos pelo terminal ou pelo aplicativo.",
+      "palavrasChave": [
+        "checklist",
+        "pesquisa",
+        "pergunta",
+        "resposta",
+        "não conforme",
+        "não conformidade",
+        "EPI",
+        "satisfação",
+        "escala numérica",
+        "sim ou não",
+        "RH Digital"
+      ],
+      "finalidade": "O checklist envia perguntas para colaboradores ou postos responderem no terminal ou no aplicativo. Ele serve, por exemplo, para confirmar o uso de EPIs, medir a satisfação ou verificar se o posto está sem alterações, com aviso por e-mail quando uma resposta não é a desejada.",
+      "preparacao": [
+        "Liste as perguntas e o tipo de resposta de cada uma.",
+        "Defina quais respostas são as desejadas e quem deve receber o e-mail quando a resposta for Não Conforme.",
+        "Defina se o checklist vai para colaboradores ou para postos, por onde (terminal, aplicativo ou ambos) e em qual período.",
+        "Você precisa de acesso ao menu Checklist."
+      ],
+      "resumoProcedimento": [
+        {
+          "titulo": "Crie o checklist",
+          "texto": "No menu, clique em Checklist e depois em Novo checklist."
+        },
+        {
+          "titulo": "Preencha os dados",
+          "texto": "Informe o nome, o tipo (Colaborador ou Posto), onde será enviado (Terminal, Aplicativo ou Ambos) e as datas de início e fim."
+        },
+        {
+          "titulo": "Crie as perguntas",
+          "texto": "Escolha o tipo de resposta, escreva a pergunta, informe os e-mails e as respostas possíveis."
+        },
+        {
+          "titulo": "Marque as respostas desejadas",
+          "texto": "Ligue Desejada nas respostas esperadas e Observação onde o colaborador deve poder escrever um comentário."
+        },
+        {
+          "titulo": "Defina quem vê as respostas",
+          "texto": "Em Configurações adicionais, escolha Aberto para todos os usuários, Privado ou Compartilhar com usuários específicos."
+        },
+        {
+          "titulo": "Escolha quem recebe",
+          "texto": "Em Locais para envio, clique no ícone de filtro, filtre (por exemplo, por Posto) e selecione."
+        },
+        {
+          "titulo": "Confira e envie",
+          "texto": "Confira a lista Colaboradores a Receber, remova ou retorne pessoas se precisar e clique em Enviar."
+        }
+      ],
+      "atencao": [
+        "Quando uma resposta sem a opção Desejada for escolhida e houver e-mail cadastrado na pergunta, o sistema envia um e-mail de Não Conforme.",
+        "Na escala numérica, o passo define os valores intermediários. Exemplo: de 5 a 10 com passo 1.",
+        "Os checklists ficam nas abas Checklist em aberto, Checklist finalizado e Checklist cancelado, onde você acompanha a situação de cada um."
+      ],
+      "passos": [],
+      "telas": [
+        {
+          "aba": "Dados do checklist",
+          "imagens": [
+            {
+              "src": "assets/telas/checklist-rh-digital-01.jpg",
+              "legenda": "Clique em Checklist e em Novo checklist. As abas mostram os checklists em aberto, finalizados e cancelados.",
+              "alt": "Lista de checklists com o menu Checklist, as abas e o botão Novo checklist destacados."
+            },
+            {
+              "src": "assets/telas/checklist-rh-digital-02.jpg",
+              "legenda": "Informe o nome, o tipo, onde será enviado, as datas e escolha o tipo de resposta.",
+              "alt": "Tela Criar um checklist com os campos principais e os tipos de resposta destacados."
+            },
+            {
+              "src": "assets/telas/checklist-rh-digital-03.jpg",
+              "legenda": "Tipos de resposta: única, múltiplas, texto, escala numérica e Sim/Não.",
+              "alt": "Lista dos tipos de resposta com a explicação de cada um."
+            }
+          ]
+        },
+        {
+          "aba": "Perguntas",
+          "imagens": [
+            {
+              "src": "assets/telas/checklist-rh-digital-04.jpg",
+              "legenda": "Resposta única: escreva a pergunta, os e-mails e marque Desejada e Observação.",
+              "alt": "Pergunta de resposta única com e-mails e as opções Observação e Desejada destacadas."
+            },
+            {
+              "src": "assets/telas/checklist-rh-digital-05.jpg",
+              "legenda": "Respostas múltiplas: exemplo com os EPIs em uso.",
+              "alt": "Pergunta de respostas múltiplas com Tonfa, Óculos e Luva amarela."
+            },
+            {
+              "src": "assets/telas/checklist-rh-digital-06.jpg",
+              "legenda": "Resposta de texto: o colaborador escreve a resposta.",
+              "alt": "Pergunta do tipo resposta de texto."
+            },
+            {
+              "src": "assets/telas/checklist-rh-digital-07.jpg",
+              "legenda": "Escala numérica: informe o valor inicial, o limite e o passo.",
+              "alt": "Campos Escala de, Escala até e Passo da escala destacados."
+            },
+            {
+              "src": "assets/telas/checklist-rh-digital-08.jpg",
+              "legenda": "Sim / Não: marque qual resposta é a desejada.",
+              "alt": "Pergunta Sim/Não com as opções Observação e Desejada."
+            }
+          ]
+        },
+        {
+          "aba": "Acesso e envio",
+          "imagens": [
+            {
+              "src": "assets/telas/checklist-rh-digital-09.jpg",
+              "legenda": "Defina quem pode ver as respostas: todos, só você ou usuários específicos.",
+              "alt": "Opções de permissão de acesso do checklist destacadas."
+            },
+            {
+              "src": "assets/telas/checklist-rh-digital-10.jpg",
+              "legenda": "Em Locais para envio, clique no ícone de filtro.",
+              "alt": "Etapa Locais para envio com o ícone de filtro destacado."
+            },
+            {
+              "src": "assets/telas/checklist-rh-digital-11.jpg",
+              "legenda": "Use um filtro, por exemplo Posto, e selecione.",
+              "alt": "Janela Filtrar com o filtro de posto preenchido."
+            },
+            {
+              "src": "assets/telas/checklist-rh-digital-12.jpg",
+              "legenda": "Confira os colaboradores a receber e clique em Enviar.",
+              "alt": "Lista Colaboradores a Receber e botão Enviar destacados."
+            }
+          ]
+        }
+      ],
+      "fonteTelas": "Guia Checklist, da base de conhecimento Nexti no Octadesk, com nomes ocultados",
+      "campos": [
+        {
+          "grupo": "Criar um checklist",
+          "termo": "Nome do checklist",
+          "descricao": "Identificação do checklist."
+        },
+        {
+          "grupo": "Criar um checklist",
+          "termo": "Tipo do checklist",
+          "descricao": "Colaborador ou Posto: define para quem o checklist será enviado."
+        },
+        {
+          "grupo": "Criar um checklist",
+          "termo": "Enviar para",
+          "descricao": "Terminal, Aplicativo ou Ambos."
+        },
+        {
+          "grupo": "Criar um checklist",
+          "termo": "Enviar para todos os colaboradores ou postos ativos",
+          "descricao": "Envia o checklist para todos os ativos."
+        },
+        {
+          "grupo": "Criar um checklist",
+          "termo": "Inicia em e Finaliza em",
+          "descricao": "Período em que o checklist fica disponível."
+        },
+        {
+          "grupo": "Tipos de resposta",
+          "termo": "Resposta única",
+          "descricao": "Apenas uma resposta, com opções que você define."
+        },
+        {
+          "grupo": "Tipos de resposta",
+          "termo": "Respostas múltiplas",
+          "descricao": "Permite marcar mais de uma resposta, por exemplo os EPIs em uso."
+        },
+        {
+          "grupo": "Tipos de resposta",
+          "termo": "Resposta de texto",
+          "descricao": "Abre uma caixa de texto para o colaborador escrever."
+        },
+        {
+          "grupo": "Tipos de resposta",
+          "termo": "Escala numérica",
+          "descricao": "Uma nota dentro de uma faixa, por exemplo para medir a satisfação. Defina Escala de, Escala até e Passo da escala."
+        },
+        {
+          "grupo": "Tipos de resposta",
+          "termo": "Sim / Não",
+          "descricao": "Apenas uma resposta: Sim ou Não."
+        },
+        {
+          "grupo": "Pergunta",
+          "termo": "E-mails",
+          "descricao": "Quem recebe o aviso de Não Conforme. Separe os e-mails por ponto e vírgula."
+        },
+        {
+          "grupo": "Pergunta",
+          "termo": "Associar SLA",
+          "descricao": "Associa um SLA à pergunta."
+        },
+        {
+          "grupo": "Pergunta",
+          "termo": "Desejada",
+          "descricao": "Marca a resposta esperada. Uma resposta sem essa opção gera o e-mail de Não Conforme."
+        },
+        {
+          "grupo": "Pergunta",
+          "termo": "Observação",
+          "descricao": "Quando essa resposta é escolhida, abre um campo de texto para comentário."
+        },
+        {
+          "grupo": "Configurações adicionais",
+          "termo": "Permissões de acesso",
+          "descricao": "Aberto para todos os usuários com acesso ao checklist, Privado (só quem criou) ou Compartilhar com usuários específicos."
+        }
+      ],
+      "checklist": [
+        "Nome, tipo, destino e período foram preenchidos.",
+        "Cada pergunta tem o tipo de resposta certo.",
+        "As respostas desejadas estão marcadas e os e-mails de Não Conforme foram informados.",
+        "A permissão de acesso às respostas está correta.",
+        "A lista Colaboradores a Receber foi conferida antes de enviar."
+      ],
+      "faq": [],
+      "materiais": [
+        {
+          "titulo": "Guia Rápido: Checklist (dados ocultados)",
+          "url": "materiais/guia-rapido-checklist.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "relacionadas": [
+        "ori-0017"
+      ],
+      "origem": {
+        "fonte": "Base de conhecimento Nexti (Octadesk)",
+        "artigos": [
+          {
+            "titulo": "Guia Checklist",
+            "url": "https://nexti.octadesk.com/kb/article/guia-checklist",
+            "arquivo": "Guia Checklist (14 páginas)",
+            "dataArquivo": ""
+          },
+          {
+            "titulo": "Guia RH Digital Completo",
+            "url": "https://nexti.octadesk.com/kb/article/guia-rh-digital-completo",
+            "arquivo": "Guia RH Digital Completo (38 páginas; páginas 13 a 24 têm o mesmo conteúdo)",
+            "dataArquivo": ""
+          }
+        ],
+        "atualizacaoFonte": "Não informada no artigo nem no arquivo PDF.",
+        "importadoEm": "2026-11-16"
+      }
+    },
+    {
+      "id": "ori-0019",
+      "slug": "como-configurar-e-atender-pelo-nexti-direct",
+      "titulo": "Como configurar e atender pelo Nexti Direct?",
+      "modulo": "nexti-direct",
+      "submodulos": [
+        "direct"
+      ],
+      "status": "publicado",
+      "revisao": "2026-11-16",
+      "resumo": "Configure grupos, assuntos e atendentes do Direct e atenda as solicitações que os colaboradores abrem pelo aplicativo Nexti.",
+      "palavrasChave": [
+        "Direct",
+        "atendimento",
+        "chat",
+        "conversa",
+        "grupo",
+        "assunto",
+        "atendente",
+        "fila",
+        "protocolo",
+        "aplicativo",
+        "avaliação"
+      ],
+      "finalidade": "O Direct é o canal de atendimento entre a empresa e os colaboradores. O colaborador abre a conversa pelo aplicativo Nexti, escolhendo um grupo e um assunto, e um atendente responde pela plataforma. A empresa também pode iniciar a conversa.",
+      "preparacao": [
+        "Defina os grupos (por exemplo, Departamento Pessoal) e os assuntos de cada grupo (por exemplo, Entrega de Atestados).",
+        "Defina quem vai atender cada assunto. Nem todos os tipos de usuário têm acesso ao Direct.",
+        "Você precisa de acesso ao menu Nexti Direct, nas opções Configuração e Atendimentos."
+      ],
+      "resumoProcedimento": [
+        {
+          "titulo": "Abra a configuração",
+          "texto": "Em Nexti Direct, clique em Configuração. A tela mostra as colunas Grupo, Assunto, Atendentes e Mensagens."
+        },
+        {
+          "titulo": "Crie o grupo",
+          "texto": "Clique em Cadastrar Novo Grupo, informe o nome que o colaborador verá no aplicativo, aplique os filtros desejados e salve."
+        },
+        {
+          "titulo": "Crie os assuntos",
+          "texto": "Selecione o grupo, clique em Cadastrar Novo Assunto, digite o nome do assunto e confirme."
+        },
+        {
+          "titulo": "Escolha os atendentes",
+          "texto": "Com o assunto selecionado, escolha em Atendentes quem vai responder a esse assunto."
+        },
+        {
+          "titulo": "Atenda a fila",
+          "texto": "Em Nexti Direct > Atendimentos, veja a fila Em espera e clique no nome do colaborador para iniciar a conversa."
+        },
+        {
+          "titulo": "Conduza o atendimento",
+          "texto": "Use as mensagens prontas, como Saudação e Finalização de Atendimento. Se precisar, devolva para a fila, direcione para outra pessoa ou encerre."
+        },
+        {
+          "titulo": "Inicie uma conversa",
+          "texto": "Para chamar um colaborador, clique em +, escolha grupo, assunto e colaborador, escreva a mensagem e clique em Requisitar."
+        }
+      ],
+      "atencao": [
+        "O ícone do Direct no topo da tela mostra quantos colaboradores aguardam atendimento. Clique nele para abrir a página de atendimentos.",
+        "Quando a empresa inicia a conversa, o colaborador recebe um aviso no celular informando que há um atendimento.",
+        "Todos os atendimentos ficam disponíveis na Mesa de operação e, para o colaborador, no aplicativo."
+      ],
+      "passos": [],
+      "telas": [
+        {
+          "aba": "Configuração",
+          "imagens": [
+            {
+              "src": "assets/telas/nexti-direct-01.jpg",
+              "legenda": "Em Nexti Direct, clique em Configuração.",
+              "alt": "Menu Nexti Direct com a opção Configuração destacada."
+            },
+            {
+              "src": "assets/telas/nexti-direct-02.jpg",
+              "legenda": "Veja os grupos ativos e inativos e clique em Cadastrar Novo Grupo.",
+              "alt": "Coluna Grupo com as listas de ativos e inativos e o botão Cadastrar Novo Grupo."
+            },
+            {
+              "src": "assets/telas/nexti-direct-03.jpg",
+              "legenda": "Informe o nome do grupo que aparecerá no aplicativo e salve.",
+              "alt": "Janela Criar novo grupo com o nome e os filtros."
+            },
+            {
+              "src": "assets/telas/nexti-direct-04.jpg",
+              "legenda": "Selecione o grupo, clique em Cadastrar Novo Assunto, digite o nome e confirme.",
+              "alt": "Janela Novo Assunto com o nome Entrega de Atestados."
+            },
+            {
+              "src": "assets/telas/nexti-direct-05.jpg",
+              "legenda": "Escolha os atendentes do assunto selecionado.",
+              "alt": "Coluna Atendentes destacada, com os nomes ocultados."
+            }
+          ]
+        },
+        {
+          "aba": "Atendimento",
+          "imagens": [
+            {
+              "src": "assets/telas/nexti-direct-06.jpg",
+              "legenda": "O ícone no topo mostra quantos aguardam. Clique no nome em Em espera para atender.",
+              "alt": "Página de atendimentos com o contador de espera e a fila Em espera."
+            },
+            {
+              "src": "assets/telas/nexti-direct-07.jpg",
+              "legenda": "Com o atendimento em andamento, use o menu para devolver, direcionar ou encerrar.",
+              "alt": "Conversa em andamento com o menu de ações destacado."
+            },
+            {
+              "src": "assets/telas/nexti-direct-08.jpg",
+              "legenda": "Os atendimentos também ficam disponíveis na Mesa de operação.",
+              "alt": "Mesa de operação com o histórico de atendimentos do Direct do colaborador."
+            },
+            {
+              "src": "assets/telas/nexti-direct-09.jpg",
+              "legenda": "Para iniciar uma conversa, clique em + e preencha Requisitar Atendimento.",
+              "alt": "Janela Requisitar Atendimento com Grupo, Assunto, Colaborador e Mensagem."
+            },
+            {
+              "src": "assets/telas/nexti-direct-10.jpg",
+              "legenda": "Exemplo de conversa iniciada pela empresa.",
+              "alt": "Conversa iniciada com o colaborador na plataforma."
+            }
+          ]
+        },
+        {
+          "aba": "Aplicativo do colaborador",
+          "imagens": [
+            {
+              "src": "assets/telas/nexti-direct-11.jpg",
+              "legenda": "No aplicativo, o colaborador toca no ícone do Direct, escolhe o grupo e o assunto e aguarda.",
+              "alt": "Telas do aplicativo para abrir um atendimento no Direct."
+            },
+            {
+              "src": "assets/telas/nexti-direct-12.jpg",
+              "legenda": "O aplicativo mostra os atendimentos em andamento e as mensagens não lidas.",
+              "alt": "Telas do aplicativo com conversas não lidas e a conversa em andamento."
+            },
+            {
+              "src": "assets/telas/nexti-direct-13.jpg",
+              "legenda": "Para encerrar, o colaborador informa se foi atendido e avalia o atendimento.",
+              "alt": "Telas do aplicativo com o encerramento e a avaliação por estrelas."
+            }
+          ]
+        }
+      ],
+      "fonteTelas": "Guia Rápido Nexti Direct, da base de conhecimento Nexti no Octadesk, com nomes ocultados",
+      "campos": [
+        {
+          "grupo": "Configuração",
+          "termo": "Grupo",
+          "descricao": "Nome que o colaborador procura no aplicativo. A lista de cima mostra os grupos ativos; a de baixo, os inativos."
+        },
+        {
+          "grupo": "Configuração",
+          "termo": "Assunto",
+          "descricao": "Tema dentro do grupo, que o colaborador escolhe no aplicativo."
+        },
+        {
+          "grupo": "Configuração",
+          "termo": "Atendentes",
+          "descricao": "Usuários que respondem ao assunto selecionado."
+        },
+        {
+          "grupo": "Configuração",
+          "termo": "Mensagens",
+          "descricao": "Mensagens prontas usadas durante o atendimento."
+        },
+        {
+          "grupo": "Atendimento",
+          "termo": "Em espera e Em atendimento",
+          "descricao": "Filas da página de atendimentos. Em espera mostra há quanto tempo cada colaborador aguarda e permite buscar por nome."
+        },
+        {
+          "grupo": "Atendimento",
+          "termo": "Devolver para a fila, Direcionar atendimento e Encerrar atendimento",
+          "descricao": "Ações do menu da conversa em andamento."
+        },
+        {
+          "grupo": "Requisitar Atendimento",
+          "termo": "Grupo, Assunto, Colaborador e Mensagem",
+          "descricao": "Campos obrigatórios para a empresa iniciar uma conversa com o colaborador."
+        },
+        {
+          "grupo": "Aplicativo",
+          "termo": "Encerrar",
+          "descricao": "O colaborador pode encerrar a conversa sem esperar o atendente. Ele informa se a solicitação foi atendida e avalia o atendimento."
+        }
+      ],
+      "checklist": [
+        "Os grupos que os colaboradores devem ver estão ativos.",
+        "Cada assunto tem pelo menos um atendente.",
+        "As mensagens prontas foram cadastradas, se forem usadas.",
+        "Um atendimento de teste foi aberto pelo aplicativo e respondido pela plataforma.",
+        "Um atendimento de teste foi encerrado e avaliado."
+      ],
+      "faq": [
+        {
+          "pergunta": "O colaborador pode enviar documentos pelo Direct?",
+          "resposta": "Sim. Na conversa, ele pode enviar documentos, fotos da câmera ou da galeria."
+        },
+        {
+          "pergunta": "Onde vejo o histórico de atendimentos de um colaborador?",
+          "resposta": "Na Mesa de operação, pelo ícone do Direct no colaborador."
+        }
+      ],
+      "materiais": [
+        {
+          "titulo": "Guia Rápido: Nexti Direct (dados ocultados)",
+          "url": "materiais/guia-rapido-nexti-direct.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "relacionadas": [
+        "ori-0009",
+        "ori-0017"
+      ],
+      "origem": {
+        "fonte": "Base de conhecimento Nexti (Octadesk)",
+        "artigos": [
+          {
+            "titulo": "Guia Rápido Nexti Direct",
+            "url": "https://nexti.octadesk.com/kb/article/guia-rapido-nexti-direct",
+            "arquivo": "Guia Rápido Nexti Direct (15 páginas)",
+            "dataArquivo": ""
+          },
+          {
+            "titulo": "Guia RH Digital Completo",
+            "url": "https://nexti.octadesk.com/kb/article/guia-rh-digital-completo",
+            "arquivo": "Guia RH Digital Completo (38 páginas; páginas 25 a 37 têm o mesmo conteúdo)",
+            "dataArquivo": ""
+          }
+        ],
+        "atualizacaoFonte": "Não informada no artigo nem no arquivo PDF.",
+        "importadoEm": "2026-11-16"
+      }
+    },
+    {
+      "id": "ori-0020",
+      "slug": "como-controlar-o-vencimento-de-documentos-no-nexti-docs",
+      "titulo": "Como controlar o vencimento de documentos no Nexti Docs?",
+      "modulo": "nexti-docs",
+      "submodulos": [
+        "modelo-de-documento",
+        "documento"
+      ],
+      "status": "publicado",
+      "revisao": "2026-11-16",
+      "resumo": "Cadastre modelos de documento com prazos e avisos e vincule documentos aos colaboradores ou postos para ser avisado antes, no dia e depois do vencimento.",
+      "palavrasChave": [
+        "Nexti Docs",
+        "documento",
+        "vencimento",
+        "modelo de documento",
+        "ASO",
+        "exame",
+        "NR",
+        "reciclagem",
+        "notificação",
+        "ocorrência",
+        "anexo"
+      ],
+      "finalidade": "O Nexti Docs é um módulo para gestão de vencimento de documentos. Com ele, você cadastra modelos de documento e vincula um prazo a cada documento, para ser avisado perto do vencimento. Os documentos ficam centralizados em um único sistema.",
+      "preparacao": [
+        "Liste os documentos que precisam de controle (por exemplo, ASO, curso de NR ou exame psicotécnico).",
+        "Defina se cada documento pertence ao colaborador ou ao posto e com quantos dias de antecedência você quer ser avisado.",
+        "Tenha os e-mails de quem deve receber os avisos e os arquivos dos documentos, se for anexá-los.",
+        "Para avisar o responsável ou o supervisor, eles precisam estar informados em Cadastros > Área.",
+        "Você precisa de acesso ao menu Nexti Docs, nas opções Modelo de documento e Documentos."
+      ],
+      "resumoProcedimento": [
+        {
+          "titulo": "Abra os modelos",
+          "texto": "Em Nexti Docs > Modelo de documento, veja os modelos já cadastrados e clique em Novo."
+        },
+        {
+          "titulo": "Identifique o modelo",
+          "texto": "Informe o Nome (por exemplo, ASO), o Vínculo (Posto ou Colaborador) e o Tipo de documento."
+        },
+        {
+          "titulo": "Configure os avisos",
+          "texto": "Ligue Notificar responsável e Notificar supervisor, se quiser, informe os e-mails e os Dias para o vencimento."
+        },
+        {
+          "titulo": "Escolha as ocorrências",
+          "texto": "Ligue Enviar ocorrência por vencer, vencendo no dia ou vencido para gerar ocorrências na Mesa de operação. Salve."
+        },
+        {
+          "titulo": "Vincule o documento",
+          "texto": "Em Nexti Docs > Documentos, clique em Novo, escolha o vínculo, pesquise o colaborador ou o posto e selecione o modelo."
+        },
+        {
+          "titulo": "Informe as datas e anexe",
+          "texto": "Preencha Data de emissão e Vencimento, ligue Enviar ocorrência, anexe o arquivo, escreva uma observação se quiser e salve."
+        }
+      ],
+      "atencao": [
+        "Se Dias para o vencimento ficar em branco, o sistema não avisa sobre o vencimento.",
+        "No documento, se Enviar ocorrência estiver desligada, nenhuma das ocorrências configuradas no modelo é gerada.",
+        "Se o documento não tiver prazo, deixe a data de vencimento vazia.",
+        "Quando o vínculo é Posto, as opções de notificar responsável e supervisor não aparecem."
+      ],
+      "passos": [],
+      "telas": [
+        {
+          "aba": "Modelo de documento",
+          "imagens": [
+            {
+              "src": "assets/telas/nexti-docs-01.jpg",
+              "legenda": "Clique em Nexti Docs > Modelo de documento.",
+              "alt": "Menu Nexti Docs com a opção Modelo de documento destacada."
+            },
+            {
+              "src": "assets/telas/nexti-docs-02.jpg",
+              "legenda": "Veja os modelos cadastrados e clique em Novo.",
+              "alt": "Lista de modelos de documento com o botão Novo destacado."
+            },
+            {
+              "src": "assets/telas/nexti-docs-03.jpg",
+              "legenda": "Informe nome, vínculo e tipo e escolha quem será notificado.",
+              "alt": "Tela Modelo de documento com Nome, Vínculo, Tipo e as opções de notificação."
+            },
+            {
+              "src": "assets/telas/nexti-docs-04.jpg",
+              "legenda": "Informe os e-mails, os dias para o vencimento e as ocorrências desejadas.",
+              "alt": "Campos E-mails, Dias para o vencimento e as três opções de ocorrência destacados."
+            }
+          ]
+        },
+        {
+          "aba": "Documento",
+          "imagens": [
+            {
+              "src": "assets/telas/nexti-docs-05.jpg",
+              "legenda": "Em Nexti Docs > Documentos, clique em Novo.",
+              "alt": "Lista de documentos com o botão Novo destacado e nomes ocultados."
+            },
+            {
+              "src": "assets/telas/nexti-docs-06.jpg",
+              "legenda": "Escolha o vínculo, pesquise o colaborador ou posto e selecione o modelo.",
+              "alt": "Tela Documento com Vínculo, Colaborador e Modelo de documento destacados."
+            },
+            {
+              "src": "assets/telas/nexti-docs-07.jpg",
+              "legenda": "Informe emissão e vencimento, anexe o arquivo e salve.",
+              "alt": "Campos Data de emissão, Vencimento, Anexar arquivo e Observação destacados."
+            }
+          ]
+        }
+      ],
+      "fonteTelas": "Guia Nexti Docs, da base de conhecimento Nexti no Octadesk, com nomes ocultados",
+      "campos": [
+        {
+          "grupo": "Modelo de documento",
+          "termo": "Nome",
+          "descricao": "Identificação do modelo, por exemplo ASO, Curso NR ou Exame psicotécnico."
+        },
+        {
+          "grupo": "Modelo de documento",
+          "termo": "Vínculo",
+          "descricao": "Define se o documento pertence a um colaborador ou a um posto."
+        },
+        {
+          "grupo": "Modelo de documento",
+          "termo": "Tipo de documento",
+          "descricao": "Categoria do documento, por exemplo Documentos Gerais."
+        },
+        {
+          "grupo": "Modelo de documento",
+          "termo": "Notificar responsável",
+          "descricao": "Avisa o responsável informado em Cadastros > Área sobre o documento a vencer."
+        },
+        {
+          "grupo": "Modelo de documento",
+          "termo": "Notificar supervisor",
+          "descricao": "Avisa o supervisor informado em Cadastros > Área sobre o documento a vencer."
+        },
+        {
+          "grupo": "Modelo de documento",
+          "termo": "E-mails",
+          "descricao": "Quem recebe os avisos das ocorrências. Separe vários e-mails por ponto e vírgula."
+        },
+        {
+          "grupo": "Modelo de documento",
+          "termo": "Dias para o vencimento",
+          "descricao": "Quantos dias antes do vencimento o aviso deve ser enviado."
+        },
+        {
+          "grupo": "Modelo de documento",
+          "termo": "Enviar ocorrência por vencer",
+          "descricao": "Gera uma ocorrência na Mesa de operação quando o documento entra no prazo definido em Dias para o vencimento."
+        },
+        {
+          "grupo": "Modelo de documento",
+          "termo": "Enviar ocorrência vencendo no dia",
+          "descricao": "Gera uma ocorrência na data de vencimento do documento."
+        },
+        {
+          "grupo": "Modelo de documento",
+          "termo": "Enviar ocorrência vencido",
+          "descricao": "Gera uma ocorrência depois que o documento vence."
+        },
+        {
+          "grupo": "Documento",
+          "termo": "Vínculo, Colaborador ou Posto e Modelo de documento",
+          "descricao": "Indicam a quem o documento pertence e qual modelo ele segue."
+        },
+        {
+          "grupo": "Documento",
+          "termo": "Data de emissão e Vencimento",
+          "descricao": "Período de validade do documento. Sem prazo, deixe o vencimento vazio."
+        },
+        {
+          "grupo": "Documento",
+          "termo": "Enviar ocorrência",
+          "descricao": "Liga as ocorrências configuradas no modelo para esse documento."
+        },
+        {
+          "grupo": "Documento",
+          "termo": "Anexar arquivo e Observação",
+          "descricao": "Guardam o arquivo do documento e um comentário sobre ele."
+        }
+      ],
+      "checklist": [
+        "O modelo tem nome, vínculo e tipo de documento.",
+        "Os e-mails e os dias para o vencimento estão preenchidos.",
+        "As ocorrências desejadas estão ligadas no modelo.",
+        "O documento foi vinculado ao colaborador ou posto certo, com as datas corretas.",
+        "Enviar ocorrência está ligada no documento e o arquivo foi anexado, se necessário."
+      ],
+      "faq": [],
+      "materiais": [
+        {
+          "titulo": "Guia Rápido: Nexti Docs (dados ocultados)",
+          "url": "materiais/guia-rapido-nexti-docs.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "relacionadas": [],
+      "origem": {
+        "fonte": "Base de conhecimento Nexti (Octadesk)",
+        "artigos": [
+          {
+            "titulo": "Nexti Docs",
+            "url": "https://nexti.octadesk.com/kb/article/nexti-docs",
+            "arquivo": "Nexti Docs (13 páginas)",
+            "dataArquivo": "2024-05-18"
+          }
+        ],
+        "atualizacaoFonte": "Não informada no artigo; data acima é a do arquivo PDF.",
+        "importadoEm": "2026-11-16"
+      }
+    },
+    {
+      "id": "ori-0021",
+      "slug": "como-usar-o-nexti-control",
+      "titulo": "Como criar roteiros de visita no Nexti Control?",
+      "modulo": "nexti-control",
+      "submodulos": [
+        "checklist-control",
+        "roteiro",
+        "qr-code",
+        "painel-operacional",
+        "nao-conformidade"
+      ],
+      "status": "publicado",
+      "revisao": "2026-11-16",
+      "resumo": "Crie checklists e roteiros de visita, agende as visitas, use QR Code e acompanhe as tarefas e as não conformidades no Nexti Control.",
+      "palavrasChave": [
+        "Nexti Control",
+        "Control V1",
+        "roteiro",
+        "visita",
+        "checklist",
+        "agendamento",
+        "QR Code",
+        "painel operacional",
+        "não conformidade",
+        "rota",
+        "supervisão"
+      ],
+      "finalidade": "Com o Nexti Control você faz roteiros de visitas, coletando fotos e aplicando checklists personalizados. Você acompanha as rotas e as não conformidades e gera relatórios completos. Ajuda no controle de visitas, na produtividade e no acompanhamento de atividades externas.",
+      "preparacao": [
+        "Defina as perguntas do checklist e quais respostas geram não conformidade.",
+        "Saiba os postos ou locais externos que serão visitados e quem fará cada visita.",
+        "Tenha os e-mails de quem deve ser avisado sobre não conformidades.",
+        "Você precisa de acesso ao menu Nexti Control."
+      ],
+      "resumoProcedimento": [
+        {
+          "titulo": "Crie o checklist",
+          "texto": "Em Nexti Control > Checklist, clique em Novo checklist, informe o nome, as datas de início e fim e escolha os tipos de ocorrência das perguntas."
+        },
+        {
+          "titulo": "Crie o roteiro",
+          "texto": "Em Nexti Control > Roteiro, clique em Novo, informe o nome e a data de início, que não pode ser retroativa. A data final é opcional."
+        },
+        {
+          "titulo": "Ligue as opções do roteiro",
+          "texto": "Escolha se exige deslocamento, localização na tarefa, foto no deslocamento, na tarefa ou no checklist e se envia notificação de visita agendada."
+        },
+        {
+          "titulo": "Agende as visitas",
+          "texto": "Na aba Agendamentos, informe o posto, o checklist, o usuário, as datas e, se quiser, a recorrência."
+        },
+        {
+          "titulo": "Gere o QR Code",
+          "texto": "Em Nexti Control > QR Code, clique em Novo, escolha se terá logo, selecione o posto e o checklist e salve."
+        },
+        {
+          "titulo": "Acompanhe as tarefas",
+          "texto": "No Painel Operacional, filtre por data e usuário e veja as tarefas a realizar, em execução e realizadas. Clique em uma tarefa para ver tudo o que foi feito."
+        },
+        {
+          "titulo": "Trate as não conformidades",
+          "texto": "Em Não conformidade, veja os checklists que geraram não conformidade e trate cada uma, acompanhando pelas abas Pendente, Em execução e Realizadas."
+        }
+      ],
+      "atencao": [
+        "A data de início do roteiro é obrigatória e não aceita datas passadas: só do dia atual em diante.",
+        "Com Enviar notificação de visita agendada ligada, o usuário recebe no aplicativo os dados de cada nova visita.",
+        "Quando uma resposta está configurada para gerar não conformidade e há e-mail cadastrado, o responsável recebe um e-mail.",
+        "No Painel Operacional, Nova visita cria uma tarefa para um posto ou para um local externo, mesmo que não seja cliente."
+      ],
+      "passos": [],
+      "telas": [
+        {
+          "aba": "Checklist",
+          "imagens": [
+            {
+              "src": "assets/telas/nexti-control-v1-01.jpg",
+              "legenda": "Em Nexti Control > Checklist, clique em Novo checklist. As abas mostram a situação dos checklists.",
+              "alt": "Lista Checklist Control com o menu, as abas e o botão Novo checklist destacados."
+            },
+            {
+              "src": "assets/telas/nexti-control-v1-02.jpg",
+              "legenda": "Informe o nome, as datas e escolha os tipos de ocorrência.",
+              "alt": "Tela Checklist Control com o nome, as datas e os tipos de ocorrência."
+            },
+            {
+              "src": "assets/telas/nexti-control-v1-03.jpg",
+              "legenda": "Tipos de ocorrência: resposta única, múltiplas, texto, escala numérica e Sim/Não.",
+              "alt": "Tipos de ocorrência do checklist com a explicação de cada um."
+            }
+          ]
+        },
+        {
+          "aba": "Roteiro",
+          "imagens": [
+            {
+              "src": "assets/telas/nexti-control-v1-04.jpg",
+              "legenda": "Em Nexti Control > Roteiro, clique em Novo. A lista mostra os roteiros criados.",
+              "alt": "Lista de roteiros com o menu e o botão Novo destacados."
+            },
+            {
+              "src": "assets/telas/nexti-control-v1-05.jpg",
+              "legenda": "Informe o nome e a data de início. A data fim é opcional.",
+              "alt": "Tela Roteiro com Nome, Data início e Data fim destacados."
+            },
+            {
+              "src": "assets/telas/nexti-control-v1-06.jpg",
+              "legenda": "Ligue as opções de localização, foto e notificação de visita agendada.",
+              "alt": "Opções do roteiro com a explicação de cada uma."
+            },
+            {
+              "src": "assets/telas/nexti-control-v1-07.jpg",
+              "legenda": "Em Agendamentos, informe posto, checklist, usuário, datas e recorrência.",
+              "alt": "Aba Agendamentos com os campos destacados."
+            },
+            {
+              "src": "assets/telas/nexti-control-v1-08.jpg",
+              "legenda": "O usuário recebe a notificação de nova visita agendada.",
+              "alt": "Notificação de visita agendada no celular."
+            },
+            {
+              "src": "assets/telas/nexti-control-v1-09.jpg",
+              "legenda": "No aplicativo, o usuário abre a tarefa, vê os detalhes e inicia.",
+              "alt": "Telas do aplicativo com a lista de tarefas, os detalhes do posto e o deslocamento."
+            },
+            {
+              "src": "assets/telas/nexti-control-v1-10.jpg",
+              "legenda": "Resposta não conforme gera um e-mail para o responsável.",
+              "alt": "E-mail de não conformidade com os dados ocultados."
+            }
+          ]
+        },
+        {
+          "aba": "QR Code",
+          "imagens": [
+            {
+              "src": "assets/telas/nexti-control-v1-11.jpg",
+              "legenda": "Em Nexti Control > QR Code, clique em Novo.",
+              "alt": "Lista de QR Codes com o menu e o botão Novo destacados."
+            },
+            {
+              "src": "assets/telas/nexti-control-v1-12.jpg",
+              "legenda": "Escolha com ou sem imagem e selecione o posto e o checklist.",
+              "alt": "Tela de cadastro do QR Code com as opções de imagem, posto e checklist."
+            },
+            {
+              "src": "assets/telas/nexti-control-v1-13.jpg",
+              "legenda": "O QR Code gerado fica ligado ao posto e ao checklist.",
+              "alt": "QR Code gerado com o posto e o checklist."
+            },
+            {
+              "src": "assets/telas/nexti-control-v1-14.jpg",
+              "legenda": "No aplicativo, o usuário lê o QR Code e vai direto para a tarefa.",
+              "alt": "Telas do aplicativo com a leitura do QR Code e os detalhes da tarefa."
+            }
+          ]
+        },
+        {
+          "aba": "Painel e não conformidade",
+          "imagens": [
+            {
+              "src": "assets/telas/nexti-control-v1-15.jpg",
+              "legenda": "No Painel Operacional, filtre e acompanhe as tarefas a realizar, em execução e realizadas.",
+              "alt": "Painel Operacional com os filtros e as colunas de tarefas destacados."
+            },
+            {
+              "src": "assets/telas/nexti-control-v1-16.jpg",
+              "legenda": "Use o filtro e o botão Nova visita.",
+              "alt": "Painel Operacional com os botões de filtro e Nova visita."
+            },
+            {
+              "src": "assets/telas/nexti-control-v1-17.jpg",
+              "legenda": "Nova visita por posto: informe posto, colaborador, checklist, data e motivo.",
+              "alt": "Tela Tarefa de visita por posto com os campos destacados."
+            },
+            {
+              "src": "assets/telas/nexti-control-v1-18.jpg",
+              "legenda": "Nova visita por local externo segue o mesmo padrão.",
+              "alt": "Tela Tarefa de visita para local externo."
+            },
+            {
+              "src": "assets/telas/nexti-control-v1-19.jpg",
+              "legenda": "Em Não conformidade, trate as ocorrências pelas abas de situação.",
+              "alt": "Tela Não conformidades com as abas Pendente, Em execução e Realizadas."
+            }
+          ]
+        }
+      ],
+      "fonteTelas": "Guia Rápido Nexti Control V1, da base de conhecimento Nexti no Octadesk, com nomes ocultados",
+      "campos": [
+        {
+          "grupo": "Tipos de ocorrência do checklist",
+          "termo": "Resposta única",
+          "descricao": "Apenas uma resposta, que pode ser parametrizada."
+        },
+        {
+          "grupo": "Tipos de ocorrência do checklist",
+          "termo": "Respostas múltiplas",
+          "descricao": "Mais de uma resposta, por exemplo os EPIs em uso."
+        },
+        {
+          "grupo": "Tipos de ocorrência do checklist",
+          "termo": "Texto",
+          "descricao": "Caixa de texto para resposta livre, sem pergunta."
+        },
+        {
+          "grupo": "Tipos de ocorrência do checklist",
+          "termo": "Escala numérica",
+          "descricao": "Nota numérica, por exemplo em pesquisas de satisfação."
+        },
+        {
+          "grupo": "Tipos de ocorrência do checklist",
+          "termo": "Sim / Não",
+          "descricao": "Resposta Sim ou Não."
+        },
+        {
+          "grupo": "Opções do roteiro",
+          "termo": "Exigir deslocamento e Exigir localização na tarefa",
+          "descricao": "Registram a localização atual do usuário no deslocamento e na tarefa."
+        },
+        {
+          "grupo": "Opções do roteiro",
+          "termo": "Solicitar foto no deslocamento, na tarefa e no checklist",
+          "descricao": "Pedem uma foto no início do deslocamento, no início da tarefa e no checklist."
+        },
+        {
+          "grupo": "Opções do roteiro",
+          "termo": "Enviar notificação de visita agendada",
+          "descricao": "Avisa o usuário no aplicativo quando uma visita é agendada para ele."
+        },
+        {
+          "grupo": "Agendamentos",
+          "termo": "Posto, Checklist e Usuário",
+          "descricao": "Onde será a visita, qual checklist será respondido e quem vai responder."
+        },
+        {
+          "grupo": "Agendamentos",
+          "termo": "Data início, Data fim e Recorrência",
+          "descricao": "Período da visita. A recorrência repete a visita na frequência escolhida até a data fim."
+        },
+        {
+          "grupo": "QR Code",
+          "termo": "Com ou sem imagem, Posto e Checklist",
+          "descricao": "O QR Code pode ter o logo da empresa no centro e fica ligado a um posto e a um checklist."
+        },
+        {
+          "grupo": "Nova visita",
+          "termo": "Posto ou Local externo, Colaborador, Checklist, Data início e Motivo",
+          "descricao": "Dados para criar uma tarefa de visita pelo Painel Operacional."
+        }
+      ],
+      "checklist": [
+        "O checklist tem nome, período e as perguntas com o tipo de ocorrência certo.",
+        "O roteiro tem nome, data de início e as opções de foto e localização desejadas.",
+        "As visitas foram agendadas com posto, checklist, usuário e datas.",
+        "O QR Code foi gerado e impresso para o posto, quando usado.",
+        "As tarefas aparecem no Painel Operacional."
+      ],
+      "faq": [
+        {
+          "pergunta": "Para que serve o QR Code?",
+          "resposta": "Ao escanear o QR Code no posto, o usuário vai direto para a tarefa do checklist ligado a ele."
+        }
+      ],
+      "materiais": [
+        {
+          "titulo": "Guia Rápido: Nexti Control V1 (dados ocultados)",
+          "url": "materiais/guia-rapido-nexti-control-v1.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "relacionadas": [
+        "ori-0022",
+        "ori-0023"
+      ],
+      "origem": {
+        "fonte": "Base de conhecimento Nexti (Octadesk)",
+        "artigos": [
+          {
+            "titulo": "Manual Control V1",
+            "url": "https://nexti.octadesk.com/kb/article/manual-control-v1",
+            "arquivo": "Guia Rápido Nexti Control V1 (23 páginas)",
+            "dataArquivo": ""
+          }
+        ],
+        "atualizacaoFonte": "Não informada no artigo nem no arquivo PDF.",
+        "importadoEm": "2026-11-16"
+      }
+    },
+    {
+      "id": "ori-0022",
+      "slug": "como-programar-visitas-de-supervisao-no-nexti-control-2-0",
+      "titulo": "Como programar visitas de supervisão no Nexti Control 2.0?",
+      "modulo": "nexti-control-2-0",
+      "submodulos": [
+        "local",
+        "checklist",
+        "cronograma",
+        "qr-code",
+        "aplicativo"
+      ],
+      "status": "publicado",
+      "revisao": "2026-11-16",
+      "resumo": "Cadastre locais e checklists, monte o cronograma e o planejamento das visitas do supervisor e acompanhe a execução pelo aplicativo Nexti.",
+      "palavrasChave": [
+        "Nexti Control 2.0",
+        "supervisor",
+        "supervisão",
+        "visita",
+        "local",
+        "checklist",
+        "cronograma",
+        "planejamento",
+        "recorrência",
+        "QR Code",
+        "geolocalização",
+        "assinatura",
+        "relatório"
+      ],
+      "finalidade": "No Nexti Control 2.0, o cronograma de supervisão programa as visitas dentro do período e da frequência definidos e deixa a escolha da data de realização com o supervisor. Isso traz mais dinamismo à operação e melhor controle das visitas do mês, com geolocalização, QR Code e acompanhamento do deslocamento.",
+      "preparacao": [
+        "Liste os locais que serão visitados, com endereço, latitude e longitude (do Google Maps) e os postos de cada um.",
+        "Prepare as perguntas do checklist da visita.",
+        "Habilite no usuário do supervisor, em Cadastro > Usuário, a opção Acesso a tarefas do tipo supervisor - Control Mobile V2.",
+        "Defina a recorrência, os dias de execução e a quantidade de visitas previstas no contrato."
+      ],
+      "resumoProcedimento": [
+        {
+          "titulo": "Cadastre o local",
+          "texto": "Em Cadastro > Local, preencha local, cliente, postos, endereço, latitude, longitude e o perímetro de confirmação."
+        },
+        {
+          "titulo": "Crie o checklist",
+          "texto": "Em Nexti Control 2.0 > Checklist, clique em Novo checklist e crie as perguntas. Você também pode clonar um checklist existente."
+        },
+        {
+          "titulo": "Crie o cronograma",
+          "texto": "Em Cronograma, informe o nome, as datas (até 365 dias), o tipo de tarefa Supervisor e as exigências de deslocamento, QR Code e geolocalização."
+        },
+        {
+          "titulo": "Monte o planejamento",
+          "texto": "Na aba Planejamento, vincule local, checklist e supervisor e informe recorrência, dias de execução, datas, quantidade de tarefas e tempo de execução."
+        },
+        {
+          "titulo": "Imprima o QR Code",
+          "texto": "O QR Code do local é gerado ao criar o local. Em QR Code, selecione os locais e imprima."
+        },
+        {
+          "titulo": "Realize a visita",
+          "texto": "No aplicativo, aba Control, o supervisor abre a tarefa, responde o checklist e conclui. Pode coletar a assinatura e compartilhar o comprovante ou o relatório."
+        }
+      ],
+      "atencao": [
+        "Todos os campos do cadastro de local são obrigatórios e cada local tem só um cliente. Se o cliente tiver vários postos no mesmo endereço, selecione todos no mesmo local.",
+        "O supervisor só aparece na pesquisa do planejamento se o usuário dele tiver a opção de acesso a tarefas do tipo supervisor ligada.",
+        "Ocultar exibição de assinatura e Exigir assinatura no app não podem ficar ligadas ao mesmo tempo. Por padrão, a assinatura é opcional.",
+        "Tarefa não realizada no prazo exige justificativa. Visitas além das previstas podem ser feitas pelo botão Nova tarefa, e o + inclui uma tarefa avulsa.",
+        "O planejamento só pode ser removido se ainda não tiver sido usado. O botão Remover ao lado de Salvar remove o cronograma inteiro."
+      ],
+      "passos": [],
+      "telas": [
+        {
+          "aba": "Local e checklist",
+          "imagens": [
+            {
+              "src": "assets/telas/nexti-control-2-supervisor-01.jpg",
+              "legenda": "O local agrupa os postos que ficam no mesmo endereço.",
+              "alt": "Cadastro de local com cliente, postos e endereço."
+            },
+            {
+              "src": "assets/telas/nexti-control-2-supervisor-02.jpg",
+              "legenda": "Todos os campos do local são obrigatórios.",
+              "alt": "Tela Local com as regras de preenchimento."
+            },
+            {
+              "src": "assets/telas/nexti-control-2-supervisor-03.jpg",
+              "legenda": "O checklist reúne perguntas de vários tipos, com foto e observação.",
+              "alt": "Exemplo de checklist do Control 2.0."
+            },
+            {
+              "src": "assets/telas/nexti-control-2-supervisor-04.jpg",
+              "legenda": "Em Nexti Control 2.0 > Checklist, clique em Novo checklist.",
+              "alt": "Tela Checklist Control 2.0 com os tipos de ocorrência."
+            },
+            {
+              "src": "assets/telas/nexti-control-2-supervisor-05.jpg",
+              "legenda": "Você pode editar ou clonar um checklist existente.",
+              "alt": "Lista de checklists com os botões Editar e Copiar."
+            },
+            {
+              "src": "assets/telas/nexti-control-2-supervisor-06.jpg",
+              "legenda": "O QR Code do local é gerado ao criar o local. Selecione e imprima.",
+              "alt": "Lista QR Code - Localizações."
+            }
+          ]
+        },
+        {
+          "aba": "Cronograma e planejamento",
+          "imagens": [
+            {
+              "src": "assets/telas/nexti-control-2-supervisor-07.jpg",
+              "legenda": "O cronograma programa as visitas no período e na frequência definidos.",
+              "alt": "Tela de cronograma com os campos principais."
+            },
+            {
+              "src": "assets/telas/nexti-control-2-supervisor-08.jpg",
+              "legenda": "Informe nome, datas, tipo Supervisor e as exigências.",
+              "alt": "Cronograma com tipo de tarefa e opções de check-in."
+            },
+            {
+              "src": "assets/telas/nexti-control-2-supervisor-09.jpg",
+              "legenda": "No Planejamento, vincule local, checklist e supervisor e defina a recorrência.",
+              "alt": "Aba Planejamento com os campos principais."
+            },
+            {
+              "src": "assets/telas/nexti-control-2-supervisor-10.jpg",
+              "legenda": "Informe dias de execução, datas, quantidade de tarefas e tempo de execução.",
+              "alt": "Campos complementares do planejamento."
+            },
+            {
+              "src": "assets/telas/nexti-control-2-supervisor-11.jpg",
+              "legenda": "Depois de criado, o planejamento pode ser editado ou encerrado.",
+              "alt": "Lista de planejamentos com o botão Editar destacado."
+            }
+          ]
+        },
+        {
+          "aba": "Visita no aplicativo",
+          "imagens": [
+            {
+              "src": "assets/telas/nexti-control-2-supervisor-12.jpg",
+              "legenda": "Na aba Control, veja as visitas Pendentes, A executar e Finalizadas.",
+              "alt": "Telas do aplicativo com a lista de visitas e a busca por colaborador."
+            },
+            {
+              "src": "assets/telas/nexti-control-2-supervisor-13.jpg",
+              "legenda": "Abra a tarefa, responda o checklist e conclua.",
+              "alt": "Telas do aplicativo com os detalhes da tarefa e o checklist."
+            },
+            {
+              "src": "assets/telas/nexti-control-2-supervisor-14.jpg",
+              "legenda": "Ao concluir, colete a assinatura, que aparece no relatório.",
+              "alt": "Telas da coleta de assinatura e do relatório Nexti Control."
+            },
+            {
+              "src": "assets/telas/nexti-control-2-supervisor-15.jpg",
+              "legenda": "Compartilhe o comprovante ou o relatório detalhado por WhatsApp ou e-mail.",
+              "alt": "Telas de compartilhamento do comprovante e do relatório."
+            },
+            {
+              "src": "assets/telas/nexti-control-2-supervisor-16.jpg",
+              "legenda": "Tarefa fora do prazo exige justificativa. Use Nova tarefa ou + para visitas extras.",
+              "alt": "Telas de justificativa, nova tarefa e tarefa avulsa."
+            }
+          ]
+        }
+      ],
+      "fonteTelas": "Guia Rápido Nexti Control 2.0 – Supervisor, da base de conhecimento Nexti no Octadesk, com nomes ocultados",
+      "campos": [
+        {
+          "grupo": "Local",
+          "termo": "Local, Cliente e Postos",
+          "descricao": "O local agrupa os postos do mesmo endereço físico, de um único cliente."
+        },
+        {
+          "grupo": "Local",
+          "termo": "Latitude e Longitude",
+          "descricao": "Obtidas no Google Maps, usadas para o check-in por geolocalização."
+        },
+        {
+          "grupo": "Local",
+          "termo": "Perímetro de confirmação",
+          "descricao": "Distância aceita para confirmar o check-in da visita."
+        },
+        {
+          "grupo": "Cronograma",
+          "termo": "Nome, Data início e Data fim",
+          "descricao": "Identificação e período do cronograma, com limite de 365 dias."
+        },
+        {
+          "grupo": "Cronograma",
+          "termo": "Tipo de tarefa",
+          "descricao": "Supervisor, para visitas de supervisão."
+        },
+        {
+          "grupo": "Cronograma",
+          "termo": "Exigir deslocamento",
+          "descricao": "Mede o tempo de deslocamento de um posto para o outro."
+        },
+        {
+          "grupo": "Cronograma",
+          "termo": "Check-in QR Code",
+          "descricao": "Exige a leitura do QR Code antes da visita."
+        },
+        {
+          "grupo": "Cronograma",
+          "termo": "Check-in Geolocalização",
+          "descricao": "Confere a localização na hora da visita com a latitude e a longitude do local."
+        },
+        {
+          "grupo": "Planejamento",
+          "termo": "Recorrência",
+          "descricao": "Periodicidade da visita: todos os dias, semanal, mensal e outras."
+        },
+        {
+          "grupo": "Planejamento",
+          "termo": "Dias de execução",
+          "descricao": "Dias em que a visita pode ser feita, por exemplo dias úteis."
+        },
+        {
+          "grupo": "Planejamento",
+          "termo": "Quantidade de tarefas",
+          "descricao": "Quantas visitas devem ser feitas em cada recorrência, por exemplo 1 vez no mês."
+        },
+        {
+          "grupo": "Planejamento",
+          "termo": "Tempo de execução",
+          "descricao": "Tempo máximo para realizar a visita."
+        }
+      ],
+      "checklist": [
+        "O local tem cliente, postos, endereço, coordenadas e perímetro.",
+        "O checklist da visita foi criado.",
+        "O usuário do supervisor tem a opção de tarefas do tipo supervisor ligada.",
+        "O cronograma tem tipo Supervisor e as exigências corretas.",
+        "O planejamento tem local, checklist, supervisor, recorrência e quantidade de tarefas.",
+        "O QR Code foi impresso e colocado no local, se o check-in por QR Code for usado."
+      ],
+      "faq": [
+        {
+          "pergunta": "Outro colaborador pode fazer a visita no lugar do supervisor?",
+          "resposta": "Sim. No aplicativo, o campo Busca colaborador permite fazer as atividades de outro colaborador, por exemplo quando um reserva técnica faz a cobertura do contrato."
+        }
+      ],
+      "materiais": [
+        {
+          "titulo": "Guia Rápido: Nexti Control 2.0 – Supervisor (dados ocultados)",
+          "url": "materiais/guia-rapido-nexti-control-2-supervisor.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "relacionadas": [
+        "ori-0023",
+        "ori-0021"
+      ],
+      "origem": {
+        "fonte": "Base de conhecimento Nexti (Octadesk)",
+        "artigos": [
+          {
+            "titulo": "Nexti Control 2.0 - Supervisor",
+            "url": "https://nexti.octadesk.com/kb/article/nexti-control-2-0-supervisor",
+            "arquivo": "Guia Rápido Nexti Control 2.0 - Supervisor (19 páginas)",
+            "dataArquivo": ""
+          }
+        ],
+        "atualizacaoFonte": "Não informada no artigo nem no arquivo PDF.",
+        "importadoEm": "2026-11-16"
+      }
+    },
+    {
+      "id": "ori-0023",
+      "slug": "como-programar-rondas-operacionais-no-nexti-control-2-0",
+      "titulo": "Como programar rondas operacionais no Nexti Control 2.0?",
+      "modulo": "nexti-control-2-0",
+      "submodulos": [
+        "local",
+        "ponto-de-atividade",
+        "atividade",
+        "checklist",
+        "cronograma",
+        "qr-code",
+        "aplicativo"
+      ],
+      "status": "publicado",
+      "revisao": "2026-11-16",
+      "resumo": "Cadastre locais e pontos de atividade, crie a atividade da ronda e o cronograma operacional e acompanhe a execução pelo aplicativo Nexti.",
+      "palavrasChave": [
+        "Nexti Control 2.0",
+        "operacional",
+        "ronda",
+        "ponto de atividade",
+        "checkpoint",
+        "atividade",
+        "cronograma",
+        "bastão de ronda",
+        "QR Code",
+        "geolocalização",
+        "tarefa incompleta"
+      ],
+      "finalidade": "No Nexti Control 2.0 você faz roteiros de visitas, coleta fotos, aplica checklists, acompanha as não conformidades e gera relatórios e dashboards. No uso operacional, a atividade representa a ronda do contrato: ela passa por pontos de atividade (checkpoints), como um bastão de ronda.",
+      "preparacao": [
+        "Liste os locais e os pontos de passagem da ronda (por exemplo, Prédio A e Prédio B), com latitude e longitude se for usar check-in por geolocalização.",
+        "Prepare os checklists que serão respondidos em cada ponto.",
+        "Habilite o módulo Control V2 Operacional, em Cadastro > Usuários, para os colaboradores que farão a ronda.",
+        "Defina os horários e quantas rondas por dia serão feitas."
+      ],
+      "resumoProcedimento": [
+        {
+          "titulo": "Cadastre o local",
+          "texto": "Em Cadastro > Local, preencha local, cliente, postos, endereço, coordenadas e perímetro de confirmação."
+        },
+        {
+          "titulo": "Cadastre os pontos de atividade",
+          "texto": "Em Cadastro > Ponto Atividade, informe o nome, o cliente e o local e, se quiser, latitude, longitude e perímetro."
+        },
+        {
+          "titulo": "Crie o checklist",
+          "texto": "Em Nexti Control 2.0 > Checklist, clique em Novo checklist. Você também pode editar ou clonar um checklist."
+        },
+        {
+          "titulo": "Crie a atividade",
+          "texto": "Em Atividade, informe o nome, o tempo máximo de execução e a tolerância de início. Depois, indique local, pontos de atividade e checklists."
+        },
+        {
+          "titulo": "Crie o cronograma",
+          "texto": "Em Cronograma, informe nome, datas e o tipo Operacional. Escolha a atividade, o posto, os colaboradores e a recorrência."
+        },
+        {
+          "titulo": "Execute a ronda",
+          "texto": "No aplicativo, aba Control, o colaborador abre a atividade, inicia e registra cada ponto. Ao concluir, pode compartilhar o comprovante ou o relatório."
+        }
+      ],
+      "atencao": [
+        "Sem latitude e longitude no ponto de atividade, o check-in por localização não fica disponível.",
+        "Não é possível escolher locais de um cliente diferente do informado no ponto de atividade.",
+        "Os checklists são respondidos em cada ponto. Exemplo: 4 pontos e 2 checklists significam 2 checklists em cada um dos 4 pontos.",
+        "No cronograma, só é possível selecionar um posto por vez.",
+        "Rondas sem horário específico podem ser lançadas de uma vez (por exemplo, 4 tarefas). Com horários específicos, cada tarefa é lançada separadamente.",
+        "Se o colaborador tentar finalizar antes de passar por todos os pontos, o sistema avisa que a tarefa está incompleta e pede uma justificativa."
+      ],
+      "passos": [],
+      "telas": [
+        {
+          "aba": "Local e pontos",
+          "imagens": [
+            {
+              "src": "assets/telas/nexti-control-2-operacional-01.jpg",
+              "legenda": "Em Cadastro > Local, preencha todos os campos.",
+              "alt": "Tela Local com as regras de preenchimento."
+            },
+            {
+              "src": "assets/telas/nexti-control-2-operacional-02.jpg",
+              "legenda": "Em Cadastro > Ponto Atividade, informe o ponto, o cliente e o local.",
+              "alt": "Tela Ponto de Atividade com os campos."
+            },
+            {
+              "src": "assets/telas/nexti-control-2-operacional-03.jpg",
+              "legenda": "Em Nexti Control 2.0 > Checklist, clique em Novo checklist.",
+              "alt": "Tela Checklist Control 2.0 com os tipos de ocorrência."
+            },
+            {
+              "src": "assets/telas/nexti-control-2-operacional-04.jpg",
+              "legenda": "Você pode editar ou clonar um checklist existente.",
+              "alt": "Lista de checklists com os botões Editar e Copiar."
+            }
+          ]
+        },
+        {
+          "aba": "Atividade e cronograma",
+          "imagens": [
+            {
+              "src": "assets/telas/nexti-control-2-operacional-05.jpg",
+              "legenda": "A atividade é a programação da ronda, ligada aos pontos de atividade.",
+              "alt": "Tela Nova atividade."
+            },
+            {
+              "src": "assets/telas/nexti-control-2-operacional-06.jpg",
+              "legenda": "Informe o nome, o tempo máximo e a tolerância de início.",
+              "alt": "Campos da nova atividade."
+            },
+            {
+              "src": "assets/telas/nexti-control-2-operacional-07.jpg",
+              "legenda": "Indique o local, os pontos de atividade e os checklists.",
+              "alt": "Vínculo de local, ponto de atividade e checklist na atividade."
+            },
+            {
+              "src": "assets/telas/nexti-control-2-operacional-08.jpg",
+              "legenda": "No cronograma, informe nome, datas e o tipo Operacional.",
+              "alt": "Tela de cronograma operacional."
+            },
+            {
+              "src": "assets/telas/nexti-control-2-operacional-09.jpg",
+              "legenda": "Escolha a atividade, o posto, os colaboradores e a recorrência.",
+              "alt": "Planejamento do cronograma operacional."
+            },
+            {
+              "src": "assets/telas/nexti-control-2-operacional-10.jpg",
+              "legenda": "O QR Code é gerado ao criar o local. Selecione e imprima.",
+              "alt": "Lista QR Code - Localizações."
+            }
+          ]
+        },
+        {
+          "aba": "Ronda no aplicativo",
+          "imagens": [
+            {
+              "src": "assets/telas/nexti-control-2-operacional-11.jpg",
+              "legenda": "Na aba Control, veja as atividades e busque outro colaborador, se preciso.",
+              "alt": "Telas do aplicativo com a lista de atividades."
+            },
+            {
+              "src": "assets/telas/nexti-control-2-operacional-12.jpg",
+              "legenda": "Abra a atividade para ver os pontos e o tempo máximo.",
+              "alt": "Telas do aplicativo com os detalhes da tarefa."
+            },
+            {
+              "src": "assets/telas/nexti-control-2-operacional-13.jpg",
+              "legenda": "Ao iniciar, o tempo começa a contar e os pontos mostram o percentual.",
+              "alt": "Telas com a lista de pontos e a validação do ponto."
+            },
+            {
+              "src": "assets/telas/nexti-control-2-operacional-14.jpg",
+              "legenda": "Finalizar antes de todos os pontos pede confirmação e justificativa.",
+              "alt": "Telas com o aviso de tarefa incompleta."
+            },
+            {
+              "src": "assets/telas/nexti-control-2-operacional-15.jpg",
+              "legenda": "Ao concluir, compartilhe o comprovante ou o relatório.",
+              "alt": "Telas de compartilhamento da tarefa."
+            },
+            {
+              "src": "assets/telas/nexti-control-2-operacional-16.jpg",
+              "legenda": "O relatório detalhado é gerado e pode ser compartilhado.",
+              "alt": "Telas da fila de relatórios e do relatório detalhado."
+            },
+            {
+              "src": "assets/telas/nexti-control-2-operacional-17.jpg",
+              "legenda": "Tarefa fora do prazo exige justificativa. Use Nova tarefa para visitas extras.",
+              "alt": "Telas de justificativa e de nova tarefa."
+            }
+          ]
+        }
+      ],
+      "fonteTelas": "Guia Rápido Nexti Control 2.0 – Operacional, da base de conhecimento Nexti no Octadesk, com nomes ocultados",
+      "campos": [
+        {
+          "grupo": "Ponto de atividade",
+          "termo": "Nome do ponto de atividade",
+          "descricao": "Ponto de passagem que o colaborador registra na ronda."
+        },
+        {
+          "grupo": "Ponto de atividade",
+          "termo": "Latitude, Longitude e Perímetro de confirmação",
+          "descricao": "Opcionais, mas necessários para a trava de check-in por geolocalização."
+        },
+        {
+          "grupo": "Ponto de atividade",
+          "termo": "Cliente e Local",
+          "descricao": "A quem o ponto pertence."
+        },
+        {
+          "grupo": "Atividade",
+          "termo": "Nome da atividade",
+          "descricao": "Identificação da ronda, por exemplo Ronda Contrato Nexti."
+        },
+        {
+          "grupo": "Atividade",
+          "termo": "Tempo máximo de execução",
+          "descricao": "Em minutos, prazo para concluir a atividade inteira. Opcional."
+        },
+        {
+          "grupo": "Atividade",
+          "termo": "Tolerância de início",
+          "descricao": "Prazo, a partir do horário previsto no cronograma, em que ainda é possível iniciar. Opcional."
+        },
+        {
+          "grupo": "Atividade",
+          "termo": "Local, Ponto de atividade e Checklist",
+          "descricao": "Onde a ronda passa e o que deve ser respondido em cada ponto."
+        },
+        {
+          "grupo": "Cronograma",
+          "termo": "Tipo de tarefa",
+          "descricao": "Operacional, para rondas."
+        },
+        {
+          "grupo": "Cronograma",
+          "termo": "Atividade, Posto e Colaboradores",
+          "descricao": "Qual atividade, de qual posto e quem pode executar."
+        },
+        {
+          "grupo": "Cronograma",
+          "termo": "Dias de execução, datas, quantidade de tarefas e Horário de início",
+          "descricao": "Seguem o mesmo conceito do cronograma de supervisão."
+        }
+      ],
+      "checklist": [
+        "O local e os pontos de atividade foram cadastrados com o cliente certo.",
+        "As coordenadas foram informadas onde houver check-in por localização.",
+        "A atividade tem os pontos e os checklists corretos.",
+        "Os colaboradores têm o módulo Control V2 Operacional habilitado.",
+        "O cronograma tem tipo Operacional, posto, colaboradores e horários corretos.",
+        "Uma ronda de teste foi iniciada e concluída no aplicativo."
+      ],
+      "faq": [
+        {
+          "pergunta": "Quando o botão de iniciar a atividade fica disponível?",
+          "resposta": "Se a tarefa tiver horário definido, o botão só fica clicável quando chega o horário."
+        }
+      ],
+      "materiais": [
+        {
+          "titulo": "Guia Rápido: Nexti Control 2.0 – Operacional (dados ocultados)",
+          "url": "materiais/guia-rapido-nexti-control-2-operacional.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "relacionadas": [
+        "ori-0022",
+        "ori-0021"
+      ],
+      "origem": {
+        "fonte": "Base de conhecimento Nexti (Octadesk)",
+        "artigos": [
+          {
+            "titulo": "Nexti Control 2.0 - Operacional",
+            "url": "https://nexti.octadesk.com/kb/article/nexti-control-2-0-operacional",
+            "arquivo": "Guia Rápido Nexti Control 2.0 - Operacional (22 páginas)",
+            "dataArquivo": ""
+          }
+        ],
+        "atualizacaoFonte": "Não informada no artigo nem no arquivo PDF.",
+        "importadoEm": "2026-11-16"
+      }
     }
   ],
   "rascunhosOmitidos": 0

@@ -27,3 +27,9 @@
 
 - [x] Aba "Nexti na Prática": base do GitLab reproduzida + 8 guias da Mesa de operações
 - [ ] Nexti na Prática: guias da Mesa em formato de páginas; reescrita em passos fica para depois, se desejado
+
+# Roadmap — Nexti na Prática × Octadesk (registro em docs/nexti-na-pratica-octadesk.md)
+- [x] Etapa 1: Cadastros conferidos + Quiosque Facial; RH Digital, Nexti Direct, Nexti Docs, Nexti Control e Control 2.0 importados
+- [ ] Etapa 2: Nexti Time e Nexti Plus (com guias de benefícios)
+- [ ] Definir onde ficam Perfil de apuração, Talent, Aplicativo do colaborador, manuais de terminais e Escopo de integração (aguarda decisão da Aline)
+- [ ] Publicar o site para as novas telas e PDFs aparecerem no endereço oficial
