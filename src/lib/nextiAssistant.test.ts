@@ -34,8 +34,30 @@ describe("parseAnswer", () => {
     ];
     const r = parseAnswer("Resposta\nFONTES: 1, 2, 3", withGuides);
     expect(r.pages).toHaveLength(1);
-    expect(r.pages[0].provider).toBe("octadesk");
     expect(r.pages[0].orientations).toEqual([{ path: "cadastros/escala/x", title: "Escala e horário" }]);
+  });
+});
+
+describe("Octadesk materials", () => {
+  const octa = (n: number, extra: Partial<CandidateSource> = {}): CandidateSource => ({
+    ...src(n, "octadesk:guia-cadastro-horario-e-escala-completo", "Cadastro Horário e Escala Completo"), provider: "octadesk",
+    url: "https://nexti.octadesk.com/kb/article/guia-cadastro-horario-e-escala-completo",
+    viewer_url: "https://drive.google.com/file/d/1q-1vEp9HvV2H-L9ugeZdbG42VFgjzOJQ/preview", ...extra,
+  });
+  it("keeps only the Nexti na Prática guide and drops the Octadesk link and file", () => {
+    const r = parseAnswer("Resposta\nFONTES: 1", [octa(1, { orientation_path: "cadastros/escala/x", orientation_title: "Escala e horário" })]);
+    expect(r.pages).toHaveLength(1);
+    expect(r.pages[0].url).toBeNull();
+    expect(r.pages[0].viewer_url).toBeNull();
+    expect(r.pages[0].orientations).toEqual([{ path: "cadastros/escala/x", title: "Escala e horário" }]);
+  });
+  it("shows nothing for an Octadesk article without a Nexti na Prática guide", () => {
+    expect(parseAnswer("Resposta\nFONTES: 1", [octa(1)]).pages).toEqual([]);
+  });
+  it("still links the implantation manuals", () => {
+    const m: CandidateSource = { ...src(1, "manuais:filiais", "Filiais"), provider: "manuais", url: "https://manuais-nexti.pages.dev/?manual=filiais",
+      viewer_url: "https://manuais-nexti.pages.dev/arquivos/admissao-filiais.pdf" };
+    expect(parseAnswer("Resposta\nFONTES: 1", [m]).pages[0].viewer_url).toBe("https://manuais-nexti.pages.dev/arquivos/admissao-filiais.pdf");
   });
   it("hides a partial sources marker while streaming", () => {
     expect(parseAnswer("Resposta\nFON", candidates, true).body).toBe("Resposta");
@@ -51,14 +73,6 @@ describe("needsSupportHint", () => {
 });
 
 describe("opening a material inside the app", () => {
-  it("opens the Octadesk article's PDF inside the app instead of the Octadesk page", () => {
-    const c: CandidateSource = {
-      ...src(1, "octadesk:guia-cadastro-horario-e-escala-completo", "Cadastro Horário e Escala Completo"), provider: "octadesk",
-      url: "https://nexti.octadesk.com/kb/article/guia-cadastro-horario-e-escala-completo",
-      viewer_url: "https://drive.google.com/file/d/1q-1vEp9HvV2H-L9ugeZdbG42VFgjzOJQ/preview",
-    };
-    expect(parseAnswer("Resposta\nFONTES: 1", [c]).pages[0].viewer_url).toBe("https://drive.google.com/file/d/1q-1vEp9HvV2H-L9ugeZdbG42VFgjzOJQ/preview");
-  });
   it("accepts the implantation manuals' PDFs and videos", () => {
     expect(inAppViewer("https://manuais-nexti.pages.dev/arquivos/admissao-filiais.pdf")).not.toBeNull();
     expect(inAppViewer("https://manuais-nexti.pages.dev/arquivos/admissao-conheca-o-modulo-admissao.mp4")).not.toBeNull();

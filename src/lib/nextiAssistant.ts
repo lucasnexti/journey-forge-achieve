@@ -75,9 +75,14 @@ export function parseAnswer(text: string, candidates: CandidateSource[], streami
   const byId = new Map<string, CitedPage>();
   for (const c of candidates) {
     if (!nums.has(c.n)) continue;
+    // Octadesk articles are never linked: only the Nexti na Prática guides made from them are shown.
+    const linkable = !isOctadesk(c);
     let page = byId.get(c.page_id);
     if (!page) {
-      page = { page_id: c.page_id, title: c.title, url: c.url, provider: c.provider ?? null, viewer_url: inAppViewer(c.viewer_url), orientations: [] };
+      page = {
+        page_id: c.page_id, title: c.title, url: linkable ? c.url : null, provider: c.provider ?? null,
+        viewer_url: linkable ? inAppViewer(c.viewer_url) : null, orientations: [],
+      };
       byId.set(c.page_id, page);
       pages.push(page);
     }
@@ -86,7 +91,13 @@ export function parseAnswer(text: string, candidates: CandidateSource[], streami
     }
   }
   const notFound = body.trim().startsWith(NOT_FOUND.slice(0, 40));
-  return { body: body.trim(), pages: notFound ? [] : pages, notFound };
+  const shown = pages.filter((p) => p.url || p.viewer_url || p.orientations.length > 0);
+  return { body: body.trim(), pages: notFound ? [] : shown, notFound };
+}
+
+/** Octadesk material (by provider or by its link), which the assistant never points the user to. */
+export function isOctadesk(c: Pick<CandidateSource, "provider" | "url" | "page_id">) {
+  return c.provider === "octadesk" || c.page_id.startsWith("octadesk:") || /octadesk\.com/i.test(c.url ?? "");
 }
 
 /** After two "not found" answers in a row, the user is pointed to the support channel. */

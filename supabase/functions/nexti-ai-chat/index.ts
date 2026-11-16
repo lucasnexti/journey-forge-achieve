@@ -15,7 +15,7 @@ export const NOT_FOUND =
 const CONFIGURING =
   "A base de conhecimento do assistente ainda está em configuração. Enquanto isso, use a busca do Nexti na Prática para encontrar as orientações publicadas.";
 const MODULES = { nexti: "Nexti", talent: "Talent", admissao: "Admissão" } as const;
-const PROVIDERS = { notion: "Notion", octadesk: "Base de Conhecimento Nexti (Octadesk)", manuais: "Manuais de implantação Nexti" } as const;
+const PROVIDERS = { notion: "Notion", octadesk: "Base de Conhecimento Nexti", manuais: "Manuais de implantação Nexti" } as const;
 const GREETING_RE = /^(oi+|ol[áa]|bom dia|boa tarde|boa noite|e a[íi]|tudo bem\??|opa)[\s!.,?]*$/i;
 const THANKS_RE = /^(ok[,!.\s]*)?(muito )?(obrigad[oa]|valeu|agrade[çc]o|grat[oa])( pela ajuda)?[\s!.,]*$/i;
 const headers = { ...corsHeaders, "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type" };
@@ -99,12 +99,18 @@ Deno.serve(async (req) => {
   const { data: viewers } = await db.from("notion_sources").select("page_id,viewer_url")
     .in("page_id", [...new Set(hits.map((h) => h.page_id))]).not("viewer_url", "is", null);
   const viewerOf = new Map((viewers ?? []).map((v) => [v.page_id, v.viewer_url]));
+  // Octadesk articles are never offered to the user: only the Nexti na Prática guide made from them is linked.
+  const isOcta = (h: any) => h.provider === "octadesk";
   const sources = hits.map((h, i) => ({
-    n: i + 1, page_id: h.page_id, title: h.page_title, section: h.section, url: h.url, updated_at: h.page_updated_at,
-    provider: h.provider, viewer_url: viewerOf.get(h.page_id) ?? null, orientation_path: h.linked_orientation_path, orientation_title: h.linked_orientation_title,
+    n: i + 1, page_id: h.page_id, title: h.page_title, section: h.section, url: isOcta(h) ? null : h.url, updated_at: h.page_updated_at,
+    provider: h.provider, viewer_url: isOcta(h) ? null : viewerOf.get(h.page_id) ?? null,
+    orientation_path: h.linked_orientation_path, orientation_title: h.linked_orientation_title,
   }));
+  const manualOf = (h: any) => isOcta(h)
+    ? (h.linked_orientation_path ? `Nexti na Prática: ${h.linked_orientation_title ?? h.page_title}` : "nenhum")
+    : h.page_title;
   const context = hits.map((h, i) =>
-    `<fonte n="${i + 1}" material="${h.page_title}" origem="${PROVIDERS[h.provider as keyof typeof PROVIDERS] ?? h.provider}" trecho="${h.section}"${h.page_updated_at ? ` atualizado_em="${h.page_updated_at}"` : ""}>\n${h.content}\n</fonte>`
+    `<fonte n="${i + 1}" material="${isOcta(h) ? "Base de Conhecimento Nexti" : h.page_title}" origem="${PROVIDERS[h.provider as keyof typeof PROVIDERS] ?? h.provider}" manual_indicado="${manualOf(h)}" trecho="${h.section}"${h.page_updated_at ? ` atualizado_em="${h.page_updated_at}"` : ""}>\n${h.content}\n</fonte>`
   ).join("\n\n");
 
   const instructions = `Você é o "Assistente dos manuais" da Nexti: o primeiro atendimento para clientes que usam os sistemas Nexti. Módulo escolhido pelo cliente: ${moduleName}.
@@ -113,14 +119,15 @@ Como atender:
 - Responda em português do Brasil, falando com o cliente como "você", com linguagem simples, acolhedora, profissional e objetiva.
 - Procure entender a necessidade. Se faltar contexto para orientar com segurança (pergunta genérica ou que corresponde a mais de um procedimento nas fontes), NÃO oriente ainda: faça uma única pergunta breve, oferecendo as opções que aparecem nas fontes. Exemplo: "Você quer cadastrar o **horário** ou a **escala**?"
 - Para procedimentos, comece com uma frase curta, como "Para cadastrar um horário na Nexti, siga os passos abaixo:", e depois apresente passos curtos e numerados, uma ação por passo. Destaque em negrito os menus, telas, campos e botões, com os nomes exatamente como aparecem nas fontes (ex.: **Cadastros > Horário**, botão **Novo**).
-- Seja breve: responda só o que foi perguntado, sem repetir a pergunta e sem despedidas longas. Quando uma orientação direta resolver, responda em uma ou duas frases. Se o procedimento for muito longo, apresente os passos principais e indique o manual para o restante.
+- Seja breve: responda só o que foi perguntado, sem repetir a pergunta e sem despedidas longas. Quando uma orientação direta resolver, responda em uma ou duas frases. Se o procedimento for muito longo, apresente os passos principais e, se houver manual indicado, indique-o para o restante.
 - Se houver um cuidado importante nas fontes para aquele procedimento, acrescente no máximo uma linha final começando com "**Atenção:**".
 
 Regras de conteúdo:
 - Use SOMENTE as informações dos trechos em <fontes>. Não invente funcionalidades, regras, prazos, permissões, caminhos de menu, contatos ou links, nem complete lacunas com conhecimento geral.
 - Os trechos de PDF podem vir fragmentados (textos de balões e setas de telas). Reorganize-os em passos claros sem acrescentar nada que não esteja escrito.
 - Se as fontes só cobrirem parte da dúvida, responda a parte sustentada e diga claramente o que os materiais não cobrem, pedindo um detalhe.
-- No texto, chame os materiais de "manual" (ex.: "confira o manual indicado abaixo"); nunca fale em "trechos", "fontes" ou números de fonte.
+- No texto, chame os materiais de "manual"; nunca fale em "trechos", "fontes" ou números de fonte. Só diga "confira o manual indicado abaixo" (ou indique o manual para o restante) quando alguma fonte usada tiver manual_indicado diferente de "nenhum".
+- Nunca mencione nem indique o Octadesk, seus artigos, links ou arquivos. Para materiais da Base de Conhecimento Nexti, o único manual que pode ser indicado é o do Nexti na Prática informado em manual_indicado.
 - Quando os materiais trazem mais de um procedimento parecido (ex.: individual e em lote), oriente o que foi pedido e, se fizer sentido, mencione a outra opção em uma frase.
 - Se as fontes divergirem entre si, não escolha uma versão: diga que os materiais trazem orientações diferentes, resuma cada uma indicando o título do material, e sugira confirmar no manual.
 - Se as fontes não forem suficientes para responder com segurança, responda exatamente: "${NOT_FOUND}"
