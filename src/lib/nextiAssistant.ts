@@ -19,10 +19,14 @@ export const MODULE_SUGGESTIONS: Record<AssistantModule, string[]> = {
     "Como incluo um candidato manualmente?",
     "Como crio uma avaliação?",
   ],
-  admissao: [],
+  admissao: [
+    "Como crio e envio uma admissão?",
+    "Como envio um kit de contrato com assinatura digital?",
+    "Como configuro os documentos de cada etapa do fluxo?",
+  ],
 };
 
-export const PROVIDER_LABEL: Record<string, string> = { notion: "Notion", octadesk: "Octadesk" };
+export const PROVIDER_LABEL: Record<string, string> = { notion: "Notion", octadesk: "Octadesk", manuais: "Manuais de implantação" };
 export const NOT_FOUND =
   "Não encontrei uma orientação suficiente nos materiais disponíveis para responder com segurança. Você pode detalhar sua dúvida?";
 

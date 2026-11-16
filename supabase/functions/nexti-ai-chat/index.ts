@@ -1,4 +1,4 @@
-// "Assistente dos manuais": answers signed-in users only from approved sources (Notion pages and the Octadesk KB), retrieved server-side.
+// "Assistente dos manuais": answers signed-in users only from approved sources (Notion pages, the Octadesk KB and the implantation manuals), retrieved server-side.
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { createOpenAI } from "npm:@ai-sdk/openai@4.0.118";
@@ -15,7 +15,7 @@ export const NOT_FOUND =
 const CONFIGURING =
   "A base de conhecimento do assistente ainda está em configuração. Enquanto isso, use a busca do Nexti na Prática para encontrar as orientações publicadas.";
 const MODULES = { nexti: "Nexti", talent: "Talent", admissao: "Admissão" } as const;
-const PROVIDERS = { notion: "Notion", octadesk: "Base de Conhecimento Nexti (Octadesk)" } as const;
+const PROVIDERS = { notion: "Notion", octadesk: "Base de Conhecimento Nexti (Octadesk)", manuais: "Manuais de implantação Nexti" } as const;
 const GREETING_RE = /^(oi+|ol[áa]|bom dia|boa tarde|boa noite|e a[íi]|tudo bem\??|opa)[\s!.,?]*$/i;
 const THANKS_RE = /^(ok[,!.\s]*)?(muito )?(obrigad[oa]|valeu|agrade[çc]o|grat[oa])( pela ajuda)?[\s!.,]*$/i;
 const headers = { ...corsHeaders, "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type" };

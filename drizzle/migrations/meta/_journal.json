@@ -169,6 +169,13 @@
       "when": 1794857833724,
       "tag": "0023_assistant_search_term_weight",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1794859455290,
+      "tag": "0024_assistant_manuais_source",
+      "breakpoints": true
     }
   ]
 }

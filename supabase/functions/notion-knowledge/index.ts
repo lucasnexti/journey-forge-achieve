@@ -7,7 +7,7 @@ import { chunkLines, NotionError, notionClient, pageTitle, readPage, ROOT_PAGE_I
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
-const Body = z.object({ action: z.enum(["status", "inventory", "sync", "import_octadesk"]) });
+const Body = z.object({ action: z.enum(["status", "inventory", "sync", "import_octadesk", "import_manuais"]) });
 const MAX_PAGES = 300;
 const TIME_BUDGET_MS = 115_000;
 const norm = (id: string) => id.replace(/-/g, "");
@@ -29,7 +29,8 @@ Deno.serve(async (req) => {
   const parsed = Body.safeParse(await req.json().catch(() => ({})));
   if (!parsed.success) return json({ error: parsed.error.flatten().fieldErrors }, 400);
   const { action } = parsed.data;
-  if (action === "import_octadesk") return await importOctadesk(db, userData.user.id);
+  if (action === "import_octadesk") return await importPrepared(db, userData.user.id, OCTADESK);
+  if (action === "import_manuais") return await importPrepared(db, userData.user.id, MANUAIS);
 
   let notion: Notion;
   try {
@@ -233,47 +234,55 @@ async function sync(db: SupabaseClient, notion: Notion, userId: string) {
     unprocessed: unprocessedCount, titles: processed });
 }
 
-// Octadesk public knowledge base: the prepared index (text read from each article's PDF plus the Nexti na Prática
-// orientations made from it) lives in the private assistant-knowledge bucket. New articles start approved for
-// customers; an admin's later review (status, audience, module) is kept on re-import.
+// Prepared public bases (text read from each manual's PDF, plus, for Octadesk, the Nexti na Prática orientations made
+// from it) live in the private assistant-knowledge bucket. New manuals start approved for customers; an admin's later
+// review (status, audience, module) is kept on re-import.
+//  - octadesk: https://nexti.octadesk.com/kb/ (scripts/assistant-octadesk)
+//  - manuais:  https://manuais-nexti.pages.dev/ "Manuais de implantação" (scripts/assistant-manuais)
 const OctaChunk = z.object({
   section: z.string().max(300), content: z.string().min(1).max(4000),
   orientation_path: z.string().regex(/^[a-z0-9-]+\/[a-z0-9-]+\/[a-z0-9-]+$/).nullable(), orientation_title: z.string().max(300).nullable(),
 });
-const OctaIndex = z.object({
-  source: z.literal("https://nexti.octadesk.com/kb/"), generated_at: z.string(),
+type PreparedBase = { provider: "octadesk" | "manuais"; file: string; label: string; source: string; pageId: RegExp; urlPrefix: string };
+const OCTADESK: PreparedBase = { provider: "octadesk", file: "octadesk/index.json", label: "Octadesk", source: "https://nexti.octadesk.com/kb/",
+  pageId: /^octadesk:[a-z0-9-]+$/, urlPrefix: "https://nexti.octadesk.com/kb/article/" };
+const MANUAIS: PreparedBase = { provider: "manuais", file: "manuais/index.json", label: "dos manuais de implantação",
+  source: "https://manuais-nexti.pages.dev/", pageId: /^manuais:[a-z0-9-]+$/, urlPrefix: "https://manuais-nexti.pages.dev/?manual=" };
+const preparedIndex = (b: PreparedBase) => z.object({
+  source: z.literal(b.source), generated_at: z.string(),
   articles: z.array(z.object({
-    page_id: z.string().regex(/^octadesk:[a-z0-9-]+$/), title: z.string().min(1).max(300),
-    url: z.string().startsWith("https://nexti.octadesk.com/kb/article/"), module: z.enum(["nexti", "talent", "admissao"]),
+    page_id: z.string().regex(b.pageId), title: z.string().min(1).max(300),
+    url: z.string().startsWith(b.urlPrefix), module: z.enum(["nexti", "talent", "admissao"]),
     position: z.number().int(), linked_orientation_path: z.string().regex(/^[a-z0-9-]+\/[a-z0-9-]+\/[a-z0-9-]+$/).nullable(),
     linked_orientation_title: z.string().nullable(), unprocessed: z.array(z.any()).max(20), chunks: z.array(OctaChunk).max(400),
   })).min(1).max(500),
 });
 
-async function importOctadesk(db: SupabaseClient, userId: string) {
-  const { data: run } = await db.from("notion_sync_runs").insert({ kind: "octadesk", started_by: userId }).select("id").single();
+async function importPrepared(db: SupabaseClient, userId: string, b: PreparedBase) {
+  const { data: run } = await db.from("notion_sync_runs").insert({ kind: b.provider, started_by: userId }).select("id").single();
   const finish = async (status: string, details: Record<string, unknown>, counts: Record<string, number> = {}) => {
     await db.from("notion_sync_runs").update({ status, finished_at: new Date().toISOString(), details, ...counts }).eq("id", run?.id);
     return json({ status, ...details });
   };
-  const { data: file, error: dlErr } = await db.storage.from("assistant-knowledge").download("octadesk/index.json");
-  if (dlErr || !file) return await finish("failed", { error: "Arquivo da base Octadesk não encontrado." });
-  const parsed = OctaIndex.safeParse(JSON.parse(await file.text()));
-  if (!parsed.success) return await finish("failed", { error: "Arquivo da base Octadesk inválido." });
+  const { data: file, error: dlErr } = await db.storage.from("assistant-knowledge").download(b.file);
+  if (dlErr || !file) return await finish("failed", { error: `Arquivo da base ${b.label} não encontrado.` });
+  const parsed = preparedIndex(b).safeParse(JSON.parse(await file.text()));
+  if (!parsed.success) return await finish("failed", { error: `Arquivo da base ${b.label} inválido.` });
 
-  const { data: existing } = await db.from("notion_sources").select("id,page_id,title").eq("provider", "octadesk");
+  const { data: existing } = await db.from("notion_sources").select("id,page_id,title").eq("provider", b.provider);
   const byPage = new Map((existing ?? []).map((e) => [e.page_id, e]));
   const failures: { title: string; error: string }[] = [];
   let processed = 0;
+  const offset = b.provider === "octadesk" ? 100000 : 200000;
   for (const a of parsed.data.articles) {
-    const base = { title: a.title, url: a.url, position: 100000 + a.position, removed_at: null,
+    const base = { title: a.title, url: a.url, position: offset + a.position, removed_at: null,
       linked_orientation_path: a.linked_orientation_path, linked_orientation_title: a.linked_orientation_title };
     let id = byPage.get(a.page_id)?.id;
     if (id) {
       const { error } = await db.from("notion_sources").update(base).eq("id", id);
       if (error) { failures.push({ title: a.title, error: error.message }); continue; }
     } else {
-      const { data, error } = await db.from("notion_sources").insert({ ...base, provider: "octadesk", page_id: a.page_id,
+      const { data, error } = await db.from("notion_sources").insert({ ...base, provider: b.provider, page_id: a.page_id,
         status: "approved", audience: "clientes", module: a.module }).select("id").single();
       if (error || !data) { failures.push({ title: a.title, error: error?.message ?? "falha ao criar" }); continue; }
       id = data.id;
@@ -282,7 +291,7 @@ async function importOctadesk(db: SupabaseClient, userId: string) {
     const { error } = await db.rpc("replace_notion_chunks", { _source_id: id, _chunks: chunks, _edited: null, _unprocessed: a.unprocessed });
     if (error) failures.push({ title: a.title, error: error.message }); else processed++;
   }
-  // Articles that left the Octadesk base leave the answers (only when the whole import worked).
+  // Manuals that left the base leave the answers (only when the whole import worked).
   const removed: string[] = [];
   if (!failures.length) {
     const keep = new Set(parsed.data.articles.map((a) => a.page_id));
