@@ -38,10 +38,10 @@
 - [ ] Publicar o site para as novas telas e PDFs aparecerem no endereço oficial
 
 # Roadmap — Assistente de dúvidas com IA (Nexti na Prática + Notion)
-- [ ] Base no servidor: páginas do Notion, aprovação, trechos, sincronizações e avaliações
-- [ ] Sincronização com o Notion (inventário, leitura das aprovadas, remoções, falhas)
-- [ ] Assistente que responde só com fontes aprovadas e mostra "Fonte consultada"
-- [ ] Canal de atendimento no formato do print (janela "Assistente dos manuais", escolha de módulo Nexti/Talent/Admissão)
-- [ ] Mensagem final de suporte da Aline (e-mail, WhatsApp, chat) após duas respostas sem orientação
-- [ ] Tela de administração das fontes + "Sincronizar com Notion"
-- [ ] Conectar o Notion (depende da Aline autorizar) e validar uma consulta real
+- [x] Base no servidor: páginas do Notion, aprovação, trechos, sincronizações e avaliações
+- [x] Sincronização com o Notion (inventário, leitura das aprovadas, remoções, falhas)
+- [x] Assistente que responde só com fontes aprovadas e mostra "Fonte consultada"
+- [x] Canal de atendimento no formato do print (janela "Assistente dos manuais", escolha de módulo Nexti/Talent/Admissão)
+- [x] Mensagem final de suporte da Aline (e-mail, WhatsApp, chat) após duas respostas sem orientação
+- [x] Tela de administração das fontes + "Sincronizar com Notion"
+- [ ] Conectar o Notion e validar uma consulta real — bloqueado: só um administrador do workspace Lovable pode criar a conexão do Notion

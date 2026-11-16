@@ -117,14 +117,14 @@ function AssistantPanel({ open, onClose }: { open: boolean; onClose: () => void 
           <BookOpenText className="h-[18px] w-[18px]" />
         </div>
         <div className="min-w-0 flex-1">
-          <h2 className="text-[15px] font-semibold leading-tight">Assistente dos manuais</h2>
+          <h2 className="truncate whitespace-nowrap text-[15px] font-semibold leading-tight">Assistente dos manuais</h2>
           <p className="truncate text-xs text-muted-foreground">
             {moduleLabel ? `Módulo: ${moduleLabel}` : "Escolha o módulo para começar"}
           </p>
         </div>
         {(messages.length > 0 || module) && (
-          <Button variant="ghost" size="xs" onClick={newConversation} className="text-muted-foreground">
-            <RotateCcw className="h-3.5 w-3.5" /> Nova conversa
+          <Button variant="ghost" size="xs" onClick={newConversation} className="shrink-0 gap-1 px-1.5 text-muted-foreground" aria-label="Nova conversa" title="Nova conversa">
+            <RotateCcw className="h-3.5 w-3.5" /> <span className="text-xs">Nova</span>
           </Button>
         )}
         <Button variant="ghost" size="icon-sm" onClick={onClose} aria-label="Fechar" className="text-muted-foreground">

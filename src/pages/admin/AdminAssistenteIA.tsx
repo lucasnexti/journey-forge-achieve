@@ -155,11 +155,11 @@ export default function AdminAssistenteIA() {
           <Card>
             <CardHeader className="pb-2"><CardTitle className="text-sm">Ações</CardTitle></CardHeader>
             <CardContent className="flex flex-col gap-2">
-              <Button variant="outline" disabled={!!busy} onClick={() => run("inventory")}>
+              <Button variant="outline" disabled={!!busy || conn?.connected === false} onClick={() => run("inventory")}>
                 {busy === "inventory" ? <Loader2 className="h-4 w-4 animate-spin" /> : <ListTree className="h-4 w-4" />}
                 Atualizar lista de páginas
               </Button>
-              <Button disabled={!!busy} onClick={() => run("sync")}>
+              <Button disabled={!!busy || conn?.connected === false} onClick={() => run("sync")}>
                 {busy === "sync" ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
                 Sincronizar com Notion
               </Button>
@@ -264,10 +264,10 @@ export default function AdminAssistenteIA() {
                       </td>
                       <td className="py-2 pr-2">
                         <Select value={s.audience} onValueChange={(v) => update(s, { audience: v })}>
-                          <SelectTrigger className="h-8 w-[150px]"><SelectValue /></SelectTrigger>
+                          <SelectTrigger className="h-8 w-[170px]"><SelectValue /></SelectTrigger>
                           <SelectContent>
                             <SelectItem value="clientes">Clientes</SelectItem>
-                            <SelectItem value="admins">Só administradores</SelectItem>
+                            <SelectItem value="admins">Só admins</SelectItem>
                           </SelectContent>
                         </Select>
                       </td>
