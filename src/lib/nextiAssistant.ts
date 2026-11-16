@@ -7,7 +7,22 @@ export const ASSISTANT_MODULES = [
 ] as const;
 export type AssistantModule = (typeof ASSISTANT_MODULES)[number]["id"];
 
-export const GREETING = "Olá! Qual é a sua dúvida? Vou consultar os materiais disponíveis para ajudar você.";
+/** Suggested first questions per module (each one is answered by the published manuals). */
+export const MODULE_SUGGESTIONS: Record<AssistantModule, string[]> = {
+  nexti: [
+    "Como trato uma inconsistência de ponto?",
+    "Como lanço uma cobertura de posto?",
+    "Como libero o colaborador para cadastrar a biometria?",
+  ],
+  talent: [
+    "Como crio uma requisição de vaga?",
+    "Como incluo um candidato manualmente?",
+    "Como crio uma avaliação?",
+  ],
+  admissao: [],
+};
+
+export const PROVIDER_LABEL: Record<string, string> = { notion: "Notion", octadesk: "Octadesk" };
 export const NOT_FOUND =
   "Não encontrei uma orientação suficiente nos materiais disponíveis para responder com segurança. Você pode detalhar sua dúvida?";
 
@@ -18,16 +33,22 @@ export interface CandidateSource {
   section: string;
   url: string | null;
   updated_at: string | null;
+  provider?: string | null;
   orientation_path: string | null;
   orientation_title: string | null;
+}
+
+export interface CitedOrientation {
+  path: string;
+  title: string;
 }
 
 export interface CitedPage {
   page_id: string;
   title: string;
   url: string | null;
-  orientation_path: string | null;
-  orientation_title: string | null;
+  provider: string | null;
+  orientations: CitedOrientation[];
 }
 
 const FONTES_LINE = /(?:^|\n)[ \t]*\**FONTES?\**\s*:[^\n]*\s*$/i;
@@ -44,11 +65,18 @@ export function parseAnswer(text: string, candidates: CandidateSource[], streami
     for (const m of match[0].matchAll(/\d+/g)) nums.add(Number(m[0]));
   }
   const pages: CitedPage[] = [];
-  const seen = new Set<string>();
+  const byId = new Map<string, CitedPage>();
   for (const c of candidates) {
-    if (!nums.has(c.n) || seen.has(c.page_id)) continue;
-    seen.add(c.page_id);
-    pages.push({ page_id: c.page_id, title: c.title, url: c.url, orientation_path: c.orientation_path, orientation_title: c.orientation_title });
+    if (!nums.has(c.n)) continue;
+    let page = byId.get(c.page_id);
+    if (!page) {
+      page = { page_id: c.page_id, title: c.title, url: c.url, provider: c.provider ?? null, orientations: [] };
+      byId.set(c.page_id, page);
+      pages.push(page);
+    }
+    if (c.orientation_path && !page.orientations.some((o) => o.path === c.orientation_path)) {
+      page.orientations.push({ path: c.orientation_path, title: c.orientation_title ?? c.title });
+    }
   }
   const notFound = body.trim().startsWith(NOT_FOUND.slice(0, 40));
   return { body: body.trim(), pages: notFound ? [] : pages, notFound };

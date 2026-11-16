@@ -45,3 +45,4 @@
 - [x] Mensagem final de suporte da Aline (e-mail, WhatsApp, chat) após duas respostas sem orientação
 - [x] Tela de administração das fontes + "Sincronizar com Notion"
 - [ ] Conectar o Notion e validar uma consulta real — bloqueado: só um administrador do workspace Lovable pode criar a conexão do Notion
+- [x] Assistente: usar a Base de Conhecimento Octadesk como fonte e seguir o vídeo de referência (tom, passos, "Veja no manual", Trocar, sugestões)

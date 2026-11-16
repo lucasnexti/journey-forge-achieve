@@ -26,6 +26,17 @@ describe("parseAnswer", () => {
     expect(r.notFound).toBe(true);
     expect(r.pages).toEqual([]);
   });
+  it("links each cited material to the Nexti na Prática guides its passages came from, once each", () => {
+    const withGuides: CandidateSource[] = [
+      { ...src(1, "octadesk:escala", "Cadastro Horário e Escala Completo"), provider: "octadesk", orientation_path: "cadastros/escala/x", orientation_title: "Escala e horário" },
+      { ...src(2, "octadesk:escala", "Cadastro Horário e Escala Completo"), provider: "octadesk", orientation_path: "cadastros/escala/x", orientation_title: "Escala e horário" },
+      { ...src(3, "octadesk:escala", "Cadastro Horário e Escala Completo"), provider: "octadesk" },
+    ];
+    const r = parseAnswer("Resposta\nFONTES: 1, 2, 3", withGuides);
+    expect(r.pages).toHaveLength(1);
+    expect(r.pages[0].provider).toBe("octadesk");
+    expect(r.pages[0].orientations).toEqual([{ path: "cadastros/escala/x", title: "Escala e horário" }]);
+  });
   it("hides a partial sources marker while streaming", () => {
     expect(parseAnswer("Resposta\nFON", candidates, true).body).toBe("Resposta");
   });

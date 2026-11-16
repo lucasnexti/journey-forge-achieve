@@ -16,7 +16,7 @@ type Source = {
   position: number; notion_last_edited: string | null; status: string; audience: string; module: string | null;
   linked_orientation_path: string | null; linked_orientation_title: string | null; removed_at: string | null;
   last_synced_at: string | null; sync_error: string | null; unprocessed: { type: string; section: string; detail: string }[];
-  chunk_count: number;
+  chunk_count: number; provider: string;
 };
 type Run = {
   id: string; kind: string; status: string; started_at: string; finished_at: string | null; pages_processed: number;
@@ -55,6 +55,7 @@ export default function AdminAssistenteIA() {
   const [conn, setConn] = useState<any>(null);
   const [busy, setBusy] = useState<null | "inventory" | "sync">(null);
   const [q, setQ] = useState("");
+  const [origin, setOrigin] = useState<"all" | "notion" | "octadesk">("all");
   const [feedback, setFeedback] = useState({ yes: 0, no: 0 });
 
   const load = async () => {
@@ -100,18 +101,20 @@ export default function AdminAssistenteIA() {
     const { error } = await supabase.from("notion_sources").update(patch as any).eq("id", s.id);
     if (error) return toast.error(error.message);
     setSources((prev) => prev.map((x) => (x.id === s.id ? { ...x, ...patch } : x)));
-    if ("status" in patch || "audience" in patch || "module" in patch)
+    if (s.provider === "octadesk") toast.success("Alteração salva e já aplicada às respostas.");
+    else if ("status" in patch || "audience" in patch || "module" in patch)
       toast.info("Alteração salva. Clique em “Sincronizar com Notion” para aplicá-la às respostas.");
   };
 
   const lastSync = runs.find((r) => r.kind === "sync" && r.status === "success");
-  const lastRun = runs[0];
+  const lastOcta = runs.find((r) => r.kind === "octadesk" && r.status !== "running");
+  const lastRun = runs.find((r) => r.kind !== "octadesk");
   const approved = sources.filter((s) => s.status === "approved" && !s.removed_at);
   const answering = approved.filter((s) => s.chunk_count > 0);
   const unprocessed = sources.filter((s) => s.status === "approved" && s.unprocessed?.length);
   const filtered = useMemo(
-    () => sources.filter((s) => !q || s.title.toLowerCase().includes(q.toLowerCase())),
-    [sources, q],
+    () => sources.filter((s) => (origin === "all" || s.provider === origin) && (!q || s.title.toLowerCase().includes(q.toLowerCase()))),
+    [sources, q, origin],
   );
 
   return (
@@ -120,7 +123,7 @@ export default function AdminAssistenteIA() {
         <div>
           <h1 className="text-2xl font-bold">Assistente de dúvidas (IA)</h1>
           <p className="text-sm text-muted-foreground">
-            Escolha quais páginas do Notion o “Assistente dos manuais” pode usar no Nexti na Prática. Nada é usado sem aprovação.
+            Escolha quais páginas do Notion e artigos da Base de Conhecimento Nexti (Octadesk) o “Assistente dos manuais” pode usar no Nexti na Prática. Só materiais aprovados alimentam as respostas.
           </p>
         </div>
 
@@ -147,8 +150,11 @@ export default function AdminAssistenteIA() {
           <Card>
             <CardHeader className="pb-2"><CardTitle className="text-sm">Base de respostas</CardTitle></CardHeader>
             <CardContent className="space-y-1 text-sm">
-              <p><strong>{answering.length}</strong> de {approved.length} páginas aprovadas já sincronizadas</p>
-              <p className="text-muted-foreground">Última sincronização bem-sucedida: {fmt(lastSync?.finished_at ?? null)}</p>
+              <p><strong>{answering.length}</strong> de {approved.length} materiais aprovados com conteúdo</p>
+              <p className="text-muted-foreground">
+                Octadesk: {sources.filter((s) => s.provider === "octadesk" && s.status === "approved" && s.chunk_count > 0).length} artigos · importado em {fmt(lastOcta?.finished_at ?? null)}
+              </p>
+              <p className="text-muted-foreground">Notion: última sincronização {fmt(lastSync?.finished_at ?? null)}</p>
               <p className="text-muted-foreground">Avaliações: {feedback.yes} “Sim” · {feedback.no} “Não”</p>
             </CardContent>
           </Card>
@@ -200,8 +206,20 @@ export default function AdminAssistenteIA() {
           <Card>
             <CardHeader className="pb-2"><CardTitle className="text-sm">Materiais não processados</CardTitle></CardHeader>
             <CardContent className="space-y-1 text-sm text-muted-foreground">
-              <p>Imagens, arquivos e links não têm o conteúdo lido; o assistente não responde com base neles.</p>
-              {unprocessed.map((s) => (
+              <p>Imagens, arquivos, links e páginas de PDF que são só imagem não têm o conteúdo lido; o assistente não responde com base neles.</p>
+              {unprocessed.some((s) => s.provider === "octadesk") && (
+                <details>
+                  <summary className="cursor-pointer text-foreground">
+                    Octadesk: {unprocessed.filter((s) => s.provider === "octadesk").length} artigos têm páginas só com imagem (não lidas)
+                  </summary>
+                  <div className="mt-1 space-y-0.5 pl-4">
+                    {unprocessed.filter((s) => s.provider === "octadesk").map((s) => (
+                      <p key={s.id}><span className="font-medium text-foreground">{s.title}:</span> {s.unprocessed.map((u) => u.detail).join("; ")}</p>
+                    ))}
+                  </div>
+                </details>
+              )}
+              {unprocessed.filter((s) => s.provider !== "octadesk").map((s) => (
                 <p key={s.id}>
                   <span className="font-medium text-foreground">{s.title}:</span>{" "}
                   {Object.entries(s.unprocessed.reduce<Record<string, number>>((acc, u) => {
@@ -215,10 +233,20 @@ export default function AdminAssistenteIA() {
 
         <Card>
           <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2 pb-2">
-            <CardTitle className="text-sm">Páginas do Notion ({sources.length})</CardTitle>
+            <CardTitle className="text-sm">Materiais ({filtered.length})</CardTitle>
+            <div className="flex w-full flex-wrap gap-2 sm:w-auto">
+            <Select value={origin} onValueChange={(v) => setOrigin(v as typeof origin)}>
+              <SelectTrigger className="h-10 w-[150px]"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas as origens</SelectItem>
+                <SelectItem value="notion">Notion</SelectItem>
+                <SelectItem value="octadesk">Octadesk</SelectItem>
+              </SelectContent>
+            </Select>
             <div className="relative w-full sm:w-64">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar página" className="pl-8" />
+              <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar material" className="pl-8" />
+            </div>
             </div>
           </CardHeader>
           <CardContent className="overflow-x-auto">
@@ -230,7 +258,7 @@ export default function AdminAssistenteIA() {
               <table className="w-full min-w-[900px] text-sm">
                 <thead className="text-left text-xs text-muted-foreground">
                   <tr className="border-b">
-                    <th className="py-2 pr-2">Página</th>
+                    <th className="py-2 pr-2">Material</th>
                     <th className="py-2 pr-2">Situação</th>
                     <th className="py-2 pr-2">Público</th>
                     <th className="py-2 pr-2">Módulo</th>
@@ -244,9 +272,12 @@ export default function AdminAssistenteIA() {
                       <td className="py-2 pr-2">
                         <div style={{ paddingLeft: Math.min(s.depth, 6) * 14 }} className="flex items-start gap-1">
                           <div className="min-w-0">
-                            <p className="font-medium">{s.title}{s.kind === "database" && <span className="ml-1 text-xs text-muted-foreground">(base de dados)</span>}</p>
+                            <p className="font-medium">
+                              <Badge variant="outline" className="mr-1.5 px-1.5 py-0 text-[10px] font-normal">{s.provider === "octadesk" ? "Octadesk" : "Notion"}</Badge>
+                              {s.title}{s.kind === "database" && <span className="ml-1 text-xs text-muted-foreground">(base de dados)</span>}
+                            </p>
                             <p className="text-xs text-muted-foreground">
-                              Editada {fmt(s.notion_last_edited)}
+                              {s.provider === "octadesk" ? `Importado ${fmt(s.last_synced_at)}` : `Editada ${fmt(s.notion_last_edited)}`}
                               {s.url && (<> · <a href={s.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-0.5 text-primary hover:underline">abrir <ExternalLink className="h-3 w-3" /></a></>)}
                             </p>
                             {s.removed_at && <Badge variant="outline" className="mt-1 text-destructive">Não encontrada no Notion</Badge>}

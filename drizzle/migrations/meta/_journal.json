@@ -141,6 +141,34 @@
       "when": 1794855827073,
       "tag": "0019_notion_sources_module",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1794857395205,
+      "tag": "0020_assistant_octadesk_source",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1794857456751,
+      "tag": "0021_assistant_octadesk_import",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1794857779265,
+      "tag": "0022_assistant_search_ranking",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1794857833724,
+      "tag": "0023_assistant_search_term_weight",
+      "breakpoints": true
     }
   ]
 }

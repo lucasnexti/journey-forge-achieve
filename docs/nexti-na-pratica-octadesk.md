@@ -39,3 +39,9 @@ Regras usadas:
 | RH Digital > Aplicativo do colaborador | ori-0028, ori-0029 | Guia Aplicativo Colaborador; Solicitação Ajuste ponto Colaborador | Importado em 16/11/2026 | Decisão da Aline: aplicativo em RH Digital |
 | (a definir) | — | Escopo Inicial de Integração | Pendente | Definir se entra na base |
 | — | — | Apresentação Nexti | Não incluído | É um vídeo |
+
+## Assistente dos manuais (IA) — uso da base Octadesk
+
+Em 16/11/2026 os 46 artigos da base foram preparados para o assistente: 45 PDFs lidos pelo texto (sem ler imagens, para não captar dados pessoais das telas) e, quando existe, a orientação publicada do Nexti na Prática feita a partir do artigo. "Apresentação Nexti" é vídeo e ficou de fora; "Cadastro de Facial" e "Requisição de operação" têm PDF só com imagens (a Requisição é respondida pela orientação do Nexti na Prática).
+Os artigos entram aprovados para clientes (base pública); o administrador pode excluir ou mudar público/módulo em Admin → Assistente IA.
+Para atualizar: rodar `scripts/assistant-octadesk/crawl.py` e `build.py` (em /tmp/octa), enviar o índice para `assistant-knowledge/octadesk/index.json` e executar a ação `import_octadesk` da função `notion-knowledge` como administrador. A atualização não é automática.

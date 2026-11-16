@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
-import { ArrowUp, BookOpenText, ExternalLink, MessageCircleQuestion, RotateCcw, ThumbsDown, ThumbsUp, X } from "lucide-react";
+import { ArrowUp, BookOpen, BookOpenText, ExternalLink, FileText, MessageCircleQuestion, RotateCcw, ThumbsDown, ThumbsUp, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -12,8 +12,13 @@ import { Message, MessageContent, MessageResponse } from "@/components/ai-elemen
 import { PromptInput, PromptInputFooter, PromptInputSubmit, PromptInputTextarea } from "@/components/ai-elements/prompt-input";
 import { Shimmer } from "@/components/ai-elements/shimmer";
 import {
-  ASSISTANT_MODULES, GREETING, needsSupportHint, parseAnswer, type AssistantModule, type CandidateSource, type CitedPage,
+  ASSISTANT_MODULES, MODULE_SUGGESTIONS, PROVIDER_LABEL, needsSupportHint, parseAnswer,
+  type AssistantModule, type CandidateSource, type CitedPage,
 } from "@/lib/nextiAssistant";
+
+/** A module chosen at a point of the conversation (index = number of chat messages before it). */
+type ModuleEvent = { at: number; module: AssistantModule };
+const moduleLabelOf = (id: AssistantModule) => ASSISTANT_MODULES.find((m) => m.id === id)!.label;
 
 const ENDPOINT = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/nexti-ai-chat`;
 export const SUPPORT_HINT = `Não consegui compreender sua dúvida por completo, mas não se preocupe! Nosso time está à disposição para ajudar você a encontrar a melhor solução. Entre em contato por um dos nossos canais oficiais de atendimento:
@@ -59,6 +64,7 @@ export default function NextiAssistant() {
 
 function AssistantPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [module, setModule] = useState<AssistantModule | null>(null);
+  const [events, setEvents] = useState<ModuleEvent[]>([]);
   const moduleRef = useRef<AssistantModule | null>(null);
   moduleRef.current = module;
   const formRef = useRef<HTMLDivElement>(null);
@@ -92,6 +98,19 @@ function AssistantPanel({ open, onClose }: { open: boolean; onClose: () => void 
     setMessages([]);
     clearError();
     setModule(null);
+    setEvents([]);
+  };
+
+  const chooseModule = (id: AssistantModule) => {
+    setModule(id);
+    setEvents((prev) => [...prev, { at: messages.length, module: id }]);
+  };
+  const ask = (text: string) => {
+    const t = text.trim();
+    if (!t || !module || busy) return;
+    clearError();
+    sendMessage({ text: t });
+    focusInput();
   };
 
   const parsed = messages.map((m, i) => {
@@ -119,7 +138,21 @@ function AssistantPanel({ open, onClose }: { open: boolean; onClose: () => void 
         <div className="min-w-0 flex-1">
           <h2 className="truncate whitespace-nowrap text-[15px] font-semibold leading-tight">Assistente dos manuais</h2>
           <p className="truncate text-xs text-muted-foreground">
-            {moduleLabel ? `Módulo: ${moduleLabel}` : "Escolha o módulo para começar"}
+            {moduleLabel ? (
+              <>
+                Módulo: {moduleLabel}
+                <button
+                  type="button"
+                  onClick={() => setModule(null)}
+                  disabled={busy}
+                  className="ml-2 font-semibold text-primary hover:underline disabled:opacity-50"
+                >
+                  Trocar
+                </button>
+              </>
+            ) : (
+              "Escolha o módulo para começar"
+            )}
           </p>
         </div>
         {(messages.length > 0 || module) && (
@@ -139,41 +172,29 @@ function AssistantPanel({ open, onClose }: { open: boolean; onClose: () => void 
             <br />
             <strong>Sobre qual módulo é a sua dúvida?</strong>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {ASSISTANT_MODULES.map((m) => (
-              <button
-                key={m.id}
-                type="button"
-                disabled={busy}
-                onClick={() => setModule(m.id)}
-                className={cn(
-                  "rounded-full border border-primary px-4 py-2 text-sm font-semibold transition-colors",
-                  module === m.id ? "bg-primary text-primary-foreground" : "text-primary hover:bg-primary/5",
-                )}
-              >
-                {m.label}
-              </button>
-            ))}
-          </div>
-          {module && (
-            <div className="max-w-[88%] rounded-2xl border bg-muted/50 px-4 py-3 text-sm leading-relaxed">{GREETING}</div>
-          )}
-
           {messages.map((m, i) => {
+            const before = events.filter((e) => e.at === i).map((e, k) => (
+              <ModuleChosen key={`ev-${i}-${k}`} module={e.module} suggestions={false} onAsk={ask} />
+            ));
             if (m.role === "user") {
               const text = m.parts.filter((p) => p.type === "text").map((p) => (p as { text: string }).text).join("");
               return (
-                <Message key={m.id} from="user">
-                  <MessageContent className="bg-primary text-primary-foreground">{text}</MessageContent>
-                </Message>
+                <div key={m.id} className="contents">
+                  {before}
+                  <Message from="user">
+                    <MessageContent className="bg-primary text-primary-foreground">{text}</MessageContent>
+                  </Message>
+                </div>
               );
             }
             const a = parsed[i]!;
             const isLast = i === messages.length - 1;
             const pos = assistantIdx.indexOf(i);
-            if (!a.body && isLast && busy) return null;
+            if (!a.body && isLast && busy) return <div key={m.id} className="contents">{before}</div>;
             return (
-              <Message key={m.id} from="assistant">
+              <div key={m.id} className="contents">
+              {before}
+              <Message from="assistant">
                 <MessageContent className="w-full text-sm">
                   <MessageResponse isAnimating={isLast && status === "streaming"}>{a.body}</MessageResponse>
                   {a.pages.length > 0 && !(isLast && busy) && <SourcesBlock pages={a.pages} />}
@@ -185,8 +206,40 @@ function AssistantPanel({ open, onClose }: { open: boolean; onClose: () => void 
                   {!(isLast && busy) && a.body && <Feedback message={m} pages={a.pages} />}
                 </MessageContent>
               </Message>
+              </div>
             );
           })}
+
+          {events.filter((e) => e.at === messages.length).map((e, k, arr) => (
+            <ModuleChosen
+              key={`ev-end-${k}`}
+              module={e.module}
+              suggestions={k === arr.length - 1 && module === e.module && !busy}
+              onAsk={ask}
+            />
+          ))}
+          {!module && (
+            <>
+              {events.length > 0 && (
+                <div className="max-w-[88%] rounded-2xl border bg-muted/50 px-4 py-3 text-sm leading-relaxed">
+                  <strong>Sobre qual módulo é a sua dúvida?</strong>
+                </div>
+              )}
+              <div className="flex flex-wrap gap-2">
+                {ASSISTANT_MODULES.map((m) => (
+                  <button
+                    key={m.id}
+                    type="button"
+                    disabled={busy}
+                    onClick={() => chooseModule(m.id)}
+                    className="rounded-full border border-primary px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/5"
+                  >
+                    {m.label}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
 
           {busy && (status === "submitted" || !parsed[messages.length - 1]?.body) && (
             <Shimmer className="text-sm">Consultando os materiais…</Shimmer>
@@ -202,19 +255,13 @@ function AssistantPanel({ open, onClose }: { open: boolean; onClose: () => void 
 
       <div ref={formRef} className="border-t px-3 pb-2 pt-3">
         <PromptInput
-          onSubmit={({ text }) => {
-            const t = text.trim();
-            if (!t || !module || busy) return;
-            clearError();
-            sendMessage({ text: t });
-            focusInput();
-          }}
+          onSubmit={({ text }) => ask(text)}
           className="rounded-xl"
         >
           <PromptInputTextarea
             disabled={!module}
             maxLength={2000}
-            placeholder={module ? "Escreva sua dúvida…" : "Escolha o módulo acima"}
+            placeholder={module ? "Escreva sua pergunta…" : "Escolha o módulo acima"}
             className="min-h-11 text-sm"
           />
           <PromptInputFooter className="justify-end pt-0">
@@ -231,29 +278,56 @@ function AssistantPanel({ open, onClose }: { open: boolean; onClose: () => void 
   );
 }
 
-function SourcesBlock({ pages }: { pages: CitedPage[] }) {
+function ModuleChosen({ module, suggestions, onAsk }: { module: AssistantModule; suggestions: boolean; onAsk: (q: string) => void }) {
+  const label = moduleLabelOf(module);
+  const list = MODULE_SUGGESTIONS[module];
   return (
-    <div className="mt-3 rounded-xl border bg-muted/30 px-3 py-2">
-      <p className="text-xs font-semibold">Fonte consultada</p>
-      <ul className="mt-1 space-y-1.5">
-        {pages.map((p) => (
-          <li key={p.page_id} className="text-xs">
-            <span className="font-medium">{p.title}</span>
-            <span className="ml-1 inline-flex flex-wrap gap-x-3">
-              {p.orientation_path && (
-                <Link to={`/nexti-na-pratica/${p.orientation_path}`} className="text-primary underline-offset-2 hover:underline">
-                  Ver no Nexti na Prática
-                </Link>
-              )}
-              {p.url && (
-                <a href={p.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-0.5 text-primary underline-offset-2 hover:underline">
-                  Notion <ExternalLink className="h-3 w-3" />
-                </a>
-              )}
-            </span>
-          </li>
+    <>
+      <Message from="user">
+        <MessageContent className="bg-primary font-semibold text-primary-foreground">{label}</MessageContent>
+      </Message>
+      <div className="max-w-[88%] rounded-2xl border bg-muted/50 px-4 py-3 text-sm leading-relaxed">
+        Certo! Pode perguntar sobre o <strong>{label}</strong>.
+      </div>
+      {suggestions && list.length > 0 && (
+        <div className="flex flex-col items-start gap-2">
+          {list.map((q) => (
+            <button
+              key={q}
+              type="button"
+              onClick={() => onAsk(q)}
+              className="rounded-full border bg-card px-3 py-1.5 text-left text-xs text-muted-foreground transition-colors hover:border-primary/50 hover:text-foreground"
+            >
+              {q}
+            </button>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
+function SourcesBlock({ pages }: { pages: CitedPage[] }) {
+  const guides = pages.flatMap((p) => p.orientations).filter((o, i, arr) => arr.findIndex((x) => x.path === o.path) === i);
+  const chip = "inline-flex max-w-full items-center gap-1 rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary hover:bg-primary/15";
+  return (
+    <div className="mt-3 border-t pt-2">
+      <p className="text-xs text-muted-foreground">Veja no manual</p>
+      <div className="mt-1.5 flex flex-wrap gap-1.5">
+        {guides.map((o) => (
+          <Link key={o.path} to={`/nexti-na-pratica/${o.path}`} className={chip} title="Abrir no Nexti na Prática">
+            <BookOpen className="h-3 w-3 shrink-0" /> <span className="truncate">{o.title}</span>
+          </Link>
         ))}
-      </ul>
+        {pages.filter((p) => p.url).map((p) => (
+          <a key={p.page_id} href={p.url!} target="_blank" rel="noreferrer" className={chip} title="Abrir em nova aba">
+            <FileText className="h-3 w-3 shrink-0" />
+            <span className="truncate">{p.title}</span>
+            {p.provider && <span className="shrink-0 font-normal opacity-70">· {PROVIDER_LABEL[p.provider] ?? p.provider}</span>}
+            <ExternalLink className="h-3 w-3 shrink-0 opacity-70" />
+          </a>
+        ))}
+      </div>
     </div>
   );
 }

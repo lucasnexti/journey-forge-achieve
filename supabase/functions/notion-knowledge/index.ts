@@ -7,7 +7,7 @@ import { chunkLines, NotionError, notionClient, pageTitle, readPage, ROOT_PAGE_I
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
-const Body = z.object({ action: z.enum(["status", "inventory", "sync"]) });
+const Body = z.object({ action: z.enum(["status", "inventory", "sync", "import_octadesk"]) });
 const MAX_PAGES = 300;
 const TIME_BUDGET_MS = 115_000;
 const norm = (id: string) => id.replace(/-/g, "");
@@ -29,6 +29,7 @@ Deno.serve(async (req) => {
   const parsed = Body.safeParse(await req.json().catch(() => ({})));
   if (!parsed.success) return json({ error: parsed.error.flatten().fieldErrors }, 400);
   const { action } = parsed.data;
+  if (action === "import_octadesk") return await importOctadesk(db, userData.user.id);
 
   let notion: Notion;
   try {
@@ -141,7 +142,7 @@ async function inventory(db: SupabaseClient, notion: Notion, userId: string) {
   // Only a complete inventory may conclude that a page left the shared tree.
   const removed: string[] = [];
   if (!incomplete) {
-    const { data: existing } = await db.from("notion_sources").select("id,page_id,title").is("removed_at", null);
+    const { data: existing } = await db.from("notion_sources").select("id,page_id,title").eq("provider", "notion").is("removed_at", null);
     for (const s of existing ?? []) {
       if (found.has(s.page_id)) continue;
       await db.from("notion_chunks").delete().eq("source_id", s.id);
@@ -160,7 +161,7 @@ async function sync(db: SupabaseClient, notion: Notion, userId: string) {
   const started = Date.now();
   const { data: run } = await db.from("notion_sync_runs").insert({ kind: "sync", started_by: userId }).select("id").single();
   const { data: sources, error } = await db.from("notion_sources")
-    .select("id,page_id,kind,title,status,removed_at,chunk_count,synced_edited_time").order("position");
+    .select("id,page_id,kind,title,status,removed_at,chunk_count,synced_edited_time").eq("provider", "notion").order("position");
   if (error) return await finish("failed", { error: error.message });
 
   const failures: { title: string; error: string }[] = [];
@@ -230,4 +231,69 @@ async function sync(db: SupabaseClient, notion: Notion, userId: string) {
     : failures.length || pending.length ? "partial" : "success";
   return await finish(status, { approved: approved.length, failures, removed, deauthorized, pending,
     unprocessed: unprocessedCount, titles: processed });
+}
+
+// Octadesk public knowledge base: the prepared index (text read from each article's PDF plus the Nexti na Prática
+// orientations made from it) lives in the private assistant-knowledge bucket. New articles start approved for
+// customers; an admin's later review (status, audience, module) is kept on re-import.
+const OctaChunk = z.object({
+  section: z.string().max(300), content: z.string().min(1).max(4000),
+  orientation_path: z.string().regex(/^[a-z0-9-]+\/[a-z0-9-]+\/[a-z0-9-]+$/).nullable(), orientation_title: z.string().max(300).nullable(),
+});
+const OctaIndex = z.object({
+  source: z.literal("https://nexti.octadesk.com/kb/"), generated_at: z.string(),
+  articles: z.array(z.object({
+    page_id: z.string().regex(/^octadesk:[a-z0-9-]+$/), title: z.string().min(1).max(300),
+    url: z.string().startsWith("https://nexti.octadesk.com/kb/article/"), module: z.enum(["nexti", "talent", "admissao"]),
+    position: z.number().int(), linked_orientation_path: z.string().regex(/^[a-z0-9-]+\/[a-z0-9-]+\/[a-z0-9-]+$/).nullable(),
+    linked_orientation_title: z.string().nullable(), unprocessed: z.array(z.any()).max(20), chunks: z.array(OctaChunk).max(400),
+  })).min(1).max(500),
+});
+
+async function importOctadesk(db: SupabaseClient, userId: string) {
+  const { data: run } = await db.from("notion_sync_runs").insert({ kind: "octadesk", started_by: userId }).select("id").single();
+  const finish = async (status: string, details: Record<string, unknown>, counts: Record<string, number> = {}) => {
+    await db.from("notion_sync_runs").update({ status, finished_at: new Date().toISOString(), details, ...counts }).eq("id", run?.id);
+    return json({ status, ...details });
+  };
+  const { data: file, error: dlErr } = await db.storage.from("assistant-knowledge").download("octadesk/index.json");
+  if (dlErr || !file) return await finish("failed", { error: "Arquivo da base Octadesk não encontrado." });
+  const parsed = OctaIndex.safeParse(JSON.parse(await file.text()));
+  if (!parsed.success) return await finish("failed", { error: "Arquivo da base Octadesk inválido." });
+
+  const { data: existing } = await db.from("notion_sources").select("id,page_id,title").eq("provider", "octadesk");
+  const byPage = new Map((existing ?? []).map((e) => [e.page_id, e]));
+  const failures: { title: string; error: string }[] = [];
+  let processed = 0;
+  for (const a of parsed.data.articles) {
+    const base = { title: a.title, url: a.url, position: 100000 + a.position, removed_at: null,
+      linked_orientation_path: a.linked_orientation_path, linked_orientation_title: a.linked_orientation_title };
+    let id = byPage.get(a.page_id)?.id;
+    if (id) {
+      const { error } = await db.from("notion_sources").update(base).eq("id", id);
+      if (error) { failures.push({ title: a.title, error: error.message }); continue; }
+    } else {
+      const { data, error } = await db.from("notion_sources").insert({ ...base, provider: "octadesk", page_id: a.page_id,
+        status: "approved", audience: "clientes", module: a.module }).select("id").single();
+      if (error || !data) { failures.push({ title: a.title, error: error?.message ?? "falha ao criar" }); continue; }
+      id = data.id;
+    }
+    const chunks = a.chunks.map((c, i) => ({ ...c, page_id: a.page_id, page_title: a.title, url: a.url, position: i }));
+    const { error } = await db.rpc("replace_notion_chunks", { _source_id: id, _chunks: chunks, _edited: null, _unprocessed: a.unprocessed });
+    if (error) failures.push({ title: a.title, error: error.message }); else processed++;
+  }
+  // Articles that left the Octadesk base leave the answers (only when the whole import worked).
+  const removed: string[] = [];
+  if (!failures.length) {
+    const keep = new Set(parsed.data.articles.map((a) => a.page_id));
+    for (const e of existing ?? []) {
+      if (keep.has(e.page_id)) continue;
+      await db.from("notion_chunks").delete().eq("source_id", e.id);
+      await db.from("notion_sources").update({ removed_at: new Date().toISOString(), chunk_count: 0 }).eq("id", e.id);
+      removed.push(e.title);
+    }
+  }
+  return await finish(failures.length ? "partial" : "success",
+    { generated_at: parsed.data.generated_at, articles: parsed.data.articles.length, failures, removed },
+    { pages_processed: processed, pages_failed: failures.length, pages_removed: removed.length });
 }
