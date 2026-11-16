@@ -58,7 +58,8 @@ for g in base["grupos"]:
                 unp.append({"type": "video", "section": "Vídeo", "detail": "Vídeo não analisado; só o texto da página foi usado"})
             for r in rows: r.update(orientation_path=None, orientation_title=None)
             out.append({"page_id": "manuais:" + a["id"], "title": a["titulo"], "url": url, "module": module, "position": len(out),
-                        "linked_orientation_path": None, "linked_orientation_title": None, "unprocessed": unp, "chunks": rows})
+                        "linked_orientation_path": None, "linked_orientation_title": None, "unprocessed": unp, "chunks": rows,
+                        "viewer_url": SITE + a["urlVer"]})
             report.append((a["titulo"], npages, len(rows)))
 json.dump({"source": SITE, "generated_at": base.get("geradoEm") or datetime.datetime.utcnow().isoformat() + "Z", "articles": out},
           open("manuais_index.json", "w"), ensure_ascii=False)

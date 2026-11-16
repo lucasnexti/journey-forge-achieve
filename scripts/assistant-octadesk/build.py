@@ -75,7 +75,8 @@ for a in arts:
             rows.append({"section":"Orientação no Nexti na Prática: "+o["titulo"],"content":txt[k:k+1900],"orientation_path":opath(o),"orientation_title":o["titulo"]})
     unp=[{"type":"pdf","section":"PDF","detail":f"{empty} página(s) sem texto legível (só imagem)"}] if empty else []
     out.append({"page_id":"octadesk:"+a["slug"],"title":a["title"],"url":a["url"],"module":module,"position":len(out),
-      "linked_orientation_path":link[0] if link else None,"linked_orientation_title":link[1] if link else None,"unprocessed":unp,"chunks":rows})
+      "linked_orientation_path":link[0] if link else None,"linked_orientation_title":link[1] if link else None,"unprocessed":unp,"chunks":rows,
+      "viewer_url":f"https://drive.google.com/file/d/{a['drive'][0]}/preview"})
     report.append((a["title"],f"{n} págs, {len(chunks)} trechos do PDF, {len(o_ids)} orientações, {empty} sem texto",len(rows)))
 json.dump(out,open("octadesk_index.json","w"),ensure_ascii=False)
 for r in report: print(r)

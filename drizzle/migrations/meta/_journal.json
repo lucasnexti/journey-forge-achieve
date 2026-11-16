@@ -176,6 +176,13 @@
       "when": 1794859455290,
       "tag": "0024_assistant_manuais_source",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1794860213055,
+      "tag": "0025_assistant_source_viewer_url",
+      "breakpoints": true
     }
   ]
 }

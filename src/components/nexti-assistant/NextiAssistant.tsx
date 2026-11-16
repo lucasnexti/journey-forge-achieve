@@ -13,7 +13,7 @@ import { PromptInput, PromptInputFooter, PromptInputSubmit, PromptInputTextarea 
 import { Shimmer } from "@/components/ai-elements/shimmer";
 import {
   ASSISTANT_MODULES, MODULE_SUGGESTIONS, PROVIDER_LABEL, needsSupportHint, parseAnswer,
-  type AssistantModule, type CandidateSource, type CitedPage,
+  type AssistantModule, type CandidateSource, type CitedPage, type OpenedManual,
 } from "@/lib/nextiAssistant";
 
 /** A module chosen at a point of the conversation (index = number of chat messages before it). */
@@ -41,10 +41,15 @@ function friendlyError(error: Error | undefined) {
 }
 
 /** Discreet launcher + panel. History lives only in memory for the signed-in user (no storage). */
-export default function NextiAssistant() {
+export default function NextiAssistant({ onOpenManual }: { onOpenManual?: (m: OpenedManual) => void }) {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   if (!user) return null;
+  // The manual opens beside the chat; on phones the chat covers the screen, so it steps aside.
+  const openManual = onOpenManual && ((m: OpenedManual) => {
+    onOpenManual(m);
+    if (!window.matchMedia("(min-width: 640px)").matches) setOpen(false);
+  });
   return (
     <>
       {!open && (
@@ -57,12 +62,12 @@ export default function NextiAssistant() {
           <MessageCircleQuestion className="h-4 w-4" /> Tirar dúvida com IA
         </Button>
       )}
-      <AssistantPanel key={user.id} open={open} onClose={() => setOpen(false)} />
+      <AssistantPanel key={user.id} open={open} onClose={() => setOpen(false)} onOpenManual={openManual} />
     </>
   );
 }
 
-function AssistantPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
+function AssistantPanel({ open, onClose, onOpenManual }: { open: boolean; onClose: () => void; onOpenManual?: (m: OpenedManual) => void }) {
   const [module, setModule] = useState<AssistantModule | null>(null);
   const [events, setEvents] = useState<ModuleEvent[]>([]);
   const moduleRef = useRef<AssistantModule | null>(null);
@@ -197,7 +202,7 @@ function AssistantPanel({ open, onClose }: { open: boolean; onClose: () => void 
               <Message from="assistant">
                 <MessageContent className="w-full text-sm">
                   <MessageResponse isAnimating={isLast && status === "streaming"}>{a.body}</MessageResponse>
-                  {a.pages.length > 0 && !(isLast && busy) && <SourcesBlock pages={a.pages} />}
+                  {a.pages.length > 0 && !(isLast && busy) && <SourcesBlock pages={a.pages} onOpenManual={onOpenManual} />}
                   {needsSupportHint(notFoundFlags, pos) && !(isLast && busy) && (
                     <div className="mt-3 whitespace-pre-line rounded-xl border border-primary/30 bg-primary/5 px-3 py-2 text-sm">
                       {SUPPORT_HINT}
@@ -307,7 +312,7 @@ function ModuleChosen({ module, suggestions, onAsk }: { module: AssistantModule;
   );
 }
 
-function SourcesBlock({ pages }: { pages: CitedPage[] }) {
+function SourcesBlock({ pages, onOpenManual }: { pages: CitedPage[]; onOpenManual?: (m: OpenedManual) => void }) {
   const guides = pages.flatMap((p) => p.orientations).filter((o, i, arr) => arr.findIndex((x) => x.path === o.path) === i);
   const chip = "inline-flex max-w-full items-center gap-1 rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary hover:bg-primary/15";
   return (
@@ -319,7 +324,20 @@ function SourcesBlock({ pages }: { pages: CitedPage[] }) {
             <BookOpen className="h-3 w-3 shrink-0" /> <span className="truncate">{o.title}</span>
           </Link>
         ))}
-        {pages.filter((p) => p.url).map((p) => (
+        {pages.filter((p) => p.viewer_url && onOpenManual).map((p) => (
+          <button
+            key={p.page_id}
+            type="button"
+            onClick={() => onOpenManual!({ title: p.title, provider: p.provider, viewer_url: p.viewer_url!, url: p.url })}
+            className={cn(chip, "text-left")}
+            title="Abrir o manual aqui"
+          >
+            <FileText className="h-3 w-3 shrink-0" />
+            <span className="truncate">{p.title}</span>
+            {p.provider && <span className="shrink-0 font-normal opacity-70">· {PROVIDER_LABEL[p.provider] ?? p.provider}</span>}
+          </button>
+        ))}
+        {pages.filter((p) => p.url && !(p.viewer_url && onOpenManual)).map((p) => (
           <a key={p.page_id} href={p.url!} target="_blank" rel="noreferrer" className={chip} title="Abrir em nova aba">
             <FileText className="h-3 w-3 shrink-0" />
             <span className="truncate">{p.title}</span>

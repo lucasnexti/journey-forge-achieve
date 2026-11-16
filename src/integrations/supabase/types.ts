@@ -1369,6 +1369,7 @@ export type Database = {
           unprocessed: Json
           updated_at: string
           url: string | null
+          viewer_url: string | null
         }
         Insert: {
           audience?: string
@@ -1396,6 +1397,7 @@ export type Database = {
           unprocessed?: Json
           updated_at?: string
           url?: string | null
+          viewer_url?: string | null
         }
         Update: {
           audience?: string
@@ -1423,6 +1425,7 @@ export type Database = {
           unprocessed?: Json
           updated_at?: string
           url?: string | null
+          viewer_url?: string | null
         }
         Relationships: []
       }

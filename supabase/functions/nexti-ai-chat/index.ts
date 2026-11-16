@@ -95,9 +95,13 @@ Deno.serve(async (req) => {
   }
   if (hits.length === 0) return fixedAnswer(NOT_FOUND, messages);
 
+  // File each material opens inside the app (PDF/video); filled by the imports, never by the browser.
+  const { data: viewers } = await db.from("notion_sources").select("page_id,viewer_url")
+    .in("page_id", [...new Set(hits.map((h) => h.page_id))]).not("viewer_url", "is", null);
+  const viewerOf = new Map((viewers ?? []).map((v) => [v.page_id, v.viewer_url]));
   const sources = hits.map((h, i) => ({
     n: i + 1, page_id: h.page_id, title: h.page_title, section: h.section, url: h.url, updated_at: h.page_updated_at,
-    provider: h.provider, orientation_path: h.linked_orientation_path, orientation_title: h.linked_orientation_title,
+    provider: h.provider, viewer_url: viewerOf.get(h.page_id) ?? null, orientation_path: h.linked_orientation_path, orientation_title: h.linked_orientation_title,
   }));
   const context = hits.map((h, i) =>
     `<fonte n="${i + 1}" material="${h.page_title}" origem="${PROVIDERS[h.provider as keyof typeof PROVIDERS] ?? h.provider}" trecho="${h.section}"${h.page_updated_at ? ` atualizado_em="${h.page_updated_at}"` : ""}>\n${h.content}\n</fonte>`

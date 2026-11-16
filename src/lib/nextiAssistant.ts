@@ -38,6 +38,8 @@ export interface CandidateSource {
   url: string | null;
   updated_at: string | null;
   provider?: string | null;
+  /** File shown inside the app when the material is opened (PDF/video); null = open the original page. */
+  viewer_url?: string | null;
   orientation_path: string | null;
   orientation_title: string | null;
 }
@@ -52,6 +54,7 @@ export interface CitedPage {
   title: string;
   url: string | null;
   provider: string | null;
+  viewer_url: string | null;
   orientations: CitedOrientation[];
 }
 
@@ -74,7 +77,7 @@ export function parseAnswer(text: string, candidates: CandidateSource[], streami
     if (!nums.has(c.n)) continue;
     let page = byId.get(c.page_id);
     if (!page) {
-      page = { page_id: c.page_id, title: c.title, url: c.url, provider: c.provider ?? null, orientations: [] };
+      page = { page_id: c.page_id, title: c.title, url: c.url, provider: c.provider ?? null, viewer_url: inAppViewer(c.viewer_url), orientations: [] };
       byId.set(c.page_id, page);
       pages.push(page);
     }
@@ -89,4 +92,21 @@ export function parseAnswer(text: string, candidates: CandidateSource[], streami
 /** After two "not found" answers in a row, the user is pointed to the support channel. */
 export function needsSupportHint(notFoundFlags: boolean[], index: number) {
   return index > 0 && notFoundFlags[index] === true && notFoundFlags[index - 1] === true;
+}
+
+// Only files from the manuals' own hosts are shown inside the app (Octadesk PDFs live on Google Drive).
+const VIEWER_URL = /^https:\/\/(drive\.google\.com\/file\/d\/[A-Za-z0-9_-]+\/preview|manuais-nexti\.pages\.dev\/arquivos\/[a-z0-9-]+(\.vertical)?\.(pdf|mp4))$/;
+
+/** Returns the URL to show inside the app, or null when the material must open in a new tab. */
+export function inAppViewer(url: string | null | undefined): string | null {
+  return url && VIEWER_URL.test(url) ? url : null;
+}
+
+/** What the in-app viewer shows for a material. */
+export interface OpenedManual {
+  title: string;
+  provider: string | null;
+  viewer_url: string;
+  /** Original page of the material (Octadesk article, manuals site). */
+  url: string | null;
 }

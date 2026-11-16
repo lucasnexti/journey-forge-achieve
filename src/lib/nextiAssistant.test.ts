@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { needsSupportHint, NOT_FOUND, parseAnswer, type CandidateSource } from "./nextiAssistant";
+import { inAppViewer, needsSupportHint, NOT_FOUND, parseAnswer, type CandidateSource } from "./nextiAssistant";
 
 const src = (n: number, page: string, title = `Página ${page}`): CandidateSource => ({
   n, page_id: page, title, section: "", url: `https://notion.so/${page}`, updated_at: null, orientation_path: null, orientation_title: null,
@@ -47,5 +47,25 @@ describe("needsSupportHint", () => {
     expect(needsSupportHint([true], 0)).toBe(false);
     expect(needsSupportHint([true, true], 1)).toBe(true);
     expect(needsSupportHint([false, true], 1)).toBe(false);
+  });
+});
+
+describe("opening a material inside the app", () => {
+  it("opens the Octadesk article's PDF inside the app instead of the Octadesk page", () => {
+    const c: CandidateSource = {
+      ...src(1, "octadesk:guia-cadastro-horario-e-escala-completo", "Cadastro Horário e Escala Completo"), provider: "octadesk",
+      url: "https://nexti.octadesk.com/kb/article/guia-cadastro-horario-e-escala-completo",
+      viewer_url: "https://drive.google.com/file/d/1q-1vEp9HvV2H-L9ugeZdbG42VFgjzOJQ/preview",
+    };
+    expect(parseAnswer("Resposta\nFONTES: 1", [c]).pages[0].viewer_url).toBe("https://drive.google.com/file/d/1q-1vEp9HvV2H-L9ugeZdbG42VFgjzOJQ/preview");
+  });
+  it("accepts the implantation manuals' PDFs and videos", () => {
+    expect(inAppViewer("https://manuais-nexti.pages.dev/arquivos/admissao-filiais.pdf")).not.toBeNull();
+    expect(inAppViewer("https://manuais-nexti.pages.dev/arquivos/admissao-conheca-o-modulo-admissao.mp4")).not.toBeNull();
+  });
+  it("never embeds other sites", () => {
+    expect(inAppViewer("https://evil.example.com/x.pdf")).toBeNull();
+    expect(inAppViewer("https://drive.google.com/file/d/abc/view")).toBeNull();
+    expect(inAppViewer(null)).toBeNull();
   });
 });

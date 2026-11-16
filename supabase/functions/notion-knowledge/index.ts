@@ -248,6 +248,8 @@ const OCTADESK: PreparedBase = { provider: "octadesk", file: "octadesk/index.jso
   pageId: /^octadesk:[a-z0-9-]+$/, urlPrefix: "https://nexti.octadesk.com/kb/article/" };
 const MANUAIS: PreparedBase = { provider: "manuais", file: "manuais/index.json", label: "dos manuais de implantação",
   source: "https://manuais-nexti.pages.dev/", pageId: /^manuais:[a-z0-9-]+$/, urlPrefix: "https://manuais-nexti.pages.dev/?manual=" };
+// Same rule as the database check on notion_sources.viewer_url.
+const VIEWER_URL = /^https:\/\/(drive\.google\.com\/file\/d\/[A-Za-z0-9_-]+\/preview|manuais-nexti\.pages\.dev\/arquivos\/[a-z0-9-]+(\.vertical)?\.(pdf|mp4))$/;
 const preparedIndex = (b: PreparedBase) => z.object({
   source: z.literal(b.source), generated_at: z.string(),
   articles: z.array(z.object({
@@ -255,6 +257,7 @@ const preparedIndex = (b: PreparedBase) => z.object({
     url: z.string().startsWith(b.urlPrefix), module: z.enum(["nexti", "talent", "admissao"]),
     position: z.number().int(), linked_orientation_path: z.string().regex(/^[a-z0-9-]+\/[a-z0-9-]+\/[a-z0-9-]+$/).nullable(),
     linked_orientation_title: z.string().nullable(), unprocessed: z.array(z.any()).max(20), chunks: z.array(OctaChunk).max(400),
+    viewer_url: z.string().regex(VIEWER_URL).nullable().optional(),
   })).min(1).max(500),
 });
 
@@ -276,7 +279,8 @@ async function importPrepared(db: SupabaseClient, userId: string, b: PreparedBas
   const offset = b.provider === "octadesk" ? 100000 : 200000;
   for (const a of parsed.data.articles) {
     const base = { title: a.title, url: a.url, position: offset + a.position, removed_at: null,
-      linked_orientation_path: a.linked_orientation_path, linked_orientation_title: a.linked_orientation_title };
+      linked_orientation_path: a.linked_orientation_path, linked_orientation_title: a.linked_orientation_title,
+      ...(a.viewer_url ? { viewer_url: a.viewer_url } : {}) };
     let id = byPage.get(a.page_id)?.id;
     if (id) {
       const { error } = await db.from("notion_sources").update(base).eq("id", id);
