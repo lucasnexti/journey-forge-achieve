@@ -36,3 +36,12 @@
 - [x] Criar o módulo "Talent" no Nexti na Prática (pedido da Aline em 16/11)
 - [x] Trazer o Guia de uso - Nexti Talent (157 páginas) para o módulo Talent, com dados pessoais ocultados
 - [ ] Publicar o site para as novas telas e PDFs aparecerem no endereço oficial
+
+# Roadmap — Assistente de dúvidas com IA (Nexti na Prática + Notion)
+- [ ] Base no servidor: páginas do Notion, aprovação, trechos, sincronizações e avaliações
+- [ ] Sincronização com o Notion (inventário, leitura das aprovadas, remoções, falhas)
+- [ ] Assistente que responde só com fontes aprovadas e mostra "Fonte consultada"
+- [ ] Canal de atendimento no formato do print (janela "Assistente dos manuais", escolha de módulo Nexti/Talent/Admissão)
+- [ ] Mensagem final de suporte da Aline (e-mail, WhatsApp, chat) após duas respostas sem orientação
+- [ ] Tela de administração das fontes + "Sincronizar com Notion"
+- [ ] Conectar o Notion (depende da Aline autorizar) e validar uma consulta real

@@ -127,6 +127,20 @@
       "when": 1794594106258,
       "tag": "0017_onboarding_interest_areas",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1794855746580,
+      "tag": "0018_nexti_ai_assistant_notion",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1794855827073,
+      "tag": "0019_notion_sources_module",
+      "breakpoints": true
     }
   ]
 }

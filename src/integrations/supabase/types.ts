@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_assistant_feedback: {
+        Row: {
+          created_at: string
+          helpful: boolean
+          id: string
+          source_page_ids: string[]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          helpful: boolean
+          id?: string
+          source_page_ids?: string[]
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          helpful?: boolean
+          id?: string
+          source_page_ids?: string[]
+          user_id?: string
+        }
+        Relationships: []
+      }
       alert_history: {
         Row: {
           id: string
@@ -1262,6 +1286,179 @@ export type Database = {
         }
         Relationships: []
       }
+      notion_chunks: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          page_id: string
+          page_title: string
+          page_updated_at: string | null
+          position: number
+          search: unknown
+          section: string
+          source_id: string
+          url: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          page_id: string
+          page_title?: string
+          page_updated_at?: string | null
+          position?: number
+          search?: unknown
+          section?: string
+          source_id: string
+          url?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          page_id?: string
+          page_title?: string
+          page_updated_at?: string | null
+          position?: number
+          search?: unknown
+          section?: string
+          source_id?: string
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notion_chunks_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "notion_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notion_sources: {
+        Row: {
+          audience: string
+          chunk_count: number
+          created_at: string
+          depth: number
+          id: string
+          kind: string
+          last_synced_at: string | null
+          linked_orientation_path: string | null
+          linked_orientation_title: string | null
+          module: string | null
+          notion_last_edited: string | null
+          page_id: string
+          parent_page_id: string | null
+          position: number
+          removed_at: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          sync_error: string | null
+          synced_edited_time: string | null
+          title: string
+          unprocessed: Json
+          updated_at: string
+          url: string | null
+        }
+        Insert: {
+          audience?: string
+          chunk_count?: number
+          created_at?: string
+          depth?: number
+          id?: string
+          kind?: string
+          last_synced_at?: string | null
+          linked_orientation_path?: string | null
+          linked_orientation_title?: string | null
+          module?: string | null
+          notion_last_edited?: string | null
+          page_id: string
+          parent_page_id?: string | null
+          position?: number
+          removed_at?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          sync_error?: string | null
+          synced_edited_time?: string | null
+          title?: string
+          unprocessed?: Json
+          updated_at?: string
+          url?: string | null
+        }
+        Update: {
+          audience?: string
+          chunk_count?: number
+          created_at?: string
+          depth?: number
+          id?: string
+          kind?: string
+          last_synced_at?: string | null
+          linked_orientation_path?: string | null
+          linked_orientation_title?: string | null
+          module?: string | null
+          notion_last_edited?: string | null
+          page_id?: string
+          parent_page_id?: string | null
+          position?: number
+          removed_at?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          sync_error?: string | null
+          synced_edited_time?: string | null
+          title?: string
+          unprocessed?: Json
+          updated_at?: string
+          url?: string | null
+        }
+        Relationships: []
+      }
+      notion_sync_runs: {
+        Row: {
+          details: Json
+          finished_at: string | null
+          id: string
+          kind: string
+          pages_failed: number
+          pages_processed: number
+          pages_removed: number
+          pages_unchanged: number
+          started_at: string
+          started_by: string | null
+          status: string
+        }
+        Insert: {
+          details?: Json
+          finished_at?: string | null
+          id?: string
+          kind: string
+          pages_failed?: number
+          pages_processed?: number
+          pages_removed?: number
+          pages_unchanged?: number
+          started_at?: string
+          started_by?: string | null
+          status?: string
+        }
+        Update: {
+          details?: Json
+          finished_at?: string | null
+          id?: string
+          kind?: string
+          pages_failed?: number
+          pages_processed?: number
+          pages_removed?: number
+          pages_unchanged?: number
+          started_at?: string
+          started_by?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       performance_snapshots: {
         Row: {
           active_today: number
@@ -2236,6 +2433,15 @@ export type Database = {
       learning_path_snapshot: { Args: { _path: string }; Returns: Json }
       learning_quiz_access: { Args: { _quiz: string }; Returns: boolean }
       redeem_reward: { Args: { _reward_id: string }; Returns: Json }
+      replace_notion_chunks: {
+        Args: {
+          _chunks: Json
+          _edited: string
+          _source_id: string
+          _unprocessed: Json
+        }
+        Returns: number
+      }
       save_knowledge_base: {
         Args: { _dados: Json; _expected: string; _id: string }
         Returns: string
@@ -2253,6 +2459,26 @@ export type Database = {
           _telefone: string
         }
         Returns: undefined
+      }
+      search_notion_knowledge: {
+        Args: {
+          _include_admin: boolean
+          _limit?: number
+          _module?: string
+          _query: string
+        }
+        Returns: {
+          chunk_id: string
+          content: string
+          linked_orientation_path: string
+          linked_orientation_title: string
+          page_id: string
+          page_title: string
+          page_updated_at: string
+          rank: number
+          section: string
+          url: string
+        }[]
       }
       set_learning_path_access: {
         Args: {

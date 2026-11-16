@@ -56,6 +56,7 @@ const AdminPersonalizacao = lazy(() => import("./pages/admin/AdminPersonalizacao
 const AdminQuizNexti = lazy(() => import("./pages/admin/AdminQuizNexti"));
 const AdminRewards = lazy(() => import("./pages/admin/AdminRewards"));
 const AdminMonitoramento = lazy(() => import("./pages/admin/AdminMonitoramento"));
+const AdminAssistenteIA = lazy(() => import("./pages/admin/AdminAssistenteIA"));
 const AdminProvas = lazy(() => import("./pages/admin/AdminProvas"));
 
 const queryClient = new QueryClient({
@@ -128,6 +129,7 @@ const App = () => (
               <Route path="/admin/quiz-nexti" element={<AdminRoute><AdminQuizNexti /></AdminRoute>} />
               <Route path="/admin/premios" element={<AdminRoute><AdminRewards /></AdminRoute>} />
               <Route path="/admin/monitoramento" element={<AdminRoute><AdminMonitoramento /></AdminRoute>} />
+              <Route path="/admin/assistente-ia" element={<AdminRoute><AdminAssistenteIA /></AdminRoute>} />
 
               <Route path="*" element={<NotFound />} />
             </Routes>

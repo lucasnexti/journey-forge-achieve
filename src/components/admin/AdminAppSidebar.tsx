@@ -2,8 +2,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutGrid, Route, BookOpen, Star, GraduationCap, Users as UsersIcon,
   Layers, BarChart3, FileText, LogOut, Award, ShieldCheck, Bell, Palette,
-  ClipboardCheck, MessageSquare, Sun, Moon, ChevronDown, User, Zap, Gift, Activity, BookMarked
-} from "lucide-react";
+  ClipboardCheck, MessageSquare, Sun, Moon, ChevronDown, User, Zap, Gift, Activity, BookMarked, Bot } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/hooks/useTheme";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -55,6 +54,7 @@ const navGroups: NavGroup[] = [
       { to: "/admin/quiz-nexti", label: "Quiz Nexti", icon: Zap },
       { to: "/admin/treinamentos", label: "Trein. Presenciais", icon: Layers },
       { to: "/nexti-na-pratica", label: "Nexti na Prática", icon: BookMarked },
+      { to: "/admin/assistente-ia", label: "Assistente IA (Notion)", icon: Bot },
     ],
   },
   {

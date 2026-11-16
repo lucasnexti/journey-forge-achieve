@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import AppLayout from "@/components/AppLayout";
 import { installNextiNaPraticaBridge } from "@/lib/nextiNaPraticaBridge";
+import NextiAssistant from "@/components/nexti-assistant/NextiAssistant";
 
 // Must exist before the iframe script runs; the embedded site reads it from window.parent.
 installNextiNaPraticaBridge();
@@ -55,6 +56,7 @@ export default function NextiNaPraticaPage() {
         title="Nexti na Prática"
         className="block w-full h-[calc(100dvh-4rem)] md:h-[calc(100dvh-3rem)] border-0 bg-background"
       />
+      <NextiAssistant />
     </AppLayout>
   );
 }
