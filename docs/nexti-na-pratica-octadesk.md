@@ -33,8 +33,9 @@ Regras usadas:
 | Nexti Time | — | Guia Nexti Time Completo (84 páginas) | Pendente — próxima etapa | — |
 | Nexti Plus | — | Guia Nexti Plus Completo (70 páginas); Vale Transporte; VR VA VC; Vale Combustível; Gratificação | Pendente — próxima etapa | Conferir se os guias de benefício repetem o guia completo |
 | (a definir) | — | Perfil de apuração completo e 4 guias de Perfil de apuração | Pendente | Não há módulo de apuração; definir onde ficam |
-| (a definir) | — | Guia de uso - Nexti Talent (157 páginas) | Pendente | Não há módulo Talent; definir onde fica |
+| Talent (módulo novo) | ori-0030 a ori-0046 | Guia de uso - Nexti Talent (157 páginas; sem data no arquivo) | Importado em 16/11/2026 | 17 orientações em 6 assuntos; 93 telas e PDF resumido com nomes, e-mails, telefones, CNPJ e dados de candidatos ocultados |
 | (a definir) | — | Guia Aplicativo Colaborador; Solicitação Ajuste ponto Colaborador | Pendente | Não há módulo de aplicativo; definir onde ficam |
-| (a definir) | — | Manual Configuração APN; Manual Configuração WIFI; Manual de Fixação dos Terminais; Manual Sincronização via Bluetooth; Resolvendo Problemas nos Terminais | Pendente | Avaliar inclusão em Cadastros > Biometria/Senha ou em módulo de terminais |
+| Cadastros > Terminais | ori-0024 a ori-0027 | Manual Configuração APN; Manual Configuração WIFI; Manual de Fixação dos Terminais; Manual Sincronização via Bluetooth; Resolvendo Problemas nos Terminais | Importado em 16/11/2026 | Decisão da Aline: terminais em Cadastros |
+| RH Digital > Aplicativo do colaborador | ori-0028, ori-0029 | Guia Aplicativo Colaborador; Solicitação Ajuste ponto Colaborador | Importado em 16/11/2026 | Decisão da Aline: aplicativo em RH Digital |
 | (a definir) | — | Escopo Inicial de Integração | Pendente | Definir se entra na base |
 | — | — | Apresentação Nexti | Não incluído | É um vídeo |

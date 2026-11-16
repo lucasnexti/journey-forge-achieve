@@ -139,6 +139,11 @@ window.DADOS = {
           "descricao": "Lançamento da sanção disciplinar aplicada ao colaborador."
         },
         {
+          "id": "terminais",
+          "nome": "Terminais",
+          "descricao": "Conexão do terminal biométrico à internet, sincronização via Bluetooth, fixação e solução de problemas."
+        },
+        {
           "id": "usuario",
           "nome": "Usuário",
           "descricao": "Tipos de usuário e principais flags do cadastro de usuário."
@@ -207,7 +212,7 @@ window.DADOS = {
     {
       "id": "rh-digital",
       "nome": "RH Digital",
-      "descricao": "Comunicação digital com os colaboradores: avisos, convocações e checklists exibidos no terminal e no aplicativo Nexti.",
+      "descricao": "Comunicação digital com os colaboradores: avisos, convocações e checklists exibidos no terminal e no aplicativo Nexti, e o uso do aplicativo pelo colaborador.",
       "submodulos": [
         {
           "id": "avisos-e-convocacoes",
@@ -218,6 +223,11 @@ window.DADOS = {
           "id": "checklist",
           "nome": "Checklist",
           "descricao": "Perguntas enviadas a colaboradores ou postos, com aviso de Não Conforme por e-mail."
+        },
+        {
+          "id": "aplicativo-do-colaborador",
+          "nome": "Aplicativo do colaborador",
+          "descricao": "Uso do aplicativo Nexti pelo colaborador e solicitações de ajuste de ponto pelo celular."
         }
       ]
     },
@@ -359,6 +369,43 @@ window.DADOS = {
       "nome": "Nexti Plus",
       "descricao": "",
       "submodulos": []
+    },
+    {
+      "id": "talent",
+      "nome": "Talent",
+      "descricao": "Recrutamento e seleção no Nexti Talent: configuração, vagas, candidatos, avaliações, comunicação, automações e métricas.",
+      "submodulos": [
+        {
+          "id": "talent-configuracao",
+          "nome": "Configuração",
+          "descricao": "Dados da empresa, usuários e perfis, funis, cargos, áreas, equipes e tags."
+        },
+        {
+          "id": "talent-vagas",
+          "nome": "Vagas",
+          "descricao": "Divulgação, gestão, requisição e aprovação de vagas e página de carreiras."
+        },
+        {
+          "id": "talent-candidatos",
+          "nome": "Candidatos",
+          "descricao": "Processo seletivo, contato, avaliação e banco de candidatos."
+        },
+        {
+          "id": "talent-avaliacoes",
+          "nome": "Avaliações",
+          "descricao": "Testes, formulários e pré-questionários."
+        },
+        {
+          "id": "talent-comunicacao",
+          "nome": "Mensagens e automações",
+          "descricao": "Modelos de mensagem e automações do funil."
+        },
+        {
+          "id": "talent-metricas",
+          "nome": "Métricas",
+          "descricao": "Métricas das vagas e da empresa."
+        }
+      ]
     },
     {
       "id": "contracheque",
@@ -5557,6 +5604,3139 @@ window.DADOS = {
         "atualizacaoFonte": "Não informada no artigo nem no arquivo PDF.",
         "importadoEm": "2026-11-16"
       }
+    },
+    {
+      "status": "publicado",
+      "revisao": "2026-11-16",
+      "passos": [],
+      "id": "ori-0024",
+      "slug": "como-configurar-a-internet-do-terminal",
+      "titulo": "Como conectar o terminal à internet por Wi-Fi ou chip (APN)?",
+      "modulo": "cadastros",
+      "submodulos": [
+        "terminais"
+      ],
+      "resumo": "Gere o código de acesso administrativo na Mesa de operação e, no terminal, configure a rede Wi-Fi ou a APN do chip da operadora.",
+      "palavrasChave": [
+        "terminal",
+        "TBI",
+        "BP4",
+        "wi-fi",
+        "wifi",
+        "APN",
+        "chip",
+        "operadora",
+        "internet",
+        "rede",
+        "código administrativo",
+        "gerar código",
+        "comandos remotos"
+      ],
+      "finalidade": "O terminal biométrico precisa de internet para enviar as marcações ao Nexti. Ele pode usar uma rede Wi-Fi ou um chip de operadora (APN). As duas configurações são feitas na área administrativa do próprio terminal, liberada por um código gerado na Mesa de operação.",
+      "preparacao": [
+        "Saiba o código do terminal (fica na etiqueta e na Mesa de operação).",
+        "Tenha acesso à Mesa de operação, ou uma digital com acesso administrativo no terminal.",
+        "Para Wi-Fi: o nome da rede e a senha.",
+        "Para chip: o chip já ativado e os dados de APN da operadora (servidor, usuário e senha)."
+      ],
+      "resumoProcedimento": [
+        {
+          "titulo": "Encontre o terminal",
+          "texto": "Na Mesa de operação, abra o filtro, digite o código do terminal no campo de terminais e clique em Filtrar. Você é levado ao posto em que ele está vinculado."
+        },
+        {
+          "titulo": "Abra os comandos remotos",
+          "texto": "Clique no ícone de terminal no canto superior direito do posto, localize o terminal pelo código e clique na engrenagem."
+        },
+        {
+          "titulo": "Gere o código",
+          "texto": "Em Comandos remotos, clique em Executar ao lado de Gerar código e anote o código gerado."
+        },
+        {
+          "titulo": "Entre na área administrativa",
+          "texto": "No terminal, toque na engrenagem do canto superior esquerdo, toque em Usar senha e digite o código."
+        },
+        {
+          "titulo": "Configure Wi-Fi",
+          "texto": "Toque em Configurar Wi-Fi, escolha a rede, informe a senha, se houver, e toque em Conectar. O terminal reinicia já conectado."
+        },
+        {
+          "titulo": "Ou configure a APN",
+          "texto": "Insira o chip na parte traseira e segure o botão de ligar por cerca de 10 segundos para reiniciar. Gere o código e entre na área administrativa, toque em Configurar APN, preencha servidor, usuário e senha da operadora e toque em Salvar."
+        }
+      ],
+      "atencao": [
+        "O código de acesso administrativo muda de hora em hora. Gere um novo se o anterior não funcionar.",
+        "Depois de trocar o chip, reinicie o terminal para que ele reconheça o chip novo.",
+        "Os dados de APN dependem da operadora do chip. Confira com a operadora antes de salvar."
+      ],
+      "telas": [
+        {
+          "aba": "Código de acesso",
+          "imagens": [
+            {
+              "src": "assets/telas/terminal-internet-01.jpg",
+              "legenda": "Na Mesa de operação, abra o filtro.",
+              "alt": "Mesa de operação com o ícone de filtro destacado e os nomes de clientes ocultados."
+            },
+            {
+              "src": "assets/telas/terminal-internet-02.jpg",
+              "legenda": "Digite o código do terminal no campo de terminais e clique em Filtrar.",
+              "alt": "Janela de filtro geral com o campo de terminais destacado e o código ocultado."
+            },
+            {
+              "src": "assets/telas/terminal-internet-03.jpg",
+              "legenda": "No posto em que o terminal está vinculado, clique no ícone de terminal.",
+              "alt": "Posto na Mesa de operação com o ícone de terminal destacado e os nomes ocultados."
+            },
+            {
+              "src": "assets/telas/terminal-internet-04.jpg",
+              "legenda": "Clique na engrenagem do terminal e, em Comandos remotos, em Executar ao lado de Gerar código.",
+              "alt": "Painel do terminal com o comando Gerar código destacado e os números do aparelho ocultados."
+            },
+            {
+              "src": "assets/telas/terminal-internet-05.jpg",
+              "legenda": "No terminal, toque na engrenagem, depois em Usar senha, e digite o código gerado.",
+              "alt": "Tela inicial do terminal com a engrenagem destacada e teclado para a senha administrativa."
+            }
+          ]
+        },
+        {
+          "aba": "Wi-Fi",
+          "imagens": [
+            {
+              "src": "assets/telas/terminal-internet-06.jpg",
+              "legenda": "Na área administrativa, toque em Configurar Wi-Fi, escolha a rede e toque em Conectar.",
+              "alt": "Menu de configurações do terminal com a opção Configurar Wifi destacada."
+            }
+          ]
+        },
+        {
+          "aba": "Chip (APN)",
+          "imagens": [
+            {
+              "src": "assets/telas/terminal-internet-07.jpg",
+              "legenda": "Insira o chip na parte traseira e segure o botão de ligar por cerca de 10 segundos.",
+              "alt": "Parte traseira do terminal com o compartimento do chip e lateral com o botão de ligar."
+            },
+            {
+              "src": "assets/telas/terminal-internet-08.jpg",
+              "legenda": "Toque em Configurar APN, preencha os dados da operadora e toque em Salvar.",
+              "alt": "Menu com Configurar APN destacado, exemplo de dados das operadoras e tela de configuração da APN."
+            }
+          ]
+        }
+      ],
+      "fonteTelas": "Manuais “Configuração APN” e “Configuração WIFI”, da base de conhecimento Nexti no Octadesk, com nomes e números dos aparelhos ocultados",
+      "campos": [
+        {
+          "grupo": "Comandos remotos",
+          "termo": "Gerar código",
+          "descricao": "Cria o código temporário que libera a área administrativa do terminal."
+        },
+        {
+          "grupo": "Comandos remotos",
+          "termo": "Atualizar colaboradores, Reiniciar e Atualizar data",
+          "descricao": "Outros comandos enviados ao terminal pela Mesa de operação."
+        },
+        {
+          "grupo": "Configuração de APN",
+          "termo": "Servidor, Usuário e Senha",
+          "descricao": "Dados de acesso à internet informados pela operadora do chip."
+        },
+        {
+          "grupo": "Configuração de APN",
+          "termo": "Rede",
+          "descricao": "Tipo de rede móvel usado pelo chip, por exemplo automática (2G/3G)."
+        }
+      ],
+      "checklist": [
+        "O código do terminal foi localizado na Mesa de operação.",
+        "O código de acesso foi gerado e usado dentro da mesma hora.",
+        "A rede Wi-Fi ou a APN foi salva e o terminal reiniciou.",
+        "Depois de reiniciar, o terminal mostra sinal de rede."
+      ],
+      "faq": [
+        {
+          "pergunta": "Preciso gerar o código se tiver uma digital com acesso administrativo?",
+          "resposta": "Não. Com essa digital, você entra na área administrativa direto no terminal."
+        },
+        {
+          "pergunta": "Onde encontro os dados de APN?",
+          "resposta": "Com a operadora do chip. O manual traz exemplos de Vivo, Claro e TIM, mas confirme com a operadora."
+        }
+      ],
+      "materiais": [
+        {
+          "titulo": "Guia Rápido: Internet do terminal — Wi-Fi e APN (dados ocultados)",
+          "url": "materiais/guia-rapido-terminal-internet.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "relacionadas": [
+        "ori-0003",
+        "ori-0025",
+        "ori-0027"
+      ],
+      "origem": {
+        "fonte": "Base de conhecimento Nexti (Octadesk)",
+        "artigos": [
+          {
+            "titulo": "Manual Configuração APN",
+            "url": "https://nexti.octadesk.com/kb/article/manual-configuracao-apn",
+            "arquivo": "MANUAL DE COMO CONFIGURAR A APN (5 páginas)",
+            "dataArquivo": "2019-04-30"
+          },
+          {
+            "titulo": "Manual Configuração WIFI",
+            "url": "https://nexti.octadesk.com/kb/article/manual-configuracao-wifi",
+            "arquivo": "MANUAL DE COMO CONFIGURAR A WIFI (4 páginas, mesmas telas do código administrativo)",
+            "dataArquivo": "2020-07-22"
+          }
+        ],
+        "atualizacaoFonte": "Não informada no artigo; datas acima são as dos arquivos PDF.",
+        "importadoEm": "2026-11-16"
+      }
+    },
+    {
+      "status": "publicado",
+      "revisao": "2026-11-16",
+      "passos": [],
+      "id": "ori-0025",
+      "slug": "como-sincronizar-o-terminal-pelo-bluetooth",
+      "titulo": "Como enviar as marcações do terminal pelo Bluetooth?",
+      "modulo": "cadastros",
+      "submodulos": [
+        "terminais"
+      ],
+      "resumo": "Em locais sem internet, o supervisor lê o QR Code do terminal pelo aplicativo Nexti e envia as marcações guardadas no terminal para o sistema.",
+      "palavrasChave": [
+        "terminal",
+        "BP4",
+        "bluetooth",
+        "sincronizar",
+        "sincronismo offline",
+        "QR Code",
+        "sem internet",
+        "aplicativo Nexti",
+        "supervisor"
+      ],
+      "finalidade": "Terminais instalados em locais com pouca cobertura de rede guardam as marcações. Com a sincronização via Bluetooth, o supervisor captura esses dados com o celular e, quando o celular tiver internet, eles chegam ao Nexti para serem tratados pela Mesa de operação.",
+      "preparacao": [
+        "Celular do supervisor com o aplicativo Nexti instalado e Bluetooth e câmera liberados.",
+        "Acesso à área administrativa do terminal (veja a orientação de internet do terminal)."
+      ],
+      "resumoProcedimento": [
+        {
+          "titulo": "Abra as configurações do terminal",
+          "texto": "Toque na engrenagem no canto superior esquerdo e depois em Outras configurações."
+        },
+        {
+          "titulo": "Mostre o QR Code",
+          "texto": "Toque em Sincronizar via Bluetooth. O terminal mostra um QR Code."
+        },
+        {
+          "titulo": "Abra a sincronização no aplicativo",
+          "texto": "No aplicativo Nexti, abra as configurações da conta e toque em Sincronizar com BP4."
+        },
+        {
+          "titulo": "Conecte",
+          "texto": "Toque em Conectar e aponte a câmera para o QR Code da tela do terminal."
+        },
+        {
+          "titulo": "Confira o envio",
+          "texto": "Ao final, o celular mostra Conectado e Sincronizado com sucesso. Quando o celular tiver internet, os dados são enviados ao Nexti automaticamente."
+        }
+      ],
+      "atencao": [
+        "O QR Code é do terminal que está à sua frente. Não fotografe nem compartilhe esse código.",
+        "Os dados só chegam ao Nexti quando o celular se conectar à internet.",
+        "Se o terminal mostrar Não há dados para sincronizar, não há marcações pendentes."
+      ],
+      "telas": [
+        {
+          "aba": "No terminal",
+          "imagens": [
+            {
+              "src": "assets/telas/terminal-bluetooth-01.jpg",
+              "legenda": "Toque na engrenagem e depois em Outras configurações.",
+              "alt": "Tela inicial do terminal com a engrenagem destacada e menu com Outras configurações."
+            },
+            {
+              "src": "assets/telas/terminal-bluetooth-02.jpg",
+              "legenda": "Toque em Sincronizar via Bluetooth. O terminal mostra o QR Code.",
+              "alt": "Lista de outras configurações e tela de sincronismo com o QR Code ocultado."
+            }
+          ]
+        },
+        {
+          "aba": "No aplicativo",
+          "imagens": [
+            {
+              "src": "assets/telas/terminal-bluetooth-03.jpg",
+              "legenda": "No aplicativo, toque em Sincronizar com BP4, depois em Conectar, e aponte a câmera para o QR Code.",
+              "alt": "Telas do aplicativo Nexti com Sincronizar com BP4, o botão Conectar e a câmera."
+            },
+            {
+              "src": "assets/telas/terminal-bluetooth-04.jpg",
+              "legenda": "Ao final, o celular mostra Sincronizado com sucesso.",
+              "alt": "Aplicativo com Conectado e Sincronizado com sucesso e terminal sem dados pendentes."
+            }
+          ]
+        }
+      ],
+      "fonteTelas": "Manual “Sincronização via Bluetooth”, da base de conhecimento Nexti no Octadesk, com o QR Code e o código do terminal ocultados",
+      "campos": [
+        {
+          "grupo": "Aplicativo Nexti",
+          "termo": "Sincronismo com BP4",
+          "descricao": "Mostra se o celular conectou ao terminal e se os dados foram copiados."
+        },
+        {
+          "grupo": "Aplicativo Nexti",
+          "termo": "Sincronismo com nuvem",
+          "descricao": "Mostra se ainda há arquivos no celular esperando internet para ir ao servidor."
+        }
+      ],
+      "checklist": [
+        "O terminal mostra o QR Code de sincronismo.",
+        "O aplicativo mostra Conectado e Sincronizado com sucesso.",
+        "Em Sincronismo com nuvem, não há arquivos pendentes depois que o celular teve internet."
+      ],
+      "faq": [
+        {
+          "pergunta": "Quem faz essa sincronização?",
+          "resposta": "O supervisor, pelo aplicativo Nexti no celular."
+        }
+      ],
+      "materiais": [
+        {
+          "titulo": "Guia Rápido: Sincronização via Bluetooth (dados ocultados)",
+          "url": "materiais/guia-rapido-terminal-bluetooth.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "relacionadas": [
+        "ori-0024",
+        "ori-0027"
+      ],
+      "origem": {
+        "fonte": "Base de conhecimento Nexti (Octadesk)",
+        "artigos": [
+          {
+            "titulo": "Manual Sincronização via Bluetooth",
+            "url": "https://nexti.octadesk.com/kb/article/manual-sincronizacao-via-bluetooth",
+            "arquivo": "Sincronização via Bluetooth (5 páginas)",
+            "dataArquivo": "2019-10-23"
+          }
+        ],
+        "atualizacaoFonte": "Não informada no artigo; datas acima são as dos arquivos PDF.",
+        "importadoEm": "2026-11-16"
+      }
+    },
+    {
+      "status": "publicado",
+      "revisao": "2026-11-16",
+      "passos": [],
+      "id": "ori-0026",
+      "slug": "como-fixar-o-terminal",
+      "titulo": "Como fixar o terminal na parede?",
+      "modulo": "cadastros",
+      "submodulos": [
+        "terminais"
+      ],
+      "resumo": "Fixe o terminal biométrico com fita dupla face ou com o suporte de metal parafusado, perto de uma tomada e a cerca de 1,50 m do chão.",
+      "palavrasChave": [
+        "terminal",
+        "TBI",
+        "fixação",
+        "instalação",
+        "parede",
+        "suporte",
+        "fita dupla face",
+        "altura",
+        "tomada"
+      ],
+      "finalidade": "Orienta a instalação física do Terminal Biométrico Inteligente Nexti no posto, com os dois modos de fixação recomendados.",
+      "preparacao": [
+        "Com fita: fita dupla face 3M (de boa qualidade) e tesoura.",
+        "Com suporte: suporte de metal (vem no kit), 3 parafusos de 5 mm com bucha e furadeira.",
+        "Um local perto de tomada, com rede Wi-Fi ou sinal de celular e fácil acesso para os colaboradores."
+      ],
+      "resumoProcedimento": [
+        {
+          "titulo": "Com fita dupla face",
+          "texto": "Aplique dois ou três pedaços de fita na parte traseira do terminal e fixe-o no local escolhido."
+        },
+        {
+          "titulo": "Escolha a altura",
+          "texto": "A altura aconselhada é de cerca de 1,50 m, perto de uma tomada."
+        },
+        {
+          "titulo": "Com suporte: marque e fure",
+          "texto": "Use o suporte como gabarito para marcar os furos, fure, coloque as buchas e parafuse o suporte na parede."
+        },
+        {
+          "titulo": "Encaixe o terminal",
+          "texto": "Encaixe o terminal no suporte, observando os encaixes, até ficar firme."
+        }
+      ],
+      "atencao": [
+        "Outras formas de fixação ficam sob total responsabilidade do instalador.",
+        "Considere tomada próxima, conexão com a rede, ergonomia e acesso antes de furar a parede."
+      ],
+      "telas": [
+        {
+          "aba": "Fita dupla face",
+          "imagens": [
+            {
+              "src": "assets/telas/terminal-fixacao-01.jpg",
+              "legenda": "Aplique dois ou três pedaços de fita dupla face na parte traseira do terminal.",
+              "alt": "Parte traseira do terminal com duas faixas de fita dupla face e a etiqueta de identificação ocultada."
+            },
+            {
+              "src": "assets/telas/terminal-fixacao-02.jpg",
+              "legenda": "Fixe o terminal perto de uma tomada, a cerca de 1,50 m do chão.",
+              "alt": "Terminal fixado na parede ao lado de uma tomada."
+            }
+          ]
+        },
+        {
+          "aba": "Suporte de metal",
+          "imagens": [
+            {
+              "src": "assets/telas/terminal-fixacao-03.jpg",
+              "legenda": "Parafuse o suporte na parede e encaixe o terminal nele.",
+              "alt": "Suporte de metal com os pontos de fixação e terminal encaixado no suporte."
+            },
+            {
+              "src": "assets/telas/terminal-fixacao-04.jpg",
+              "legenda": "Assim fica o suporte encaixado na posição correta.",
+              "alt": "Suporte encaixado corretamente na parte traseira do terminal."
+            }
+          ]
+        }
+      ],
+      "fonteTelas": "“Manual de Fixação dos Terminais”, da base de conhecimento Nexti no Octadesk, com a etiqueta de identificação do aparelho ocultada",
+      "campos": [],
+      "checklist": [
+        "O terminal ficou firme na parede.",
+        "Há uma tomada próxima.",
+        "O terminal está a uma altura confortável para a maioria dos colaboradores.",
+        "O local tem Wi-Fi ou sinal de celular."
+      ],
+      "faq": [],
+      "materiais": [
+        {
+          "titulo": "Manual de Fixação dos Terminais (dados ocultados)",
+          "url": "materiais/manual-fixacao-dos-terminais.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "relacionadas": [
+        "ori-0027",
+        "ori-0024"
+      ],
+      "origem": {
+        "fonte": "Base de conhecimento Nexti (Octadesk)",
+        "artigos": [
+          {
+            "titulo": "Manual de Fixação dos Terminais",
+            "url": "https://nexti.octadesk.com/kb/article/manual-de-fixacao-dos-terminais",
+            "arquivo": "MANUAL DE FIXAÇÃO DOS TERMINAIS (5 páginas)",
+            "dataArquivo": "2018-12-06"
+          }
+        ],
+        "atualizacaoFonte": "Não informada no artigo; datas acima são as dos arquivos PDF.",
+        "importadoEm": "2026-11-16"
+      }
+    },
+    {
+      "status": "publicado",
+      "revisao": "2026-11-16",
+      "passos": [],
+      "id": "ori-0027",
+      "slug": "como-resolver-problemas-no-terminal",
+      "titulo": "O que fazer quando o terminal está desligado?",
+      "modulo": "cadastros",
+      "submodulos": [
+        "terminais"
+      ],
+      "resumo": "Religue o terminal pelo botão, confira a tomada e, se ainda não funcionar, force o reinício pelo botão de boot.",
+      "palavrasChave": [
+        "terminal",
+        "TBI",
+        "problema",
+        "desligado",
+        "não liga",
+        "tomada",
+        "boot",
+        "reiniciar",
+        "religar",
+        "suporte"
+      ],
+      "finalidade": "Reúne as soluções fáceis para falhas comuns do Terminal Biométrico Nexti, que o colaborador do posto ou o supervisor podem fazer no local.",
+      "preparacao": [
+        "Um clipe de papel, para o botão de boot.",
+        "Outro aparelho eletrônico para testar a tomada."
+      ],
+      "resumoProcedimento": [
+        {
+          "titulo": "Religue o terminal",
+          "texto": "Segure o botão da parte inferior direita do terminal por cerca de 20 segundos."
+        },
+        {
+          "titulo": "Confira a tomada",
+          "texto": "Se não ligar, teste a tomada com outro aparelho para ver se ela está funcionando."
+        },
+        {
+          "titulo": "Force o boot",
+          "texto": "Se houver energia, pressione com um clipe o botão de boot, dentro do pequeno orifício da parte inferior esquerda."
+        },
+        {
+          "titulo": "Procure o suporte",
+          "texto": "Se o problema continuar, fale com o Suporte e Implantação Nexti."
+        }
+      ],
+      "atencao": [
+        "Faça os passos nesta ordem: religar, conferir a tomada e só então forçar o boot."
+      ],
+      "telas": [
+        {
+          "aba": "Soluções fáceis",
+          "imagens": [
+            {
+              "src": "assets/telas/terminal-problemas-01.jpg",
+              "legenda": "Segure o botão da parte inferior direita por cerca de 20 segundos.",
+              "alt": "Lateral inferior do terminal com o botão de ligar destacado."
+            },
+            {
+              "src": "assets/telas/terminal-problemas-02.jpg",
+              "legenda": "Confira a tomada e, se houver energia, pressione o botão de boot com um clipe.",
+              "alt": "Terminal ligado à tomada e orifício do botão de boot destacado."
+            }
+          ]
+        }
+      ],
+      "fonteTelas": "Manual “Resolvendo Problemas nos Terminais”, da base de conhecimento Nexti no Octadesk",
+      "campos": [],
+      "checklist": [
+        "O terminal foi religado pelo botão.",
+        "A tomada foi testada com outro aparelho.",
+        "O boot foi forçado com um clipe, se necessário."
+      ],
+      "faq": [
+        {
+          "pergunta": "Quanto tempo devo segurar o botão para religar?",
+          "resposta": "Cerca de 20 segundos."
+        }
+      ],
+      "materiais": [
+        {
+          "titulo": "Resolvendo Problemas nos Terminais",
+          "url": "materiais/resolvendo-problemas-nos-terminais.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "relacionadas": [
+        "ori-0026",
+        "ori-0024"
+      ],
+      "origem": {
+        "fonte": "Base de conhecimento Nexti (Octadesk)",
+        "artigos": [
+          {
+            "titulo": "Resolvendo Problemas nos Terminais",
+            "url": "https://nexti.octadesk.com/kb/article/resolvendo-problemas-nos-terminais",
+            "arquivo": "RESOLVENDO PROBLEMAS NOS TERMINAIS (3 páginas)",
+            "dataArquivo": "2018-12-06"
+          }
+        ],
+        "atualizacaoFonte": "Não informada no artigo; datas acima são as dos arquivos PDF.",
+        "importadoEm": "2026-11-16"
+      }
+    },
+    {
+      "status": "publicado",
+      "revisao": "2026-11-16",
+      "passos": [],
+      "id": "ori-0028",
+      "slug": "como-usar-o-aplicativo-do-colaborador",
+      "titulo": "Como o colaborador usa o aplicativo Nexti?",
+      "modulo": "rh-digital",
+      "submodulos": [
+        "aplicativo-do-colaborador"
+      ],
+      "resumo": "Baixe o aplicativo, entre com a empresa e o CPF e use as abas Notificações, Contracheque, Ponto, Direct e Configurações.",
+      "palavrasChave": [
+        "aplicativo",
+        "app",
+        "colaborador",
+        "Nexti",
+        "download",
+        "login",
+        "CPF",
+        "notificações",
+        "contracheque",
+        "ponto",
+        "registrar ponto",
+        "Direct",
+        "configurações",
+        "perfil",
+        "banco de horas"
+      ],
+      "finalidade": "Pelo aplicativo Nexti, o colaborador acompanha o cartão de ponto, registra o ponto, vê o contracheque, responde a avisos e convocações e fala com a empresa pelo Direct.",
+      "preparacao": [
+        "Celular Android ou iPhone com acesso à Google Play ou à Apple Store.",
+        "Nome da empresa no Nexti.",
+        "CPF do colaborador: ele é o login, e a senha inicial são os 4 primeiros dígitos do CPF."
+      ],
+      "resumoProcedimento": [
+        {
+          "titulo": "Baixe o aplicativo",
+          "texto": "Na Google Play ou na Apple Store, procure por Nexti, toque em Instalar e depois em Abrir."
+        },
+        {
+          "titulo": "Entre",
+          "texto": "Informe o nome da empresa e, em seguida, o login (CPF) e a senha (4 primeiros dígitos do CPF)."
+        },
+        {
+          "titulo": "Notificações",
+          "texto": "Veja informações do ponto, avisos e convocações. Para avisos e convocações, toque em Aceitar ou Recusar; isso registra a leitura e a assinatura."
+        },
+        {
+          "titulo": "Contracheque",
+          "texto": "Escolha o mês para ver salário líquido, proventos e descontos. Toque no ícone de download para baixar."
+        },
+        {
+          "titulo": "Ponto",
+          "texto": "Acompanhe as marcações, a escala e o saldo do banco de horas. Para registrar, toque em +, depois em Tirar foto e em Registrar."
+        },
+        {
+          "titulo": "Direct e Configurações",
+          "texto": "No ícone de conversa, escolha o grupo e o assunto para falar com a empresa. Em Configurar perfil, atualize e-mail, senha, telefone e foto."
+        }
+      ],
+      "atencao": [
+        "A exigência de localização e de foto no registro do ponto depende da configuração feita pelo administrador.",
+        "Com o e-mail cadastrado no perfil, o colaborador recebe o comprovante de cada registro de ponto.",
+        "Cores das marcações: fundo cinza é folga ou DSR; texto cinza é registro de acordo; fundo laranja é inconsistência; texto laranja é horário ajustado."
+      ],
+      "telas": [
+        {
+          "aba": "Instalação e acesso",
+          "imagens": [
+            {
+              "src": "assets/telas/aplicativo-colaborador-01.jpg",
+              "legenda": "O aplicativo permite acompanhar o ponto, ver o contracheque e falar com a empresa.",
+              "alt": "Apresentação do aplicativo Nexti."
+            },
+            {
+              "src": "assets/telas/aplicativo-colaborador-02.jpg",
+              "legenda": "Procure por Nexti na loja do celular e toque em Instalar.",
+              "alt": "Página do aplicativo Nexti na loja de aplicativos."
+            },
+            {
+              "src": "assets/telas/aplicativo-colaborador-03.jpg",
+              "legenda": "Informe a empresa e, depois, o CPF e a senha.",
+              "alt": "Telas de entrada do aplicativo com os campos de empresa, usuário e senha."
+            },
+            {
+              "src": "assets/telas/aplicativo-colaborador-04.jpg",
+              "legenda": "Depois de entrar, você tem as abas Notificações, Contracheque, Ponto, Direct e Configurações.",
+              "alt": "Lista das abas do aplicativo."
+            }
+          ]
+        },
+        {
+          "aba": "Notificações e contracheque",
+          "imagens": [
+            {
+              "src": "assets/telas/aplicativo-colaborador-05.jpg",
+              "legenda": "Em avisos e convocações, toque em Aceitar ou Recusar.",
+              "alt": "Aviso aberto no aplicativo com os botões Recusar e Aceitar e o endereço ocultado."
+            },
+            {
+              "src": "assets/telas/aplicativo-colaborador-06.jpg",
+              "legenda": "Escolha o mês do contracheque e toque no ícone de download para baixar.",
+              "alt": "Contracheque no aplicativo com salário líquido e proventos."
+            }
+          ]
+        },
+        {
+          "aba": "Ponto",
+          "imagens": [
+            {
+              "src": "assets/telas/aplicativo-colaborador-07.jpg",
+              "legenda": "Acompanhe as marcações, a escala e o saldo do banco de horas.",
+              "alt": "Tela Meu ponto com marcações por dia e legenda de cores."
+            },
+            {
+              "src": "assets/telas/aplicativo-colaborador-08.jpg",
+              "legenda": "Toque em +, depois em Tirar foto e em Registrar.",
+              "alt": "Tela Registrar ponto com a localização ocultada e o botão Tirar foto."
+            }
+          ]
+        },
+        {
+          "aba": "Direct e configurações",
+          "imagens": [
+            {
+              "src": "assets/telas/aplicativo-colaborador-09.jpg",
+              "legenda": "No Direct, converse com a empresa e envie PDF ou imagens.",
+              "alt": "Conversa no Direct com os nomes ocultados e um atestado anexado."
+            },
+            {
+              "src": "assets/telas/aplicativo-colaborador-10.jpg",
+              "legenda": "Escolha o grupo e o assunto para iniciar um atendimento.",
+              "alt": "Lista de grupos e assuntos do Direct."
+            },
+            {
+              "src": "assets/telas/aplicativo-colaborador-11.jpg",
+              "legenda": "Em Configurar perfil, atualize e-mail, senha, telefone e foto.",
+              "alt": "Menu e tela Configurar conta com nome, CPF e e-mail ocultados."
+            }
+          ]
+        }
+      ],
+      "fonteTelas": "Guia Rápido “Manual do colaborador — Aplicativo”, da base de conhecimento Nexti no Octadesk, com nomes, CPF, e-mail, endereço e localização ocultados",
+      "campos": [
+        {
+          "grupo": "Acesso",
+          "termo": "Empresa",
+          "descricao": "Nome da empresa no Nexti, pedido no primeiro acesso."
+        },
+        {
+          "grupo": "Acesso",
+          "termo": "Usuário e Senha",
+          "descricao": "O usuário é o CPF; a senha inicial são os 4 primeiros dígitos do CPF."
+        },
+        {
+          "grupo": "Ponto",
+          "termo": "Saldo total e Escala",
+          "descricao": "Saldo do banco de horas e horário da escala do colaborador."
+        },
+        {
+          "grupo": "Configurações",
+          "termo": "E-mail",
+          "descricao": "Quando cadastrado, recebe o comprovante de cada registro de ponto."
+        },
+        {
+          "grupo": "Configurações",
+          "termo": "Permissões",
+          "descricao": "Mostra se o aplicativo tem acesso a localização, câmera e armazenamento."
+        }
+      ],
+      "checklist": [
+        "O aplicativo foi instalado e o colaborador entrou com o CPF.",
+        "Os avisos e convocações pendentes foram aceitos ou recusados.",
+        "O colaborador sabe registrar o ponto e ler as cores das marcações.",
+        "O e-mail foi cadastrado no perfil para receber os comprovantes."
+      ],
+      "faq": [
+        {
+          "pergunta": "Qual é a senha do primeiro acesso?",
+          "resposta": "Os 4 primeiros dígitos do CPF. Depois ela pode ser trocada em Configurar perfil."
+        },
+        {
+          "pergunta": "O aplicativo sempre pede foto e localização?",
+          "resposta": "Não. Isso depende da configuração feita pelo administrador do sistema."
+        }
+      ],
+      "materiais": [
+        {
+          "titulo": "Guia Rápido: Aplicativo do colaborador (dados ocultados)",
+          "url": "materiais/guia-rapido-aplicativo-colaborador.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "relacionadas": [
+        "ori-0029",
+        "ori-0017",
+        "ori-0019"
+      ],
+      "origem": {
+        "fonte": "Base de conhecimento Nexti (Octadesk)",
+        "artigos": [
+          {
+            "titulo": "Guia Aplicativo Colaborador",
+            "url": "https://nexti.octadesk.com/kb/article/guia-aplicativo-colaborador",
+            "arquivo": "Manual Aplicativo Colaborador (14 páginas)",
+            "dataArquivo": ""
+          }
+        ],
+        "atualizacaoFonte": "Não informada no artigo nem no arquivo PDF.",
+        "importadoEm": "2026-11-16"
+      }
+    },
+    {
+      "status": "publicado",
+      "revisao": "2026-11-16",
+      "passos": [],
+      "id": "ori-0029",
+      "slug": "como-solicitar-e-validar-ajuste-de-ponto-pelo-aplicativo",
+      "titulo": "Como o colaborador pede ajuste de ponto pelo aplicativo e como o gestor valida?",
+      "modulo": "rh-digital",
+      "submodulos": [
+        "aplicativo-do-colaborador"
+      ],
+      "resumo": "Libere a solicitação no cadastro, deixe um motivo de ajuste visível no aplicativo e valide os pedidos pela web ou pelo aplicativo, um a um ou em lote.",
+      "palavrasChave": [
+        "ajuste de ponto",
+        "solicitação de ajuste",
+        "aplicativo",
+        "colaborador",
+        "esquecimento",
+        "marcação avulsa",
+        "motivo de ajuste",
+        "validar",
+        "aceitar",
+        "recusar",
+        "lote",
+        "inconsistências",
+        "gestor",
+        "supervisor"
+      ],
+      "finalidade": "O colaborador pode pedir pelo aplicativo o ajuste de uma marcação esquecida ou incluir uma marcação que falta. O gestor recebe os pedidos, aceita ou recusa, e o colaborador é avisado no aplicativo.",
+      "preparacao": [
+        "Acesso a Cadastros > Usuário, Posto ou Cliente para liberar a solicitação.",
+        "Pelo menos um motivo de ajuste com Mostrar no aplicativo ligado, em Cadastros > Motivo de ajuste.",
+        "Usuário validador do tipo Administrador, Responsável, Supervisor ou Gestor, com Permite ajustar marcação ligado."
+      ],
+      "resumoProcedimento": [
+        {
+          "titulo": "Libere a solicitação",
+          "texto": "Em Cadastros > Usuário (ou no Posto ou no Cliente), ligue Permite solicitar ajuste de ponto pelo aplicativo."
+        },
+        {
+          "titulo": "Configure o motivo",
+          "texto": "Em Cadastros > Motivo de ajuste, ligue Mostrar no aplicativo. Se ligar Exigir anexo na solicitação, o colaborador terá de anexar um documento."
+        },
+        {
+          "titulo": "Colaborador: pede o ajuste",
+          "texto": "Para esquecimento, toque na inconsistência e em Solicitar ajuste. Para marcação que falta, toque no dia e em Adicionar marcação. Informe motivo, horário e observações e toque em Confirmar."
+        },
+        {
+          "titulo": "Gestor: valida pela web",
+          "texto": "Clique no ícone Ajustar ponto e abra a aba Solicitações de ajuste. Clique no colaborador e no horário destacado, revise justificativa e observação e clique em Aceitar ou Recusar. Para vários pedidos, use Ajuste em lote."
+        },
+        {
+          "titulo": "Gestor: valida pelo aplicativo",
+          "texto": "Com Permite analisar as solicitações de ajuste de ponto pelo aplicativo ligado, abra Solicitações de ajuste no menu, escolha um ou todos os pedidos e toque em Aceitar ou Recusar."
+        },
+        {
+          "titulo": "Acompanhe",
+          "texto": "O colaborador é notificado do aceite ou da recusa. Em Histórico, o gestor consulta os pedidos aprovados e recusados, com filtros por data, colaborador e motivo."
+        }
+      ],
+      "atencao": [
+        "Sem um motivo de ajuste com Mostrar no aplicativo ligado, o colaborador não consegue fazer a solicitação.",
+        "Em solicitações noturnas, altere a referência para o dia de início da escala antes de aceitar.",
+        "Na web, um horário com fundo branco e borda laranja indica que há uma solicitação enviada pelo colaborador."
+      ],
+      "telas": [
+        {
+          "aba": "Liberação",
+          "imagens": [
+            {
+              "src": "assets/telas/ajuste-ponto-app-01.jpg",
+              "legenda": "Ligue Permite solicitar ajuste de ponto pelo aplicativo no cadastro do usuário, do posto ou do cliente.",
+              "alt": "Cadastro de usuário com a opção de solicitar ajuste pelo aplicativo destacada e o login ocultado."
+            },
+            {
+              "src": "assets/telas/ajuste-ponto-app-02.jpg",
+              "legenda": "No motivo de ajuste, ligue Mostrar no aplicativo e, se quiser, Exigir anexo na solicitação.",
+              "alt": "Cadastro de motivo de ajuste com as opções Mostrar no aplicativo e Exigir anexo destacadas."
+            },
+            {
+              "src": "assets/telas/ajuste-ponto-app-05.jpg",
+              "legenda": "Os tipos de usuário que validam os pedidos são Administrador, Responsável, Supervisor e Gestor, com Permite ajustar marcação ligado.",
+              "alt": "Cadastro de usuário com o campo Tipo aberto e a opção Permite ajustar marcação destacada."
+            }
+          ]
+        },
+        {
+          "aba": "Pedido do colaborador",
+          "imagens": [
+            {
+              "src": "assets/telas/ajuste-ponto-app-03.jpg",
+              "legenda": "Esquecimento: toque na inconsistência, em Solicitar ajuste, preencha e confirme.",
+              "alt": "Sequência de telas do aplicativo para solicitar ajuste de uma marcação esquecida."
+            },
+            {
+              "src": "assets/telas/ajuste-ponto-app-04.jpg",
+              "legenda": "Marcação que falta: toque no dia, em Adicionar marcação, preencha e confirme.",
+              "alt": "Sequência de telas do aplicativo para incluir uma marcação avulsa."
+            },
+            {
+              "src": "assets/telas/ajuste-ponto-app-12.jpg",
+              "legenda": "Depois da validação, o colaborador recebe a notificação de aceite ou recusa.",
+              "alt": "Notificação de ajuste aceito e detalhes da solicitação no aplicativo."
+            }
+          ]
+        },
+        {
+          "aba": "Validação na web",
+          "imagens": [
+            {
+              "src": "assets/telas/ajuste-ponto-app-06.jpg",
+              "legenda": "Clique no ícone Ajustar ponto.",
+              "alt": "Tela inicial da web com o ícone Ajustar ponto destacado e os nomes ocultados."
+            },
+            {
+              "src": "assets/telas/ajuste-ponto-app-07.jpg",
+              "legenda": "Abra a aba Solicitações de ajuste.",
+              "alt": "Inconsistências de ponto com a aba Solicitações de ajuste destacada."
+            },
+            {
+              "src": "assets/telas/ajuste-ponto-app-08.jpg",
+              "legenda": "Clique no colaborador e no horário destacado da solicitação.",
+              "alt": "Lista de solicitações e marcações do colaborador com o horário da solicitação destacado."
+            },
+            {
+              "src": "assets/telas/ajuste-ponto-app-09.jpg",
+              "legenda": "Revise justificativa e observação, ajuste a referência se for noturno, e clique em Aceitar ou Recusar.",
+              "alt": "Janela Ajuste de marcação com os botões Aceitar e Recusar e o nome ocultado."
+            },
+            {
+              "src": "assets/telas/ajuste-ponto-app-10.jpg",
+              "legenda": "Para vários pedidos, selecione-os e use Ajuste em lote.",
+              "alt": "Lista de solicitações selecionadas e janela Ajuste em lote, com nomes e matrículas ocultados."
+            },
+            {
+              "src": "assets/telas/ajuste-ponto-app-11.jpg",
+              "legenda": "No histórico da marcação, confira quem validou a solicitação.",
+              "alt": "Detalhes da marcação mostrando quem validou o ajuste."
+            }
+          ]
+        },
+        {
+          "aba": "Validação no aplicativo",
+          "imagens": [
+            {
+              "src": "assets/telas/ajuste-ponto-app-13.jpg",
+              "legenda": "Ligue Permite analisar as solicitações de ajuste de ponto pelo aplicativo e Permite ajustar marcação.",
+              "alt": "Cadastro de usuário com as duas opções de validação pelo aplicativo destacadas."
+            },
+            {
+              "src": "assets/telas/ajuste-ponto-app-14.jpg",
+              "legenda": "No menu do aplicativo, abra Solicitações de ajuste, escolha o pedido e toque em Aceitar ou Recusar.",
+              "alt": "Telas do aplicativo do gestor com a lista de solicitações e os botões Recusar e Aceitar."
+            },
+            {
+              "src": "assets/telas/ajuste-ponto-app-15.jpg",
+              "legenda": "Marque Todas para aceitar ou recusar vários pedidos de uma vez.",
+              "alt": "Solicitações selecionadas no aplicativo e confirmação para aceitar todas."
+            },
+            {
+              "src": "assets/telas/ajuste-ponto-app-16.jpg",
+              "legenda": "Em Histórico, consulte os pedidos aprovados e recusados e use o filtro.",
+              "alt": "Histórico de solicitações no aplicativo e tela de filtro por data, colaborador e motivo."
+            }
+          ]
+        }
+      ],
+      "fonteTelas": "Guia Rápido “Solicitação ajuste de ponto pelo Colaborador”, da base de conhecimento Nexti no Octadesk, com nomes, logins, matrículas, telefones e clientes ocultados",
+      "campos": [
+        {
+          "grupo": "Cadastro de usuário",
+          "termo": "Permite solicitar ajuste de ponto pelo aplicativo",
+          "descricao": "Libera o colaborador para pedir ajustes pelo aplicativo."
+        },
+        {
+          "grupo": "Cadastro de usuário",
+          "termo": "Permite ajustar marcação",
+          "descricao": "Necessária para o usuário validar as solicitações."
+        },
+        {
+          "grupo": "Cadastro de usuário",
+          "termo": "Permite analisar as solicitações de ajuste de ponto pelo aplicativo",
+          "descricao": "Libera a validação dos pedidos pelo celular."
+        },
+        {
+          "grupo": "Motivo de ajuste",
+          "termo": "Mostrar no aplicativo",
+          "descricao": "Mostra o motivo para o colaborador escolher no pedido."
+        },
+        {
+          "grupo": "Motivo de ajuste",
+          "termo": "Exigir anexo na solicitação",
+          "descricao": "Obriga o colaborador a anexar um documento; o gestor pode baixá-lo na validação."
+        },
+        {
+          "grupo": "Validação",
+          "termo": "Referência",
+          "descricao": "Dia de referência da marcação; em turnos noturnos, use o dia de início da escala."
+        }
+      ],
+      "checklist": [
+        "A solicitação pelo aplicativo está liberada para o colaborador.",
+        "Há pelo menos um motivo de ajuste com Mostrar no aplicativo ligado.",
+        "O validador tem Permite ajustar marcação ligado.",
+        "Os pedidos pendentes foram aceitos ou recusados.",
+        "O colaborador recebeu a notificação do resultado."
+      ],
+      "faq": [
+        {
+          "pergunta": "Quem pode validar as solicitações?",
+          "resposta": "Usuários dos tipos Administrador, Responsável, Supervisor e Gestor com Permite ajustar marcação ligado."
+        },
+        {
+          "pergunta": "Dá para validar vários pedidos de uma vez?",
+          "resposta": "Sim. Na web, use Ajuste em lote; no aplicativo, marque Todas e toque em Aceitar ou Recusar."
+        }
+      ],
+      "materiais": [
+        {
+          "titulo": "Guia Rápido: Solicitação de ajuste de ponto pelo colaborador (dados ocultados)",
+          "url": "materiais/guia-rapido-solicitacao-ajuste-de-ponto.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "relacionadas": [
+        "ori-0028",
+        "ori-0013",
+        "ori-0012"
+      ],
+      "origem": {
+        "fonte": "Base de conhecimento Nexti (Octadesk)",
+        "artigos": [
+          {
+            "titulo": "Solicitação Ajuste ponto Colaborador",
+            "url": "https://nexti.octadesk.com/kb/article/solicitacao-ajuste-ponto-colaborador",
+            "arquivo": "Solicitação Ajuste de ponto Completo (18 páginas)",
+            "dataArquivo": ""
+          }
+        ],
+        "atualizacaoFonte": "Não informada no artigo nem no arquivo PDF.",
+        "importadoEm": "2026-11-16"
+      }
+    },
+    {
+      "status": "publicado",
+      "revisao": "2026-11-16",
+      "passos": [],
+      "modulo": "talent",
+      "fonteTelas": "Guia de uso Nexti Talent, da base de conhecimento Nexti no Octadesk, com nomes, e-mails, telefones, CNPJ e dados de candidatos ocultados",
+      "materiais": [
+        {
+          "titulo": "Guia de uso Nexti Talent — telas resumidas (dados ocultados)",
+          "url": "materiais/guia-de-uso-nexti-talent.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "origem": {
+        "fonte": "Base de conhecimento Nexti (Octadesk)",
+        "artigos": [
+          {
+            "titulo": "Guia de uso Nexti Talent",
+            "url": "https://nexti.octadesk.com/kb/article/guia-de-uso-nexti-talent",
+            "arquivo": "Atual Guia de Uso - Nexti Talent (157 páginas)",
+            "dataArquivo": ""
+          }
+        ],
+        "atualizacaoFonte": "Não informada no artigo nem no arquivo PDF.",
+        "importadoEm": "2026-11-16"
+      },
+      "campos": [
+        {
+          "grupo": "Informações",
+          "termo": "Site",
+          "descricao": "Endereço para onde o candidato vai ao clicar na logo da empresa."
+        },
+        {
+          "grupo": "Endereços",
+          "termo": "Favoritar Endereço",
+          "descricao": "Deixa o endereço sempre no topo da lista."
+        }
+      ],
+      "faq": [],
+      "id": "ori-0030",
+      "slug": "talent-configuracao-inicial",
+      "submodulos": [
+        "talent-configuracao"
+      ],
+      "titulo": "Como fazer a configuração inicial da empresa no Nexti Talent?",
+      "resumo": "Preencha as informações da empresa, personalize logo e cores e cadastre os endereços de trabalho usados nas vagas.",
+      "palavrasChave": [
+        "talent",
+        "configuração inicial",
+        "informações da empresa",
+        "logo",
+        "cores",
+        "endereço",
+        "local de trabalho",
+        "CEP",
+        "favoritar endereço"
+      ],
+      "finalidade": "Deixar o Nexti Talent alinhado à operação da empresa antes de divulgar vagas: dados obrigatórios da conta, identidade visual e endereços, que são obrigatórios em toda vaga.",
+      "preparacao": [
+        "Tenha um usuário com perfil Administrador ou Master.",
+        "Separe CNPJ, número de colaboradores, site, logo, imagens de topo, links de redes sociais e as cores da marca.",
+        "Tenha os endereços dos locais de trabalho com CEP."
+      ],
+      "resumoProcedimento": [
+        {
+          "titulo": "Abra as informações",
+          "texto": "No menu lateral, clique em Configurações e depois em Informações."
+        },
+        {
+          "titulo": "Preencha os dados",
+          "texto": "Informe nome, CNPJ, número de colaboradores, site e descrição. Depois, se quiser, envie logo, imagens de topo, links de redes sociais e as cores."
+        },
+        {
+          "titulo": "Escolha as cores",
+          "texto": "Clique no campo de cor e use o conta-gotas para copiar a cor de uma imagem, como a sua logo."
+        },
+        {
+          "titulo": "Salve",
+          "texto": "Clique em Salvar Dados da Empresa no final da página."
+        },
+        {
+          "titulo": "Cadastre endereços",
+          "texto": "Em Configurações > Endereços, clique em + Novo Endereço, escolha o país, informe o CEP, complete os dados e clique em Salvar Endereço. Também é possível criar um endereço na própria vaga, em Local de Trabalho."
+        }
+      ],
+      "atencao": [
+        "O endereço é obrigatório na vaga, mesmo quando ela é marcada como Trabalho remoto.",
+        "Alterar um endereço atualiza também as vagas já divulgadas.",
+        "O LinkedIn pode levar até 48 horas para publicar ou atualizar uma vaga.",
+        "Depois de marcar um endereço como favorito, clique em Salvar Endereço antes de sair."
+      ],
+      "telas": [
+        {
+          "aba": "Empresa e endereços",
+          "imagens": [
+            {
+              "src": "assets/telas/talent-config-01.jpg",
+              "legenda": "Informações da empresa: nome, CNPJ, número de colaboradores, site e descrição.",
+              "alt": "Informações da empresa: nome, CNPJ, número de colaboradores, site e descrição."
+            },
+            {
+              "src": "assets/telas/talent-config-02.jpg",
+              "legenda": "Logo, imagens de topo, links de redes sociais e cores.",
+              "alt": "Logo, imagens de topo, links de redes sociais e cores."
+            },
+            {
+              "src": "assets/telas/talent-config-03.jpg",
+              "legenda": "Use o conta-gotas para copiar a cor de uma imagem.",
+              "alt": "Use o conta-gotas para copiar a cor de uma imagem."
+            },
+            {
+              "src": "assets/telas/talent-config-04.jpg",
+              "legenda": "Na vaga, em Local de Trabalho, clique em + Novo Endereço.",
+              "alt": "Na vaga, em Local de Trabalho, clique em + Novo Endereço."
+            },
+            {
+              "src": "assets/telas/talent-config-05.jpg",
+              "legenda": "Preencha o novo endereço; o CEP completa rua, bairro, cidade e estado.",
+              "alt": "Preencha o novo endereço; o CEP completa rua, bairro, cidade e estado."
+            }
+          ]
+        }
+      ],
+      "checklist": [
+        "Os dados obrigatórios da empresa foram salvos.",
+        "Logo e cores foram conferidas.",
+        "Todos os locais de trabalho estão cadastrados."
+      ],
+      "relacionadas": [
+        "ori-0031",
+        "ori-0032"
+      ]
+    },
+    {
+      "status": "publicado",
+      "revisao": "2026-11-16",
+      "passos": [],
+      "modulo": "talent",
+      "fonteTelas": "Guia de uso Nexti Talent, da base de conhecimento Nexti no Octadesk, com nomes, e-mails, telefones, CNPJ e dados de candidatos ocultados",
+      "materiais": [
+        {
+          "titulo": "Guia de uso Nexti Talent — telas resumidas (dados ocultados)",
+          "url": "materiais/guia-de-uso-nexti-talent.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "origem": {
+        "fonte": "Base de conhecimento Nexti (Octadesk)",
+        "artigos": [
+          {
+            "titulo": "Guia de uso Nexti Talent",
+            "url": "https://nexti.octadesk.com/kb/article/guia-de-uso-nexti-talent",
+            "arquivo": "Atual Guia de Uso - Nexti Talent (157 páginas)",
+            "dataArquivo": ""
+          }
+        ],
+        "atualizacaoFonte": "Não informada no artigo nem no arquivo PDF.",
+        "importadoEm": "2026-11-16"
+      },
+      "campos": [
+        {
+          "grupo": "Perfis padrão",
+          "termo": "Administrador",
+          "descricao": "Acesso total; não pode ser editado."
+        },
+        {
+          "grupo": "Perfis padrão",
+          "termo": "Master",
+          "descricao": "Acesso total, com permissões que podem ser ajustadas."
+        },
+        {
+          "grupo": "Perfis padrão",
+          "termo": "Gestor",
+          "descricao": "Abre vagas por requisição, vê vagas e avaliações e aprova ou rejeita vagas."
+        },
+        {
+          "grupo": "Perfis padrão",
+          "termo": "Recursos Humanos",
+          "descricao": "Abre vagas por requisição e administra vagas, candidatos, automações, avaliações, áreas e cargos."
+        }
+      ],
+      "faq": [],
+      "id": "ori-0031",
+      "slug": "talent-usuarios-e-perfis",
+      "submodulos": [
+        "talent-configuracao"
+      ],
+      "titulo": "Como convidar usuários e definir perfis de permissão no Nexti Talent?",
+      "resumo": "Convide recrutadores por e-mail e escolha o perfil de permissão de cada um; sem perfil, o usuário não acessa nada.",
+      "palavrasChave": [
+        "talent",
+        "usuários",
+        "convidar",
+        "recrutador",
+        "perfil de permissão",
+        "administrador",
+        "master",
+        "gestor",
+        "recursos humanos",
+        "bloquear acesso"
+      ],
+      "finalidade": "Controlar quem usa o Nexti Talent e o que cada pessoa pode ver, fazer e configurar.",
+      "preparacao": [
+        "Tenha o e-mail de quem será convidado.",
+        "Defina qual perfil de permissão a pessoa deve receber."
+      ],
+      "resumoProcedimento": [
+        {
+          "titulo": "Convide",
+          "texto": "No menu lateral, clique em Usuários > Gerenciar Usuários, desça até o final, digite o e-mail e clique em Convidar."
+        },
+        {
+          "titulo": "Acompanhe o convite",
+          "texto": "Enquanto a pessoa não se cadastra, o convite fica pendente e pode ser reenviado ou cancelado."
+        },
+        {
+          "titulo": "Escolha o perfil",
+          "texto": "Depois do cadastro, escolha o Perfil de Permissão do usuário em Gerenciar Usuários."
+        },
+        {
+          "titulo": "Crie ou edite perfis",
+          "texto": "Em Usuários > Perfis de Permissão, clique em + Novo Perfil de Permissão ou em Editar, marque as ações liberadas e clique em Salvar."
+        },
+        {
+          "titulo": "Bloqueie quem saiu",
+          "texto": "Mude o perfil do usuário para Sem Perfil de Permissão. O acesso é removido na hora."
+        }
+      ],
+      "atencao": [
+        "Todo usuário novo começa com Sem perfil de permissão, por segurança.",
+        "O perfil Administrador não pode ser editado.",
+        "Usuários não podem ser excluídos, para manter o histórico das ações.",
+        "A permissão Criar e publicar vagas sem fluxo de requisição define se o grupo publica vagas direto ou precisa de requisição aprovada."
+      ],
+      "telas": [
+        {
+          "aba": "Usuários",
+          "imagens": [
+            {
+              "src": "assets/telas/talent-usuarios-01.jpg",
+              "legenda": "Em Gerenciar Usuários, digite o e-mail e clique em Convidar.",
+              "alt": "Em Gerenciar Usuários, digite o e-mail e clique em Convidar."
+            },
+            {
+              "src": "assets/telas/talent-usuarios-02.jpg",
+              "legenda": "Convites pendentes podem ser reenviados ou cancelados.",
+              "alt": "Convites pendentes podem ser reenviados ou cancelados."
+            },
+            {
+              "src": "assets/telas/talent-usuarios-03.jpg",
+              "legenda": "Perfis de permissão e o botão + Novo Perfil de Permissão.",
+              "alt": "Perfis de permissão e o botão + Novo Perfil de Permissão."
+            },
+            {
+              "src": "assets/telas/talent-usuarios-04.jpg",
+              "legenda": "Escolha o perfil de permissão de cada usuário.",
+              "alt": "Escolha o perfil de permissão de cada usuário."
+            }
+          ]
+        }
+      ],
+      "checklist": [
+        "O convite foi aceito.",
+        "O usuário tem o perfil de permissão correto.",
+        "Quem saiu da empresa está com Sem Perfil de Permissão."
+      ],
+      "relacionadas": [
+        "ori-0045",
+        "ori-0044"
+      ]
+    },
+    {
+      "status": "publicado",
+      "revisao": "2026-11-16",
+      "passos": [],
+      "modulo": "talent",
+      "fonteTelas": "Guia de uso Nexti Talent, da base de conhecimento Nexti no Octadesk, com nomes, e-mails, telefones, CNPJ e dados de candidatos ocultados",
+      "materiais": [
+        {
+          "titulo": "Guia de uso Nexti Talent — telas resumidas (dados ocultados)",
+          "url": "materiais/guia-de-uso-nexti-talent.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "origem": {
+        "fonte": "Base de conhecimento Nexti (Octadesk)",
+        "artigos": [
+          {
+            "titulo": "Guia de uso Nexti Talent",
+            "url": "https://nexti.octadesk.com/kb/article/guia-de-uso-nexti-talent",
+            "arquivo": "Atual Guia de Uso - Nexti Talent (157 páginas)",
+            "dataArquivo": ""
+          }
+        ],
+        "atualizacaoFonte": "Não informada no artigo nem no arquivo PDF.",
+        "importadoEm": "2026-11-16"
+      },
+      "campos": [
+        {
+          "grupo": "Etapas padrão",
+          "termo": "Desistentes",
+          "descricao": "Candidatos que desistiram; os recrutadores recebem e-mail."
+        },
+        {
+          "grupo": "Etapas padrão",
+          "termo": "Desqualificados",
+          "descricao": "Desclassificados manualmente ou por critério, como nota de corte."
+        },
+        {
+          "grupo": "Etapas padrão",
+          "termo": "Qualificados",
+          "descricao": "Para onde vão candidatos incluídos de outro processo ou do banco de talentos."
+        }
+      ],
+      "faq": [],
+      "id": "ori-0032",
+      "slug": "talent-funis-e-etapas",
+      "submodulos": [
+        "talent-configuracao"
+      ],
+      "titulo": "Como criar funis e etapas do processo seletivo no Nexti Talent?",
+      "resumo": "Use o Funil Padrão ou crie funis com etapas próprias, na ordem em que o processo acontece.",
+      "palavrasChave": [
+        "talent",
+        "funil",
+        "etapas",
+        "pipeline",
+        "desistentes",
+        "desqualificados",
+        "interessados",
+        "qualificados",
+        "contratados",
+        "nova etapa",
+        "desativar funil"
+      ],
+      "finalidade": "Estruturar as fases da seleção, da inscrição até a contratação, e gerar métricas corretas de conversão.",
+      "preparacao": [
+        "Liste as etapas do seu processo seletivo na ordem em que acontecem."
+      ],
+      "resumoProcedimento": [
+        {
+          "titulo": "Abra os funis",
+          "texto": "No menu lateral, clique em Configurações > Funis e Etapas."
+        },
+        {
+          "titulo": "Crie um funil, se precisar",
+          "texto": "Clique em + Novo Funil e defina o nome. O nome pode ser editado depois pelo lápis."
+        },
+        {
+          "titulo": "Adicione etapas",
+          "texto": "Clique no + à direita do funil, informe nome e tipo da etapa e clique em Salvar."
+        },
+        {
+          "titulo": "Ordene",
+          "texto": "Clique na etapa e arraste até a posição correta."
+        },
+        {
+          "titulo": "Desative o que não usa",
+          "texto": "Use o botão mais à direita para desativar o funil; ele pode ser reativado depois."
+        }
+      ],
+      "atencao": [
+        "As 5 etapas padrão (Desistentes, Desqualificados, Interessados, Qualificados e Contratados) não podem ser excluídas.",
+        "Crie outro funil só quando o fluxo for realmente diferente: as automações são criadas por funil.",
+        "Mantenha as etapas em ordem cronológica para que o funil de conversão fique correto."
+      ],
+      "telas": [
+        {
+          "aba": "Funis",
+          "imagens": [
+            {
+              "src": "assets/telas/talent-funis-01.jpg",
+              "legenda": "Funil Padrão com as etapas padrão e o lápis para editar o nome.",
+              "alt": "Funil Padrão com as etapas padrão e o lápis para editar o nome."
+            },
+            {
+              "src": "assets/telas/talent-funis-02.jpg",
+              "legenda": "Clique no + à direita do funil para criar uma etapa.",
+              "alt": "Clique no + à direita do funil para criar uma etapa."
+            },
+            {
+              "src": "assets/telas/talent-funis-03.jpg",
+              "legenda": "Informe o nome e o tipo da etapa e clique em Salvar.",
+              "alt": "Informe o nome e o tipo da etapa e clique em Salvar."
+            },
+            {
+              "src": "assets/telas/talent-funis-04.jpg",
+              "legenda": "A etapa criada pode ser editada ou excluída.",
+              "alt": "A etapa criada pode ser editada ou excluída."
+            },
+            {
+              "src": "assets/telas/talent-funis-05.jpg",
+              "legenda": "Botão para desativar o funil.",
+              "alt": "Botão para desativar o funil."
+            }
+          ]
+        }
+      ],
+      "checklist": [
+        "As etapas estão na ordem do processo.",
+        "Só existem funis com fluxos realmente diferentes."
+      ],
+      "relacionadas": [
+        "ori-0042",
+        "ori-0035"
+      ]
+    },
+    {
+      "status": "publicado",
+      "revisao": "2026-11-16",
+      "passos": [],
+      "modulo": "talent",
+      "fonteTelas": "Guia de uso Nexti Talent, da base de conhecimento Nexti no Octadesk, com nomes, e-mails, telefones, CNPJ e dados de candidatos ocultados",
+      "materiais": [
+        {
+          "titulo": "Guia de uso Nexti Talent — telas resumidas (dados ocultados)",
+          "url": "materiais/guia-de-uso-nexti-talent.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "origem": {
+        "fonte": "Base de conhecimento Nexti (Octadesk)",
+        "artigos": [
+          {
+            "titulo": "Guia de uso Nexti Talent",
+            "url": "https://nexti.octadesk.com/kb/article/guia-de-uso-nexti-talent",
+            "arquivo": "Atual Guia de Uso - Nexti Talent (157 páginas)",
+            "dataArquivo": ""
+          }
+        ],
+        "atualizacaoFonte": "Não informada no artigo nem no arquivo PDF.",
+        "importadoEm": "2026-11-16"
+      },
+      "campos": [],
+      "faq": [],
+      "id": "ori-0033",
+      "slug": "talent-modelos-de-cargo",
+      "submodulos": [
+        "talent-configuracao"
+      ],
+      "titulo": "Como criar cargos e modelos de cargo no Nexti Talent?",
+      "resumo": "Cadastre o cargo, preencha o modelo com as informações padrão e importe-o ao abrir vaga ou requisição.",
+      "palavrasChave": [
+        "talent",
+        "cargo",
+        "modelo de cargo",
+        "template",
+        "importar template",
+        "descrição de vaga",
+        "padronizar"
+      ],
+      "finalidade": "Agilizar e padronizar a divulgação de vagas, deixando salvas responsabilidades, requisitos, benefícios, salário, formulários e avaliações.",
+      "preparacao": [
+        "Tenha a descrição padrão do cargo."
+      ],
+      "resumoProcedimento": [
+        {
+          "titulo": "Abra os cargos",
+          "texto": "No menu lateral, clique em Áreas e Cargos > Cargos."
+        },
+        {
+          "titulo": "Crie o cargo",
+          "texto": "Clique em + Novo cargo, defina o nome e um cargo padrão similar e clique em Salvar."
+        },
+        {
+          "titulo": "Preencha o modelo",
+          "texto": "Localize o cargo pela pesquisa, clique no botão vermelho à direita e preencha as informações padrão. Nenhum campo é obrigatório."
+        },
+        {
+          "titulo": "Use o modelo",
+          "texto": "Em Nova Vaga ou Nova Requisição, clique em Importar template e escolha o cargo."
+        }
+      ],
+      "atencao": [
+        "O que não estiver no modelo precisa ser preenchido na divulgação da vaga.",
+        "O cargo similar ajuda os candidatos a encontrar a vaga."
+      ],
+      "telas": [
+        {
+          "aba": "Cargos",
+          "imagens": [
+            {
+              "src": "assets/telas/talent-cargos-01.jpg",
+              "legenda": "Lista de cargos e o botão + Novo cargo.",
+              "alt": "Lista de cargos e o botão + Novo cargo."
+            },
+            {
+              "src": "assets/telas/talent-cargos-02.jpg",
+              "legenda": "Informe o nome e o cargo similar.",
+              "alt": "Informe o nome e o cargo similar."
+            },
+            {
+              "src": "assets/telas/talent-cargos-03.jpg",
+              "legenda": "Pesquise o cargo e use o botão vermelho para preencher o modelo.",
+              "alt": "Pesquise o cargo e use o botão vermelho para preencher o modelo."
+            },
+            {
+              "src": "assets/telas/talent-cargos-04.jpg",
+              "legenda": "Ao importar, escolha o modelo de cargo.",
+              "alt": "Ao importar, escolha o modelo de cargo."
+            }
+          ]
+        }
+      ],
+      "checklist": [
+        "O cargo tem modelo com as informações padrão.",
+        "O modelo foi testado em uma nova vaga."
+      ],
+      "relacionadas": [
+        "ori-0034",
+        "ori-0044"
+      ]
+    },
+    {
+      "status": "publicado",
+      "revisao": "2026-11-16",
+      "passos": [],
+      "modulo": "talent",
+      "fonteTelas": "Guia de uso Nexti Talent, da base de conhecimento Nexti no Octadesk, com nomes, e-mails, telefones, CNPJ e dados de candidatos ocultados",
+      "materiais": [
+        {
+          "titulo": "Guia de uso Nexti Talent — telas resumidas (dados ocultados)",
+          "url": "materiais/guia-de-uso-nexti-talent.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "origem": {
+        "fonte": "Base de conhecimento Nexti (Octadesk)",
+        "artigos": [
+          {
+            "titulo": "Guia de uso Nexti Talent",
+            "url": "https://nexti.octadesk.com/kb/article/guia-de-uso-nexti-talent",
+            "arquivo": "Atual Guia de Uso - Nexti Talent (157 páginas)",
+            "dataArquivo": ""
+          }
+        ],
+        "atualizacaoFonte": "Não informada no artigo nem no arquivo PDF.",
+        "importadoEm": "2026-11-16"
+      },
+      "campos": [],
+      "faq": [],
+      "id": "ori-0034",
+      "slug": "talent-divulgar-uma-vaga",
+      "submodulos": [
+        "talent-vagas"
+      ],
+      "titulo": "Como divulgar uma vaga no Nexti Talent?",
+      "resumo": "Em Vagas > Nova Vaga, preencha detalhes, descrição, etapas e canais de divulgação e clique em Finalizar.",
+      "palavrasChave": [
+        "talent",
+        "nova vaga",
+        "divulgar vaga",
+        "publicar",
+        "PcD",
+        "confidencial",
+        "não listada",
+        "rascunho",
+        "canais de divulgação",
+        "Indeed",
+        "LinkedIn",
+        "Catho"
+      ],
+      "finalidade": "Publicar a oportunidade e começar a receber candidatos, usando ou não um modelo de cargo.",
+      "preparacao": [
+        "Tenha o endereço do local de trabalho cadastrado.",
+        "Se existir, use o modelo do cargo.",
+        "Se o seu perfil exigir, abra uma requisição de vaga em vez de publicar direto."
+      ],
+      "resumoProcedimento": [
+        {
+          "titulo": "Abra a nova vaga",
+          "texto": "No menu lateral, clique em Vaga > Nova Vaga. Se quiser, clique em Importar template."
+        },
+        {
+          "titulo": "Detalhes",
+          "texto": "Informe nome, cargo, área e local de trabalho e marque se a vaga é remota, exclusiva PcD, confidencial ou não listada."
+        },
+        {
+          "titulo": "Etapas",
+          "texto": "Escolha o funil do processo seletivo."
+        },
+        {
+          "titulo": "Canais",
+          "texto": "Ative os canais de divulgação integrados que deseja usar."
+        },
+        {
+          "titulo": "Publique",
+          "texto": "Clique em Finalizar. Você vai para a página da vaga, onde pode compartilhá-la."
+        }
+      ],
+      "atencao": [
+        "Vaga confidencial remove as informações da empresa; nomes escritos por extenso nas mensagens não são trocados.",
+        "Vaga não listada só pode ser acessada pelo link.",
+        "Para terminar depois, salve como rascunho e retome em Vagas > Rascunhos."
+      ],
+      "telas": [
+        {
+          "aba": "Nova vaga",
+          "imagens": [
+            {
+              "src": "assets/telas/talent-divulgar-01.jpg",
+              "legenda": "Nova vaga com o botão Importar template.",
+              "alt": "Nova vaga com o botão Importar template."
+            },
+            {
+              "src": "assets/telas/talent-divulgar-02.jpg",
+              "legenda": "Opções da vaga e o local de trabalho.",
+              "alt": "Opções da vaga e o local de trabalho."
+            },
+            {
+              "src": "assets/telas/talent-divulgar-03.jpg",
+              "legenda": "Escolha o funil nas etapas do processo.",
+              "alt": "Escolha o funil nas etapas do processo."
+            },
+            {
+              "src": "assets/telas/talent-divulgar-04.jpg",
+              "legenda": "Canais de divulgação.",
+              "alt": "Canais de divulgação."
+            },
+            {
+              "src": "assets/telas/talent-divulgar-05.jpg",
+              "legenda": "Na publicação, compartilhe a vaga e clique em Finalizar.",
+              "alt": "Na publicação, compartilhe a vaga e clique em Finalizar."
+            },
+            {
+              "src": "assets/telas/talent-divulgar-06.jpg",
+              "legenda": "Integrações com o Indeed.",
+              "alt": "Integrações com o Indeed."
+            }
+          ]
+        }
+      ],
+      "checklist": [
+        "Endereço, cargo e área estão corretos.",
+        "O funil escolhido é o do processo.",
+        "Os canais desejados estão ativos."
+      ],
+      "relacionadas": [
+        "ori-0033",
+        "ori-0035",
+        "ori-0044"
+      ]
+    },
+    {
+      "status": "publicado",
+      "revisao": "2026-11-16",
+      "passos": [],
+      "modulo": "talent",
+      "fonteTelas": "Guia de uso Nexti Talent, da base de conhecimento Nexti no Octadesk, com nomes, e-mails, telefones, CNPJ e dados de candidatos ocultados",
+      "materiais": [
+        {
+          "titulo": "Guia de uso Nexti Talent — telas resumidas (dados ocultados)",
+          "url": "materiais/guia-de-uso-nexti-talent.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "origem": {
+        "fonte": "Base de conhecimento Nexti (Octadesk)",
+        "artigos": [
+          {
+            "titulo": "Guia de uso Nexti Talent",
+            "url": "https://nexti.octadesk.com/kb/article/guia-de-uso-nexti-talent",
+            "arquivo": "Atual Guia de Uso - Nexti Talent (157 páginas)",
+            "dataArquivo": ""
+          }
+        ],
+        "atualizacaoFonte": "Não informada no artigo nem no arquivo PDF.",
+        "importadoEm": "2026-11-16"
+      },
+      "campos": [],
+      "faq": [],
+      "id": "ori-0035",
+      "slug": "talent-gerenciar-vagas",
+      "submodulos": [
+        "talent-vagas"
+      ],
+      "titulo": "Como pausar, editar e fechar vagas no Nexti Talent?",
+      "resumo": "Na página da vaga, no painel de candidatos ou na lista de vagas, altere o status, edite pelo lápis ou feche a vaga.",
+      "palavrasChave": [
+        "talent",
+        "vagas",
+        "minhas vagas",
+        "todas as vagas",
+        "status",
+        "pausar",
+        "fechar vaga",
+        "editar vaga",
+        "UTM",
+        "links rastreáveis",
+        "filtros"
+      ],
+      "finalidade": "Manter cada processo seletivo com o status certo e acessar suas páginas.",
+      "preparacao": [
+        "Tenha permissão sobre a vaga."
+      ],
+      "resumoProcedimento": [
+        {
+          "titulo": "Encontre a vaga",
+          "texto": "No menu lateral, clique em Vagas > Minhas Vagas ou Todas as Vagas. Use os filtros se precisar."
+        },
+        {
+          "titulo": "Mude o status",
+          "texto": "Escolha o novo status da vaga. Ao pausar, os inscritos recebem e-mail."
+        },
+        {
+          "titulo": "Edite",
+          "texto": "Clique no lápis. Vagas publicadas sem fluxo de aprovação permitem editar quase tudo."
+        },
+        {
+          "titulo": "Feche",
+          "texto": "Clique em Fechar, confirme com Sim, continuar!, informe o motivo e clique em Confirmar."
+        }
+      ],
+      "atencao": [
+        "Depois de fechada, a vaga não volta a outro status e sai dos sites onde foi divulgada.",
+        "Os ícones da vaga levam à visualização como candidato, edição, painel de candidatos, métricas, links rastreáveis e requisição vinculada."
+      ],
+      "telas": [
+        {
+          "aba": "Vagas",
+          "imagens": [
+            {
+              "src": "assets/telas/talent-vagas-01.jpg",
+              "legenda": "Página da vaga com o status e os ícones.",
+              "alt": "Página da vaga com o status e os ícones."
+            },
+            {
+              "src": "assets/telas/talent-vagas-02.jpg",
+              "legenda": "Painel de candidatos com status e Fechar.",
+              "alt": "Painel de candidatos com status e Fechar."
+            },
+            {
+              "src": "assets/telas/talent-vagas-03.jpg",
+              "legenda": "Confirme o fechamento.",
+              "alt": "Confirme o fechamento."
+            },
+            {
+              "src": "assets/telas/talent-vagas-04.jpg",
+              "legenda": "Informe o motivo do fechamento.",
+              "alt": "Informe o motivo do fechamento."
+            },
+            {
+              "src": "assets/telas/talent-vagas-05.jpg",
+              "legenda": "Vaga fechada.",
+              "alt": "Vaga fechada."
+            },
+            {
+              "src": "assets/telas/talent-vagas-06.jpg",
+              "legenda": "Filtros da lista de vagas.",
+              "alt": "Filtros da lista de vagas."
+            }
+          ]
+        }
+      ],
+      "checklist": [
+        "As vagas sem processo ativo foram fechadas com motivo.",
+        "As vagas pausadas foram revisadas."
+      ],
+      "relacionadas": [
+        "ori-0034",
+        "ori-0036",
+        "ori-0046"
+      ]
+    },
+    {
+      "status": "publicado",
+      "revisao": "2026-11-16",
+      "passos": [],
+      "modulo": "talent",
+      "fonteTelas": "Guia de uso Nexti Talent, da base de conhecimento Nexti no Octadesk, com nomes, e-mails, telefones, CNPJ e dados de candidatos ocultados",
+      "materiais": [
+        {
+          "titulo": "Guia de uso Nexti Talent — telas resumidas (dados ocultados)",
+          "url": "materiais/guia-de-uso-nexti-talent.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "origem": {
+        "fonte": "Base de conhecimento Nexti (Octadesk)",
+        "artigos": [
+          {
+            "titulo": "Guia de uso Nexti Talent",
+            "url": "https://nexti.octadesk.com/kb/article/guia-de-uso-nexti-talent",
+            "arquivo": "Atual Guia de Uso - Nexti Talent (157 páginas)",
+            "dataArquivo": ""
+          }
+        ],
+        "atualizacaoFonte": "Não informada no artigo nem no arquivo PDF.",
+        "importadoEm": "2026-11-16"
+      },
+      "campos": [],
+      "faq": [],
+      "id": "ori-0036",
+      "slug": "talent-processo-seletivo",
+      "submodulos": [
+        "talent-candidatos"
+      ],
+      "titulo": "Como conduzir o processo seletivo no painel de candidatos do Nexti Talent?",
+      "resumo": "No painel da vaga, veja os candidatos por etapa, mova-os, use ações em massa, ative automações e inclua candidatos manuais.",
+      "palavrasChave": [
+        "talent",
+        "painel de candidatos",
+        "triagem",
+        "mover candidato",
+        "ações em massa",
+        "mudar status",
+        "candidato manual",
+        "qualificar",
+        "exportar candidatos",
+        "automações da vaga"
+      ],
+      "finalidade": "Fazer a triagem e a seleção dos candidatos de uma vaga, mantendo as etapas atualizadas para as métricas.",
+      "preparacao": [
+        "Tenha uma vaga publicada."
+      ],
+      "resumoProcedimento": [
+        {
+          "titulo": "Abra o painel",
+          "texto": "Na vaga, clique no ícone do painel de candidatos e clique na etapa que deseja ver."
+        },
+        {
+          "titulo": "Mova um candidato",
+          "texto": "Expanda o card e clique na etapa para onde ele vai."
+        },
+        {
+          "titulo": "Mova vários",
+          "texto": "Em Ações em Massa, selecione os candidatos, escolha a etapa, clique em Mudar Status e confirme com Sim."
+        },
+        {
+          "titulo": "Ative automações",
+          "texto": "Clique em Automações no topo do painel e ligue as que deseja vincular à vaga."
+        },
+        {
+          "titulo": "Inclua manualmente",
+          "texto": "Clique em Adicionar e informe ao menos nome, sobrenome e origem do candidato."
+        },
+        {
+          "titulo": "Qualifique para outra vaga",
+          "texto": "Clique em Qualificar, escolha a vaga e decida se o candidato recebe e-mail."
+        }
+      ],
+      "atencao": [
+        "Candidato manual não é usuário do sistema; serve para organizar o processo.",
+        "Pelo ícone de exportação, é possível baixar a planilha de inscritos e candidatos manuais."
+      ],
+      "telas": [
+        {
+          "aba": "Painel",
+          "imagens": [
+            {
+              "src": "assets/telas/talent-processo-01.jpg",
+              "legenda": "Painel de candidatos com as etapas da vaga.",
+              "alt": "Painel de candidatos com as etapas da vaga."
+            },
+            {
+              "src": "assets/telas/talent-processo-02.jpg",
+              "legenda": "Vincule automações à vaga.",
+              "alt": "Vincule automações à vaga."
+            },
+            {
+              "src": "assets/telas/talent-processo-03.jpg",
+              "legenda": "Inclusão manual de candidato.",
+              "alt": "Inclusão manual de candidato."
+            },
+            {
+              "src": "assets/telas/talent-processo-04.jpg",
+              "legenda": "Ações em massa: escolha a etapa e clique em Mudar Status.",
+              "alt": "Ações em massa: escolha a etapa e clique em Mudar Status."
+            },
+            {
+              "src": "assets/telas/talent-processo-05.jpg",
+              "legenda": "Confirme a mudança de status.",
+              "alt": "Confirme a mudança de status."
+            },
+            {
+              "src": "assets/telas/talent-processo-06.jpg",
+              "legenda": "Qualifique o candidato para outra vaga.",
+              "alt": "Qualifique o candidato para outra vaga."
+            }
+          ]
+        }
+      ],
+      "checklist": [
+        "Todos os candidatos estão na etapa correta.",
+        "Os contratados foram movidos para Contratados."
+      ],
+      "relacionadas": [
+        "ori-0037",
+        "ori-0038",
+        "ori-0043"
+      ]
+    },
+    {
+      "status": "publicado",
+      "revisao": "2026-11-16",
+      "passos": [],
+      "modulo": "talent",
+      "fonteTelas": "Guia de uso Nexti Talent, da base de conhecimento Nexti no Octadesk, com nomes, e-mails, telefones, CNPJ e dados de candidatos ocultados",
+      "materiais": [
+        {
+          "titulo": "Guia de uso Nexti Talent — telas resumidas (dados ocultados)",
+          "url": "materiais/guia-de-uso-nexti-talent.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "origem": {
+        "fonte": "Base de conhecimento Nexti (Octadesk)",
+        "artigos": [
+          {
+            "titulo": "Guia de uso Nexti Talent",
+            "url": "https://nexti.octadesk.com/kb/article/guia-de-uso-nexti-talent",
+            "arquivo": "Atual Guia de Uso - Nexti Talent (157 páginas)",
+            "dataArquivo": ""
+          }
+        ],
+        "atualizacaoFonte": "Não informada no artigo nem no arquivo PDF.",
+        "importadoEm": "2026-11-16"
+      },
+      "campos": [],
+      "faq": [],
+      "id": "ori-0037",
+      "slug": "talent-contato-com-candidatos",
+      "submodulos": [
+        "talent-candidatos"
+      ],
+      "titulo": "Como falar com candidatos e agendar entrevistas no Nexti Talent?",
+      "resumo": "Use os modelos de WhatsApp, o chat, o feedback e o agendamento pelo Google Agenda ou Outlook direto do card do candidato.",
+      "palavrasChave": [
+        "talent",
+        "WhatsApp",
+        "chat",
+        "feedback",
+        "retorno",
+        "agendar entrevista",
+        "Google Agenda",
+        "Outlook",
+        "candidato"
+      ],
+      "finalidade": "Agilizar a comunicação com os candidatos sem sair do processo seletivo.",
+      "preparacao": [
+        "Crie os modelos de mensagem (veja Modelos de mensagens).",
+        "Para WhatsApp, o candidato precisa ter telefone no perfil."
+      ],
+      "resumoProcedimento": [
+        {
+          "titulo": "WhatsApp",
+          "texto": "No card do candidato, clique no botão do WhatsApp, escolha o modelo, ajuste se quiser e inicie a conversa."
+        },
+        {
+          "titulo": "Chat",
+          "texto": "Clique em Chat para conversar pela própria plataforma."
+        },
+        {
+          "titulo": "Feedback",
+          "texto": "Escolha o modelo de desclassificação e envie. Para vários, confirme o envio a todas as etapas."
+        },
+        {
+          "titulo": "Entrevista",
+          "texto": "Em Agendar entrevista, informe data e hora de início e fim e escolha Google Agenda ou Outlook Calendário. O convite abre já preenchido."
+        }
+      ],
+      "atencao": [
+        "Candidatos que já receberam feedback ou estão em Contratados e Desistentes não recebem novo feedback em massa."
+      ],
+      "telas": [
+        {
+          "aba": "Contato",
+          "imagens": [
+            {
+              "src": "assets/telas/talent-contato-01.jpg",
+              "legenda": "Modelos de WhatsApp disponíveis no card do candidato.",
+              "alt": "Modelos de WhatsApp disponíveis no card do candidato."
+            },
+            {
+              "src": "assets/telas/talent-contato-02.jpg",
+              "legenda": "Inicie a conversa pelo WhatsApp.",
+              "alt": "Inicie a conversa pelo WhatsApp."
+            },
+            {
+              "src": "assets/telas/talent-contato-03.jpg",
+              "legenda": "Modelo de desclassificação no card.",
+              "alt": "Modelo de desclassificação no card."
+            },
+            {
+              "src": "assets/telas/talent-contato-04.jpg",
+              "legenda": "Confirme o envio do feedback.",
+              "alt": "Confirme o envio do feedback."
+            },
+            {
+              "src": "assets/telas/talent-contato-05.jpg",
+              "legenda": "Informe data e hora da entrevista.",
+              "alt": "Informe data e hora da entrevista."
+            },
+            {
+              "src": "assets/telas/talent-contato-06.jpg",
+              "legenda": "Escolha Google Agenda ou Outlook Calendário.",
+              "alt": "Escolha Google Agenda ou Outlook Calendário."
+            }
+          ]
+        }
+      ],
+      "checklist": [
+        "Os candidatos desclassificados receberam retorno.",
+        "As entrevistas têm convite enviado."
+      ],
+      "relacionadas": [
+        "ori-0041",
+        "ori-0036"
+      ]
+    },
+    {
+      "status": "publicado",
+      "revisao": "2026-11-16",
+      "passos": [],
+      "modulo": "talent",
+      "fonteTelas": "Guia de uso Nexti Talent, da base de conhecimento Nexti no Octadesk, com nomes, e-mails, telefones, CNPJ e dados de candidatos ocultados",
+      "materiais": [
+        {
+          "titulo": "Guia de uso Nexti Talent — telas resumidas (dados ocultados)",
+          "url": "materiais/guia-de-uso-nexti-talent.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "origem": {
+        "fonte": "Base de conhecimento Nexti (Octadesk)",
+        "artigos": [
+          {
+            "titulo": "Guia de uso Nexti Talent",
+            "url": "https://nexti.octadesk.com/kb/article/guia-de-uso-nexti-talent",
+            "arquivo": "Atual Guia de Uso - Nexti Talent (157 páginas)",
+            "dataArquivo": ""
+          }
+        ],
+        "atualizacaoFonte": "Não informada no artigo nem no arquivo PDF.",
+        "importadoEm": "2026-11-16"
+      },
+      "campos": [],
+      "faq": [],
+      "id": "ori-0038",
+      "slug": "talent-avaliar-candidatos",
+      "submodulos": [
+        "talent-candidatos"
+      ],
+      "titulo": "Como registrar comentários, anotações e avaliações de candidatos no Nexti Talent?",
+      "resumo": "No card do candidato, registre comentários internos e anotações, veja as respostas dos testes e faça a avaliação interna.",
+      "palavrasChave": [
+        "talent",
+        "comentário",
+        "anotação",
+        "lista pública",
+        "avaliação interna",
+        "estrelas",
+        "imprimir",
+        "download",
+        "anexos",
+        "upload de arquivo"
+      ],
+      "finalidade": "Centralizar a opinião da equipe sobre cada candidato.",
+      "preparacao": [
+        "Abra o painel de candidatos da vaga."
+      ],
+      "resumoProcedimento": [
+        {
+          "titulo": "Expanda o card",
+          "texto": "Clique para expandir o card do candidato."
+        },
+        {
+          "titulo": "Comente",
+          "texto": "Use Comentário da empresa para observações internas e clique em Salvar Comentário."
+        },
+        {
+          "titulo": "Anote",
+          "texto": "Use Anotação para informações que podem ser compartilhadas na Lista Pública com pessoas sem acesso ao sistema."
+        },
+        {
+          "titulo": "Veja respostas",
+          "texto": "Clique nos ícones de pré-questionário ou avaliação. Use Imprimir/Download para gerar PDF."
+        },
+        {
+          "titulo": "Avalie",
+          "texto": "Em testes dissertativos ou por arquivo, clique em Avaliar e dê a nota em estrelas."
+        },
+        {
+          "titulo": "Anexe arquivos",
+          "texto": "Envie arquivos como relatórios de entrevista em PDF, PNG, JPEG ou GIF."
+        }
+      ],
+      "atencao": [
+        "Comentários e anotações nunca aparecem para o candidato.",
+        "As anotações aparecem no link da Lista Pública."
+      ],
+      "telas": [
+        {
+          "aba": "Avaliação",
+          "imagens": [
+            {
+              "src": "assets/telas/talent-avaliar-01.jpg",
+              "legenda": "Comentário, anotação e motivo de desqualificação no card.",
+              "alt": "Comentário, anotação e motivo de desqualificação no card."
+            },
+            {
+              "src": "assets/telas/talent-avaliar-02.jpg",
+              "legenda": "Respostas do candidato com Imprimir/Download.",
+              "alt": "Respostas do candidato com Imprimir/Download."
+            },
+            {
+              "src": "assets/telas/talent-avaliar-03.jpg",
+              "legenda": "Avaliação interna em estrelas.",
+              "alt": "Avaliação interna em estrelas."
+            },
+            {
+              "src": "assets/telas/talent-avaliar-04.jpg",
+              "legenda": "Envio de arquivo para o candidato.",
+              "alt": "Envio de arquivo para o candidato."
+            }
+          ]
+        }
+      ],
+      "checklist": [
+        "Os candidatos entrevistados têm comentário.",
+        "Testes dissertativos foram avaliados."
+      ],
+      "relacionadas": [
+        "ori-0036",
+        "ori-0040"
+      ]
+    },
+    {
+      "status": "publicado",
+      "revisao": "2026-11-16",
+      "passos": [],
+      "modulo": "talent",
+      "fonteTelas": "Guia de uso Nexti Talent, da base de conhecimento Nexti no Octadesk, com nomes, e-mails, telefones, CNPJ e dados de candidatos ocultados",
+      "materiais": [
+        {
+          "titulo": "Guia de uso Nexti Talent — telas resumidas (dados ocultados)",
+          "url": "materiais/guia-de-uso-nexti-talent.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "origem": {
+        "fonte": "Base de conhecimento Nexti (Octadesk)",
+        "artigos": [
+          {
+            "titulo": "Guia de uso Nexti Talent",
+            "url": "https://nexti.octadesk.com/kb/article/guia-de-uso-nexti-talent",
+            "arquivo": "Atual Guia de Uso - Nexti Talent (157 páginas)",
+            "dataArquivo": ""
+          }
+        ],
+        "atualizacaoFonte": "Não informada no artigo nem no arquivo PDF.",
+        "importadoEm": "2026-11-16"
+      },
+      "campos": [],
+      "faq": [],
+      "id": "ori-0039",
+      "slug": "talent-banco-de-candidatos",
+      "submodulos": [
+        "talent-candidatos"
+      ],
+      "titulo": "Como usar o banco de candidatos do Nexti Talent?",
+      "resumo": "Em Candidatos > Meus Inscritos, filtre e ordene a base, veja o histórico, favorite, qualifique para vagas e bloqueie candidatos.",
+      "palavrasChave": [
+        "talent",
+        "banco de candidatos",
+        "meus inscritos",
+        "filtros",
+        "distância",
+        "tags",
+        "favoritos",
+        "histórico",
+        "bloqueio de candidatos",
+        "qualificar"
+      ],
+      "finalidade": "Reaproveitar candidatos que já se inscreveram em processos da empresa.",
+      "preparacao": [
+        "Tenha tags e endereços cadastrados para aproveitar os filtros."
+      ],
+      "resumoProcedimento": [
+        {
+          "titulo": "Abra o banco",
+          "texto": "No menu lateral, clique em Candidatos > Meus Inscritos."
+        },
+        {
+          "titulo": "Filtre",
+          "texto": "Abra os filtros, escolha os critérios, como distância do endereço ou tags, e clique em Filtrar. Use Limpar antes de um novo filtro."
+        },
+        {
+          "titulo": "Ordene",
+          "texto": "Em Ordenar por, escolha salário, login mais recente ou nota de avaliação."
+        },
+        {
+          "titulo": "Qualifique",
+          "texto": "Clique em Qualificar e escolha a vaga ativa."
+        },
+        {
+          "titulo": "Favorite e consulte",
+          "texto": "Favorite candidatos nos processos; eles aparecem por área em Candidatos Favoritos. O ícone de histórico mostra cada movimentação."
+        },
+        {
+          "titulo": "Bloqueie, se necessário",
+          "texto": "Em Bloqueio de candidatos, clique em Adicionar, informe os dados e o motivo e clique em Salvar."
+        }
+      ],
+      "atencao": [
+        "O filtro de distância usa os endereços cadastrados.",
+        "A etiqueta cinza no card mostra todos os processos em que o candidato está."
+      ],
+      "telas": [
+        {
+          "aba": "Banco",
+          "imagens": [
+            {
+              "src": "assets/telas/talent-banco-01.jpg",
+              "legenda": "Filtros do banco de candidatos.",
+              "alt": "Filtros do banco de candidatos."
+            },
+            {
+              "src": "assets/telas/talent-banco-02.jpg",
+              "legenda": "Opções de ordenação.",
+              "alt": "Opções de ordenação."
+            },
+            {
+              "src": "assets/telas/talent-banco-03.jpg",
+              "legenda": "Qualificar candidato para uma vaga.",
+              "alt": "Qualificar candidato para uma vaga."
+            },
+            {
+              "src": "assets/telas/talent-banco-04.jpg",
+              "legenda": "Candidatos favoritos por área.",
+              "alt": "Candidatos favoritos por área."
+            },
+            {
+              "src": "assets/telas/talent-banco-05.jpg",
+              "legenda": "Lista de candidatos bloqueados.",
+              "alt": "Lista de candidatos bloqueados."
+            },
+            {
+              "src": "assets/telas/talent-banco-06.jpg",
+              "legenda": "Novo bloqueio de candidato.",
+              "alt": "Novo bloqueio de candidato."
+            }
+          ]
+        }
+      ],
+      "checklist": [
+        "Os filtros foram limpos antes de uma nova busca.",
+        "Os bloqueios têm motivo registrado."
+      ],
+      "relacionadas": [
+        "ori-0036",
+        "ori-0045"
+      ]
+    },
+    {
+      "status": "publicado",
+      "revisao": "2026-11-16",
+      "passos": [],
+      "modulo": "talent",
+      "fonteTelas": "Guia de uso Nexti Talent, da base de conhecimento Nexti no Octadesk, com nomes, e-mails, telefones, CNPJ e dados de candidatos ocultados",
+      "materiais": [
+        {
+          "titulo": "Guia de uso Nexti Talent — telas resumidas (dados ocultados)",
+          "url": "materiais/guia-de-uso-nexti-talent.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "origem": {
+        "fonte": "Base de conhecimento Nexti (Octadesk)",
+        "artigos": [
+          {
+            "titulo": "Guia de uso Nexti Talent",
+            "url": "https://nexti.octadesk.com/kb/article/guia-de-uso-nexti-talent",
+            "arquivo": "Atual Guia de Uso - Nexti Talent (157 páginas)",
+            "dataArquivo": ""
+          }
+        ],
+        "atualizacaoFonte": "Não informada no artigo nem no arquivo PDF.",
+        "importadoEm": "2026-11-16"
+      },
+      "campos": [],
+      "faq": [],
+      "id": "ori-0040",
+      "slug": "talent-avaliacoes-e-pre-questionarios",
+      "submodulos": [
+        "talent-avaliacoes"
+      ],
+      "titulo": "Como criar avaliações e pré-questionários no Nexti Talent?",
+      "resumo": "Em Avaliações e Pré Questionários, crie o teste, monte as perguntas, defina alternativas e pontos, lógica e cronômetro.",
+      "palavrasChave": [
+        "talent",
+        "avaliação",
+        "pré-questionário",
+        "formulário",
+        "teste",
+        "nota de corte",
+        "pontuação",
+        "pergunta",
+        "lógica",
+        "cronômetro",
+        "quiz"
+      ],
+      "finalidade": "Aplicar testes e formulários aos candidatos e, quando possível, pontuá-los automaticamente.",
+      "preparacao": [
+        "Tenha as perguntas e as respostas corretas."
+      ],
+      "resumoProcedimento": [
+        {
+          "titulo": "Abra",
+          "texto": "No menu lateral, clique em Avaliações e Pré Questionários > Avaliações e depois em + Nova Avaliação."
+        },
+        {
+          "titulo": "Configure",
+          "texto": "Defina nome, pontuação total e se o resultado aparece para o candidato, em porcentagem, se bloqueia copiar e colar e se é avaliação interna."
+        },
+        {
+          "titulo": "Monte as perguntas",
+          "texto": "Arraste os tipos de pergunta, como texto, checkbox, dropdown ou arquivo, e edite cada uma."
+        },
+        {
+          "titulo": "Pontue",
+          "texto": "Em Opções, cadastre as alternativas com valor e score e indique a correta."
+        },
+        {
+          "titulo": "Lógica e tempo",
+          "texto": "Use Visível se para exibir perguntas conforme respostas e o Cronômetro/Quiz para limitar o tempo."
+        },
+        {
+          "titulo": "Salve",
+          "texto": "Clique em Guardar Questionário."
+        }
+      ],
+      "atencao": [
+        "Avaliação interna serve para testes sem nota automática, como redação ou envio de arquivo.",
+        "Com nota de corte, automações podem mover os candidatos aprovados ou reprovados."
+      ],
+      "telas": [
+        {
+          "aba": "Avaliações",
+          "imagens": [
+            {
+              "src": "assets/telas/talent-questionarios-01.jpg",
+              "legenda": "Lista de avaliações e + Nova Avaliação.",
+              "alt": "Lista de avaliações e + Nova Avaliação."
+            },
+            {
+              "src": "assets/telas/talent-questionarios-02.jpg",
+              "legenda": "Configurações da nova avaliação.",
+              "alt": "Configurações da nova avaliação."
+            },
+            {
+              "src": "assets/telas/talent-questionarios-03.jpg",
+              "legenda": "Tipos de pergunta disponíveis.",
+              "alt": "Tipos de pergunta disponíveis."
+            },
+            {
+              "src": "assets/telas/talent-questionarios-04.jpg",
+              "legenda": "Alternativas com valor e score.",
+              "alt": "Alternativas com valor e score."
+            },
+            {
+              "src": "assets/telas/talent-questionarios-05.jpg",
+              "legenda": "Lógica Visível se.",
+              "alt": "Lógica Visível se."
+            },
+            {
+              "src": "assets/telas/talent-questionarios-06.jpg",
+              "legenda": "Respostas certas e erradas.",
+              "alt": "Respostas certas e erradas."
+            },
+            {
+              "src": "assets/telas/talent-questionarios-07.jpg",
+              "legenda": "Cronômetro do questionário.",
+              "alt": "Cronômetro do questionário."
+            }
+          ]
+        }
+      ],
+      "checklist": [
+        "As respostas corretas estão marcadas.",
+        "A pontuação total confere.",
+        "O teste foi revisado antes de ser vinculado à vaga."
+      ],
+      "relacionadas": [
+        "ori-0038",
+        "ori-0042"
+      ]
+    },
+    {
+      "status": "publicado",
+      "revisao": "2026-11-16",
+      "passos": [],
+      "modulo": "talent",
+      "fonteTelas": "Guia de uso Nexti Talent, da base de conhecimento Nexti no Octadesk, com nomes, e-mails, telefones, CNPJ e dados de candidatos ocultados",
+      "materiais": [
+        {
+          "titulo": "Guia de uso Nexti Talent — telas resumidas (dados ocultados)",
+          "url": "materiais/guia-de-uso-nexti-talent.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "origem": {
+        "fonte": "Base de conhecimento Nexti (Octadesk)",
+        "artigos": [
+          {
+            "titulo": "Guia de uso Nexti Talent",
+            "url": "https://nexti.octadesk.com/kb/article/guia-de-uso-nexti-talent",
+            "arquivo": "Atual Guia de Uso - Nexti Talent (157 páginas)",
+            "dataArquivo": ""
+          }
+        ],
+        "atualizacaoFonte": "Não informada no artigo nem no arquivo PDF.",
+        "importadoEm": "2026-11-16"
+      },
+      "campos": [
+        {
+          "grupo": "Variáveis",
+          "termo": "{{nome_do_candidato}}",
+          "descricao": "Nome do candidato."
+        },
+        {
+          "grupo": "Variáveis",
+          "termo": "{{nome_do_recrutador}}",
+          "descricao": "Usuário que envia a mensagem."
+        },
+        {
+          "grupo": "Variáveis",
+          "termo": "{{link_pag_carreiras}}",
+          "descricao": "Link da página de carreiras."
+        }
+      ],
+      "faq": [],
+      "id": "ori-0041",
+      "slug": "talent-modelos-de-mensagens",
+      "submodulos": [
+        "talent-comunicacao"
+      ],
+      "titulo": "Como criar modelos de mensagens de feedback, WhatsApp e e-mail no Nexti Talent?",
+      "resumo": "Em Configurações > Templates, crie modelos com variáveis que são trocadas pelos dados do candidato, da vaga e da empresa.",
+      "palavrasChave": [
+        "talent",
+        "templates",
+        "modelos de mensagem",
+        "feedback",
+        "WhatsApp",
+        "e-mail",
+        "variáveis",
+        "nome do candidato"
+      ],
+      "finalidade": "Padronizar e agilizar a comunicação com os candidatos.",
+      "preparacao": [
+        "Defina os textos de retorno para cada etapa do processo."
+      ],
+      "resumoProcedimento": [
+        {
+          "titulo": "Abra",
+          "texto": "No menu lateral, clique em Configurações > Templates."
+        },
+        {
+          "titulo": "Escolha o tipo",
+          "texto": "Clique em + Novo Template e escolha Feedback, WhatsApp ou Email."
+        },
+        {
+          "titulo": "Escreva",
+          "texto": "Informe o título e o texto. Clique em uma variável para copiá-la e cole no texto."
+        },
+        {
+          "titulo": "Salve",
+          "texto": "Clique em Salvar Template."
+        }
+      ],
+      "atencao": [
+        "Use variáveis em vez de escrever nomes por extenso; assim a vaga confidencial também esconde a empresa.",
+        "Se um modelo usado em automação for excluído, a automação pode parar."
+      ],
+      "telas": [
+        {
+          "aba": "Templates",
+          "imagens": [
+            {
+              "src": "assets/telas/talent-mensagens-01.jpg",
+              "legenda": "Variáveis disponíveis nos modelos.",
+              "alt": "Variáveis disponíveis nos modelos."
+            },
+            {
+              "src": "assets/telas/talent-mensagens-02.jpg",
+              "legenda": "+ Novo Template e os tipos de modelo.",
+              "alt": "+ Novo Template e os tipos de modelo."
+            },
+            {
+              "src": "assets/telas/talent-mensagens-03.jpg",
+              "legenda": "Título e texto do modelo.",
+              "alt": "Título e texto do modelo."
+            },
+            {
+              "src": "assets/telas/talent-mensagens-04.jpg",
+              "legenda": "Modelos cadastrados com editar e excluir.",
+              "alt": "Modelos cadastrados com editar e excluir."
+            }
+          ]
+        }
+      ],
+      "checklist": [
+        "Há modelo de feedback para cada etapa de desclassificação.",
+        "Os modelos usam variáveis."
+      ],
+      "relacionadas": [
+        "ori-0037",
+        "ori-0042"
+      ]
+    },
+    {
+      "status": "publicado",
+      "revisao": "2026-11-16",
+      "passos": [],
+      "modulo": "talent",
+      "fonteTelas": "Guia de uso Nexti Talent, da base de conhecimento Nexti no Octadesk, com nomes, e-mails, telefones, CNPJ e dados de candidatos ocultados",
+      "materiais": [
+        {
+          "titulo": "Guia de uso Nexti Talent — telas resumidas (dados ocultados)",
+          "url": "materiais/guia-de-uso-nexti-talent.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "origem": {
+        "fonte": "Base de conhecimento Nexti (Octadesk)",
+        "artigos": [
+          {
+            "titulo": "Guia de uso Nexti Talent",
+            "url": "https://nexti.octadesk.com/kb/article/guia-de-uso-nexti-talent",
+            "arquivo": "Atual Guia de Uso - Nexti Talent (157 páginas)",
+            "dataArquivo": ""
+          }
+        ],
+        "atualizacaoFonte": "Não informada no artigo nem no arquivo PDF.",
+        "importadoEm": "2026-11-16"
+      },
+      "campos": [
+        {
+          "grupo": "Ações",
+          "termo": "Mover candidato de etapa do funil",
+          "descricao": "Move o candidato automaticamente."
+        },
+        {
+          "grupo": "Ações",
+          "termo": "Disparar email para candidato ou recrutador",
+          "descricao": "Envia um modelo de e-mail."
+        },
+        {
+          "grupo": "Ações",
+          "termo": "Define Tags para candidato",
+          "descricao": "Aplica tags usadas nos filtros."
+        }
+      ],
+      "faq": [],
+      "id": "ori-0042",
+      "slug": "talent-automacoes",
+      "submodulos": [
+        "talent-comunicacao"
+      ],
+      "titulo": "Como criar automações no funil do Nexti Talent?",
+      "resumo": "Em Funis e Etapas, crie automações com uma ação e gatilhos e depois ative-as em cada vaga.",
+      "palavrasChave": [
+        "talent",
+        "automação",
+        "gatilho",
+        "mover candidato",
+        "disparar e-mail",
+        "feedback automático",
+        "tags",
+        "nota de corte",
+        "pipeline"
+      ],
+      "finalidade": "Fazer o sistema executar tarefas repetitivas, como mover candidatos, enviar e-mails e feedbacks e aplicar tags.",
+      "preparacao": [
+        "Tenha o funil, os modelos de mensagem e, se for usar nota, a avaliação criados."
+      ],
+      "resumoProcedimento": [
+        {
+          "titulo": "Abra",
+          "texto": "No menu lateral, clique em Configurações > Funis e Etapas e abra as automações do funil."
+        },
+        {
+          "titulo": "Crie",
+          "texto": "Clique em + Nova automação, ative-a e informe descrição, ação automatizada e etapa."
+        },
+        {
+          "titulo": "Defina gatilhos",
+          "texto": "Clique em + Adicionar gatilho e escolha a condição, como nota de corte, resposta de avaliação ou entrada em etapa."
+        },
+        {
+          "titulo": "Salve e ative",
+          "texto": "Clique em Salvar. Na vaga, clique em Automações e ligue a automação."
+        }
+      ],
+      "atencao": [
+        "Automações são criadas por funil; quanto mais funis, mais automações para manter.",
+        "Se o modelo de mensagem usado for excluído, a automação pode parar."
+      ],
+      "telas": [
+        {
+          "aba": "Automações",
+          "imagens": [
+            {
+              "src": "assets/telas/talent-automacoes-01.jpg",
+              "legenda": "Ações automatizadas disponíveis.",
+              "alt": "Ações automatizadas disponíveis."
+            },
+            {
+              "src": "assets/telas/talent-automacoes-02.jpg",
+              "legenda": "Gatilhos disponíveis.",
+              "alt": "Gatilhos disponíveis."
+            },
+            {
+              "src": "assets/telas/talent-automacoes-03.jpg",
+              "legenda": "Automações do funil e + Nova automação.",
+              "alt": "Automações do funil e + Nova automação."
+            },
+            {
+              "src": "assets/telas/talent-automacoes-04.jpg",
+              "legenda": "Nova automação.",
+              "alt": "Nova automação."
+            },
+            {
+              "src": "assets/telas/talent-automacoes-05.jpg",
+              "legenda": "Adicione gatilhos.",
+              "alt": "Adicione gatilhos."
+            },
+            {
+              "src": "assets/telas/talent-automacoes-06.jpg",
+              "legenda": "Ative a automação na vaga.",
+              "alt": "Ative a automação na vaga."
+            }
+          ]
+        }
+      ],
+      "checklist": [
+        "A automação está ativa no funil e na vaga.",
+        "O modelo de mensagem existe."
+      ],
+      "relacionadas": [
+        "ori-0032",
+        "ori-0041",
+        "ori-0040"
+      ]
+    },
+    {
+      "status": "publicado",
+      "revisao": "2026-11-16",
+      "passos": [],
+      "modulo": "talent",
+      "fonteTelas": "Guia de uso Nexti Talent, da base de conhecimento Nexti no Octadesk, com nomes, e-mails, telefones, CNPJ e dados de candidatos ocultados",
+      "materiais": [
+        {
+          "titulo": "Guia de uso Nexti Talent — telas resumidas (dados ocultados)",
+          "url": "materiais/guia-de-uso-nexti-talent.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "origem": {
+        "fonte": "Base de conhecimento Nexti (Octadesk)",
+        "artigos": [
+          {
+            "titulo": "Guia de uso Nexti Talent",
+            "url": "https://nexti.octadesk.com/kb/article/guia-de-uso-nexti-talent",
+            "arquivo": "Atual Guia de Uso - Nexti Talent (157 páginas)",
+            "dataArquivo": ""
+          }
+        ],
+        "atualizacaoFonte": "Não informada no artigo nem no arquivo PDF.",
+        "importadoEm": "2026-11-16"
+      },
+      "campos": [],
+      "faq": [],
+      "id": "ori-0043",
+      "slug": "talent-pagina-de-carreiras",
+      "submodulos": [
+        "talent-vagas"
+      ],
+      "titulo": "Como montar a página de carreiras no Nexti Talent?",
+      "resumo": "Em Configurações > Página de Carreiras, monte blocos de texto, imagem e vídeo, ordene-os e use o link no Trabalhe Conosco do site.",
+      "palavrasChave": [
+        "talent",
+        "página de carreiras",
+        "trabalhe conosco",
+        "blocos",
+        "cultura",
+        "HTML",
+        "imagem",
+        "vídeo"
+      ],
+      "finalidade": "Mostrar as vagas e a cultura da empresa em uma página própria.",
+      "preparacao": [
+        "Tenha textos, imagens e vídeos da empresa."
+      ],
+      "resumoProcedimento": [
+        {
+          "titulo": "Abra",
+          "texto": "No menu lateral, clique em Configurações > Página de Carreiras."
+        },
+        {
+          "titulo": "Crie um bloco",
+          "texto": "Clique em + Novo Bloco, informe o título e clique em Salvar Bloco de Conteúdo."
+        },
+        {
+          "titulo": "Preencha",
+          "texto": "Escolha Texto, Imagem ou Vídeo. No texto, o ícone <> abre o editor HTML. Clique em Salvar."
+        },
+        {
+          "titulo": "Ordene",
+          "texto": "Use Editar Ordem para reposicionar os blocos."
+        },
+        {
+          "titulo": "Divulgue",
+          "texto": "Coloque o link da página no Trabalhe Conosco do site."
+        }
+      ],
+      "atencao": [
+        "Em blocos com várias colunas, salve cada coluna antes de editar a próxima.",
+        "Toda página tem um bloco padrão com as vagas ativas."
+      ],
+      "telas": [
+        {
+          "aba": "Carreiras",
+          "imagens": [
+            {
+              "src": "assets/telas/talent-carreiras-01.jpg",
+              "legenda": "Blocos da página e + Novo Bloco.",
+              "alt": "Blocos da página e + Novo Bloco."
+            },
+            {
+              "src": "assets/telas/talent-carreiras-02.jpg",
+              "legenda": "Título do bloco e Salvar Bloco de Conteúdo.",
+              "alt": "Título do bloco e Salvar Bloco de Conteúdo."
+            },
+            {
+              "src": "assets/telas/talent-carreiras-03.jpg",
+              "legenda": "Editor de texto, imagem e vídeo.",
+              "alt": "Editor de texto, imagem e vídeo."
+            },
+            {
+              "src": "assets/telas/talent-carreiras-04.jpg",
+              "legenda": "Edite os blocos.",
+              "alt": "Edite os blocos."
+            },
+            {
+              "src": "assets/telas/talent-carreiras-05.jpg",
+              "legenda": "Editar Ordem.",
+              "alt": "Editar Ordem."
+            }
+          ]
+        }
+      ],
+      "checklist": [
+        "A página mostra as vagas ativas.",
+        "O link está no Trabalhe Conosco."
+      ],
+      "relacionadas": [
+        "ori-0034",
+        "ori-0030"
+      ]
+    },
+    {
+      "status": "publicado",
+      "revisao": "2026-11-16",
+      "passos": [],
+      "modulo": "talent",
+      "fonteTelas": "Guia de uso Nexti Talent, da base de conhecimento Nexti no Octadesk, com nomes, e-mails, telefones, CNPJ e dados de candidatos ocultados",
+      "materiais": [
+        {
+          "titulo": "Guia de uso Nexti Talent — telas resumidas (dados ocultados)",
+          "url": "materiais/guia-de-uso-nexti-talent.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "origem": {
+        "fonte": "Base de conhecimento Nexti (Octadesk)",
+        "artigos": [
+          {
+            "titulo": "Guia de uso Nexti Talent",
+            "url": "https://nexti.octadesk.com/kb/article/guia-de-uso-nexti-talent",
+            "arquivo": "Atual Guia de Uso - Nexti Talent (157 páginas)",
+            "dataArquivo": ""
+          }
+        ],
+        "atualizacaoFonte": "Não informada no artigo nem no arquivo PDF.",
+        "importadoEm": "2026-11-16"
+      },
+      "campos": [],
+      "faq": [],
+      "id": "ori-0044",
+      "slug": "talent-requisicao-e-aprovacao",
+      "submodulos": [
+        "talent-vagas"
+      ],
+      "titulo": "Como configurar requisições e aprovações de vagas no Nexti Talent?",
+      "resumo": "Crie fluxos de aprovação sequenciais ou simultâneos, um formulário de requisição e acompanhe aprovações e rejeições.",
+      "palavrasChave": [
+        "talent",
+        "requisição",
+        "aprovação",
+        "fluxo de aprovação",
+        "sequencial",
+        "simultâneo",
+        "perfil de aprovação",
+        "formulário de requisição",
+        "rejeitar"
+      ],
+      "finalidade": "Garantir que vagas só sejam divulgadas depois da aprovação das pessoas responsáveis.",
+      "preparacao": [
+        "Defina quem aprova e em que ordem."
+      ],
+      "resumoProcedimento": [
+        {
+          "titulo": "Crie o fluxo",
+          "texto": "Em Requisições e Aprovações > Fluxos de Aprovação, clique em Novo, escolha Sequencial ou Simultâneo, clique em + Adicionar usuário e em Salvar."
+        },
+        {
+          "titulo": "Perfis de aprovação",
+          "texto": "Em Perfis de Aprovação, clique em + Novo perfil de aprovação, inclua os usuários e salve."
+        },
+        {
+          "titulo": "Formulário",
+          "texto": "Monte o formulário de requisição com campos extras e clique em Salvar."
+        },
+        {
+          "titulo": "Abra a requisição",
+          "texto": "Em Nova Requisição, importe o modelo de cargo, preencha e envie."
+        },
+        {
+          "titulo": "Aprove ou rejeite",
+          "texto": "O aprovador aprova ou rejeita informando o motivo; o requisitante recebe e-mail."
+        }
+      ],
+      "atencao": [
+        "A vaga só pode ser divulgada depois da aprovação de todos os usuários do fluxo.",
+        "Da requisição, Visualizar Vaga abre a vaga criada."
+      ],
+      "telas": [
+        {
+          "aba": "Requisições",
+          "imagens": [
+            {
+              "src": "assets/telas/talent-requisicao-01.jpg",
+              "legenda": "Fluxos de aprovação.",
+              "alt": "Fluxos de aprovação."
+            },
+            {
+              "src": "assets/telas/talent-requisicao-02.jpg",
+              "legenda": "Fluxo com os aprovadores e Salvar.",
+              "alt": "Fluxo com os aprovadores e Salvar."
+            },
+            {
+              "src": "assets/telas/talent-requisicao-03.jpg",
+              "legenda": "Campos do formulário de requisição.",
+              "alt": "Campos do formulário de requisição."
+            },
+            {
+              "src": "assets/telas/talent-requisicao-04.jpg",
+              "legenda": "Nova requisição com Importar template.",
+              "alt": "Nova requisição com Importar template."
+            },
+            {
+              "src": "assets/telas/talent-requisicao-05.jpg",
+              "legenda": "Rejeite informando o motivo.",
+              "alt": "Rejeite informando o motivo."
+            },
+            {
+              "src": "assets/telas/talent-requisicao-06.jpg",
+              "legenda": "E-mail de rejeição com o motivo.",
+              "alt": "E-mail de rejeição com o motivo."
+            }
+          ]
+        }
+      ],
+      "checklist": [
+        "Cada área tem fluxo de aprovação.",
+        "Os perfis sem permissão de publicar usam requisição."
+      ],
+      "relacionadas": [
+        "ori-0031",
+        "ori-0033",
+        "ori-0034"
+      ]
+    },
+    {
+      "status": "publicado",
+      "revisao": "2026-11-16",
+      "passos": [],
+      "modulo": "talent",
+      "fonteTelas": "Guia de uso Nexti Talent, da base de conhecimento Nexti no Octadesk, com nomes, e-mails, telefones, CNPJ e dados de candidatos ocultados",
+      "materiais": [
+        {
+          "titulo": "Guia de uso Nexti Talent — telas resumidas (dados ocultados)",
+          "url": "materiais/guia-de-uso-nexti-talent.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "origem": {
+        "fonte": "Base de conhecimento Nexti (Octadesk)",
+        "artigos": [
+          {
+            "titulo": "Guia de uso Nexti Talent",
+            "url": "https://nexti.octadesk.com/kb/article/guia-de-uso-nexti-talent",
+            "arquivo": "Atual Guia de Uso - Nexti Talent (157 páginas)",
+            "dataArquivo": ""
+          }
+        ],
+        "atualizacaoFonte": "Não informada no artigo nem no arquivo PDF.",
+        "importadoEm": "2026-11-16"
+      },
+      "campos": [],
+      "faq": [],
+      "id": "ori-0045",
+      "slug": "talent-areas-equipes-e-tags",
+      "submodulos": [
+        "talent-configuracao"
+      ],
+      "titulo": "Como criar áreas, equipes e tags no Nexti Talent?",
+      "resumo": "Cadastre áreas e equipes para organizar vagas e acessos e categorias de tags para classificar candidatos e vagas.",
+      "palavrasChave": [
+        "talent",
+        "áreas",
+        "equipes",
+        "tags",
+        "categoria de tag",
+        "minhas vagas",
+        "permissões de vagas"
+      ],
+      "finalidade": "Organizar vagas e usuários e facilitar buscas no banco de candidatos.",
+      "preparacao": [
+        "Liste as áreas, equipes e tags da empresa."
+      ],
+      "resumoProcedimento": [
+        {
+          "titulo": "Áreas",
+          "texto": "Em Áreas e Cargos > Áreas, clique em Nova Área, informe nome, área similar e descrição e salve."
+        },
+        {
+          "titulo": "Equipes",
+          "texto": "Em Usuários > Equipes, clique em Nova Equipe, informe o nome, marque os usuários e clique em Salvar."
+        },
+        {
+          "titulo": "Tags",
+          "texto": "Crie a categoria de tag, adicione as tags com Nova Tag e salve a categoria."
+        },
+        {
+          "titulo": "Pesquise por tags",
+          "texto": "Nos filtros, escolha vagas ou candidatos com todas ou qualquer uma das tags."
+        }
+      ],
+      "atencao": [
+        "Editar uma equipe atualiza na hora as permissões das vagas vinculadas.",
+        "Usuários vinculados à vaga a veem em Vagas > Minhas Vagas."
+      ],
+      "telas": [
+        {
+          "aba": "Organização",
+          "imagens": [
+            {
+              "src": "assets/telas/talent-organizacao-01.jpg",
+              "legenda": "Áreas e Nova Área.",
+              "alt": "Áreas e Nova Área."
+            },
+            {
+              "src": "assets/telas/talent-organizacao-02.jpg",
+              "legenda": "Nova área.",
+              "alt": "Nova área."
+            },
+            {
+              "src": "assets/telas/talent-organizacao-03.jpg",
+              "legenda": "Nova equipe com seleção de usuários.",
+              "alt": "Nova equipe com seleção de usuários."
+            },
+            {
+              "src": "assets/telas/talent-organizacao-04.jpg",
+              "legenda": "Categorias de tags.",
+              "alt": "Categorias de tags."
+            },
+            {
+              "src": "assets/telas/talent-organizacao-05.jpg",
+              "legenda": "Editar categoria de tag.",
+              "alt": "Editar categoria de tag."
+            },
+            {
+              "src": "assets/telas/talent-organizacao-06.jpg",
+              "legenda": "Pesquisar com todas ou qualquer uma das tags.",
+              "alt": "Pesquisar com todas ou qualquer uma das tags."
+            }
+          ]
+        }
+      ],
+      "checklist": [
+        "As equipes têm os usuários corretos.",
+        "As tags estão agrupadas em categorias."
+      ],
+      "relacionadas": [
+        "ori-0031",
+        "ori-0039"
+      ]
+    },
+    {
+      "status": "publicado",
+      "revisao": "2026-11-16",
+      "passos": [],
+      "modulo": "talent",
+      "fonteTelas": "Guia de uso Nexti Talent, da base de conhecimento Nexti no Octadesk, com nomes, e-mails, telefones, CNPJ e dados de candidatos ocultados",
+      "materiais": [
+        {
+          "titulo": "Guia de uso Nexti Talent — telas resumidas (dados ocultados)",
+          "url": "materiais/guia-de-uso-nexti-talent.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "origem": {
+        "fonte": "Base de conhecimento Nexti (Octadesk)",
+        "artigos": [
+          {
+            "titulo": "Guia de uso Nexti Talent",
+            "url": "https://nexti.octadesk.com/kb/article/guia-de-uso-nexti-talent",
+            "arquivo": "Atual Guia de Uso - Nexti Talent (157 páginas)",
+            "dataArquivo": ""
+          }
+        ],
+        "atualizacaoFonte": "Não informada no artigo nem no arquivo PDF.",
+        "importadoEm": "2026-11-16"
+      },
+      "campos": [],
+      "faq": [],
+      "id": "ori-0046",
+      "slug": "talent-metricas-e-relatorios",
+      "submodulos": [
+        "talent-metricas"
+      ],
+      "titulo": "Como acompanhar métricas das vagas e da empresa no Nexti Talent?",
+      "resumo": "Use as métricas da vaga (funil, inscrições, fontes, SLA) e as métricas da empresa, filtrando por período.",
+      "palavrasChave": [
+        "talent",
+        "métricas",
+        "relatórios",
+        "funil por etapas",
+        "fontes",
+        "inscrições",
+        "SLA",
+        "dashboard",
+        "UTM",
+        "conversão"
+      ],
+      "finalidade": "Acompanhar a eficiência dos processos seletivos e das fontes de candidatos.",
+      "preparacao": [
+        "Mantenha as etapas atualizadas e em ordem cronológica."
+      ],
+      "resumoProcedimento": [
+        {
+          "titulo": "Métricas da vaga",
+          "texto": "Na página da vaga ou em Minhas Vagas, clique no ícone de métricas."
+        },
+        {
+          "titulo": "Filtre o período",
+          "texto": "Selecione as datas e clique em Filtrar Intervalo. Use Remover Intervalo para voltar."
+        },
+        {
+          "titulo": "Leia os gráficos",
+          "texto": "Confira o funil por etapas, as inscrições diárias, as fontes e o SLA."
+        },
+        {
+          "titulo": "Métricas da empresa",
+          "texto": "No menu lateral, clique em Métricas para ver vagas abertas, fechadas e indicadores gerais."
+        }
+      ],
+      "atencao": [
+        "O filtro de período não muda o Funil por Etapas nem as tabelas Resumo do Processo e Inscrições.",
+        "O funil considera que quem chegou a uma etapa passou pelas anteriores.",
+        "Use os links rastreáveis (UTM) para saber de onde vêm os candidatos."
+      ],
+      "telas": [
+        {
+          "aba": "Métricas",
+          "imagens": [
+            {
+              "src": "assets/telas/talent-metricas-01.jpg",
+              "legenda": "Ícone de métricas na vaga.",
+              "alt": "Ícone de métricas na vaga."
+            },
+            {
+              "src": "assets/telas/talent-metricas-02.jpg",
+              "legenda": "Funil por etapas.",
+              "alt": "Funil por etapas."
+            },
+            {
+              "src": "assets/telas/talent-metricas-03.jpg",
+              "legenda": "Inscrições diárias.",
+              "alt": "Inscrições diárias."
+            },
+            {
+              "src": "assets/telas/talent-metricas-04.jpg",
+              "legenda": "Fontes de candidatos.",
+              "alt": "Fontes de candidatos."
+            },
+            {
+              "src": "assets/telas/talent-metricas-05.jpg",
+              "legenda": "SLA da vaga.",
+              "alt": "SLA da vaga."
+            },
+            {
+              "src": "assets/telas/talent-metricas-06.jpg",
+              "legenda": "Resumo de vagas da empresa.",
+              "alt": "Resumo de vagas da empresa."
+            },
+            {
+              "src": "assets/telas/talent-metricas-07.jpg",
+              "legenda": "Dashboard inicial.",
+              "alt": "Dashboard inicial."
+            }
+          ]
+        }
+      ],
+      "checklist": [
+        "As etapas estão em ordem.",
+        "As fontes foram acompanhadas pelos links rastreáveis."
+      ],
+      "relacionadas": [
+        "ori-0035",
+        "ori-0032"
+      ]
     }
   ],
   "rascunhosOmitidos": 0

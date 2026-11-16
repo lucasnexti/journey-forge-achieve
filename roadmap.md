@@ -31,5 +31,8 @@
 # Roadmap — Nexti na Prática × Octadesk (registro em docs/nexti-na-pratica-octadesk.md)
 - [x] Etapa 1: Cadastros conferidos + Quiosque Facial; RH Digital, Nexti Direct, Nexti Docs, Nexti Control e Control 2.0 importados
 - [ ] Etapa 2: Nexti Time e Nexti Plus (com guias de benefícios)
-- [ ] Definir onde ficam Perfil de apuração, Talent, Aplicativo do colaborador, manuais de terminais e Escopo de integração (aguarda decisão da Aline)
+- [x] Decisão: terminais em Cadastros, aplicativo do colaborador em RH Digital; Perfil de apuração depois
+- [x] Etapa 3: manuais de terminais (Cadastros) e aplicativo do colaborador (RH Digital)
+- [x] Criar o módulo "Talent" no Nexti na Prática (pedido da Aline em 16/11)
+- [x] Trazer o Guia de uso - Nexti Talent (157 páginas) para o módulo Talent, com dados pessoais ocultados
 - [ ] Publicar o site para as novas telas e PDFs aparecerem no endereço oficial
