@@ -183,6 +183,27 @@
       "when": 1794860213055,
       "tag": "0025_assistant_source_viewer_url",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1795022961378,
+      "tag": "0026_research_surveys_schema",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1795023123720,
+      "tag": "0027_research_surveys_functions",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1795023195719,
+      "tag": "0028_research_sending_switch",
+      "breakpoints": true
     }
   ]
 }

@@ -76,10 +76,13 @@
     "tailwindcss-animate": "^1.0.7",
     "use-stick-to-bottom": "^1.1.6",
     "vaul": "^0.9.9",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "zod": "^3.25.76"
   },
   "devDependencies": {
     "@eslint/js": "^9.32.0",
+    "@lovable.dev/vite-plugin-dev-server-bridge": "^1.0.2",
+    "@lovable.dev/vite-plugin-hmr-gate": "^1.8.3",
     "@playwright/test": "^1.57.0",
     "@tailwindcss/typography": "^0.5.16",
     "@testing-library/jest-dom": "^6.6.0",

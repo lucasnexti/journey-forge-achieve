@@ -1738,6 +1738,848 @@ export type Database = {
           },
         ]
       }
+      research_answers: {
+        Row: {
+          choice_values: string[] | null
+          id: string
+          indicator: string | null
+          numeric_value: number | null
+          question_id: string
+          response_id: string
+          survey_id: string
+          text_value: string | null
+        }
+        Insert: {
+          choice_values?: string[] | null
+          id?: string
+          indicator?: string | null
+          numeric_value?: number | null
+          question_id: string
+          response_id: string
+          survey_id: string
+          text_value?: string | null
+        }
+        Update: {
+          choice_values?: string[] | null
+          id?: string
+          indicator?: string | null
+          numeric_value?: number | null
+          question_id?: string
+          response_id?: string
+          survey_id?: string
+          text_value?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "research_answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "research_questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "research_answers_response_id_fkey"
+            columns: ["response_id"]
+            isOneToOne: false
+            referencedRelation: "research_responses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "research_answers_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
+            referencedRelation: "research_surveys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      research_attendance: {
+        Row: {
+          area: string | null
+          audience: string
+          class_name: string | null
+          company: string | null
+          created_at: string
+          email: string
+          id: string
+          list_id: string
+          name: string
+          track_id: string | null
+          training_date: string
+          training_name: string
+        }
+        Insert: {
+          area?: string | null
+          audience: string
+          class_name?: string | null
+          company?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          list_id: string
+          name: string
+          track_id?: string | null
+          training_date: string
+          training_name: string
+        }
+        Update: {
+          area?: string | null
+          audience?: string
+          class_name?: string | null
+          company?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          list_id?: string
+          name?: string
+          track_id?: string | null
+          training_date?: string
+          training_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "research_attendance_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "research_lists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "research_attendance_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      research_deadline_changes: {
+        Row: {
+          changed_at: string
+          changed_by: string
+          id: string
+          new_deadline: string
+          previous_deadline: string | null
+          reason: string | null
+          survey_id: string
+        }
+        Insert: {
+          changed_at?: string
+          changed_by: string
+          id?: string
+          new_deadline: string
+          previous_deadline?: string | null
+          reason?: string | null
+          survey_id: string
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string
+          id?: string
+          new_deadline?: string
+          previous_deadline?: string | null
+          reason?: string | null
+          survey_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "research_deadline_changes_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
+            referencedRelation: "research_surveys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      research_dispatches: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          details: Json
+          id: string
+          kind: string
+          list_id: string | null
+          recipients: number
+          skipped_existing: number
+          survey_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          details?: Json
+          id?: string
+          kind: string
+          list_id?: string | null
+          recipients?: number
+          skipped_existing?: number
+          survey_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          details?: Json
+          id?: string
+          kind?: string
+          list_id?: string | null
+          recipients?: number
+          skipped_existing?: number
+          survey_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "research_dispatches_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "research_lists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "research_dispatches_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
+            referencedRelation: "research_surveys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      research_email_jobs: {
+        Row: {
+          attempts: number
+          created_at: string
+          dedupe_key: string
+          dispatch_id: string | null
+          id: string
+          invitation_id: string
+          kind: string
+          last_error: string | null
+          max_attempts: number
+          next_attempt_at: string
+          processed_at: string | null
+          provider_message_id: string | null
+          sender_email: string | null
+          status: string
+          survey_id: string
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          dedupe_key: string
+          dispatch_id?: string | null
+          id?: string
+          invitation_id: string
+          kind: string
+          last_error?: string | null
+          max_attempts?: number
+          next_attempt_at?: string
+          processed_at?: string | null
+          provider_message_id?: string | null
+          sender_email?: string | null
+          status?: string
+          survey_id: string
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          dedupe_key?: string
+          dispatch_id?: string | null
+          id?: string
+          invitation_id?: string
+          kind?: string
+          last_error?: string | null
+          max_attempts?: number
+          next_attempt_at?: string
+          processed_at?: string | null
+          provider_message_id?: string | null
+          sender_email?: string | null
+          status?: string
+          survey_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "research_email_jobs_dispatch_id_fkey"
+            columns: ["dispatch_id"]
+            isOneToOne: false
+            referencedRelation: "research_dispatches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "research_email_jobs_invitation_id_fkey"
+            columns: ["invitation_id"]
+            isOneToOne: false
+            referencedRelation: "research_invitations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "research_email_jobs_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
+            referencedRelation: "research_surveys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      research_employee_bases: {
+        Row: {
+          absent_policy: string
+          audience: string
+          company_name: string
+          created_at: string
+          created_by: string
+          id: string
+          previous_base_id: string | null
+          reference_date: string
+          source_file_name: string | null
+          summary: Json
+          version: number
+        }
+        Insert: {
+          absent_policy?: string
+          audience: string
+          company_name: string
+          created_at?: string
+          created_by: string
+          id?: string
+          previous_base_id?: string | null
+          reference_date: string
+          source_file_name?: string | null
+          summary?: Json
+          version: number
+        }
+        Update: {
+          absent_policy?: string
+          audience?: string
+          company_name?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          previous_base_id?: string | null
+          reference_date?: string
+          source_file_name?: string | null
+          summary?: Json
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "research_employee_bases_previous_base_id_fkey"
+            columns: ["previous_base_id"]
+            isOneToOne: false
+            referencedRelation: "research_employee_bases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      research_employees: {
+        Row: {
+          active: boolean
+          area: string | null
+          base_id: string
+          company: string | null
+          email: string | null
+          external_id: string | null
+          id: string
+          name: string
+          origin: string
+        }
+        Insert: {
+          active?: boolean
+          area?: string | null
+          base_id: string
+          company?: string | null
+          email?: string | null
+          external_id?: string | null
+          id?: string
+          name: string
+          origin?: string
+        }
+        Update: {
+          active?: boolean
+          area?: string | null
+          base_id?: string
+          company?: string | null
+          email?: string | null
+          external_id?: string | null
+          id?: string
+          name?: string
+          origin?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "research_employees_base_id_fkey"
+            columns: ["base_id"]
+            isOneToOne: false
+            referencedRelation: "research_employee_bases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      research_invitation_tokens: {
+        Row: {
+          created_at: string
+          invitation_id: string
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          invitation_id: string
+          token: string
+        }
+        Update: {
+          created_at?: string
+          invitation_id?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "research_invitation_tokens_invitation_id_fkey"
+            columns: ["invitation_id"]
+            isOneToOne: true
+            referencedRelation: "research_invitations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      research_invitations: {
+        Row: {
+          area: string | null
+          company: string | null
+          created_at: string
+          delivered_at: string | null
+          dispatch_id: string | null
+          email: string
+          id: string
+          last_error: string | null
+          last_reminder_at: string | null
+          list_id: string | null
+          name: string
+          provider_message_id: string | null
+          reminder_count: number
+          responded_at: string | null
+          send_attempts: number
+          send_status: string
+          sent_at: string | null
+          survey_id: string
+          training_date: string | null
+          training_name: string | null
+        }
+        Insert: {
+          area?: string | null
+          company?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          dispatch_id?: string | null
+          email: string
+          id?: string
+          last_error?: string | null
+          last_reminder_at?: string | null
+          list_id?: string | null
+          name: string
+          provider_message_id?: string | null
+          reminder_count?: number
+          responded_at?: string | null
+          send_attempts?: number
+          send_status?: string
+          sent_at?: string | null
+          survey_id: string
+          training_date?: string | null
+          training_name?: string | null
+        }
+        Update: {
+          area?: string | null
+          company?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          dispatch_id?: string | null
+          email?: string
+          id?: string
+          last_error?: string | null
+          last_reminder_at?: string | null
+          list_id?: string | null
+          name?: string
+          provider_message_id?: string | null
+          reminder_count?: number
+          responded_at?: string | null
+          send_attempts?: number
+          send_status?: string
+          sent_at?: string | null
+          survey_id?: string
+          training_date?: string | null
+          training_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "research_invitations_dispatch_id_fkey"
+            columns: ["dispatch_id"]
+            isOneToOne: false
+            referencedRelation: "research_dispatches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "research_invitations_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "research_lists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "research_invitations_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
+            referencedRelation: "research_surveys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      research_list_members: {
+        Row: {
+          area: string | null
+          class_name: string | null
+          company: string | null
+          created_at: string
+          email: string
+          id: string
+          list_id: string
+          name: string
+          training_date: string | null
+          training_name: string | null
+        }
+        Insert: {
+          area?: string | null
+          class_name?: string | null
+          company?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          list_id: string
+          name: string
+          training_date?: string | null
+          training_name?: string | null
+        }
+        Update: {
+          area?: string | null
+          class_name?: string | null
+          company?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          list_id?: string
+          name?: string
+          training_date?: string | null
+          training_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "research_list_members_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "research_lists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      research_lists: {
+        Row: {
+          audience: string
+          class_name: string | null
+          company_name: string | null
+          created_at: string
+          created_by: string
+          id: string
+          member_count: number
+          name: string
+          purpose: string
+          source_file_name: string | null
+          source_sheet: string | null
+          summary: Json
+          track_id: string | null
+          training_date: string | null
+          training_name: string | null
+        }
+        Insert: {
+          audience: string
+          class_name?: string | null
+          company_name?: string | null
+          created_at?: string
+          created_by: string
+          id?: string
+          member_count?: number
+          name: string
+          purpose: string
+          source_file_name?: string | null
+          source_sheet?: string | null
+          summary?: Json
+          track_id?: string | null
+          training_date?: string | null
+          training_name?: string | null
+        }
+        Update: {
+          audience?: string
+          class_name?: string | null
+          company_name?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          member_count?: number
+          name?: string
+          purpose?: string
+          source_file_name?: string | null
+          source_sheet?: string | null
+          summary?: Json
+          track_id?: string | null
+          training_date?: string | null
+          training_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "research_lists_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      research_permissions: {
+        Row: {
+          granted_at: string
+          granted_by: string
+          permission: string
+          user_id: string
+        }
+        Insert: {
+          granted_at?: string
+          granted_by: string
+          permission: string
+          user_id: string
+        }
+        Update: {
+          granted_at?: string
+          granted_by?: string
+          permission?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      research_questions: {
+        Row: {
+          created_at: string
+          id: string
+          indicator: string | null
+          max_label: string | null
+          min_label: string | null
+          options: Json
+          position: number
+          prompt: string
+          required: boolean
+          scale_max: number | null
+          scale_min: number | null
+          survey_id: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          indicator?: string | null
+          max_label?: string | null
+          min_label?: string | null
+          options?: Json
+          position?: number
+          prompt: string
+          required?: boolean
+          scale_max?: number | null
+          scale_min?: number | null
+          survey_id: string
+          type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          indicator?: string | null
+          max_label?: string | null
+          min_label?: string | null
+          options?: Json
+          position?: number
+          prompt?: string
+          required?: boolean
+          scale_max?: number | null
+          scale_min?: number | null
+          survey_id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "research_questions_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
+            referencedRelation: "research_surveys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      research_responses: {
+        Row: {
+          id: string
+          invitation_id: string
+          submitted_at: string
+          survey_id: string
+        }
+        Insert: {
+          id?: string
+          invitation_id: string
+          submitted_at?: string
+          survey_id: string
+        }
+        Update: {
+          id?: string
+          invitation_id?: string
+          submitted_at?: string
+          survey_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "research_responses_invitation_id_fkey"
+            columns: ["invitation_id"]
+            isOneToOne: true
+            referencedRelation: "research_invitations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "research_responses_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
+            referencedRelation: "research_surveys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      research_settings: {
+        Row: {
+          audience: string
+          default_deadline_days: number
+          default_reminder_days: number
+          sender_email: string
+          sender_name: string
+          sending_enabled: boolean
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          audience: string
+          default_deadline_days?: number
+          default_reminder_days?: number
+          sender_email: string
+          sender_name: string
+          sending_enabled?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          audience?: string
+          default_deadline_days?: number
+          default_reminder_days?: number
+          sender_email?: string
+          sender_name?: string
+          sending_enabled?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      research_surveys: {
+        Row: {
+          audience: string
+          class_name: string | null
+          closed_at: string | null
+          created_at: string
+          created_by: string
+          deadline_at: string | null
+          deadline_days: number
+          description: string
+          email_body: string
+          email_subject: string
+          first_sent_at: string | null
+          id: string
+          kind: string
+          reminder_after_days: number
+          reminder_enabled: boolean
+          source_survey_id: string | null
+          standalone_reason: string | null
+          status: string
+          title: string
+          track_id: string | null
+          training_name: string | null
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          audience: string
+          class_name?: string | null
+          closed_at?: string | null
+          created_at?: string
+          created_by?: string
+          deadline_at?: string | null
+          deadline_days?: number
+          description?: string
+          email_body?: string
+          email_subject?: string
+          first_sent_at?: string | null
+          id?: string
+          kind: string
+          reminder_after_days?: number
+          reminder_enabled?: boolean
+          source_survey_id?: string | null
+          standalone_reason?: string | null
+          status?: string
+          title: string
+          track_id?: string | null
+          training_name?: string | null
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          audience?: string
+          class_name?: string | null
+          closed_at?: string | null
+          created_at?: string
+          created_by?: string
+          deadline_at?: string | null
+          deadline_days?: number
+          description?: string
+          email_body?: string
+          email_subject?: string
+          first_sent_at?: string | null
+          id?: string
+          kind?: string
+          reminder_after_days?: number
+          reminder_enabled?: boolean
+          source_survey_id?: string | null
+          standalone_reason?: string | null
+          status?: string
+          title?: string
+          track_id?: string | null
+          training_name?: string | null
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "research_surveys_source_survey_id_fkey"
+            columns: ["source_survey_id"]
+            isOneToOne: false
+            referencedRelation: "research_surveys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "research_surveys_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reward_redemptions: {
         Row: {
           admin_note: string | null
@@ -2453,6 +3295,97 @@ export type Database = {
           _unprocessed: Json
         }
         Returns: number
+      }
+      research_can: { Args: { _perm: string }; Returns: boolean }
+      research_claim_email_jobs: { Args: { _limit: number }; Returns: Json }
+      research_close_survey: { Args: { _id: string }; Returns: undefined }
+      research_complete_email_job: {
+        Args: {
+          _error: string
+          _job: string
+          _outcome: string
+          _provider_id: string
+        }
+        Returns: undefined
+      }
+      research_dashboard: { Args: { _f: Json }; Returns: Json }
+      research_day_end: { Args: { _d: string }; Returns: string }
+      research_duplicate_survey: {
+        Args: { _id: string; _new_version: boolean }
+        Returns: string
+      }
+      research_email_ok: { Args: { _e: string }; Returns: boolean }
+      research_export: { Args: { _f: Json }; Returns: Json }
+      research_extend_deadline: {
+        Args: { _id: string; _new_date: string; _reason: string }
+        Returns: string
+      }
+      research_filter_options: { Args: { _audience: string }; Returns: Json }
+      research_filtered_invitations: {
+        Args: { _f: Json }
+        Returns: {
+          area: string | null
+          company: string | null
+          created_at: string
+          delivered_at: string | null
+          dispatch_id: string | null
+          email: string
+          id: string
+          last_error: string | null
+          last_reminder_at: string | null
+          list_id: string | null
+          name: string
+          provider_message_id: string | null
+          reminder_count: number
+          responded_at: string | null
+          send_attempts: number
+          send_status: string
+          sent_at: string | null
+          survey_id: string
+          training_date: string | null
+          training_name: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "research_invitations"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      research_get_form: { Args: { _token: string }; Returns: Json }
+      research_has_any: { Args: never; Returns: boolean }
+      research_import_employee_base: { Args: { _p: Json }; Returns: Json }
+      research_import_list: { Args: { _p: Json }; Returns: Json }
+      research_mark_delivered: {
+        Args: { _provider_id: string }
+        Returns: undefined
+      }
+      research_my_permissions: { Args: never; Returns: string[] }
+      research_notify_extension: { Args: { _id: string }; Returns: number }
+      research_reach: { Args: { _f: Json }; Returns: Json }
+      research_requeue_blocked: { Args: { _survey: string }; Returns: number }
+      research_scheduler_tick: { Args: never; Returns: Json }
+      research_send_preview: {
+        Args: { _list: string; _survey: string }
+        Returns: Json
+      }
+      research_send_survey: {
+        Args: {
+          _deadline_days: number
+          _list: string
+          _reminder_after_days: number
+          _reminder_enabled: boolean
+          _survey: string
+        }
+        Returns: Json
+      }
+      research_set_user_permissions: {
+        Args: { _permissions: string[]; _user_id: string }
+        Returns: undefined
+      }
+      research_submit_response: {
+        Args: { _answers: Json; _token: string }
+        Returns: Json
       }
       save_knowledge_base: {
         Args: { _dados: Json; _expected: string; _id: string }
