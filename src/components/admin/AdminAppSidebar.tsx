@@ -2,11 +2,13 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutGrid, Route, BookOpen, Star, GraduationCap, Users as UsersIcon,
   Layers, BarChart3, FileText, LogOut, Award, ShieldCheck, Bell, Palette,
-  ClipboardCheck, MessageSquare, Sun, Moon, ChevronDown, User, Zap, Gift, Activity, BookMarked, Bot } from "lucide-react";
+  ClipboardCheck, ClipboardList, MessageSquare, Sun, Moon, ChevronDown, User, Zap, Gift, Activity, BookMarked, Bot } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/hooks/useTheme";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useProfile } from "@/hooks/useDashboardData";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { useResearchPermissions } from "@/hooks/useResearchPermissions";
 import { cn } from "@/lib/utils";
 import {
   Sidebar,
@@ -73,6 +75,7 @@ const navGroups: NavGroup[] = [
       { to: "/admin/forum-gestao", label: "Fórum / Mural", icon: MessageSquare },
       { to: "/admin/notificacoes", label: "Notificações", icon: Bell },
       { to: "/admin/avaliacoes", label: "Avaliações CSAT", icon: Star },
+      { to: "/admin/pesquisas", label: "Pesquisas e Indicadores", icon: ClipboardList },
     ],
   },
   {
@@ -94,6 +97,12 @@ export function AdminAppSidebar() {
   const { theme, toggleTheme } = useTheme();
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
+  const { isAdmin } = useIsAdmin();
+  const research = useResearchPermissions();
+  // Quem tem só acesso a Pesquisas (sem ser administrador) vê apenas esse menu
+  const groups = isAdmin ? navGroups : research.hasAny
+    ? [{ label: "Pesquisas", items: [{ to: "/admin/pesquisas", label: "Pesquisas e Indicadores", icon: ClipboardList }] }]
+    : [];
 
   const userInitials = user?.email?.slice(0, 2).toUpperCase() || "AD";
 
@@ -120,7 +129,7 @@ export function AdminAppSidebar() {
           )}
         </div>
 
-        {navGroups.map((group) => (
+        {groups.map((group) => (
           <SidebarGroup key={group.label}>
             {!collapsed && (
               <SidebarGroupLabel className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">

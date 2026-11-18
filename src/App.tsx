@@ -9,6 +9,7 @@ import { AchievementPopup } from "@/components/AchievementPopup";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
+import ResearchRoute from "@/components/ResearchRoute";
 
 // Eagerly loaded (critical path)
 import LandingPage from "./pages/LandingPage";
@@ -58,6 +59,8 @@ const AdminRewards = lazy(() => import("./pages/admin/AdminRewards"));
 const AdminMonitoramento = lazy(() => import("./pages/admin/AdminMonitoramento"));
 const AdminAssistenteIA = lazy(() => import("./pages/admin/AdminAssistenteIA"));
 const AdminProvas = lazy(() => import("./pages/admin/AdminProvas"));
+const AdminPesquisas = lazy(() => import("./pages/admin/AdminPesquisas"));
+const SurveyResponsePage = lazy(() => import("./pages/SurveyResponsePage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -91,6 +94,7 @@ const App = () => (
               <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path="/verificar/:code?" element={<VerifyCertificatePage />} />
               <Route path="/validar-certificado/:code?" element={<VerifyCertificatePage />} />
+              <Route path="/pesquisa/:token" element={<SurveyResponsePage />} />
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/minhas-trilhas" element={<ProtectedRoute><LearningPathsPage /></ProtectedRoute>} />
               <Route path="/minhas-trilhas/:pathId" element={<ProtectedRoute><LearningPathsPage /></ProtectedRoute>} />
@@ -130,6 +134,7 @@ const App = () => (
               <Route path="/admin/premios" element={<AdminRoute><AdminRewards /></AdminRoute>} />
               <Route path="/admin/monitoramento" element={<AdminRoute><AdminMonitoramento /></AdminRoute>} />
               <Route path="/admin/assistente-ia" element={<AdminRoute><AdminAssistenteIA /></AdminRoute>} />
+              <Route path="/admin/pesquisas" element={<ResearchRoute><AdminPesquisas /></ResearchRoute>} />
 
               <Route path="*" element={<NotFound />} />
             </Routes>

@@ -47,10 +47,9 @@ export default function SurveyEditor({ open, audience, surveyId, kind: initialKi
   useEffect(() => {
     if (!open) { setLoaded(false); return; }
     if (!surveyId) {
-      const st = settings.data?.find((s) => s.audience === audience);
       setKind(initialKind); setTitle(""); setDescription(""); setTrackId(""); setTraining(""); setClassName(""); setReason("");
-      setSubject(DEFAULT_EMAIL.subject); setBody(DEFAULT_EMAIL.body); setDeadlineDays(st?.default_deadline_days ?? 7);
-      setReminderOn(true); setReminderDays(st?.default_reminder_days ?? 3); setQuestions(templateQuestions(initialKind)); setSentAt(null); setLoaded(true);
+      setSubject(DEFAULT_EMAIL.subject); setBody(DEFAULT_EMAIL.body); setDeadlineDays(7);
+      setReminderOn(true); setReminderDays(3); setQuestions(templateQuestions(initialKind)); setSentAt(null); setLoaded(true);
       return;
     }
     (async () => {
@@ -65,7 +64,13 @@ export default function SurveyEditor({ open, audience, surveyId, kind: initialKi
       setQuestions((qs ?? []).map((q) => ({ id: q.id, type: q.type as QuestionType, indicator: (q.indicator as "nps" | "csat" | null) ?? null, prompt: q.prompt, required: q.required, options: (q.options as string[]) ?? [], scale_min: q.scale_min, scale_max: q.scale_max, min_label: q.min_label ?? "", max_label: q.max_label ?? "" })));
       setLoaded(true);
     })();
-  }, [open, surveyId, settings.data]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [open, surveyId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Pesquisa nova: aplica o prazo e o lembrete padrão do público quando as configurações chegam
+  useEffect(() => {
+    const st = settings.data?.find((x) => x.audience === audience);
+    if (open && !surveyId && st) { setDeadlineDays(st.default_deadline_days); setReminderDays(st.default_reminder_days); }
+  }, [settings.data, open, surveyId, audience]);
 
   const standalone = !trackId && !training.trim() && !className.trim();
   const problems: string[] = [];

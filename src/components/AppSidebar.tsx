@@ -1,7 +1,8 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { BookOpen, BarChart3, LogOut, Shield, User, Sun, Moon, Coins, Library, Zap, ChevronDown, Award, GraduationCap , BookMarked } from "lucide-react";
+import { BookOpen, BarChart3, LogOut, Shield, ClipboardList, User, Sun, Moon, Coins, Library, Zap, ChevronDown, Award, GraduationCap , BookMarked } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { useResearchPermissions } from "@/hooks/useResearchPermissions";
 import { useTheme } from "@/hooks/useTheme";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useProfile } from "@/hooks/useDashboardData";
@@ -66,6 +67,7 @@ export function AppSidebar() {
   const { signOut, user } = useAuth();
   const { data: profile } = useProfile();
   const { isAdmin } = useIsAdmin();
+  const research = useResearchPermissions();
   const { theme, toggleTheme } = useTheme();
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
@@ -163,6 +165,23 @@ export function AppSidebar() {
                     >
                       <Shield className="h-4.5 w-4.5 shrink-0" />
                       {!collapsed && <span>Admin</span>}
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
+
+              {!isAdmin && research.hasAny && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={location.pathname.startsWith("/admin/pesquisas")} tooltip={collapsed ? "Pesquisas e Indicadores" : undefined}>
+                    <Link
+                      to="/admin/pesquisas"
+                      className={cn(
+                        "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
+                        location.pathname.startsWith("/admin/pesquisas") ? "bg-primary/10 text-primary font-semibold" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      )}
+                    >
+                      <ClipboardList className="h-4.5 w-4.5 shrink-0" />
+                      {!collapsed && <span>Pesquisas e Indicadores</span>}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
