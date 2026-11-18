@@ -46,3 +46,9 @@
 - [x] Tela de administração das fontes + "Sincronizar com Notion"
 - [ ] Conectar o Notion e validar uma consulta real — bloqueado: só um administrador do workspace Lovable pode criar a conexão do Notion
 - [x] Assistente: usar a Base de Conhecimento Octadesk como fonte e seguir o vídeo de referência (tom, passos, "Veja no manual", Trocar, sugestões)
+
+# Roadmap — Pesquisas e Indicadores
+- [x] Banco, permissões por pessoa, regras no servidor (envio, resposta única, lembretes, prorrogação, versões)
+- [x] Telas: Dashboard, Pesquisas, Listas de presença, Base de colaboradores, Configurações; resposta sem login
+- [x] Testes: cálculos e importação (21), fluxo completo na prévia, acesso restrito, dados de teste removidos
+- [ ] Disparo real de e-mails — bloqueado: configurar domínio de envio nexti.com e o modelo de convite; depois ligar "Envios reais liberados"
