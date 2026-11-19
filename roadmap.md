@@ -44,7 +44,7 @@
 - [x] Canal de atendimento no formato do print (janela "Assistente dos manuais", escolha de módulo Nexti/Talent/Admissão)
 - [x] Mensagem final de suporte da Aline (e-mail, WhatsApp, chat) após duas respostas sem orientação
 - [x] Tela de administração das fontes + "Sincronizar com Notion"
-- [ ] Conectar o Notion e validar uma consulta real — bloqueado: só um administrador do workspace Lovable pode criar a conexão do Notion
+- [x] Notion substituído pelo Wiki (ver seção abaixo)
 - [x] Assistente: usar a Base de Conhecimento Octadesk como fonte e seguir o vídeo de referência (tom, passos, "Veja no manual", Trocar, sugestões)
 
 # Roadmap — Pesquisas e Indicadores
@@ -52,3 +52,10 @@
 - [x] Telas: Dashboard, Pesquisas, Listas de presença, Base de colaboradores, Configurações; resposta sem login
 - [x] Testes: cálculos e importação (21), fluxo completo na prévia, acesso restrito, dados de teste removidos
 - [ ] Disparo real de e-mails — bloqueado: configurar domínio de envio nexti.com e o modelo de convite; depois ligar "Envios reais liberados"
+
+# Roadmap — Wiki no lugar do Notion (Assistente dos manuais)
+- [x] Analisar a integração atual do Notion e identificar o Wiki (Outline em wiki.shared.nexti.com)
+- [x] Desvincular o Notion (função, telas, textos, regras)
+- [x] Sincronização do Wiki: coleções e documentos, hierarquia, incremental, remoções, registro e falhas, automática de hora em hora
+- [x] Assistente usa o Wiki só como apoio (nunca citado nem indicado como manual)
+- [ ] Testar com o Wiki real — bloqueado: falta a chave de acesso (API) do Wiki

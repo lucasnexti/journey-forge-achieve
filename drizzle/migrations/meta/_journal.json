@@ -204,6 +204,13 @@
       "when": 1795023195719,
       "tag": "0028_research_sending_switch",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1795117822876,
+      "tag": "0029_assistant_wiki_source",
+      "breakpoints": true
     }
   ]
 }

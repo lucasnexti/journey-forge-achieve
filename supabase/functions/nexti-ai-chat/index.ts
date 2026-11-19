@@ -1,4 +1,4 @@
-// "Assistente dos manuais": answers signed-in users only from approved sources (Notion pages, the Octadesk KB and the implantation manuals), retrieved server-side.
+// "Assistente dos manuais": answers signed-in users only from approved sources (the Nexti Wiki, the Octadesk KB and the implantation manuals), retrieved server-side.
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { createOpenAI } from "npm:@ai-sdk/openai@4.0.118";
@@ -15,7 +15,7 @@ export const NOT_FOUND =
 const CONFIGURING =
   "A base de conhecimento do assistente ainda está em configuração. Enquanto isso, use a busca do Nexti na Prática para encontrar as orientações publicadas.";
 const MODULES = { nexti: "Nexti", talent: "Talent", admissao: "Admissão" } as const;
-const PROVIDERS = { notion: "Notion", octadesk: "Base de Conhecimento Nexti", manuais: "Manuais de implantação Nexti" } as const;
+const PROVIDERS = { wiki: "Apoio interno", octadesk: "Base de Conhecimento Nexti", manuais: "Manuais de implantação Nexti" } as const;
 const GREETING_RE = /^(oi+|ol[áa]|bom dia|boa tarde|boa noite|e a[íi]|tudo bem\??|opa)[\s!.,?]*$/i;
 const THANKS_RE = /^(ok[,!.\s]*)?(muito )?(obrigad[oa]|valeu|agrade[çc]o|grat[oa])( pela ajuda)?[\s!.,]*$/i;
 const headers = { ...corsHeaders, "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type" };
@@ -100,17 +100,22 @@ Deno.serve(async (req) => {
     .in("page_id", [...new Set(hits.map((h) => h.page_id))]).not("viewer_url", "is", null);
   const viewerOf = new Map((viewers ?? []).map((v) => [v.page_id, v.viewer_url]));
   // Octadesk articles are never offered to the user: only the Nexti na Prática guide made from them is linked.
+  // Octadesk articles and the Wiki only support answers: never linked or shown as a manual (an Octadesk article's
+  // Nexti na Prática guide may be).
   const isOcta = (h: any) => h.provider === "octadesk";
+  const isSupport = (h: any) => isOcta(h) || h.provider === "wiki";
+  const linkOf = (h: any) => (isSupport(h) ? null : h.url);
   const sources = hits.map((h, i) => ({
-    n: i + 1, page_id: h.page_id, title: h.page_title, section: h.section, url: isOcta(h) ? null : h.url, updated_at: h.page_updated_at,
-    provider: h.provider, viewer_url: isOcta(h) ? null : viewerOf.get(h.page_id) ?? null,
-    orientation_path: h.linked_orientation_path, orientation_title: h.linked_orientation_title,
+    n: i + 1, page_id: h.page_id, title: h.provider === "wiki" ? "" : h.page_title, section: h.provider === "wiki" ? "" : h.section, url: linkOf(h), updated_at: h.page_updated_at,
+    provider: h.provider, viewer_url: isSupport(h) ? null : viewerOf.get(h.page_id) ?? null,
+    orientation_path: isOcta(h) ? h.linked_orientation_path : null, orientation_title: isOcta(h) ? h.linked_orientation_title : null,
   }));
-  const manualOf = (h: any) => isOcta(h)
+  const manualOf = (h: any) => h.provider === "wiki" ? "nenhum" : isOcta(h)
     ? (h.linked_orientation_path ? `Nexti na Prática: ${h.linked_orientation_title ?? h.page_title}` : "nenhum")
     : h.page_title;
+  const materialOf = (h: any) => isOcta(h) ? "Base de Conhecimento Nexti" : h.provider === "wiki" ? "Material de apoio interno" : h.page_title;
   const context = hits.map((h, i) =>
-    `<fonte n="${i + 1}" material="${isOcta(h) ? "Base de Conhecimento Nexti" : h.page_title}" origem="${PROVIDERS[h.provider as keyof typeof PROVIDERS] ?? h.provider}" manual_indicado="${manualOf(h)}" trecho="${h.section}"${h.page_updated_at ? ` atualizado_em="${h.page_updated_at}"` : ""}>\n${h.content}\n</fonte>`
+    `<fonte n="${i + 1}" material="${materialOf(h)}" origem="${PROVIDERS[h.provider as keyof typeof PROVIDERS] ?? h.provider}" manual_indicado="${manualOf(h)}" trecho="${h.section}"${h.page_updated_at ? ` atualizado_em="${h.page_updated_at}"` : ""}>\n${h.content}\n</fonte>`
   ).join("\n\n");
 
   const instructions = `Você é o "Assistente dos manuais" da Nexti: o primeiro atendimento para clientes que usam os sistemas Nexti. Módulo escolhido pelo cliente: ${moduleName}.
@@ -127,6 +132,7 @@ Regras de conteúdo:
 - Os trechos de PDF podem vir fragmentados (textos de balões e setas de telas). Reorganize-os em passos claros sem acrescentar nada que não esteja escrito.
 - Se as fontes só cobrirem parte da dúvida, responda a parte sustentada e diga claramente o que os materiais não cobrem, pedindo um detalhe.
 - No texto, chame os materiais de "manual"; nunca fale em "trechos", "fontes" ou números de fonte. Só diga "confira o manual indicado abaixo" (ou indique o manual para o restante) quando alguma fonte usada tiver manual_indicado diferente de "nenhum".
+- Fontes com origem "Apoio interno" são só apoio: use-as para complementar ou confirmar, mas prefira os manuais (Base de Conhecimento Nexti e Manuais de implantação) quando cobrirem a dúvida. Nunca mencione o Wiki, nem cite, indique ou descreva esses materiais de apoio ao cliente.
 - Nunca mencione nem indique o Octadesk, seus artigos, links ou arquivos. Para materiais da Base de Conhecimento Nexti, o único manual que pode ser indicado é o do Nexti na Prática informado em manual_indicado.
 - Quando os materiais trazem mais de um procedimento parecido (ex.: individual e em lote), oriente o que foi pedido e, se fizer sentido, mencione a outra opção em uma frase.
 - Se as fontes divergirem entre si, não escolha uma versão: diga que os materiais trazem orientações diferentes, resuma cada uma indicando o título do material, e sugira confirmar no manual.

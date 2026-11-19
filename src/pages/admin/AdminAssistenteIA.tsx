@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { AlertTriangle, CheckCircle2, ExternalLink, ListTree, Loader2, RefreshCw, Search, XCircle } from "lucide-react";
+import { AlertTriangle, CheckCircle2, ExternalLink, Loader2, RefreshCw, Search, XCircle } from "lucide-react";
 import { KB_ID } from "@/lib/nextiNaPraticaBridge";
 import { PROVIDER_LABEL } from "@/lib/nextiAssistant";
 
@@ -38,13 +38,13 @@ const UNPROCESSED: Record<string, string> = {
   bookmark: "Link", link_preview: "Link", link_to_page: "Link para página",
 };
 
-async function callNotion(action: "status" | "inventory" | "sync") {
-  const { data, error } = await supabase.functions.invoke("notion-knowledge", { body: { action } });
+async function callKnowledge(action: "status" | "sync_wiki") {
+  const { data, error } = await supabase.functions.invoke("assistant-knowledge", { body: { action } });
   if (error) {
     const details = error instanceof FunctionsHttpError ? await error.context.text() : error.message;
     let msg = details;
     try { msg = JSON.parse(details).error ?? details; } catch { /* raw */ }
-    throw new Error(typeof msg === "string" ? msg : "Falha ao acessar o Notion");
+    throw new Error(typeof msg === "string" ? msg : "Falha ao acessar o Wiki");
   }
   return data as any;
 }
@@ -54,9 +54,9 @@ export default function AdminAssistenteIA() {
   const [runs, setRuns] = useState<Run[]>([]);
   const [oris, setOris] = useState<Ori[]>([]);
   const [conn, setConn] = useState<any>(null);
-  const [busy, setBusy] = useState<null | "inventory" | "sync">(null);
+  const [busy, setBusy] = useState(false);
   const [q, setQ] = useState("");
-  const [origin, setOrigin] = useState<"all" | "notion" | "octadesk" | "manuais">("all");
+  const [origin, setOrigin] = useState<"all" | "wiki" | "octadesk" | "manuais">("all");
   const [feedback, setFeedback] = useState({ yes: 0, no: 0 });
 
   const load = async () => {
@@ -73,7 +73,7 @@ export default function AdminAssistenteIA() {
 
   useEffect(() => {
     load();
-    callNotion("status").then(setConn).catch((e) => setConn({ connected: false, message: e.message }));
+    callKnowledge("status").then(setConn).catch((e) => setConn({ connected: false, message: e.message }));
     supabase.rpc("get_knowledge_base", { _id: KB_ID }).then(({ data }) => {
       const d = (data as any)?.dados;
       const list: Ori[] = (d?.orientacoes ?? [])
@@ -83,17 +83,17 @@ export default function AdminAssistenteIA() {
     });
   }, []);
 
-  const run = async (action: "inventory" | "sync") => {
-    setBusy(action);
+  const run = async () => {
+    setBusy(true);
     try {
-      const r = await callNotion(action);
+      const r = await callKnowledge("sync_wiki");
       if (r.status === "failed") toast.error(r.error ?? "A sincronização falhou. A base anterior foi mantida.");
       else if (r.status === "partial") toast.warning("Concluída com pendências. Veja os detalhes abaixo.");
-      else toast.success(action === "inventory" ? `Lista atualizada: ${r.found} páginas encontradas.` : "Base sincronizada com o Notion.");
+      else toast.success(`Wiki sincronizado: ${r.documents} documentos em ${r.collections} coleções.`);
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
-      setBusy(null);
+      setBusy(false);
       load();
     }
   };
@@ -102,15 +102,15 @@ export default function AdminAssistenteIA() {
     const { error } = await supabase.from("notion_sources").update(patch as any).eq("id", s.id);
     if (error) return toast.error(error.message);
     setSources((prev) => prev.map((x) => (x.id === s.id ? { ...x, ...patch } : x)));
-    if (s.provider !== "notion") toast.success("Alteração salva e já aplicada às respostas.");
-    else if ("status" in patch || "audience" in patch || "module" in patch)
-      toast.info("Alteração salva. Clique em “Sincronizar com Notion” para aplicá-la às respostas.");
+    if (s.provider === "wiki" && patch.status === "approved" && s.chunk_count === 0)
+      toast.info("Alteração salva. O conteúdo entra nas respostas na próxima sincronização do Wiki.");
+    else toast.success("Alteração salva e já aplicada às respostas.");
   };
 
-  const lastSync = runs.find((r) => r.kind === "sync" && r.status === "success");
+  const lastSync = runs.find((r) => r.kind === "wiki" && r.status !== "running" && r.status !== "failed");
   const lastOcta = runs.find((r) => r.kind === "octadesk" && r.status !== "running");
   const lastManuais = runs.find((r) => r.kind === "manuais" && r.status !== "running");
-  const lastRun = runs.find((r) => r.kind === "inventory" || r.kind === "sync");
+  const lastRun = runs.find((r) => r.kind === "wiki");
   const approved = sources.filter((s) => s.status === "approved" && !s.removed_at);
   const answering = approved.filter((s) => s.chunk_count > 0);
   const unprocessed = sources.filter((s) => s.status === "approved" && s.unprocessed?.length);
@@ -125,24 +125,21 @@ export default function AdminAssistenteIA() {
         <div>
           <h1 className="text-2xl font-bold">Assistente de dúvidas (IA)</h1>
           <p className="text-sm text-muted-foreground">
-            Escolha quais páginas do Notion e artigos da Base de Conhecimento Nexti (Octadesk) e dos Manuais de implantação o “Assistente dos manuais” pode usar no Nexti na Prática. Só materiais aprovados alimentam as respostas.
+            Escolha quais documentos do Wiki Nexti e artigos da Base de Conhecimento Nexti (Octadesk) e dos Manuais de implantação o “Assistente dos manuais” pode usar no Nexti na Prática. Só materiais aprovados alimentam as respostas. O Wiki é só apoio: nunca aparece como manual indicado nem é citado ao cliente.
           </p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
           <Card>
-            <CardHeader className="pb-2"><CardTitle className="text-sm">Conexão com o Notion</CardTitle></CardHeader>
+            <CardHeader className="pb-2"><CardTitle className="text-sm">Conexão com o Wiki</CardTitle></CardHeader>
             <CardContent className="space-y-1 text-sm">
               {!conn ? (
                 <span className="text-muted-foreground">Verificando…</span>
               ) : conn.connected ? (
                 <>
                   <p className="flex items-center gap-1.5 text-success"><CheckCircle2 className="h-4 w-4" /> Conectado (somente leitura)</p>
-                  {conn.root?.ok ? (
-                    <p className="text-muted-foreground">Página inicial: {conn.root.title}</p>
-                  ) : (
-                    <p className="text-destructive">{conn.root?.error}</p>
-                  )}
+                  <p className="text-muted-foreground">{conn.team ? `${conn.team} · ` : ""}wiki.shared.nexti.com</p>
+                  <p className="text-muted-foreground">Sincroniza sozinho a cada hora.</p>
                 </>
               ) : (
                 <p className="flex items-start gap-1.5 text-destructive"><XCircle className="mt-0.5 h-4 w-4 shrink-0" /> {conn.message ?? "Não conectado"}</p>
@@ -159,21 +156,20 @@ export default function AdminAssistenteIA() {
               <p className="text-muted-foreground">
                 Manuais de implantação: {sources.filter((s) => s.provider === "manuais" && s.status === "approved" && s.chunk_count > 0).length} manuais · importado em {fmt(lastManuais?.finished_at ?? null)}
               </p>
-              <p className="text-muted-foreground">Notion: última sincronização {fmt(lastSync?.finished_at ?? null)}</p>
+              <p className="text-muted-foreground">
+                Wiki (apoio): {sources.filter((s) => s.provider === "wiki" && s.status === "approved" && s.chunk_count > 0).length} documentos · sincronizado em {fmt(lastSync?.finished_at ?? null)}
+              </p>
               <p className="text-muted-foreground">Avaliações: {feedback.yes} “Sim” · {feedback.no} “Não”</p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2"><CardTitle className="text-sm">Ações</CardTitle></CardHeader>
             <CardContent className="flex flex-col gap-2">
-              <Button variant="outline" disabled={!!busy || conn?.connected === false} onClick={() => run("inventory")}>
-                {busy === "inventory" ? <Loader2 className="h-4 w-4 animate-spin" /> : <ListTree className="h-4 w-4" />}
-                Atualizar lista de páginas
+              <Button disabled={busy || conn?.connected === false} onClick={run}>
+                {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+                Sincronizar com o Wiki agora
               </Button>
-              <Button disabled={!!busy || conn?.connected === false} onClick={() => run("sync")}>
-                {busy === "sync" ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-                Sincronizar com Notion
-              </Button>
+              <p className="text-xs text-muted-foreground">Lê coleções e documentos novos, alterados e excluídos. Documentos sem alteração não são lidos de novo.</p>
             </CardContent>
           </Card>
         </div>
@@ -182,18 +178,17 @@ export default function AdminAssistenteIA() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="flex flex-wrap items-center gap-2 text-sm">
-                Última execução: {lastRun.kind === "sync" ? "sincronização" : "atualização da lista"} em {fmt(lastRun.started_at)}
+                Última sincronização do Wiki em {fmt(lastRun.started_at)}
                 <Badge className={RUN_STATUS[lastRun.status]?.cls}>{RUN_STATUS[lastRun.status]?.label}</Badge>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 text-sm">
-              {lastRun.kind === "sync" ? (
-                <p>Páginas processadas: {lastRun.pages_processed} · sem alteração: {lastRun.pages_unchanged} · falhas: {lastRun.pages_failed} · retiradas da base: {lastRun.pages_removed}</p>
-              ) : (
-                <p>Páginas encontradas: {lastRun.pages_processed} · falhas: {lastRun.pages_failed} · removidas do Notion: {lastRun.pages_removed}</p>
-              )}
+              <p>
+                {lastRun.details?.documents != null && <>Documentos no Wiki: {lastRun.details.documents} · </>}
+                lidos agora: {lastRun.pages_processed} · sem alteração: {lastRun.pages_unchanged} · falhas: {lastRun.pages_failed} · retirados da base: {lastRun.pages_removed}
+              </p>
               {lastRun.details?.error && <p className="text-destructive">{lastRun.details.error}</p>}
-              {lastRun.details?.incomplete && <p className="text-warning">A lista ficou incompleta; nenhuma página foi considerada removida.</p>}
+              {lastRun.details?.incomplete && <p className="text-warning">Algumas coleções não puderam ser lidas; nenhum documento foi considerado excluído.</p>}
               {(lastRun.details?.failures ?? []).map((f: any, i: number) => (
                 <p key={i} className="flex gap-1.5 text-destructive"><AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />{f.title ?? f.page}: {f.error}</p>
               ))}
@@ -224,7 +219,7 @@ export default function AdminAssistenteIA() {
                   </div>
                 </details>
               ))}
-              {unprocessed.filter((s) => s.provider === "notion").map((s) => (
+              {unprocessed.filter((s) => s.provider === "wiki").map((s) => (
                 <p key={s.id}>
                   <span className="font-medium text-foreground">{s.title}:</span>{" "}
                   {Object.entries(s.unprocessed.reduce<Record<string, number>>((acc, u) => {
@@ -244,7 +239,7 @@ export default function AdminAssistenteIA() {
               <SelectTrigger className="h-10 w-[190px]"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todas as origens</SelectItem>
-                <SelectItem value="notion">Notion</SelectItem>
+                <SelectItem value="wiki">Wiki Nexti (apoio)</SelectItem>
                 <SelectItem value="octadesk">Octadesk</SelectItem>
                 <SelectItem value="manuais">Manuais de implantação</SelectItem>
               </SelectContent>
@@ -258,7 +253,7 @@ export default function AdminAssistenteIA() {
           <CardContent className="overflow-x-auto">
             {sources.length === 0 ? (
               <p className="py-6 text-center text-sm text-muted-foreground">
-                Nenhuma página listada ainda. Conecte o Notion e clique em “Atualizar lista de páginas”.
+                Nenhum material listado ainda.
               </p>
             ) : (
               <table className="w-full min-w-[900px] text-sm">
@@ -279,20 +274,20 @@ export default function AdminAssistenteIA() {
                         <div style={{ paddingLeft: Math.min(s.depth, 6) * 14 }} className="flex items-start gap-1">
                           <div className="min-w-0">
                             <p className="font-medium">
-                              <Badge variant="outline" className="mr-1.5 px-1.5 py-0 text-[10px] font-normal">{PROVIDER_LABEL[s.provider] ?? "Notion"}</Badge>
-                              {s.title}{s.kind === "database" && <span className="ml-1 text-xs text-muted-foreground">(base de dados)</span>}
+                              <Badge variant="outline" className="mr-1.5 px-1.5 py-0 text-[10px] font-normal">{PROVIDER_LABEL[s.provider] ?? s.provider}</Badge>
+                              {s.title}{s.kind === "database" && <span className="ml-1 text-xs text-muted-foreground">(base de dados)</span>}{s.kind === "collection" && <span className="ml-1 text-xs text-muted-foreground">(coleção)</span>}
                             </p>
                             <p className="text-xs text-muted-foreground">
-                              {s.provider !== "notion" ? `Importado ${fmt(s.last_synced_at)}` : `Editada ${fmt(s.notion_last_edited)}`}
+                              {s.provider === "wiki" ? `Editado no Wiki ${fmt(s.notion_last_edited)}` : `Importado ${fmt(s.last_synced_at)}`}
                               {s.url && (<> · <a href={s.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-0.5 text-primary hover:underline">abrir <ExternalLink className="h-3 w-3" /></a></>)}
                             </p>
-                            {s.removed_at && <Badge variant="outline" className="mt-1 text-destructive">Não encontrada no Notion</Badge>}
+                            {s.removed_at && <Badge variant="outline" className="mt-1 text-destructive">Não encontrado no Wiki</Badge>}
                             {s.sync_error && <p className="mt-1 text-xs text-destructive">{s.sync_error}</p>}
                           </div>
                         </div>
                       </td>
                       <td className="py-2 pr-2">
-                        <Select value={s.status} onValueChange={(v) => update(s, { status: v })} disabled={s.kind === "database"}>
+                        <Select value={s.status} onValueChange={(v) => update(s, { status: v })} disabled={s.kind === "database" || s.kind === "collection"}>
                           <SelectTrigger className="h-8 w-[120px]"><SelectValue /></SelectTrigger>
                           <SelectContent>
                             {Object.entries(STATUS).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
@@ -335,7 +330,7 @@ export default function AdminAssistenteIA() {
                         </Select>
                       </td>
                       <td className="py-2 text-xs text-muted-foreground">
-                        {s.chunk_count > 0 ? `${s.chunk_count} trechos · ${fmt(s.last_synced_at)}` : s.status === "approved" ? "Aguardando sincronização" : "—"}
+                        {s.chunk_count > 0 ? `${s.chunk_count} trechos · ${fmt(s.last_synced_at)}` : s.kind === "collection" ? "—" : s.status === "approved" ? (s.provider === "wiki" && s.last_synced_at ? "Sem texto" : "Aguardando sincronização") : "—"}
                       </td>
                     </tr>
                   ))}

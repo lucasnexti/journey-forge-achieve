@@ -1,0 +1,10 @@
+ALTER TABLE public.notion_sources DROP CONSTRAINT notion_sources_provider_check;
+ALTER TABLE public.notion_sources ADD CONSTRAINT notion_sources_provider_check CHECK (provider = ANY (ARRAY['octadesk'::text, 'manuais'::text, 'wiki'::text]));
+ALTER TABLE public.notion_sources DROP CONSTRAINT notion_sources_kind_check;
+ALTER TABLE public.notion_sources ADD CONSTRAINT notion_sources_kind_check CHECK (kind = ANY (ARRAY['page'::text, 'database'::text, 'collection'::text]));
+ALTER TABLE public.notion_sync_runs DROP CONSTRAINT notion_sync_runs_kind_check;
+ALTER TABLE public.notion_sync_runs ADD CONSTRAINT notion_sync_runs_kind_check CHECK (kind = ANY (ARRAY['octadesk'::text, 'manuais'::text, 'wiki'::text]));
+COMMENT ON TABLE public.notion_sources IS 'Assistant knowledge sources (providers wiki, octadesk, manuais). Table name kept from the retired Notion integration.';
+COMMENT ON TABLE public.notion_chunks IS 'Searchable passages of the assistant knowledge sources. Table name kept from the retired Notion integration.';
+COMMENT ON TABLE public.notion_sync_runs IS 'Sync/import runs of the assistant knowledge sources (wiki sync, octadesk/manuais imports).';
+COMMENT ON COLUMN public.notion_sources.notion_last_edited IS 'Last edit time reported by the source (Wiki updatedAt). Name kept from the retired Notion integration.';

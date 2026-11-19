@@ -56,7 +56,7 @@ const navGroups: NavGroup[] = [
       { to: "/admin/quiz-nexti", label: "Quiz Nexti", icon: Zap },
       { to: "/admin/treinamentos", label: "Trein. Presenciais", icon: Layers },
       { to: "/nexti-na-pratica", label: "Nexti na Prática", icon: BookMarked },
-      { to: "/admin/assistente-ia", label: "Assistente IA (Notion)", icon: Bot },
+      { to: "/admin/assistente-ia", label: "Assistente IA", icon: Bot },
     ],
   },
   {

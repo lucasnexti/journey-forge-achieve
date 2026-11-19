@@ -26,7 +26,7 @@ export const MODULE_SUGGESTIONS: Record<AssistantModule, string[]> = {
   ],
 };
 
-export const PROVIDER_LABEL: Record<string, string> = { notion: "Notion", octadesk: "Octadesk", manuais: "Manuais de implantação" };
+export const PROVIDER_LABEL: Record<string, string> = { wiki: "Wiki Nexti", octadesk: "Octadesk", manuais: "Manuais de implantação" };
 export const NOT_FOUND =
   "Não encontrei uma orientação suficiente nos materiais disponíveis para responder com segurança. Você pode detalhar sua dúvida?";
 
@@ -75,6 +75,8 @@ export function parseAnswer(text: string, candidates: CandidateSource[], streami
   const byId = new Map<string, CitedPage>();
   for (const c of candidates) {
     if (!nums.has(c.n)) continue;
+    // The Wiki only supports answers and is never shown.
+    if (isWiki(c)) continue;
     // Octadesk articles are never linked: only the Nexti na Prática guides made from them are shown.
     const linkable = !isOctadesk(c);
     let page = byId.get(c.page_id);
@@ -98,6 +100,11 @@ export function parseAnswer(text: string, candidates: CandidateSource[], streami
 /** Octadesk material (by provider or by its link), which the assistant never points the user to. */
 export function isOctadesk(c: Pick<CandidateSource, "provider" | "url" | "page_id">) {
   return c.provider === "octadesk" || c.page_id.startsWith("octadesk:") || /octadesk\.com/i.test(c.url ?? "");
+}
+
+/** Nexti Wiki material: supports answers but is never cited, linked or named to the user. */
+export function isWiki(c: Pick<CandidateSource, "provider" | "url" | "page_id">) {
+  return c.provider === "wiki" || c.page_id.startsWith("wiki:") || /wiki\.shared\.nexti\.com/i.test(c.url ?? "");
 }
 
 /** After two "not found" answers in a row, the user is pointed to the support channel. */

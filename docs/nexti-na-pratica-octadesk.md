@@ -44,10 +44,10 @@ Regras usadas:
 
 Em 16/11/2026 os 46 artigos da base foram preparados para o assistente: 45 PDFs lidos pelo texto (sem ler imagens, para não captar dados pessoais das telas) e, quando existe, a orientação publicada do Nexti na Prática feita a partir do artigo. "Apresentação Nexti" é vídeo e ficou de fora; "Cadastro de Facial" e "Requisição de operação" têm PDF só com imagens (a Requisição é respondida pela orientação do Nexti na Prática).
 Os artigos entram aprovados para clientes (base pública); o administrador pode excluir ou mudar público/módulo em Admin → Assistente IA.
-Para atualizar: rodar `scripts/assistant-octadesk/crawl.py` e `build.py` (em /tmp/octa), enviar o índice para `assistant-knowledge/octadesk/index.json` e executar a ação `import_octadesk` da função `notion-knowledge` como administrador. A atualização não é automática.
+Para atualizar: rodar `scripts/assistant-octadesk/crawl.py` e `build.py` (em /tmp/octa), enviar o índice para `assistant-knowledge/octadesk/index.json` e executar a ação `import_octadesk` da função `assistant-knowledge` como administrador. A atualização não é automática.
 
 ## Assistente — Admissão (Manuais de implantação)
 
 - Fonte indicada pela Aline em 16/11/2026: https://manuais-nexti.pages.dev/?produto=Admissão (arquivo do site gerado em 03/11/2026).
 - 18 manuais importados para o módulo Admissão do assistente (17 PDFs + "Conheça o módulo Admissão", que é vídeo: só o texto da página foi usado). Lido apenas o texto dos PDFs e as boas práticas do site; telas (imagens) não foram lidas.
-- Para atualizar: `python3 scripts/assistant-manuais/build.py "Admissão"` em uma pasta de trabalho, enviar `manuais_index.json` ao bucket privado `assistant-knowledge` como `manuais/index.json` e executar a ação `import_manuais` da função `notion-knowledge` (somente administradores). Manuais que saírem do site deixam as respostas.
+- Para atualizar: `python3 scripts/assistant-manuais/build.py "Admissão"` em uma pasta de trabalho, enviar `manuais_index.json` ao bucket privado `assistant-knowledge` como `manuais/index.json` e executar a ação `import_manuais` da função `assistant-knowledge` (somente administradores). Manuais que saírem do site deixam as respostas.

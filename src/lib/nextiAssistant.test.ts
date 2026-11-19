@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { inAppViewer, needsSupportHint, NOT_FOUND, parseAnswer, type CandidateSource } from "./nextiAssistant";
 
 const src = (n: number, page: string, title = `Página ${page}`): CandidateSource => ({
-  n, page_id: page, title, section: "", url: `https://notion.so/${page}`, updated_at: null, orientation_path: null, orientation_title: null,
+  n, page_id: page, title, section: "", url: `https://manuais-nexti.pages.dev/?manual=${page}`, updated_at: null, orientation_path: null, orientation_title: null,
 });
 const candidates = [src(1, "a"), src(2, "b"), src(3, "a"), src(4, "c")];
 
@@ -61,6 +61,24 @@ describe("Octadesk materials", () => {
   });
   it("hides a partial sources marker while streaming", () => {
     expect(parseAnswer("Resposta\nFON", candidates, true).body).toBe("Resposta");
+  });
+});
+
+describe("Wiki materials (support only)", () => {
+  const wiki = (n: number, extra: Partial<CandidateSource> = {}): CandidateSource => ({
+    ...src(n, "wiki:5f1c", "Procedimento interno"), provider: "wiki", url: "https://wiki.shared.nexti.com/doc/procedimento-abc", ...extra,
+  });
+  it("never shows a cited Wiki page, even with a link", () => {
+    expect(parseAnswer("Resposta\nFONTES: 1", [wiki(1)]).pages).toEqual([]);
+  });
+  it("never shows a Wiki page even if it came with a guide or a file", () => {
+    const r = parseAnswer("Resposta\nFONTES: 1", [wiki(1, { orientation_path: "cadastros/escala/x", orientation_title: "Escala",
+      viewer_url: "https://manuais-nexti.pages.dev/arquivos/admissao-filiais.pdf" })]);
+    expect(r.pages).toEqual([]);
+  });
+  it("keeps the manuals cited together with the Wiki", () => {
+    const r = parseAnswer("Resposta\nFONTES: 1, 2", [wiki(1), src(2, "manuais:filiais", "Filiais")]);
+    expect(r.pages.map((p) => p.page_id)).toEqual(["manuais:filiais"]);
   });
 });
 
