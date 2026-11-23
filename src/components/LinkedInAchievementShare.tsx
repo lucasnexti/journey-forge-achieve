@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Linkedin, Copy, RotateCcw, ExternalLink, Check, Download, Loader2, Share2, ImageIcon } from "lucide-react";
+import { Linkedin, Copy, RotateCcw, ExternalLink, Check, Download, Loader2, Share2, ImageIcon, Send, Lightbulb } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,13 @@ interface Props {
   /** Sem moldura de cartão (para uso dentro de uma janela). */
   bare?: boolean;
 }
+
+const SHARE_STEPS = [
+  { icon: Download, title: "Baixe seu certificado", text: 'Clique em "Baixar imagem do certificado" e salve a imagem no seu dispositivo.' },
+  { icon: Linkedin, title: "Abra o LinkedIn", text: 'Clique em "Compartilhar minha conquista no LinkedIn".' },
+  { icon: ImageIcon, title: "Anexe seu certificado", text: "Na tela de publicação do LinkedIn, clique no ícone de mídia (foto) e selecione a imagem do certificado que você acabou de baixar." },
+  { icon: Send, title: "Compartilhe sua conquista", text: "Revise o texto sugerido, personalize se desejar e clique em publicar." },
+] as const;
 
 type CertImage = { url: string; file: File; fileName: string };
 
@@ -109,7 +116,7 @@ const LinkedInAchievementShare = ({ trainingName, lookup, bare = false }: Props)
     window.open(linkedInComposerUrl(body), "_blank", "noopener,noreferrer");
     copyText(body).then((ok) => {
       toast.success("Abrimos o LinkedIn para você criar a publicação.", {
-        description: `Clique no ícone de imagem (Mídia) e anexe o arquivo ${image?.fileName ?? "do certificado"}.${ok ? " O texto também foi copiado, caso precise colar." : ""}`,
+        description: `Clique no ícone de mídia (foto) e anexe a imagem do certificado antes de publicar.${ok ? " O texto também foi copiado, caso precise colar." : ""}`,
         duration: 9000,
       });
     });
@@ -136,7 +143,7 @@ const LinkedInAchievementShare = ({ trainingName, lookup, bare = false }: Props)
   return (
     <section
       aria-label="Compartilhar certificado no LinkedIn"
-      className={bare ? "space-y-4" : "card-surface space-y-4 border border-linkedin/20 p-4 sm:p-6"}
+      className={bare ? "min-w-0 space-y-4" : "min-w-0 card-surface space-y-4 border border-linkedin/20 p-4 sm:p-6"}
     >
       <div className="flex items-start gap-3">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-linkedin text-linkedin-foreground">
@@ -159,36 +166,56 @@ const LinkedInAchievementShare = ({ trainingName, lookup, bare = false }: Props)
           {preparing ? "Preparando a imagem do certificado…" : "Compartilhar meu certificado no LinkedIn"}
         </Button>
       ) : (
-        <div className="space-y-3 rounded-lg border border-linkedin/20 bg-linkedin/5 p-3 sm:p-4">
+        <div className="min-w-0 space-y-3">
           <figure className="overflow-hidden rounded-md border border-border bg-background">
-            <img src={image.url} alt={`Imagem do certificado de ${trainingName}`} className="block h-auto w-full" />
+            <img
+              src={image.url}
+              alt={`Imagem do certificado de ${trainingName}`}
+              className="mx-auto block h-auto max-h-[260px] w-full object-contain sm:max-h-[320px]"
+            />
           </figure>
 
+          <div className="rounded-lg border border-linkedin/20 bg-linkedin/5 p-3 sm:p-4" aria-labelledby={`linkedin-steps-${key}`}>
+            <h4 id={`linkedin-steps-${key}`} className="mb-3 font-display text-sm font-bold text-foreground">
+              Como compartilhar seu certificado
+            </h4>
+            <ol className="grid gap-2.5 sm:grid-cols-2 sm:gap-3">
+              {SHARE_STEPS.map((step, i) => (
+                <li key={step.title} className="flex items-start gap-2.5 rounded-md bg-background/70 p-2.5">
+                  <span className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-linkedin/10 text-linkedin">
+                    <step.icon className="h-4 w-4" aria-hidden="true" />
+                    <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-linkedin text-[10px] font-bold leading-none text-linkedin-foreground">
+                      {i + 1}
+                    </span>
+                  </span>
+                  <span className="min-w-0 text-xs leading-snug sm:text-[13px]">
+                    <strong className="block text-foreground">{step.title}</strong>
+                    <span className="text-muted-foreground">{step.text}</span>
+                  </span>
+                </li>
+              ))}
+            </ol>
+            <p role="note" className="mt-3 flex items-start gap-2 rounded-md border border-primary/30 bg-primary/10 p-2.5 text-xs font-medium leading-snug text-foreground sm:text-[13px]">
+              <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+              <span><strong>Dica:</strong> não se esqueça de anexar a imagem do certificado antes de publicar. Assim, sua rede poderá visualizar sua conquista!</span>
+            </p>
+          </div>
+
+          <div className="grid min-w-0 gap-2 sm:grid-cols-2">
+            <Button variant="outline" onClick={download} className="h-auto min-h-11 min-w-0 gap-2 whitespace-normal py-2 text-center">
+              {downloaded ? <Check className="h-4 w-4" /> : <Download className="h-4 w-4" />}
+              {downloaded ? "Imagem baixada" : "Baixar imagem do certificado"}
+            </Button>
+            <Button onClick={openLinkedIn} className="h-auto min-h-11 min-w-0 gap-2 whitespace-normal py-2 text-center bg-linkedin text-linkedin-foreground hover:bg-linkedin/90">
+              <Linkedin className="h-4 w-4" /> Compartilhar minha conquista no LinkedIn
+            </Button>
+          </div>
           {nativeShare && (
-            <Button onClick={shareNative} className="h-11 w-full gap-2 bg-linkedin text-linkedin-foreground hover:bg-linkedin/90">
-              <Share2 className="h-4 w-4" /> Enviar a imagem para o LinkedIn
+            <Button variant="ghost" onClick={shareNative} className="h-auto min-h-10 w-full gap-2 whitespace-normal text-linkedin hover:bg-linkedin/10 hover:text-linkedin">
+              <Share2 className="h-4 w-4" /> Ou envie a imagem direto para o app do LinkedIn
             </Button>
           )}
-
-          <ol className="space-y-2 text-sm">
-            <li className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <span className="text-foreground"><strong>1.</strong> Baixe a imagem do seu certificado</span>
-              <Button variant="outline" onClick={download} className="h-10 gap-2 sm:w-56">
-                {downloaded ? <Check className="h-4 w-4" /> : <Download className="h-4 w-4" />}
-                {downloaded ? "Imagem baixada" : "Baixar imagem (PNG)"}
-              </Button>
-            </li>
-            <li className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <span className="text-foreground"><strong>2.</strong> Abra a publicação no LinkedIn</span>
-              <Button onClick={openLinkedIn} className="h-10 gap-2 bg-linkedin text-linkedin-foreground hover:bg-linkedin/90 sm:w-56">
-                <Linkedin className="h-4 w-4" /> Abrir o LinkedIn
-              </Button>
-            </li>
-            <li className="flex items-start gap-2 text-muted-foreground">
-              <ImageIcon className="mt-0.5 h-4 w-4 shrink-0" />
-              <span><strong className="text-foreground">3.</strong> No LinkedIn, clique no ícone de imagem (Mídia), escolha o arquivo <span className="break-all font-medium text-foreground">{image.fileName}</span> e publique.</span>
-            </li>
-          </ol>
+          <p className="break-all text-center text-[11px] text-muted-foreground">Arquivo: {image.fileName}</p>
         </div>
       )}
 
