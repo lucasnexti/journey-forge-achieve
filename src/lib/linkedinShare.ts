@@ -14,17 +14,27 @@ export function certificateVerifyUrl(code: string | null | undefined): string | 
   return `${OFFICIAL_ORIGIN}/validar-certificado/${encodeURIComponent(c)}`;
 }
 
-/** Texto sugerido para a publicação; o colaborador pode editar antes de publicar. */
-export function buildSuggestedPost(trainingName: string, verifyUrl?: string | null): string {
+/**
+ * Texto sugerido para a publicação; o colaborador pode editar antes de publicar.
+ * Não leva link da plataforma: o conteúdo compartilhado é a imagem do certificado.
+ */
+export function buildSuggestedPost(trainingName: string): string {
   const name = trainingName.trim() || "de capacitação";
-  const parts = [
+  return [
     "Mais uma conquista na minha jornada de desenvolvimento profissional! 🎓",
     `Concluí o treinamento ${name} pela Nexti Academy, ampliando meus conhecimentos e fortalecendo meu aprendizado.`,
     "Acredito que o desenvolvimento contínuo é essencial para evoluirmos profissionalmente e construirmos novas oportunidades.",
-  ];
-  if (verifyUrl) parts.push(`Confira meu certificado: ${verifyUrl}`);
-  parts.push("#DesenvolvimentoProfissional #AprendizadoContínuo #NextiAcademy");
-  return parts.join("\n\n");
+    "#DesenvolvimentoProfissional #AprendizadoContínuo #NextiAcademy",
+  ].join("\n\n");
+}
+
+/** Nome do arquivo PNG do certificado (sem acentos/espaços, para anexar com facilidade). */
+export function certificateImageFileName(trainingName: string): string {
+  const slug = trainingName
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")
+    .slice(0, 60).replace(/-+$/g, "");
+  return `certificado-nexti-academy${slug ? `-${slug}` : ""}.png`;
 }
 
 /** Abre o editor de publicação do LinkedIn já com o texto; nada é publicado sem o colaborador confirmar. */

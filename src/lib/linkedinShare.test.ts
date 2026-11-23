@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildSuggestedPost, certificateVerifyUrl, linkedInComposerUrl, linkedInAddToProfileUrl } from "./linkedinShare";
+import { buildSuggestedPost, certificateVerifyUrl, certificateImageFileName, linkedInComposerUrl, linkedInAddToProfileUrl } from "./linkedinShare";
 
 describe("Compartilhamento no LinkedIn", () => {
   it("texto sugerido traz o nome do treinamento e as hashtags pedidas", () => {
@@ -9,13 +9,23 @@ describe("Compartilhamento no LinkedIn", () => {
     expect(t.endsWith("#DesenvolvimentoProfissional #AprendizadoContínuo #NextiAcademy")).toBe(true);
   });
 
-  it("inclui o link do certificado só quando existe código válido", () => {
-    expect(buildSuggestedPost("Curso X")).not.toContain("validar-certificado");
-    const url = certificateVerifyUrl("ABC123");
-    expect(url).toBe("https://journey-forge-achieve.lovable.app/validar-certificado/ABC123");
-    expect(buildSuggestedPost("Curso X", url)).toContain(`Confira meu certificado: ${url}`);
+  it("o texto da publicação não leva link da plataforma nem do certificado", () => {
+    const t = buildSuggestedPost("Curso X");
+    expect(t).not.toMatch(/https?:\/\//);
+    expect(t).not.toContain("lovable");
+    expect(t).not.toContain("validar-certificado");
+  });
+
+  it("link de validação continua disponível para o perfil do LinkedIn", () => {
+    expect(certificateVerifyUrl("ABC123")).toBe("https://journey-forge-achieve.lovable.app/validar-certificado/ABC123");
     expect(certificateVerifyUrl("   ")).toBeNull();
     expect(certificateVerifyUrl(null)).toBeNull();
+  });
+
+  it("a imagem do certificado é um PNG com o nome do treinamento", () => {
+    expect(certificateImageFileName("Compliance Trabalhista")).toBe("certificado-nexti-academy-compliance-trabalhista.png");
+    expect(certificateImageFileName("ISO – Inteligência Artificial")).toBe("certificado-nexti-academy-iso-inteligencia-artificial.png");
+    expect(certificateImageFileName("  ")).toBe("certificado-nexti-academy.png");
   });
 
   it("abre o editor do LinkedIn com o texto, sem publicar", () => {
