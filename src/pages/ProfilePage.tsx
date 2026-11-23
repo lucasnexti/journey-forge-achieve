@@ -10,7 +10,9 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { openCertificatePdf } from "@/lib/certificates";
 import { maskPhone, personalDataSchema } from "@/lib/personalData";
-import { User, Award, FileText, Save, Camera, Eye, EyeOff, KeyRound, Loader2 } from "lucide-react";
+import { User, Award, FileText, Save, Camera, Eye, EyeOff, KeyRound, Loader2, Linkedin } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import LinkedInAchievementShare from "@/components/LinkedInAchievementShare";
 
 interface ProfileData {
   nome: string;
@@ -37,6 +39,7 @@ const ProfilePage = () => {
   const fieldError = (key: string) => touched[key] ? errors[key] : undefined;
   const touch = (key: string) => setTouched(prev => ({ ...prev, [key]: true }));
   const [badges, setBadges] = useState<{ name: string; icon: string; earned_at: string }[]>([]);
+  const [shareCert, setShareCert] = useState<{ id: string; track_title: string } | null>(null);
   const [certificates, setCertificates] = useState<{ id: string; track_title: string; issued_at: string; certificate_code: string }[]>([]);
   const [saving, setSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -342,11 +345,25 @@ const ProfilePage = () => {
                           try { window.location.href = await openCertificatePdf({ certificateId: cert.id, download: true }); }
                           catch (e) { toast.error((e as Error).message); }
                         }}><FileText className="h-3.5 w-3.5" /> PDF</Button>
+                        <Button size="sm" variant="outline" aria-label={`Compartilhar ${cert.track_title} no LinkedIn`} title="Compartilhar no LinkedIn"
+                          className="h-8 gap-1 border-linkedin/30 text-xs text-linkedin hover:bg-linkedin/10 hover:text-linkedin"
+                          onClick={() => setShareCert({ id: cert.id, track_title: cert.track_title })}>
+                          <Linkedin className="h-3.5 w-3.5" /><span className="hidden sm:inline">LinkedIn</span>
+                        </Button>
                       </div>
                     </div>
                   ))}
                 </div>
               )}
+              <Dialog open={!!shareCert} onOpenChange={(o) => { if (!o) setShareCert(null); }}>
+                <DialogContent className="max-h-[90dvh] w-[calc(100vw-2rem)] max-w-xl overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Compartilhar no LinkedIn</DialogTitle>
+                    <DialogDescription>{shareCert?.track_title}</DialogDescription>
+                  </DialogHeader>
+                  {shareCert && <LinkedInAchievementShare bare trainingName={shareCert.track_title} lookup={{ certificateId: shareCert.id }} />}
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
 

@@ -17,6 +17,7 @@ import TrackRating from "@/components/TrackRating";
 import LessonForum from "@/components/LessonForum";
 import ExamRunner, { ExamResult } from "@/components/exam/ExamRunner";
 import Certificate from "@/components/Certificate";
+import LinkedInAchievementShare from "@/components/LinkedInAchievementShare";
 import { openCertificatePdf } from "@/lib/certificates";
 import { ArrowLeft, ClipboardCheck, BookOpen, CheckCircle2, List, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -539,6 +540,7 @@ const TrackPage = () => {
                 }}>
                   <ClipboardCheck className="h-4 w-4" /> Baixar certificado oficial (PDF)
                 </Button>
+                <LinkedInAchievementShare trainingName={track.title} lookup={{ trackId: track.id }} />
                 <TrackRating trackId={track.id} />
               </div>
             )}

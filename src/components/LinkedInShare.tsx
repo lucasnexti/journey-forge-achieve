@@ -53,7 +53,7 @@ const LinkedInShare = ({
 
     if (certificateCode) {
       params.set("certId", certificateCode);
-      params.set("certUrl", `${ORGANIZATION_URL}/verificar/${certificateCode}`);
+      params.set("certUrl", `https://journey-forge-achieve.lovable.app/validar-certificado/${encodeURIComponent(certificateCode)}`);
     }
 
     const linkedInUrl = `https://www.linkedin.com/profile/add?${params.toString()}`;

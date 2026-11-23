@@ -1,7 +1,6 @@
 import { useRef } from "react";
 import { Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import LinkedInShare from "@/components/LinkedInShare";
 
 interface CertificateProps {
   userName: string;
@@ -83,18 +82,11 @@ const Certificate = ({ userName, trackTitle, completedAt, score }: CertificatePr
           </div>
         </div>
       </div>
-      <div className="p-4 space-y-3">
+      <div className="p-4">
         <Button onClick={handlePrint} variant="outline" className="w-full gap-2">
           <Printer className="h-4 w-4" />
           Imprimir / Salvar PDF
         </Button>
-        <LinkedInShare
-          type="certificate"
-          title={trackTitle}
-          description={`Concluí a trilha "${trackTitle}" com nota ${score}% na Universidade Nexti.`}
-          issuedAt={completedAt}
-          certificateCode={Date.now().toString(36).toUpperCase()}
-        />
       </div>
     </div>
   );

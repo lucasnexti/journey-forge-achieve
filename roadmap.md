@@ -59,3 +59,7 @@
 - [x] Sincronização do Wiki: coleções e documentos, hierarquia, incremental, remoções, registro e falhas, automática de hora em hora
 - [x] Assistente usa o Wiki só como apoio (nunca citado nem indicado como manual)
 - [ ] Testar com o Wiki real — bloqueado: falta a chave de acesso (API) do Wiki
+
+# Roadmap — Certificado no LinkedIn
+- [x] Convite "Parabéns por mais essa conquista!" com texto editável na conclusão do curso e em "Meus Certificados"
+- [x] Botão abre o LinkedIn para revisão (sem publicar sozinho), copia o texto e inclui o link de validação do certificado
