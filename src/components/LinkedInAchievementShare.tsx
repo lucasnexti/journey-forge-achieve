@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Linkedin, Copy, RotateCcw, ExternalLink, Check, Download, Loader2, Share2, ImageIcon, Send, Lightbulb } from "lucide-react";
+import { Linkedin, Copy, RotateCcw, ExternalLink, Check, Download, Loader2, Share2, Lightbulb, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -17,10 +17,10 @@ interface Props {
 }
 
 const SHARE_STEPS = [
-  { icon: Download, title: "Baixe seu certificado", text: 'Clique em "Baixar imagem do certificado" e salve a imagem no seu dispositivo.' },
-  { icon: Linkedin, title: "Abra o LinkedIn", text: 'Clique em "Compartilhar minha conquista no LinkedIn".' },
-  { icon: ImageIcon, title: "Anexe seu certificado", text: "Na tela de publicação do LinkedIn, clique no ícone de mídia (foto) e selecione a imagem do certificado que você acabou de baixar." },
-  { icon: Send, title: "Compartilhe sua conquista", text: "Revise o texto sugerido, personalize se desejar e clique em publicar." },
+  { title: "Baixe seu certificado:", text: 'clique em "Baixar imagem do certificado" e salve a imagem no seu dispositivo.' },
+  { title: "Abra o LinkedIn:", text: 'clique em "Compartilhar minha conquista no LinkedIn".' },
+  { title: "Anexe a imagem:", text: "na tela de publicação do LinkedIn, clique no ícone de mídia (foto) e selecione a imagem do certificado que você acabou de baixar." },
+  { title: "Compartilhe sua conquista:", text: "revise o texto sugerido, faça os ajustes que desejar e clique em publicar." },
 ] as const;
 
 type CertImage = { url: string; file: File; fileName: string };
@@ -84,35 +84,40 @@ const LinkedInAchievementShare = ({ trainingName, lookup, bare = false }: Props)
   const suggested = buildSuggestedPost(trainingName);
   const postText = () => text.trim() || suggested;
 
-  const prepare = async () => {
+  const prepare = async (): Promise<CertImage | null> => {
+    if (image) return image;
     if (!cert.id) {
       toast.info("Seu certificado ainda está sendo emitido. Tente novamente em alguns segundos.");
-      return;
+      return null;
     }
     setPreparing(true);
     try {
       const { blob, file, fileName } = await renderCertificatePng({ certificateId: cert.id, trainingName });
-      setImage({ url: URL.createObjectURL(blob), file, fileName });
+      const ready = { url: URL.createObjectURL(blob), file, fileName };
+      setImage(ready);
       setDownloaded(false);
+      return ready;
     } catch (e) {
       toast.error((e as Error).message || "Não foi possível gerar a imagem do certificado.");
+      return null;
     } finally {
       setPreparing(false);
     }
   };
 
-  const download = () => {
-    if (!image) return;
+  const download = async () => {
+    const img = await prepare();
+    if (!img) return;
     const a = document.createElement("a");
-    a.href = image.url; a.download = image.fileName;
+    a.href = img.url; a.download = img.fileName;
     document.body.appendChild(a); a.click(); a.remove();
     setDownloaded(true);
-    toast.success("Imagem do certificado baixada.", { description: image.fileName });
+    toast.success("Imagem do certificado baixada.", { description: img.fileName });
   };
 
   const openLinkedIn = () => {
     const body = postText();
-    // abrir antes de copiar evita bloqueio de janela no navegador
+    // abrir antes de qualquer espera evita bloqueio de janela no navegador
     window.open(linkedInComposerUrl(body), "_blank", "noopener,noreferrer");
     copyText(body).then((ok) => {
       toast.success("Abrimos o LinkedIn para você criar a publicação.", {
@@ -120,6 +125,8 @@ const LinkedInAchievementShare = ({ trainingName, lookup, bare = false }: Props)
         duration: 9000,
       });
     });
+    // deixa a imagem pronta na tela para baixar, caso ainda não tenha sido gerada
+    if (!image && !preparing && cert.id) void prepare();
   };
 
   const shareNative = async () => {
@@ -145,120 +152,116 @@ const LinkedInAchievementShare = ({ trainingName, lookup, bare = false }: Props)
       aria-label="Compartilhar certificado no LinkedIn"
       className={bare ? "min-w-0 space-y-4" : "min-w-0 card-surface space-y-4 border border-linkedin/20 p-4 sm:p-6"}
     >
-      <div className="flex items-start gap-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-linkedin text-linkedin-foreground">
-          <Linkedin className="h-5 w-5" />
-        </span>
-        <div className="min-w-0 space-y-1">
-          <h3 className="font-display text-base font-bold text-foreground">{SHARE_INVITE.title}</h3>
-          <p className="text-sm text-muted-foreground">{SHARE_INVITE.body}</p>
-          <p className="text-sm font-medium text-foreground">{SHARE_INVITE.question}</p>
-        </div>
+      <div className="space-y-1.5">
+        <h3 className="flex items-center gap-2 font-display text-base font-bold text-foreground">
+          <Linkedin className="h-5 w-5 shrink-0 text-linkedin" aria-hidden="true" />
+          {SHARE_INVITE.title}
+        </h3>
+        <p className="text-sm text-muted-foreground">{SHARE_INVITE.body}</p>
+        <p className="text-sm font-semibold text-foreground">{SHARE_INVITE.question}</p>
       </div>
 
-      {!image ? (
-        <Button
-          onClick={prepare}
-          disabled={preparing}
-          className="h-11 w-full gap-2 bg-linkedin text-linkedin-foreground hover:bg-linkedin/90"
-        >
-          {preparing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Linkedin className="h-4 w-4" />}
-          {preparing ? "Preparando a imagem do certificado…" : "Compartilhar meu certificado no LinkedIn"}
-        </Button>
-      ) : (
-        <div className="min-w-0 space-y-3">
-          <figure className="overflow-hidden rounded-md border border-border bg-background">
+      {(image || preparing) && (
+        <figure className="overflow-hidden rounded-md border border-border bg-background">
+          {image ? (
             <img
               src={image.url}
               alt={`Imagem do certificado de ${trainingName}`}
               className="mx-auto block h-auto max-h-[260px] w-full object-contain sm:max-h-[320px]"
             />
-          </figure>
-
-          <div className="rounded-lg border border-linkedin/20 bg-linkedin/5 p-3 sm:p-4" aria-labelledby={`linkedin-steps-${key}`}>
-            <h4 id={`linkedin-steps-${key}`} className="mb-3 font-display text-sm font-bold text-foreground">
-              Como compartilhar seu certificado
-            </h4>
-            <ol className="grid gap-2.5 sm:grid-cols-2 sm:gap-3">
-              {SHARE_STEPS.map((step, i) => (
-                <li key={step.title} className="flex items-start gap-2.5 rounded-md bg-background/70 p-2.5">
-                  <span className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-linkedin/10 text-linkedin">
-                    <step.icon className="h-4 w-4" aria-hidden="true" />
-                    <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-linkedin text-[10px] font-bold leading-none text-linkedin-foreground">
-                      {i + 1}
-                    </span>
-                  </span>
-                  <span className="min-w-0 text-xs leading-snug sm:text-[13px]">
-                    <strong className="block text-foreground">{step.title}</strong>
-                    <span className="text-muted-foreground">{step.text}</span>
-                  </span>
-                </li>
-              ))}
-            </ol>
-            <p role="note" className="mt-3 flex items-start gap-2 rounded-md border border-primary/30 bg-primary/10 p-2.5 text-xs font-medium leading-snug text-foreground sm:text-[13px]">
-              <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-              <span><strong>Dica:</strong> não se esqueça de anexar a imagem do certificado antes de publicar. Assim, sua rede poderá visualizar sua conquista!</span>
-            </p>
-          </div>
-
-          <div className="grid min-w-0 gap-2 sm:grid-cols-2">
-            <Button variant="outline" onClick={download} className="h-auto min-h-11 min-w-0 gap-2 whitespace-normal py-2 text-center">
-              {downloaded ? <Check className="h-4 w-4" /> : <Download className="h-4 w-4" />}
-              {downloaded ? "Imagem baixada" : "Baixar imagem do certificado"}
-            </Button>
-            <Button onClick={openLinkedIn} className="h-auto min-h-11 min-w-0 gap-2 whitespace-normal py-2 text-center bg-linkedin text-linkedin-foreground hover:bg-linkedin/90">
-              <Linkedin className="h-4 w-4" /> Compartilhar minha conquista no LinkedIn
-            </Button>
-          </div>
-          {nativeShare && (
-            <Button variant="ghost" onClick={shareNative} className="h-auto min-h-10 w-full gap-2 whitespace-normal text-linkedin hover:bg-linkedin/10 hover:text-linkedin">
-              <Share2 className="h-4 w-4" /> Ou envie a imagem direto para o app do LinkedIn
-            </Button>
+          ) : (
+            <div className="flex h-40 items-center justify-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" /> Preparando a imagem do certificado…
+            </div>
           )}
-          <p className="break-all text-center text-[11px] text-muted-foreground">Arquivo: {image.fileName}</p>
-        </div>
+        </figure>
       )}
 
-      <div className="space-y-1.5">
-        <div className="flex items-center justify-between gap-2">
-          <label htmlFor={`linkedin-text-${key}`} className="text-xs font-semibold text-foreground">
-            Texto sugerido (você pode editar)
-          </label>
-          {edited && text !== suggested && (
-            <button
-              type="button"
-              onClick={() => { setText(suggested); setEdited(false); }}
-              className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-            >
-              <RotateCcw className="h-3 w-3" /> Restaurar sugestão
-            </button>
-          )}
-        </div>
-        <Textarea
-          id={`linkedin-text-${key}`}
-          value={text}
-          onChange={(e) => { setText(e.target.value); setEdited(true); }}
-          rows={8}
-          className="min-h-[160px] resize-y text-sm leading-relaxed"
-        />
-        <div className="flex justify-end">
-          <Button variant="ghost" size="sm" onClick={copy} className="h-8 gap-1.5 text-xs">
-            {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-            Copiar texto
-          </Button>
-        </div>
+      <div className="border-t border-border pt-4">
+        <h4 id={`linkedin-steps-${key}`} className="mb-2.5 text-sm font-bold text-foreground">
+          Como compartilhar seu certificado:
+        </h4>
+        <ol aria-labelledby={`linkedin-steps-${key}`} className="space-y-2 text-sm leading-relaxed text-foreground">
+          {SHARE_STEPS.map((step, i) => (
+            <li key={step.title} className="flex gap-2">
+              <span className="w-4 shrink-0 text-right font-bold">{i + 1}.</span>
+              <span className="min-w-0"><strong>{step.title}</strong> {step.text}</span>
+            </li>
+          ))}
+        </ol>
       </div>
 
-      <div className="flex flex-col gap-1 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-        <p>Nada é publicado automaticamente: você revisa e confirma a publicação no LinkedIn.</p>
-        <a
-          href={linkedInAddToProfileUrl({ name: trainingName, issuedAt: cert.issuedAt, code: cert.code })}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex shrink-0 items-center gap-1 font-medium text-linkedin hover:underline"
-        >
-          <ExternalLink className="h-3 w-3" /> Adicionar ao perfil
-        </a>
+      <div role="note" className="rounded-lg bg-muted p-3">
+        <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
+          <Lightbulb className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" /> Dica importante
+        </p>
+        <p className="mt-1 text-xs leading-relaxed text-foreground sm:text-[13px]">
+          Não se esqueça de anexar a imagem do certificado antes de publicar. Assim, sua rede poderá visualizar sua conquista!
+        </p>
+      </div>
+
+      <details className="group rounded-lg border border-border">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-2.5 text-sm font-medium text-foreground [&::-webkit-details-marker]:hidden">
+          Ver e editar o texto sugerido
+          <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
+        </summary>
+        <div className="space-y-1.5 border-t border-border p-3">
+          <div className="flex items-center justify-between gap-2">
+            <label htmlFor={`linkedin-text-${key}`} className="text-xs font-semibold text-foreground">
+              Texto sugerido (você pode editar)
+            </label>
+            {edited && text !== suggested && (
+              <button
+                type="button"
+                onClick={() => { setText(suggested); setEdited(false); }}
+                className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+              >
+                <RotateCcw className="h-3 w-3" /> Restaurar sugestão
+              </button>
+            )}
+          </div>
+          <Textarea
+            id={`linkedin-text-${key}`}
+            value={text}
+            onChange={(e) => { setText(e.target.value); setEdited(true); }}
+            rows={7}
+            className="min-h-[150px] resize-y text-sm leading-relaxed"
+          />
+          <div className="flex justify-end">
+            <Button variant="ghost" size="sm" onClick={copy} className="h-8 gap-1.5 text-xs">
+              {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+              Copiar texto
+            </Button>
+          </div>
+        </div>
+      </details>
+
+      <div className="space-y-2 border-t border-border pt-4">
+        <div className="grid min-w-0 gap-2 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+          <Button variant="outline" onClick={download} disabled={preparing} className="h-auto min-h-11 min-w-0 gap-2 whitespace-normal py-2 text-center">
+            {preparing ? <Loader2 className="h-4 w-4 animate-spin" /> : downloaded ? <Check className="h-4 w-4" /> : <Download className="h-4 w-4" />}
+            {downloaded ? "Imagem baixada" : "Baixar imagem do certificado"}
+          </Button>
+          <Button onClick={openLinkedIn} className="h-auto min-h-11 min-w-0 gap-2 whitespace-normal bg-linkedin py-2 text-center font-semibold text-linkedin-foreground hover:bg-linkedin/90">
+            <Linkedin className="h-4 w-4" /> Compartilhar minha conquista no LinkedIn
+          </Button>
+        </div>
+        {nativeShare && (
+          <Button variant="ghost" onClick={shareNative} className="h-auto min-h-10 w-full gap-2 whitespace-normal text-linkedin hover:bg-linkedin/10 hover:text-linkedin">
+            <Share2 className="h-4 w-4" /> Ou envie a imagem direto para o app do LinkedIn
+          </Button>
+        )}
+        <div className="flex flex-col items-center gap-1 text-center text-xs text-muted-foreground sm:flex-row sm:justify-between sm:text-left">
+          <p>Você revisa e confirma sua publicação. Nada é publicado automaticamente.</p>
+          <a
+            href={linkedInAddToProfileUrl({ name: trainingName, issuedAt: cert.issuedAt, code: cert.code })}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex shrink-0 items-center gap-1 font-medium text-linkedin hover:underline"
+          >
+            <ExternalLink className="h-3 w-3" /> Adicionar ao perfil
+          </a>
+        </div>
       </div>
     </section>
   );
