@@ -533,6 +533,101 @@ export const ExamManager = ({ fixedTrackId, moduleId }: { fixedTrackId?: string;
   );
 };
 
-const AdminProvas = () => <ExamManager />;
+const AdminProvas = () => {
+  const [params, setParams] = useSearchParams();
+  const trackId = params.get("track") || "";
+  const moduleId = params.get("module") || "";
+  const [tracks, setTracks] = useState<{ id: string; title: string }[]>([]);
+  const [modules, setModules] = useState<{ id: string; title: string }[]>([]);
+  const [all, setAll] = useState<any[]>([]);
+
+  useEffect(() => {
+    supabase.from("tracks").select("id, title").order("order_index").then(({ data }) => setTracks(data || []));
+    supabase.from("exams")
+      .select("id, title, is_active, track_id, module_id, tracks(title), course_modules(title), exam_questions(count)")
+      .order("created_at", { ascending: false })
+      .then(({ data }) => setAll(data || []));
+  }, [trackId, moduleId]);
+
+  useEffect(() => {
+    if (!trackId) { setModules([]); return; }
+    supabase.from("course_modules").select("id, title").eq("track_id", trackId).order("order_index")
+      .then(({ data }) => setModules(data || []));
+  }, [trackId]);
+
+  const go = (t: string, m = "") => setParams(t ? (m ? { track: t, module: m } : { track: t }) : {});
+
+  return (
+    <AdminLayout>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="font-display text-xl font-bold text-primary">Avaliações (Provas)</h1>
+          <div className="mt-1 h-1 w-12 rounded-full bg-gradient-nexti" />
+          <p className="mt-3 text-sm text-muted-foreground">
+            Provas finais e provas de módulo. É a mesma prova editada dentro do cadastro do curso.
+          </p>
+        </div>
+        <div className="flex w-full flex-wrap gap-3 sm:w-auto">
+          <div className="w-full sm:w-64">
+            <Label className="text-xs">Curso</Label>
+            <Select value={trackId} onValueChange={(v) => go(v)}>
+              <SelectTrigger className="mt-1"><SelectValue placeholder="Selecione um curso" /></SelectTrigger>
+              <SelectContent>{tracks.map((t) => <SelectItem key={t.id} value={t.id}>{t.title}</SelectItem>)}</SelectContent>
+            </Select>
+          </div>
+          {trackId && (
+            <div className="w-full sm:w-64">
+              <Label className="text-xs">Vínculo da prova</Label>
+              <Select value={moduleId || "final"} onValueChange={(v) => go(trackId, v === "final" ? "" : v)}>
+                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="final">Prova final do curso</SelectItem>
+                  {modules.map((m) => <SelectItem key={m.id} value={m.id}>Módulo: {m.title}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+          {trackId && <Button variant="outline" className="self-end" onClick={() => go("")}>Ver todas</Button>}
+        </div>
+      </div>
+
+      {trackId ? (
+        <div className="mt-6">
+          <ExamManager key={`${trackId}:${moduleId}`} fixedTrackId={trackId} moduleId={moduleId || undefined} />
+        </div>
+      ) : (
+        <div className="mt-6 card-surface overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="text-left text-xs text-muted-foreground">
+              <tr className="border-b border-border">
+                <th className="p-3">Prova</th><th className="p-3">Curso</th><th className="p-3">Módulo</th>
+                <th className="p-3">Questões</th><th className="p-3">Status</th><th className="p-3 text-right">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {all.length === 0 && (
+                <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">Nenhuma prova cadastrada. Selecione um curso para criar.</td></tr>
+              )}
+              {all.map((e) => (
+                <tr key={e.id} className="border-b border-border last:border-0">
+                  <td className="p-3 font-medium text-foreground">{e.title}</td>
+                  <td className="p-3">{e.tracks?.title || "—"}</td>
+                  <td className="p-3">{e.module_id ? e.course_modules?.title || "—" : "Prova final"}</td>
+                  <td className="p-3">{e.exam_questions?.[0]?.count ?? 0}</td>
+                  <td className="p-3"><Badge variant={e.is_active ? "default" : "secondary"}>{e.is_active ? "Ativa" : "Inativa"}</Badge></td>
+                  <td className="p-3 text-right">
+                    <Button size="sm" variant="outline" className="gap-1" onClick={() => go(e.track_id, e.module_id || "")}>
+                      <Pencil className="h-3.5 w-3.5" /> Editar / visualizar
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </AdminLayout>
+  );
+};
 
 export default AdminProvas;
