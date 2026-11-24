@@ -12,6 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Link2 } from "lucide-react";
 import {
   Plus, Trash2, Save, X, ClipboardCheck, Pencil, CheckCircle2, XCircle, Download, FileText,
 } from "lucide-react";
@@ -555,6 +557,31 @@ const AdminProvas = () => {
       .then(({ data }) => setModules(data || []));
   }, [trackId]);
 
+  const [link, setLink] = useState<any | null>(null);
+  const [linkTrack, setLinkTrack] = useState("");
+  const [linkModule, setLinkModule] = useState("");
+  const [linkModules, setLinkModules] = useState<{ id: string; title: string }[]>([]);
+  const [saving, setSaving] = useState(false);
+  useEffect(() => {
+    if (!linkTrack) { setLinkModules([]); return; }
+    supabase.from("course_modules").select("id, title").eq("track_id", linkTrack).order("order_index")
+      .then(({ data }) => setLinkModules(data || []));
+  }, [linkTrack]);
+  const openLink = (e: any) => { setLink(e); setLinkTrack(e.track_id); setLinkModule(e.module_id || "final"); };
+  const saveLink = async () => {
+    if (!link || !linkTrack || !linkModule) return;
+    const mod = linkModule === "final" ? null : linkModule;
+    const taken = all.find((x) => x.id !== link.id && (mod ? x.module_id === mod : x.track_id === linkTrack && !x.module_id));
+    if (taken) { toast.error(`Esse destino já tem a prova "${taken.title}". Desvincule-a antes.`); return; }
+    setSaving(true);
+    const { error } = await supabase.from("exams").update({ track_id: linkTrack, module_id: mod }).eq("id", link.id);
+    setSaving(false);
+    if (error) { toast.error("Não foi possível salvar o vínculo: " + error.message); return; }
+    toast.success("Prova vinculada com sucesso.");
+    setLink(null);
+    go(linkTrack, mod || "");
+  };
+
   const go = (t: string, m = "") => setParams(t ? (m ? { track: t, module: m } : { track: t }) : {});
 
   return (
@@ -619,6 +646,9 @@ const AdminProvas = () => {
                     <Button size="sm" variant="outline" className="gap-1" onClick={() => go(e.track_id, e.module_id || "")}>
                       <Pencil className="h-3.5 w-3.5" /> Editar / visualizar
                     </Button>
+                    <Button size="sm" variant="outline" className="ml-2 gap-1" onClick={() => openLink(e)}>
+                      <Link2 className="h-3.5 w-3.5" /> Vincular a módulo
+                    </Button>
                   </td>
                 </tr>
               ))}
@@ -626,6 +656,37 @@ const AdminProvas = () => {
           </table>
         </div>
       )}
+      <Dialog open={!!link} onOpenChange={(o) => !o && setLink(null)}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Vincular prova: {link?.title}</DialogTitle></DialogHeader>
+          <p className="text-sm text-muted-foreground">A mesma prova será movida para o destino escolhido, sem criar cópia.</p>
+          <div className="space-y-3">
+            <div>
+              <Label className="text-xs">Curso</Label>
+              <Select value={linkTrack} onValueChange={(v) => { setLinkTrack(v); setLinkModule(""); }}>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Selecione um curso" /></SelectTrigger>
+                <SelectContent>{tracks.map((t) => <SelectItem key={t.id} value={t.id}>{t.title}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs">Módulo</Label>
+              <Select value={linkModule} onValueChange={setLinkModule} disabled={!linkTrack}>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Selecione o módulo" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="final">Prova final do curso</SelectItem>
+                  {linkModules.map((m) => <SelectItem key={m.id} value={m.id}>Módulo: {m.title}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setLink(null)}>Cancelar</Button>
+            <Button onClick={saveLink} disabled={!linkTrack || !linkModule || saving} className="bg-gradient-nexti text-primary-foreground">
+              {saving ? "Salvando..." : "Salvar vínculo"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AdminLayout>
   );
 };
