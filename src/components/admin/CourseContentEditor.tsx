@@ -1,3 +1,5 @@
+import { ExamManager } from "@/pages/admin/AdminProvas";
+import { ClipboardCheck } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -61,6 +63,7 @@ export default function CourseContentEditor({ trackId, onChanged }: { trackId: s
   const [busy, setBusy] = useState(false);
   const [open, setOpen] = useState<string[]>([]);
 
+  const [examOpen, setExamOpen] = useState(false);
   const [modDialog, setModDialog] = useState<{ open: boolean; editing: Module | null; title: string; description: string }>({ open: false, editing: null, title: "", description: "" });
   const [lesDialog, setLesDialog] = useState<{ open: boolean; moduleId: string; editing: Lesson | null; form: typeof emptyLesson }>({ open: false, moduleId: "", editing: null, form: emptyLesson });
   const [matDialog, setMatDialog] = useState<{ open: boolean; moduleId: string; editing: Material | null; form: typeof emptyMaterial; file: File | null; progress: number | null }>({ open: false, moduleId: "", editing: null, form: emptyMaterial, file: null, progress: null });
@@ -226,10 +229,25 @@ export default function CourseContentEditor({ trackId, onChanged }: { trackId: s
           <h3 className="text-sm font-semibold text-foreground">Módulos e aulas</h3>
           <p className="text-[11px] text-muted-foreground">{modules.length} módulos · {lessons.length} aulas · {materials.length} materiais</p>
         </div>
-        <Button size="sm" onClick={() => setModDialog({ open: true, editing: null, title: "", description: "" })} className="gap-1 bg-gradient-nexti text-primary-foreground hover:opacity-90">
-          <Plus className="h-3.5 w-3.5" /> Módulo
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button size="sm" variant="outline" onClick={() => setExamOpen(true)} className="gap-1">
+            <ClipboardCheck className="h-3.5 w-3.5" /> Prova final
+          </Button>
+          <Button size="sm" onClick={() => setModDialog({ open: true, editing: null, title: "", description: "" })} className="gap-1 bg-gradient-nexti text-primary-foreground hover:opacity-90">
+            <Plus className="h-3.5 w-3.5" /> Módulo
+          </Button>
+        </div>
       </div>
+
+      <Dialog open={examOpen} onOpenChange={setExamOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Avaliação (Prova final)</DialogTitle>
+            <DialogDescription>Crie e edite a prova final deste curso sem sair do cadastro. As mesmas regras da tela Avaliação (Provas Finais) valem aqui.</DialogDescription>
+          </DialogHeader>
+          {examOpen && <ExamManager fixedTrackId={trackId} />}
+        </DialogContent>
+      </Dialog>
 
       {modules.length === 0 ? (
         <div className="p-8 text-center text-sm text-muted-foreground">Nenhum módulo ainda. Comece criando o primeiro módulo.</div>

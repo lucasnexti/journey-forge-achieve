@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -60,10 +61,14 @@ const emptyQuestion = {
   is_active: true,
 };
 
-const AdminProvas = () => {
+const PlainWrap = ({ children }: { children: ReactNode }) => <div>{children}</div>;
+
+export const ExamManager = ({ fixedTrackId }: { fixedTrackId?: string }) => {
   const [params, setParams] = useSearchParams();
   const [tracks, setTracks] = useState<{ id: string; title: string }[]>([]);
-  const [trackId, setTrackId] = useState<string>(params.get("track") || "");
+  const [trackId, setTrackId] = useState<string>(fixedTrackId || params.get("track") || "");
+  useEffect(() => { if (fixedTrackId) setTrackId(fixedTrackId); }, [fixedTrackId]);
+  const Wrap = fixedTrackId ? PlainWrap : AdminLayout;
   const [exam, setExam] = useState<ExamRow | null>(null);
   const [questions, setQuestions] = useState<QuestionRow[]>([]);
   const [attempts, setAttempts] = useState<any[]>([]);
@@ -210,8 +215,8 @@ const AdminProvas = () => {
   const activeCount = questions.filter((q) => q.is_active).length;
 
   return (
-    <AdminLayout>
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <Wrap>
+      {!fixedTrackId && <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="font-display text-xl font-bold text-primary">Avaliação (Provas Finais)</h1>
           <div className="mt-1 h-1 w-12 rounded-full bg-gradient-nexti" />
@@ -228,7 +233,7 @@ const AdminProvas = () => {
             </SelectContent>
           </Select>
         </div>
-      </div>
+      </div>}
 
       {!trackId ? (
         <div className="mt-8 card-surface p-12 text-center text-sm text-muted-foreground">
@@ -522,8 +527,10 @@ const AdminProvas = () => {
           </TabsContent>
         </Tabs>
       )}
-    </AdminLayout>
+    </Wrap>
   );
 };
+
+const AdminProvas = () => <ExamManager />;
 
 export default AdminProvas;
