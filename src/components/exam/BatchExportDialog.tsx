@@ -43,7 +43,8 @@ const BatchExportDialog = ({ tracks, defaultTrackId }: Props) => {
     const { data: exams } = await supabase
       .from("exams")
       .select("id, track_id, passing_score")
-      .in("track_id", selected);
+      .in("track_id", selected)
+      .is("module_id", null);
     if (!exams?.length) return [];
 
     const { data: attempts } = await supabase

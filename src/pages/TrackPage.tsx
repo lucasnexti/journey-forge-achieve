@@ -16,6 +16,7 @@ import LessonMaterials from "@/components/LessonMaterials";
 import TrackRating from "@/components/TrackRating";
 import LessonForum from "@/components/LessonForum";
 import ExamRunner, { ExamResult } from "@/components/exam/ExamRunner";
+import ModuleExams from "@/components/exam/ModuleExams";
 import Certificate from "@/components/Certificate";
 import LinkedInAchievementShare from "@/components/LinkedInAchievementShare";
 import { openCertificatePdf } from "@/lib/certificates";
@@ -39,6 +40,7 @@ interface LessonRow {
   video_url: string | null;
   duration: number | null;
   order_index: number | null;
+  module_id?: string | null;
 }
 
 
@@ -84,9 +86,9 @@ const TrackPage = () => {
     if (access.error || !access.data) { setTrack(null); setLessons([]); setLoading(false); return; }
     const [{ data: trackData }, { data: lessonData }, { data: examData }, { data: examAttempts }, progressData, { data: profile }, { data: enrollment }] = await Promise.all([
       supabase.from("tracks").select("id, title, description, category").eq("id", trackId).maybeSingle(),
-      supabase.from("lessons").select("id, title, description, video_url, duration, order_index").eq("track_id", trackId).eq("is_published", true).order("order_index"),
+      supabase.from("lessons").select("id, title, description, video_url, duration, order_index, module_id").eq("track_id", trackId).eq("is_published", true).order("order_index"),
       supabase.rpc("track_has_exam", { _track_id: trackId }),
-      supabase.from("exam_attempts").select("percent, passed, created_at").eq("user_id", user.id).eq("track_id", trackId).order("created_at", { ascending: false }).limit(20),
+      supabase.from("exam_attempts").select("percent, passed, created_at").eq("user_id", user.id).eq("track_id", trackId).is("module_id", null).order("created_at", { ascending: false }).limit(20),
       getTrackProgressDB(user.id, trackId, false),
       supabase.from("profiles").select("nome").eq("user_id", user.id).maybeSingle(),
       supabase.from("enrollments").select("status, completed_at").eq("user_id", user.id).eq("track_id", trackId).maybeSingle(),
@@ -530,6 +532,14 @@ const TrackPage = () => {
                 </motion.div>
               )}
             </AnimatePresence>
+
+            {trackId && (
+              <ModuleExams
+                trackId={trackId}
+                lessons={lessons}
+                isComplete={(id) => { const l = lessons.find((x) => x.id === id); return !!l && isLessonComplete(l); }}
+              />
+            )}
 
             {quizPassed && completedAt && (
               <div className="space-y-4 mt-5">

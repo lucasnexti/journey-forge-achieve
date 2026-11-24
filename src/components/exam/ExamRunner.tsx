@@ -58,6 +58,7 @@ export interface ExamResult {
 
 interface ExamRunnerProps {
   trackId: string;
+  moduleId?: string;
   locked: boolean;
   lockedReason?: string;
   onFinished: (result: ExamResult) => void;
@@ -83,7 +84,7 @@ interface ExamDraft {
 
 const DRAFT_MAX_AGE_MS = 12 * 60 * 60 * 1000; // 12h
 
-const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerProps) => {
+const ExamRunner = ({ trackId, moduleId, locked, lockedReason, onFinished }: ExamRunnerProps) => {
   const { user } = useAuth();
   const [exam, setExam] = useState<ExamPayload | null>(null);
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -98,8 +99,8 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
   const [leaveOpen, setLeaveOpen] = useState(false);
 
 
-  const draftKey = user ? `nexti:exam-draft:${user.id}:${trackId}` : null;
-  const lockKey = user ? `nexti:exam-lock:${user.id}:${trackId}` : null;
+  const draftKey = user ? `nexti:exam-draft:${user.id}:${moduleId || trackId}` : null;
+  const lockKey = user ? `nexti:exam-lock:${user.id}:${moduleId || trackId}` : null;
   const { acquire, release, isHeldByOtherTab, blockedByOtherTab, setBlockedByOtherTab, lockSecondsLeft } =
     useExamTabLock(lockKey);
 
@@ -139,7 +140,7 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
 
     // sincroniza o cronômetro com a sessão oficial do servidor
     (async () => {
-      const { data, error } = await supabase.rpc("start_exam_attempt", { _track_id: trackId });
+      const { data, error } = await supabase.rpc("start_exam_attempt", { _track_id: trackId, ...(moduleId ? { _module_id: moduleId } : {}) });
       if (error) return;
       const payload = data as unknown as (ExamPayload & { error?: string });
       if (payload?.error || payload?.elapsed_seconds == null) return;
@@ -147,7 +148,7 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
       setStartedAt(Date.now() - serverElapsed * 1000);
       setElapsed(serverElapsed);
     })();
-  }, [draftKey, exam, result, acquire, trackId]);
+  }, [draftKey, exam, result, acquire, trackId, moduleId]);
 
 
   // ── Salvamento automático (a cada alteração) ──
@@ -234,7 +235,7 @@ const ExamRunner = ({ trackId, locked, lockedReason, onFinished }: ExamRunnerPro
       return;
     }
     setStarting(true);
-    const { data, error } = await supabase.rpc("start_exam_attempt", { _track_id: trackId });
+    const { data, error } = await supabase.rpc("start_exam_attempt", { _track_id: trackId, ...(moduleId ? { _module_id: moduleId } : {}) });
     setStarting(false);
     if (error) { release(); toast.error(error.message); return; }
     const payload = data as unknown as (ExamPayload & { error?: string; max_attempts?: number; attempts_used?: number });

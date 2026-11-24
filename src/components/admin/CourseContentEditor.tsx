@@ -64,6 +64,7 @@ export default function CourseContentEditor({ trackId, onChanged }: { trackId: s
   const [open, setOpen] = useState<string[]>([]);
 
   const [examOpen, setExamOpen] = useState(false);
+  const [moduleExam, setModuleExam] = useState<Module | null>(null);
   const [modDialog, setModDialog] = useState<{ open: boolean; editing: Module | null; title: string; description: string }>({ open: false, editing: null, title: "", description: "" });
   const [lesDialog, setLesDialog] = useState<{ open: boolean; moduleId: string; editing: Lesson | null; form: typeof emptyLesson }>({ open: false, moduleId: "", editing: null, form: emptyLesson });
   const [matDialog, setMatDialog] = useState<{ open: boolean; moduleId: string; editing: Material | null; form: typeof emptyMaterial; file: File | null; progress: number | null }>({ open: false, moduleId: "", editing: null, form: emptyMaterial, file: null, progress: null });
@@ -249,6 +250,16 @@ export default function CourseContentEditor({ trackId, onChanged }: { trackId: s
         </DialogContent>
       </Dialog>
 
+      <Dialog open={!!moduleExam} onOpenChange={(o) => !o && setModuleExam(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Prova do módulo — {moduleExam?.title}</DialogTitle>
+            <DialogDescription>Avaliação própria deste módulo, liberada ao aluno quando ele concluir as aulas do módulo. Não substitui a prova final do curso.</DialogDescription>
+          </DialogHeader>
+          {moduleExam && <ExamManager key={moduleExam.id} fixedTrackId={trackId} moduleId={moduleExam.id} />}
+        </DialogContent>
+      </Dialog>
+
       {modules.length === 0 ? (
         <div className="p-8 text-center text-sm text-muted-foreground">Nenhum módulo ainda. Comece criando o primeiro módulo.</div>
       ) : (
@@ -267,6 +278,7 @@ export default function CourseContentEditor({ trackId, onChanged }: { trackId: s
                   </AccordionTrigger>
                   <button aria-label="Subir módulo" disabled={mi === 0 || busy} onClick={() => swap("course_modules", modules, mi, -1)} className="p-1.5 text-muted-foreground hover:text-foreground disabled:opacity-30"><ArrowUp className="h-3.5 w-3.5" /></button>
                   <button aria-label="Descer módulo" disabled={mi === modules.length - 1 || busy} onClick={() => swap("course_modules", modules, mi, 1)} className="p-1.5 text-muted-foreground hover:text-foreground disabled:opacity-30"><ArrowDown className="h-3.5 w-3.5" /></button>
+                  <button aria-label="Prova do módulo" title="Prova do módulo" onClick={() => setModuleExam(mod)} className="p-1.5 text-muted-foreground hover:text-primary"><ClipboardCheck className="h-3.5 w-3.5" /></button>
                   <button aria-label="Editar módulo" onClick={() => setModDialog({ open: true, editing: mod, title: mod.title, description: mod.description || "" })} className="p-1.5 text-muted-foreground hover:text-foreground"><Pencil className="h-3.5 w-3.5" /></button>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>

@@ -440,6 +440,7 @@ export type Database = {
           duration_seconds: number
           exam_id: string
           id: string
+          module_id: string | null
           passed: boolean
           passing_score: number
           percent: number
@@ -458,6 +459,7 @@ export type Database = {
           duration_seconds?: number
           exam_id: string
           id?: string
+          module_id?: string | null
           passed?: boolean
           passing_score?: number
           percent?: number
@@ -476,6 +478,7 @@ export type Database = {
           duration_seconds?: number
           exam_id?: string
           id?: string
+          module_id?: string | null
           passed?: boolean
           passing_score?: number
           percent?: number
@@ -612,6 +615,7 @@ export type Database = {
           id: string
           is_active: boolean
           max_attempts: number
+          module_id: string | null
           passing_score: number
           question_count: number
           shuffle_options: boolean
@@ -627,6 +631,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           max_attempts?: number
+          module_id?: string | null
           passing_score?: number
           question_count?: number
           shuffle_options?: boolean
@@ -642,6 +647,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           max_attempts?: number
+          module_id?: string | null
           passing_score?: number
           question_count?: number
           shuffle_options?: boolean
@@ -653,9 +659,16 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "exams_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "course_modules"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "exams_track_id_fkey"
             columns: ["track_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "tracks"
             referencedColumns: ["id"]
           },
@@ -3261,6 +3274,10 @@ export type Database = {
         Args: { _track_id: string; _user_id: string }
         Returns: boolean
       }
+      has_completed_module_lessons: {
+        Args: { _module_id: string; _user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -3437,7 +3454,10 @@ export type Database = {
       }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
-      start_exam_attempt: { Args: { _track_id: string }; Returns: Json }
+      start_exam_attempt: {
+        Args: { _module_id?: string; _track_id: string }
+        Returns: Json
+      }
       submit_exam_attempt: {
         Args: { _answers: Json; _duration_seconds: number; _exam_id: string }
         Returns: Json

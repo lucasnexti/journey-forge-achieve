@@ -63,7 +63,7 @@ const emptyQuestion = {
 
 const PlainWrap = ({ children }: { children: ReactNode }) => <div>{children}</div>;
 
-export const ExamManager = ({ fixedTrackId }: { fixedTrackId?: string }) => {
+export const ExamManager = ({ fixedTrackId, moduleId }: { fixedTrackId?: string; moduleId?: string }) => {
   const [params, setParams] = useSearchParams();
   const [tracks, setTracks] = useState<{ id: string; title: string }[]>([]);
   const [trackId, setTrackId] = useState<string>(fixedTrackId || params.get("track") || "");
@@ -86,7 +86,9 @@ export const ExamManager = ({ fixedTrackId }: { fixedTrackId?: string }) => {
   const load = useCallback(async (tid: string) => {
     if (!tid) { setExam(null); setQuestions([]); setAttempts([]); return; }
     setLoading(true);
-    const { data: examData } = await supabase.from("exams").select("*").eq("track_id", tid).maybeSingle();
+    const { data: examData } = await (moduleId
+      ? supabase.from("exams").select("*").eq("track_id", tid).eq("module_id", moduleId)
+      : supabase.from("exams").select("*").eq("track_id", tid).is("module_id", null)).maybeSingle();
     setExam(examData as ExamRow | null);
     if (examData) {
       const [{ data: qs }, { data: ats }] = await Promise.all([
@@ -107,7 +109,7 @@ export const ExamManager = ({ fixedTrackId }: { fixedTrackId?: string }) => {
       setQuestions([]); setAttempts([]);
     }
     setLoading(false);
-  }, []);
+  }, [moduleId]);
 
   useEffect(() => { load(trackId); }, [trackId, load]);
 
@@ -117,7 +119,7 @@ export const ExamManager = ({ fixedTrackId }: { fixedTrackId?: string }) => {
 
 
   const createExam = async () => {
-    const { error } = await supabase.from("exams").insert({ track_id: trackId });
+    const { error } = await supabase.from("exams").insert({ track_id: trackId, module_id: moduleId ?? null, ...(moduleId ? { title: "Avaliação do módulo" } : {}) });
     if (error) toast.error(error.message);
     else { toast.success("Avaliação criada!"); load(trackId); }
   };
