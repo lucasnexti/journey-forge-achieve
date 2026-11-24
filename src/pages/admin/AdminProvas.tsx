@@ -264,9 +264,9 @@ export const ExamManager = ({ fixedTrackId, moduleId }: { fixedTrackId?: string;
       ) : !exam ? (
         <div className="mt-8 card-surface p-12 text-center">
           <ClipboardCheck className="mx-auto h-8 w-8 text-primary" />
-          <p className="mt-3 text-sm text-muted-foreground">Este curso ainda não possui avaliação final.</p>
+          <p className="mt-3 text-sm text-muted-foreground">{moduleId ? "Este módulo ainda não possui prova. Crie uma nova prova para ele." : "Este curso ainda não possui avaliação final."}</p>
           <Button onClick={createExam} className="mt-4 gap-2 bg-gradient-nexti text-primary-foreground hover:opacity-90">
-            <Plus className="h-4 w-4" /> Criar Avaliação
+            <Plus className="h-4 w-4" /> {moduleId ? "Criar prova do módulo" : "Criar Avaliação"}
           </Button>
           {moduleId && existing.length > 0 && (
             <div className="mx-auto mt-6 flex max-w-lg flex-col gap-2 text-left sm:flex-row sm:items-end">
