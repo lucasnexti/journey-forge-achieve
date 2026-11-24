@@ -543,6 +543,8 @@ const TrackPage = () => {
               <ModuleExams
                 trackId={trackId}
                 lessons={lessons}
+                currentLessonId={currentLessonId}
+                onSelectLesson={(id) => { setCurrentLessonId(id); setShowQuiz(false); }}
                 isComplete={(id) => { const l = lessons.find((x) => x.id === id); return !!l && isLessonComplete(l); }}
               />
             )}
