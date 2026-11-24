@@ -27,6 +27,8 @@ interface Ex { module_id: string; title: string; passing_score: number | null }
 interface Att { module_id: string | null; percent: number; passed: boolean }
 
 /** Conteúdo do curso por módulo: aulas → materiais → prova do módulo (ao final). */
+export const OPEN_MODULE_EXAM_EVENT = "nexti:open-module-exam";
+
 export function useCourseModuleContent(trackId: string | undefined) {
   const { user } = useAuth();
   return useQuery({
@@ -60,6 +62,14 @@ export default function ModuleExams({ trackId, lessons, isComplete, currentLesso
   const { data, refetch: load } = useCourseModuleContent(trackId);
   const { mods = [], exams = [], atts = [], mats = [] } = data || {};
   const locked = lockedModuleIds(mods, lessons, exams.map((e) => e.module_id), atts.filter((a) => a.passed).map((a) => a.module_id as string), isComplete);
+
+  // Botão "Próxima etapa" pede para abrir a prova do módulo.
+  useEffect(() => {
+    if (compact) return;
+    const h = (e: Event) => { const m = mods.find((x) => x.id === (e as CustomEvent).detail); if (m) setOpen(m); };
+    window.addEventListener(OPEN_MODULE_EXAM_EVENT, h);
+    return () => window.removeEventListener(OPEN_MODULE_EXAM_EVENT, h);
+  }, [compact, mods]);
 
   // Ao terminar o último vídeo do módulo, abre automaticamente a prova daquele módulo.
   const prevReady = useRef<Record<string, boolean>>({});

@@ -18,7 +18,7 @@ import LessonMaterials from "@/components/LessonMaterials";
 import TrackRating from "@/components/TrackRating";
 import LessonForum from "@/components/LessonForum";
 import ExamRunner, { ExamResult } from "@/components/exam/ExamRunner";
-import ModuleExams, { useLockedModules } from "@/components/exam/ModuleExams";
+import ModuleExams, { useLockedModules, useCourseModuleContent, OPEN_MODULE_EXAM_EVENT } from "@/components/exam/ModuleExams";
 import Certificate from "@/components/Certificate";
 import LinkedInAchievementShare from "@/components/LinkedInAchievementShare";
 import { openCertificatePdf } from "@/lib/certificates";
@@ -302,6 +302,27 @@ const TrackPage = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentLessonId, lockedMods.size, loading]);
 
+  // "Próxima etapa": próximo vídeo do módulo → prova do módulo → primeiro vídeo do próximo módulo.
+  const { data: modContent } = useCourseModuleContent(trackId);
+  const handleNextStep = () => {
+    const cur = lessons.find((l) => l.id === currentLessonId);
+    if (!cur || !modules.length) return goToLesson(currentIndex + 1);
+    const modId = cur.module_id ?? null;
+    const modLessons = contentForModule(lessons, modId);
+    const pos = modLessons.findIndex((l) => l.id === cur.id);
+    if (pos < modLessons.length - 1) { setCurrentLessonId(modLessons[pos + 1].id); setShowQuiz(false); return; }
+    const pending = modLessons.find((l) => !isLessonComplete(l));
+    if (pending) { toast.info("Conclua todos os vídeos do módulo para seguir."); setCurrentLessonId(pending.id); return; }
+    const modHasExam = !!modId && (modContent?.exams || []).some((e) => e.module_id === modId);
+    const passed = (modContent?.atts || []).some((a) => a.module_id === modId && a.passed);
+    if (modHasExam && !passed && !isPreview) { window.dispatchEvent(new CustomEvent(OPEN_MODULE_EXAM_EVENT, { detail: modId })); return; }
+    const idx = modules.findIndex((m) => m.id === modId);
+    const next = modules.slice(idx + 1).find((m) => contentForModule(lessons, m.id).length > 0);
+    if (next) { setSelectedModuleId(next.id); setCurrentLessonId(contentForModule(lessons, next.id)[0].id); setShowQuiz(false); window.scrollTo({ top: 0, behavior: "smooth" }); return; }
+    if (hasExam && !quizPassed) { setShowQuiz(true); window.scrollTo({ top: 0, behavior: "smooth" }); return; }
+    toast.success("Você concluiu todas as etapas do curso!");
+  };
+
   const lessonSidebarProps = {
     lessons: moduleLessons.map((l) => ({
       id: l.id,
@@ -465,7 +486,7 @@ const TrackPage = () => {
                           lessonDuration={currentLesson.duration || 0}
                           initialWatchedSeconds={initialWatchedForLesson}
                           onPrev={currentIndex > 0 ? handlePrevLesson : undefined}
-                          onNext={currentIndex < lessons.length - 1 ? handleNextLesson : undefined}
+                          onNext={handleNextStep}
 
                         />
                       </div>
@@ -497,8 +518,7 @@ const TrackPage = () => {
                             variant="outline"
                             size="sm"
                             className="h-8 w-8 p-0"
-                            disabled={currentIndex >= lessons.length - 1}
-                            onClick={() => goToLesson(currentIndex + 1)}
+                            onClick={handleNextStep}
                           >
                             <ChevronRight className="h-4 w-4" />
                           </Button>
