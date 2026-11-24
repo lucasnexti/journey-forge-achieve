@@ -99,7 +99,6 @@ const AuthPage = () => {
           </Link>
           <div className="mt-8">
             <img src={nextiLogo.url} alt="Nexti — Simples. Eficiente. Justo." width={1889} height={725} className="h-auto w-40" />
-            <p className="mt-1 text-sm font-medium uppercase tracking-widest text-primary-foreground/60">Universidade Corporativa</p>
           </div>
         </div>
 
