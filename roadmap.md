@@ -1,4 +1,5 @@
 # Roadmap — Trilhas de aprendizagem
+- [x] Painel lateral: filtrar vídeos, materiais e prova pelo módulo atual; troca verificada no Preview autenticado do Nexti Talent no computador e celular; 10 testes aprovados
 - [x] Gestão administrativa, conteúdo ordenado, capa e validações
 - [x] Acessos por empresa validada e usuários, revogação sem perda de histórico
 - [x] Permissões de conteúdo e progressão sequencial no servidor (verificadas com diagnóstico admin-only)

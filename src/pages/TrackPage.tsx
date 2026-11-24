@@ -11,6 +11,8 @@ import VideoPlayer from "@/components/VideoPlayer";
 import { useVideoPrefetch } from "@/hooks/useVideoPrefetch";
 
 import LessonSidebar from "@/components/LessonSidebar";
+import { contentForModule } from "@/lib/moduleContent";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import LessonNotes from "@/components/LessonNotes";
 import LessonMaterials from "@/components/LessonMaterials";
 import TrackRating from "@/components/TrackRating";
@@ -54,6 +56,8 @@ const TrackPage = () => {
 
   const [track, setTrack] = useState<{ id: string; title: string; description: string; category: string } | null>(null);
   const [lessons, setLessons] = useState<LessonRow[]>([]);
+  const [modules, setModules] = useState<{ id: string; title: string }[]>([]);
+  const [selectedModuleId, setSelectedModuleId] = useState<string | null>(null);
   
   const [currentLessonId, setCurrentLessonId] = useState("");
   const [showQuiz, setShowQuiz] = useState(false);
@@ -85,7 +89,7 @@ const TrackPage = () => {
     if (!trackId || !user) return;
     const access = await supabase.rpc("can_access_learning_course", { _track: trackId });
     if (access.error || !access.data) { setTrack(null); setLessons([]); setLoading(false); return; }
-    const [{ data: trackData }, { data: lessonData }, { data: examData }, { data: examAttempts }, progressData, { data: profile }, { data: enrollment }] = await Promise.all([
+    const [{ data: trackData }, { data: lessonData }, { data: examData }, { data: examAttempts }, progressData, { data: profile }, { data: enrollment }, { data: moduleData }] = await Promise.all([
       supabase.from("tracks").select("id, title, description, category").eq("id", trackId).maybeSingle(),
       supabase.from("lessons").select("id, title, description, video_url, duration, order_index, module_id").eq("track_id", trackId).eq("is_published", true).order("order_index"),
       supabase.rpc("track_has_exam", { _track_id: trackId }),
@@ -93,9 +97,12 @@ const TrackPage = () => {
       getTrackProgressDB(user.id, trackId, false),
       supabase.from("profiles").select("nome").eq("user_id", user.id).maybeSingle(),
       supabase.from("enrollments").select("status, completed_at").eq("user_id", user.id).eq("track_id", trackId).maybeSingle(),
+      supabase.from("course_modules").select("id, title").eq("track_id", trackId).order("order_index"),
     ]);
     setTrack(trackData ? { ...trackData, description: trackData.description || "", category: trackData.category || "" } : null);
     setLessons(lessonData || []);
+    setModules(moduleData || []);
+    setSelectedModuleId(lessonData?.[0]?.module_id ?? moduleData?.[0]?.id ?? null);
     const trackHasExam = !!examData;
     setHasExam(trackHasExam);
     setProgress(progressData.lessons);
@@ -149,6 +156,9 @@ const TrackPage = () => {
   }, [allDoneNoExam, trackId, track?.title]);
 
   const currentLesson = lessons.find((l) => l.id === currentLessonId);
+  const activeModuleId = currentLesson ? currentLesson.module_id ?? null : selectedModuleId;
+  const activeModule = modules.find((m) => m.id === activeModuleId);
+  const moduleLessons = contentForModule(lessons, activeModuleId);
   const currentIndex = lessons.findIndex((l) => l.id === currentLessonId);
   const currentIndexRef = useRef(currentIndex);
   currentIndexRef.current = currentIndex;
@@ -279,7 +289,7 @@ const TrackPage = () => {
 
 
   const lessonSidebarProps = {
-    lessons: lessons.map((l) => ({
+    lessons: moduleLessons.map((l) => ({
       id: l.id,
       title: l.title,
       description: l.description || "",
@@ -292,8 +302,8 @@ const TrackPage = () => {
       Object.entries(progress).map(([k, v]) => [k, { completed: v.completed, watchedSeconds: v.watched_seconds }])
     ),
     onSelectLesson: (id: string) => { setCurrentLessonId(id); setShowQuiz(false); },
-    trackTitle: track?.title,
-    exam: hasExam
+    trackTitle: activeModule?.title || (modules.length ? "Conteúdos sem módulo" : track?.title),
+    exam: hasExam && !modules.length
       ? {
           unlocked: allLessonsComplete,
           passed: quizPassed,
@@ -306,6 +316,37 @@ const TrackPage = () => {
         }
       : undefined,
   };
+
+  const sidebarContent = (
+    <>
+      {modules.length > 0 && (
+        <div className="px-4 pt-4 pb-2 space-y-2">
+          <p className="text-xs font-semibold text-muted-foreground">Módulo atual</p>
+          <Select value={activeModuleId || "ungrouped"} onValueChange={(id) => {
+            const moduleId = id === "ungrouped" ? null : id;
+            setSelectedModuleId(moduleId);
+            setCurrentLessonId(contentForModule(lessons, moduleId)[0]?.id || "");
+            setShowQuiz(false);
+          }}>
+            <SelectTrigger aria-label="Selecionar módulo" className="h-auto min-h-10 text-left [&>span]:whitespace-normal">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {modules.map((m) => <SelectItem key={m.id} value={m.id}>{m.title}</SelectItem>)}
+              {lessons.some((l) => !l.module_id) && <SelectItem value="ungrouped">Conteúdos sem módulo</SelectItem>}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+      <LessonSidebar {...lessonSidebarProps} onSelectLesson={(id) => {
+        setCurrentLessonId(id); setShowQuiz(false); setSidebarOpen(false);
+      }} />
+      {trackId && activeModuleId && <ModuleExams
+        compact activeModuleId={activeModuleId} trackId={trackId} lessons={lessons}
+        isComplete={(id) => { const l = lessons.find((x) => x.id === id); return !!l && isLessonComplete(l); }}
+      />}
+    </>
+  );
 
   if (loading) {
     return (
@@ -373,6 +414,7 @@ const TrackPage = () => {
               variant="outline"
               size="sm"
               className="lg:hidden h-8 gap-1.5 text-xs"
+              aria-label="Conteúdo do módulo"
               onClick={() => setSidebarOpen(true)}
             >
               <List className="h-3.5 w-3.5" />
@@ -581,7 +623,7 @@ const TrackPage = () => {
           }`}
         >
           <div className="sticky top-[7rem] h-[calc(100dvh-7rem)] overflow-y-auto">
-            <LessonSidebar {...lessonSidebarProps} />
+            {sidebarContent}
           </div>
         </div>
 
@@ -589,17 +631,10 @@ const TrackPage = () => {
         <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
           <SheetContent side="right" className="w-[90vw] max-w-md p-0">
             <SheetHeader className="px-4 py-3 border-b border-border/50">
-              <SheetTitle className="text-sm font-semibold">Conteúdo da Trilha</SheetTitle>
+              <SheetTitle className="text-sm font-semibold">Conteúdo do módulo</SheetTitle>
             </SheetHeader>
             <div className="overflow-y-auto max-h-[calc(100dvh-4rem)] overscroll-contain">
-              <LessonSidebar
-                {...lessonSidebarProps}
-                onSelectLesson={(id) => {
-                  setCurrentLessonId(id);
-                  setShowQuiz(false);
-                  setSidebarOpen(false);
-                }}
-              />
+              {sidebarContent}
             </div>
           </SheetContent>
         </Sheet>

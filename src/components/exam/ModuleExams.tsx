@@ -1,4 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { contentForModule } from "@/lib/moduleContent";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -15,6 +17,8 @@ interface Props {
   isComplete: (lessonId: string) => boolean;
   currentLessonId?: string;
   onSelectLesson?: (id: string) => void;
+  compact?: boolean;
+  activeModuleId?: string | null;
 }
 
 interface Mod { id: string; title: string; order_index: number }
@@ -23,16 +27,17 @@ interface Ex { module_id: string; title: string; passing_score: number | null }
 interface Att { module_id: string | null; percent: number; passed: boolean }
 
 /** Conteúdo do curso por módulo: aulas → materiais → prova do módulo (ao final). */
-export default function ModuleExams({ trackId, lessons, isComplete, currentLessonId, onSelectLesson }: Props) {
+export default function ModuleExams({ trackId, lessons, isComplete, currentLessonId, onSelectLesson, compact = false, activeModuleId }: Props) {
   const { user } = useAuth();
-  const [mods, setMods] = useState<Mod[]>([]);
-  const [mats, setMats] = useState<Mat[]>([]);
-  const [exams, setExams] = useState<Ex[]>([]);
-  const [atts, setAtts] = useState<Att[]>([]);
   const [open, setOpen] = useState<Mod | null>(null);
 
-  const load = useCallback(async () => {
-    if (!user) return;
+  const { data, refetch: load } = useQuery({
+    queryKey: ["course-module-content", trackId, user?.id],
+    enabled: !!user,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+    queryFn: async () => {
+    if (!user) return { mods: [], exams: [], atts: [], mats: [] };
     const { data: m } = await supabase.from("course_modules").select("id, title, order_index").eq("track_id", trackId).order("order_index");
     const ids = (m || []).map((x) => x.id);
     const [{ data: e }, { data: a }, { data: mt }] = await Promise.all([
@@ -40,10 +45,10 @@ export default function ModuleExams({ trackId, lessons, isComplete, currentLesso
       supabase.from("exam_attempts").select("module_id, percent, passed").eq("user_id", user.id).eq("track_id", trackId).not("module_id", "is", null),
       ids.length ? supabase.from("module_materials").select("id, module_id, title, kind, file_path, external_url, file_name").in("module_id", ids).order("order_index") : Promise.resolve({ data: [] as Mat[] }),
     ]);
-    setMods(m || []); setExams((e || []) as Ex[]); setAtts((a || []) as Att[]); setMats((mt || []) as Mat[]);
-  }, [trackId, user]);
-
-  useEffect(() => { load(); }, [load]);
+    return { mods: (m || []) as Mod[], exams: (e || []) as Ex[], atts: (a || []) as Att[], mats: (mt || []) as Mat[] };
+    },
+  });
+  const { mods = [], exams = [], atts = [], mats = [] } = data || {};
   if (!mods.length) return null;
 
   const openMat = async (x: Mat) => {
@@ -54,12 +59,12 @@ export default function ModuleExams({ trackId, lessons, isComplete, currentLesso
   };
 
   return (
-    <div className="mt-5 space-y-4">
-      <h3 className="font-display text-base font-bold text-foreground">Conteúdo do curso</h3>
-      {mods.map((m) => {
-        const modLessons = lessons.filter((l) => l.module_id === m.id);
-        const modMats = mats.filter((x) => x.module_id === m.id);
-        const exam = exams.find((x) => x.module_id === m.id);
+    <div className={compact ? "px-3 pb-3" : "mt-5 space-y-4"}>
+      {!compact && <h3 className="font-display text-base font-bold text-foreground">Conteúdo do curso</h3>}
+      {mods.filter((m) => !compact || m.id === activeModuleId).map((m) => {
+        const modLessons = contentForModule(lessons, m.id);
+        const modMats = contentForModule(mats, m.id);
+        const exam = contentForModule(exams, m.id)[0];
         if (!modLessons.length && !modMats.length && !exam) return null;
         const mine = atts.filter((a) => a.module_id === m.id);
         const passed = mine.some((a) => a.passed);
@@ -69,14 +74,14 @@ export default function ModuleExams({ trackId, lessons, isComplete, currentLesso
         const doneAll = done + (passed ? 1 : 0);
         const unlocked = modLessons.length > 0 && done === modLessons.length;
         return (
-          <section key={m.id} className="card-surface p-4 sm:p-5">
-            <h4 className="text-sm sm:text-base font-semibold text-foreground">{m.title}</h4>
+          <section key={m.id} className={compact ? "space-y-2" : "card-surface p-4 sm:p-5"}>
+            {!compact && <><h4 className="text-sm sm:text-base font-semibold text-foreground">{m.title}</h4>
             <p className="mt-0.5 text-[11px] text-muted-foreground">
               Atividades completas: <span className="font-semibold text-primary">{doneAll}/{total}</span>
             </p>
-            <Progress value={total ? (doneAll / total) * 100 : 0} className="mt-2 h-1.5" />
+            <Progress value={total ? (doneAll / total) * 100 : 0} className="mt-2 h-1.5" /></>}
             <ul className="mt-3 space-y-1.5">
-              {modLessons.map((l, i) => {
+              {!compact && modLessons.map((l, i) => {
                 const ok = isComplete(l.id);
                 const active = l.id === currentLessonId;
                 return (
@@ -105,7 +110,7 @@ export default function ModuleExams({ trackId, lessons, isComplete, currentLesso
                 <li className="flex flex-wrap items-center gap-3 rounded-lg border border-border px-3 py-2.5 text-sm">
                   <ClipboardCheck className="h-4 w-4 shrink-0 text-primary" />
                   <div className="flex-1 min-w-0">
-                    <p className="truncate font-medium text-foreground">{exam.title}</p>
+                    <p className="break-words font-medium text-foreground">{exam.title}</p>
                     <p className="text-[11px] text-muted-foreground">
                       Nota mínima: {exam.passing_score ?? 70}%{best !== null ? ` · melhor nota ${best}%` : ""}
                     </p>
@@ -113,7 +118,7 @@ export default function ModuleExams({ trackId, lessons, isComplete, currentLesso
                   {passed ? (
                     <span className="flex items-center gap-1 text-xs font-semibold text-success"><CheckCircle2 className="h-4 w-4" /> Aprovado</span>
                   ) : (
-                    <Button size="sm" disabled={!unlocked} onClick={() => setOpen(m)} className="gap-1 bg-gradient-nexti text-primary-foreground hover:opacity-90">
+                    <Button size="sm" disabled={!unlocked} onClick={() => setOpen(m)} className={`gap-1 bg-gradient-nexti text-primary-foreground hover:opacity-90 ${compact ? "w-full" : ""}`}>
                       {unlocked ? <ClipboardCheck className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
                       {unlocked ? "Iniciar avaliação" : "Conclua as aulas"}
                     </Button>
