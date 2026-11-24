@@ -53,6 +53,14 @@ export const materialIcon = (m: { kind: string; file_name: string | null }) => {
   return FileIcon;
 };
 
+const fetchJmvDuration = async (url: string): Promise<number | null> => {
+  if (!/^https:\/\/player\.jmvstream\.com\/[\w-]{11,40}\/[\w-]{11,40}/.test(url.trim())) return null;
+  try {
+    const { data } = await supabase.functions.invoke("jmv-duration", { body: { url: url.trim() } });
+    return typeof data?.duration === "number" && data.duration > 0 ? data.duration : null;
+  } catch { return null; }
+};
+
 const emptyLesson = { title: "", description: "", video_url: "", duration: 0, is_published: true };
 const emptyMaterial = { title: "", description: "", kind: "file" as "file" | "link", external_url: "", lesson_id: "" };
 
@@ -139,7 +147,7 @@ export default function CourseContentEditor({ trackId, onChanged }: { trackId: s
 
   const onVideoUrl = async (url: string) => {
     setLesDialog((d) => ({ ...d, form: { ...d.form, video_url: url } }));
-    const dur = await fetchVimeoDuration(url);
+    const dur = (await fetchVimeoDuration(url)) ?? (await fetchJmvDuration(url));
     if (dur) setLesDialog((d) => ({ ...d, form: { ...d.form, duration: dur } }));
   };
 
@@ -420,7 +428,7 @@ export default function CourseContentEditor({ trackId, onChanged }: { trackId: s
               <Label>Duração (minutos)</Label>
               <Input type="number" min={0} className="max-w-[140px]" value={Math.round((lesDialog.form.duration || 0) / 60)}
                 onChange={(e) => setLesDialog((d) => ({ ...d, form: { ...d.form, duration: Math.max(0, Number(e.target.value)) * 60 } }))} />
-              <p className="text-[11px] text-muted-foreground">Preenchida sozinha para vídeos do Vimeo. Usada para marcar a aula como concluída aos 90%.</p>
+              <p className="text-[11px] text-muted-foreground">Preenchida sozinha para vídeos do Vimeo e da JMV Stream; se não for possível, informe manualmente. Usada para marcar a aula como concluída aos 90%.</p>
             </div>
             <div className="flex items-center gap-2">
               <Switch checked={lesDialog.form.is_published} onCheckedChange={(v) => setLesDialog((d) => ({ ...d, form: { ...d.form, is_published: v } }))} />
