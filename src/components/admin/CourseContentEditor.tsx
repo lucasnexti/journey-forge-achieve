@@ -147,6 +147,7 @@ export default function CourseContentEditor({ trackId, onChanged }: { trackId: s
     const f = lesDialog.form;
     if (!f.title.trim()) return toast.error("Informe o título da aula.");
     if (f.video_url && !/^https:\/\//i.test(f.video_url)) return toast.error("O link do vídeo deve começar com https://");
+    if (f.video_url && f.is_published && !(f.duration > 0)) return toast.error("Informe a duração do vídeo: sem ela o aluno não consegue concluir a aula.");
     const payload = { title: f.title.trim(), description: f.description || null, video_url: f.video_url || null, duration: f.duration || 0, is_published: f.is_published };
     const maxOrder = Math.max(0, ...lessons.map((l) => l.order_index || 0));
     const ok = await run(async () => lesDialog.editing

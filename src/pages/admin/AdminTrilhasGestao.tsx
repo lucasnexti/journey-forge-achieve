@@ -308,6 +308,7 @@ const AdminTrilhasGestao = () => {
 
   const handleSaveLesson = async () => {
     if (!selectedTrackId || !lessonForm.title.trim()) { toast.error("Informe o título da aula."); return; }
+    if (lessonForm.video_url && !(lessonForm.duration > 0)) { toast.error("Informe a duração do vídeo: sem ela o aluno não consegue concluir a aula."); return; }
 
     if (editingLesson) {
       const { error } = await supabase.from("lessons").update({

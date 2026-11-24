@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { contentForModule } from "@/lib/moduleContent";
+import { contentForModule, lockedModuleIds } from "@/lib/moduleContent";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ClipboardCheck, Lock, CheckCircle2, PlayCircle, FileText, Link2, Circle } from "lucide-react";
 import { toast } from "sonner";
 import { getMaterialLink } from "@/lib/courseMaterials";
-import ExamRunner from "./ExamRunner";
+import ExamRunner, { type ExamResult } from "./ExamRunner";
 
 interface Props {
   trackId: string;
@@ -27,18 +27,16 @@ interface Ex { module_id: string; title: string; passing_score: number | null }
 interface Att { module_id: string | null; percent: number; passed: boolean }
 
 /** Conteúdo do curso por módulo: aulas → materiais → prova do módulo (ao final). */
-export default function ModuleExams({ trackId, lessons, isComplete, currentLessonId, onSelectLesson, compact = false, activeModuleId }: Props) {
+export function useCourseModuleContent(trackId: string | undefined) {
   const { user } = useAuth();
-  const [open, setOpen] = useState<Mod | null>(null);
-
-  const { data, refetch: load } = useQuery({
+  return useQuery({
     queryKey: ["course-module-content", trackId, user?.id],
     enabled: !!user,
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
     queryFn: async () => {
-    if (!user) return { mods: [], exams: [], atts: [], mats: [] };
-    const { data: m } = await supabase.from("course_modules").select("id, title, order_index").eq("track_id", trackId).order("order_index");
+    if (!user || !trackId) return { mods: [], exams: [], atts: [], mats: [] };
+    const { data: m } = await supabase.from("course_modules").select("id, title, order_index").eq("track_id", trackId!).order("order_index");
     const ids = (m || []).map((x) => x.id);
     const [{ data: e }, { data: a }, { data: mt }] = await Promise.all([
       supabase.from("exams").select("module_id, title, passing_score").eq("track_id", trackId).eq("is_active", true).not("module_id", "is", null),
@@ -48,7 +46,52 @@ export default function ModuleExams({ trackId, lessons, isComplete, currentLesso
     return { mods: (m || []) as Mod[], exams: (e || []) as Ex[], atts: (a || []) as Att[], mats: (mt || []) as Mat[] };
     },
   });
+}
+
+/** Módulos bloqueados pela sequência (prova do módulo anterior pendente). */
+export function useLockedModules(trackId: string | undefined, lessons: Props["lessons"], isComplete: (id: string) => boolean) {
+  const { data } = useCourseModuleContent(trackId);
+  const { mods = [], exams = [], atts = [] } = data || {};
+  return lockedModuleIds(mods, lessons, exams.map((e) => e.module_id), atts.filter((a) => a.passed).map((a) => a.module_id as string), isComplete);
+}
+
+export default function ModuleExams({ trackId, lessons, isComplete, currentLessonId, onSelectLesson, compact = false, activeModuleId }: Props) {
+  const [open, setOpen] = useState<Mod | null>(null);
+  const { data, refetch: load } = useCourseModuleContent(trackId);
   const { mods = [], exams = [], atts = [], mats = [] } = data || {};
+  const locked = lockedModuleIds(mods, lessons, exams.map((e) => e.module_id), atts.filter((a) => a.passed).map((a) => a.module_id as string), isComplete);
+
+  // Ao terminar o último vídeo do módulo, abre automaticamente a prova daquele módulo.
+  const prevReady = useRef<Record<string, boolean>>({});
+  useEffect(() => {
+    if (compact || !data) return;
+    for (const m of mods) {
+      const ls = contentForModule(lessons, m.id);
+      const ready = ls.length > 0 && ls.every((l) => isComplete(l.id));
+      const hasExam = exams.some((e) => e.module_id === m.id);
+      const passed = atts.some((a) => a.module_id === m.id && a.passed);
+      if (prevReady.current[m.id] === false && ready && hasExam && !passed && !locked.has(m.id)) {
+        toast.success("Vídeos do módulo concluídos! Agora faça a prova do módulo.");
+        setOpen(m);
+      }
+      prevReady.current[m.id] = ready;
+    }
+  });
+
+  const finished = async (m: Mod, res: ExamResult) => {
+    await load();
+    if (!res.passed) return;
+    const { data: r } = await supabase.rpc("claim_coin_reward", { _key: "module_complete", _reference_id: m.id });
+    const amount = (r as { amount?: number } | null)?.amount || 0;
+    if (amount > 0) toast.success(`Módulo concluído! +${amount} Nexti Coins`);
+    const idx = mods.findIndex((x) => x.id === m.id);
+    const next = mods.slice(idx + 1).find((x) => contentForModule(lessons, x.id).length > 0);
+    const first = next && contentForModule(lessons, next.id)[0];
+    if (first) {
+      toast.success(`Próximo módulo liberado: ${next!.title}`);
+      setTimeout(() => { setOpen(null); onSelectLesson?.(first.id); window.scrollTo({ top: 0, behavior: "smooth" }); }, 2500);
+    }
+  };
   if (!mods.length) return null;
 
   const openMat = async (x: Mat) => {
@@ -72,7 +115,8 @@ export default function ModuleExams({ trackId, lessons, isComplete, currentLesso
         const done = modLessons.filter((l) => isComplete(l.id)).length;
         const total = modLessons.length + (exam ? 1 : 0);
         const doneAll = done + (passed ? 1 : 0);
-        const unlocked = modLessons.length > 0 && done === modLessons.length;
+        const modLocked = locked.has(m.id);
+        const unlocked = !modLocked && modLessons.length > 0 && done === modLessons.length;
         return (
           <section key={m.id} className={compact ? "space-y-2" : "card-surface p-4 sm:p-5"}>
             {!compact && <><h4 className="text-sm sm:text-base font-semibold text-foreground">{m.title}</h4>
@@ -80,6 +124,7 @@ export default function ModuleExams({ trackId, lessons, isComplete, currentLesso
               Atividades completas: <span className="font-semibold text-primary">{doneAll}/{total}</span>
             </p>
             <Progress value={total ? (doneAll / total) * 100 : 0} className="mt-2 h-1.5" /></>}
+            {modLocked && <p className="mt-2 flex items-center gap-1 text-[11px] text-muted-foreground"><Lock className="h-3 w-3" /> Conclua o módulo anterior e seja aprovado na prova para liberar.</p>}
             <ul className="mt-3 space-y-1.5">
               {!compact && modLessons.map((l, i) => {
                 const ok = isComplete(l.id);
@@ -87,8 +132,9 @@ export default function ModuleExams({ trackId, lessons, isComplete, currentLesso
                 return (
                   <li key={l.id}>
                     <button
+                      disabled={modLocked}
                       onClick={() => { onSelectLesson?.(l.id); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-                      className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition-colors ${active ? "bg-primary/10 text-foreground" : "bg-muted/40 hover:bg-muted"}`}
+                      className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${active ? "bg-primary/10 text-foreground" : "bg-muted/40 hover:bg-muted"}`}
                     >
                       <PlayCircle className="h-4 w-4 shrink-0 text-primary" />
                       <span className="flex-1 min-w-0 truncate">{l.title || `Vídeo ${i + 1}`}</span>
@@ -120,7 +166,7 @@ export default function ModuleExams({ trackId, lessons, isComplete, currentLesso
                   ) : (
                     <Button size="sm" disabled={!unlocked} onClick={() => setOpen(m)} className={`gap-1 bg-gradient-nexti text-primary-foreground hover:opacity-90 ${compact ? "w-full" : ""}`}>
                       {unlocked ? <ClipboardCheck className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
-                      {unlocked ? "Iniciar avaliação" : "Conclua as aulas"}
+                      {unlocked ? "Iniciar avaliação" : modLocked ? "Módulo bloqueado" : "Conclua as aulas"}
                     </Button>
                   )}
                 </li>
@@ -132,7 +178,7 @@ export default function ModuleExams({ trackId, lessons, isComplete, currentLesso
       <Dialog open={!!open} onOpenChange={(o) => { if (!o) { setOpen(null); load(); } }}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>Prova do módulo — {open?.title}</DialogTitle></DialogHeader>
-          {open && <ExamRunner key={open.id} trackId={trackId} moduleId={open.id} locked={false} onFinished={() => load()} />}
+          {open && <ExamRunner key={open.id} trackId={trackId} moduleId={open.id} locked={false} onFinished={(res) => finished(open, res)} />}
         </DialogContent>
       </Dialog>
     </div>

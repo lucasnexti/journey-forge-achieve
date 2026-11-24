@@ -18,7 +18,7 @@ import LessonMaterials from "@/components/LessonMaterials";
 import TrackRating from "@/components/TrackRating";
 import LessonForum from "@/components/LessonForum";
 import ExamRunner, { ExamResult } from "@/components/exam/ExamRunner";
-import ModuleExams from "@/components/exam/ModuleExams";
+import ModuleExams, { useLockedModules } from "@/components/exam/ModuleExams";
 import Certificate from "@/components/Certificate";
 import LinkedInAchievementShare from "@/components/LinkedInAchievementShare";
 import { openCertificatePdf } from "@/lib/certificates";
@@ -287,6 +287,20 @@ const TrackPage = () => {
 
 
 
+
+  // Sequência: não deixa abrir aulas de um módulo ainda bloqueado (setas, menu, seletor ou link).
+  const lockedMods = useLockedModules(trackId, lessons, (id) => { const l = lessons.find((x) => x.id === id); return !!l && isLessonComplete(l); });
+  useEffect(() => {
+    if (isPreview || loading || !currentLessonId) return;
+    const cur = lessons.find((l) => l.id === currentLessonId);
+    if (!cur?.module_id || !lockedMods.has(cur.module_id)) return;
+    const firstOpen = modules.find((m) => !lockedMods.has(m.id) && contentForModule(lessons, m.id).some((l) => !isLessonComplete(l)))
+      || [...modules].reverse().find((m) => !lockedMods.has(m.id));
+    const target = firstOpen && (contentForModule(lessons, firstOpen.id).find((l) => !isLessonComplete(l)) || contentForModule(lessons, firstOpen.id)[0]);
+    toast.info("Esse módulo será liberado após a aprovação na prova do módulo anterior.");
+    if (target && target.id !== currentLessonId) { setSelectedModuleId(firstOpen!.id); setCurrentLessonId(target.id); }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentLessonId, lockedMods.size, loading]);
 
   const lessonSidebarProps = {
     lessons: moduleLessons.map((l) => ({
