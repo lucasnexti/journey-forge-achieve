@@ -524,6 +524,14 @@ const AdminTrilhasGestao = () => {
                         {/* Actions */}
                         <div className="flex items-center gap-0.5 shrink-0" onClick={(e) => e.stopPropagation()}>
                           <Link
+                            to={`/trilha/${track.id}?preview=1`}
+                            target="_blank"
+                            className="px-2 py-1 mr-1 rounded-md bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors"
+                            title="Ver o curso como o aluno vê"
+                          >
+                            Preview
+                          </Link>
+                          <Link
                             to={`/admin/provas?track=${track.id}`}
                             className="p-1.5 text-muted-foreground hover:text-primary transition-colors"
                             title="Avaliação (prova final)"

@@ -64,6 +64,7 @@ const TrackPage = () => {
   const [loading, setLoading] = useState(true);
   const [profileName, setProfileName] = useState("Cooperado(a)");
   const [hasExam, setHasExam] = useState(false);
+  const isPreview = new URLSearchParams(window.location.search).get("preview") === "1";
 
   const isLessonComplete = (lesson: LessonRow) => {
     const lessonProgress = progress[lesson.id];
@@ -122,7 +123,7 @@ const TrackPage = () => {
 
   // Curso sem prova: concluir automaticamente quando todas as aulas forem concluídas
   const noExamCompletingRef = useRef(false);
-  const allDoneNoExam = !loading && !hasExam && !quizPassed && lessons.length > 0 && lessons.every((l) => {
+  const allDoneNoExam = !isPreview && !loading && !hasExam && !quizPassed && lessons.length > 0 && lessons.every((l) => {
     const lp = progress[l.id];
     if (!lp) return false;
     if (lp.completed) return true;
@@ -330,6 +331,11 @@ const TrackPage = () => {
 
   return (
     <AppLayout fullWidth>
+      {isPreview && (
+        <div className="mx-4 mt-3 rounded-lg border border-primary/30 bg-primary/10 px-4 py-2 text-sm text-foreground">
+          <strong>Modo Preview do administrador:</strong> você está vendo o curso como o aluno vê. Navegue pelos módulos, aulas, materiais e provas.
+        </div>
+      )}
       {/* ── Fixed progress bar at top ── */}
       <div className="sticky top-12 z-30 bg-card/90 backdrop-blur-md border-b border-border/50">
         <div className="px-4 py-2.5 flex items-center gap-3">
