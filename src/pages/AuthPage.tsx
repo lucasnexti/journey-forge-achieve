@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Eye, EyeOff, BookOpen, Award, Users, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
+import nextiLogo from "@/assets/logo-nexti-laranja-original.png.asset.json";
 
 const AuthPage = () => {
   const navigate = useNavigate();
@@ -97,7 +98,7 @@ const AuthPage = () => {
             Voltar ao site
           </Link>
           <div className="mt-8">
-            <span className="font-display text-4xl font-extrabold italic text-primary-foreground">nexti</span>
+            <img src={nextiLogo.url} alt="Nexti" width={1366} height={451} className="h-auto w-32 rounded bg-background px-2 py-1" />
             <p className="mt-1 text-sm font-medium uppercase tracking-widest text-primary-foreground/60">Universidade Corporativa</p>
           </div>
         </div>
@@ -142,10 +143,7 @@ const AuthPage = () => {
       <div className="flex flex-1 flex-col bg-background">
         <div className="flex items-center justify-between p-4 lg:p-6">
           <Link to="/" className="flex items-center gap-2 lg:hidden">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-nexti">
-              <span className="font-display text-sm font-extrabold text-primary-foreground">N</span>
-            </div>
-            <span className="font-display text-lg font-bold text-foreground">Nexti</span>
+            <img src={nextiLogo.url} alt="Nexti" width={1366} height={451} className="h-auto w-24" />
           </Link>
           <div className="hidden lg:block" />
           <button
