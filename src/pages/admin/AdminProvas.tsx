@@ -120,6 +120,20 @@ export const ExamManager = ({ fixedTrackId, moduleId }: { fixedTrackId?: string;
   const selectTrack = (v: string) => { setTrackId(v); setParams({ track: v }); setShowForm(false); };
 
 
+  const [existing, setExisting] = useState<{ id: string; title: string; track_id: string; module_id: string | null }[]>([]);
+  const [pick, setPick] = useState("");
+  useEffect(() => {
+    if (!moduleId || exam || !trackId) return;
+    supabase.from("exams").select("id, title, track_id, module_id").order("created_at", { ascending: false })
+      .then(({ data }) => setExisting(data || []));
+  }, [moduleId, exam, trackId]);
+  const linkExisting = async () => {
+    if (!pick || !moduleId) return;
+    const { error } = await supabase.from("exams").update({ track_id: trackId, module_id: moduleId }).eq("id", pick);
+    if (error) toast.error("Não foi possível vincular: " + error.message);
+    else { toast.success("Prova vinculada ao módulo."); setPick(""); load(trackId); }
+  };
+
   const createExam = async () => {
     const { error } = await supabase.from("exams").insert({ track_id: trackId, module_id: moduleId ?? null, ...(moduleId ? { title: "Avaliação do módulo" } : {}) });
     if (error) toast.error(error.message);
@@ -254,6 +268,20 @@ export const ExamManager = ({ fixedTrackId, moduleId }: { fixedTrackId?: string;
           <Button onClick={createExam} className="mt-4 gap-2 bg-gradient-nexti text-primary-foreground hover:opacity-90">
             <Plus className="h-4 w-4" /> Criar Avaliação
           </Button>
+          {moduleId && existing.length > 0 && (
+            <div className="mx-auto mt-6 flex max-w-lg flex-col gap-2 text-left sm:flex-row sm:items-end">
+              <div className="flex-1">
+                <Label className="text-xs">Ou vincular uma prova já cadastrada (sem duplicar)</Label>
+                <Select value={pick} onValueChange={setPick}>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder="Selecione a prova" /></SelectTrigger>
+                  <SelectContent>
+                    {existing.map((e) => <SelectItem key={e.id} value={e.id}>{e.title}{e.module_id ? " (em outro módulo)" : " (prova final)"}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button onClick={linkExisting} disabled={!pick} className="gap-1"><Save className="h-4 w-4" /> Salvar vínculo</Button>
+            </div>
+          )}
         </div>
       ) : (
         <Tabs defaultValue="config" className="mt-6">
