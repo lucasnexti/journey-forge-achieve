@@ -81,7 +81,7 @@ export const ExamManager = ({ fixedTrackId, moduleId }: { fixedTrackId?: string;
   const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
-    supabase.from("tracks").select("id, title").eq("is_active", true).order("order_index")
+    supabase.from("tracks").select("id, title").order("order_index")
       .then(({ data }) => setTracks(data || []));
   }, []);
 
