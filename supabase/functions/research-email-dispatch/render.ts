@@ -8,7 +8,7 @@ export interface ResearchEmailJob {
   deadline_at: string | null;
 }
 
-const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
+const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] ?? c));
 
 export function formatDeadline(iso: string | null): string {
   if (!iso) return "";
@@ -35,7 +35,7 @@ export function renderResearchEmail(job: ResearchEmailJob, link: string | null) 
     intro ? `<p>${esc(intro)}</p>` : "",
     ...bodyText.split(/\n{2,}/).map((p) => `<p>${esc(p).replace(/\n/g, "<br>")}</p>`),
     link ? `<p><a href="${esc(link)}">Responder à pesquisa</a></p>` : "",
-    `<p style="font-size:12px;color:#666">Esta pesquisa é identificada: suas respostas poderão ser consultadas pelos administradores autorizados.</p>`,
+    `<p style="font-size:12px;color:#666">Confira no formulário se a pesquisa é anônima ou identificada antes de responder.</p>`,
   ].join("\n");
   return { subject, html, text: [intro, bodyText, link ?? ""].filter(Boolean).join("\n\n") };
 }

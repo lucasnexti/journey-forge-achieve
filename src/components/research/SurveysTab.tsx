@@ -64,7 +64,7 @@ export default function SurveysTab({ audience, can }: Props) {
             const st = effectiveStatus(s.status, s.deadline_at);
             return (
               <article key={s.id} className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4">
-                <div className="flex flex-wrap items-center gap-2"><Badge variant={st === "active" ? "default" : "secondary"}>{SURVEY_STATUS[st]}</Badge><Badge variant="outline">{KIND[s.kind]}</Badge>{s.version > 1 && <Badge variant="outline">v{s.version}</Badge>}</div>
+                <div className="flex flex-wrap items-center gap-2"><Badge variant={st === "active" ? "default" : "secondary"}>{s.published_at && st==="draft" ? "Publicada · aguardando envio" : SURVEY_STATUS[st]}</Badge><Badge variant="outline">{KIND[s.kind]}</Badge><Badge variant="outline">{s.anonymous ? "Anônima" : "Identificada"}</Badge>{s.version > 1 && <Badge variant="outline">v{s.version}</Badge>}</div>
                 <div><h3 className="font-semibold break-words">{s.title}</h3><p className="text-xs text-muted-foreground">{[s.training_name, s.class_name && `Turma ${s.class_name}`].filter(Boolean).join(" · ") || (s.standalone_reason ? `Avulsa: ${s.standalone_reason}` : "Sem vínculo")}</p></div>
                 <p className="text-xs text-muted-foreground">{s.first_sent_at ? `Enviada em ${formatDateBR(s.first_sent_at)} · prazo ${formatDateBR(s.deadline_at)}` : `Criada em ${formatDateBR(s.created_at)}`}</p>
                 <div className="mt-auto flex flex-wrap gap-1">
@@ -72,7 +72,7 @@ export default function SurveysTab({ audience, can }: Props) {
                   {can("surveys_send") && st !== "closed" && <Button size="sm" onClick={() => setSending(s)}><Send />Enviar</Button>}
                   <Button size="sm" variant="outline" onClick={() => setDetails(s)}><Eye />Detalhes</Button>
                   {can("surveys_edit") && <Button size="icon" variant="ghost" title="Duplicar" aria-label="Duplicar" onClick={() => duplicate(s, false)}><Copy /></Button>}
-                  {can("surveys_edit") && s.first_sent_at && <Button size="icon" variant="ghost" title="Criar nova versão" aria-label="Criar nova versão" onClick={() => duplicate(s, true)}><GitBranch /></Button>}
+                  {can("surveys_edit") && (s.first_sent_at || s.published_at) && <Button size="icon" variant="ghost" title="Criar nova versão" aria-label="Criar nova versão" onClick={() => duplicate(s, true)}><GitBranch /></Button>}
                   {can("surveys_edit") && !s.first_sent_at && <Button size="icon" variant="ghost" title="Excluir rascunho" aria-label="Excluir rascunho" onClick={() => remove(s)}><Trash2 /></Button>}
                 </div>
               </article>

@@ -232,6 +232,27 @@
       "when": 1795716447490,
       "tag": "0032_admin_td_report",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1795718078189,
+      "tag": "0033_research_builder",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1795718112928,
+      "tag": "0034_research_builder_versions",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1795718282651,
+      "tag": "0035_research_anonymous_reporting_scope",
+      "breakpoints": true
     }
   ]
 }

@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { effectiveStatus, formatDateBR, formatDateTimeBR, JOB_KIND, JOB_STATUS, SEND_STATUS, SURVEY_STATUS, todaySP } from "@/lib/research";
 import type { Tables } from "@/integrations/supabase/types";
+import SurveyResults from "./SurveyResults";
 
 type Survey = Tables<"research_surveys">;
 interface Props { survey: Survey | null; canSend: boolean; canSeeIdentified: boolean; onClose: () => void; onChanged: () => void; }
@@ -77,7 +78,8 @@ export default function SurveyDetails({ survey, canSend, canSeeIdentified, onClo
         </DialogHeader>
         {data.isLoading ? <p role="status">Carregando…</p> : data.isError ? <p role="alert" className="text-destructive">{(data.error as Error).message}</p> : (
           <Tabs defaultValue="envio">
-            <TabsList className="flex-wrap"><TabsTrigger value="envio">Envios</TabsTrigger>{(canSend || canSeeIdentified) && <TabsTrigger value="convites">Convites ({inv.length})</TabsTrigger>}{canSend && <TabsTrigger value="prazo">Prazo</TabsTrigger>}</TabsList>
+            <TabsList className="flex-wrap"><TabsTrigger value="envio">Envios</TabsTrigger><TabsTrigger value="resultados">Resultados</TabsTrigger>{(canSend || canSeeIdentified) && <TabsTrigger value="convites">Convites ({inv.length})</TabsTrigger>}{canSend && <TabsTrigger value="prazo">Prazo</TabsTrigger>}</TabsList>
+            <TabsContent value="resultados" className="pt-4">{survey && <SurveyResults surveyId={survey.id} />}</TabsContent>
             <TabsContent value="envio" className="space-y-4 pt-3">
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {[["Convites", inv.length], ["Enviados", (counts.sent ?? 0) + (counts.delivered ?? 0)], ["Entregues (confirmados)", counts.delivered ?? 0], ["Respondidos", responded], ["Na fila", (counts.queued ?? 0) + (counts.sending ?? 0)], ["Aguardando configuração", counts.blocked_config ?? 0], ["Falhas", counts.failed ?? 0], ["Não respondentes", inv.filter((i) => !i.responded_at && ["sent", "delivered"].includes(i.send_status)).length]].map(([l, v]) => (
@@ -103,7 +105,7 @@ export default function SurveyDetails({ survey, canSend, canSeeIdentified, onClo
                   <tbody>{filtered.slice(0, 500).map((i) => (
                     <tr key={i.id} className="border-t border-border"><td className="p-2"><p className="font-medium">{i.name}</p><p className="text-xs text-muted-foreground">{i.email}</p></td><td className="p-2 text-xs">{i.company || "—"}{i.area && ` · ${i.area}`}</td>
                       <td className="p-2 text-xs"><Badge variant={i.send_status === "failed" || i.send_status === "blocked_config" ? "destructive" : "secondary"}>{SEND_STATUS[i.send_status]}</Badge>{i.sent_at && <p className="mt-1 text-muted-foreground">{formatDateTimeBR(i.sent_at)}</p>}{i.reminder_count > 0 && <p className="text-muted-foreground">Lembretes: {i.reminder_count}</p>}{i.last_error && <p className="mt-1 text-destructive">{i.last_error}</p>}</td>
-                      <td className="p-2 text-xs">{i.responded_at ? <Badge className="bg-primary/15 text-primary hover:bg-primary/15">Respondido {formatDateBR(i.responded_at)}</Badge> : "Não respondido"}</td></tr>
+                      <td className="p-2 text-xs">{i.responded_at ? <Badge className="bg-primary/15 text-primary hover:bg-primary/15">Respondido {!survey?.anonymous && formatDateBR(i.responded_at)}</Badge> : "Não respondido"}</td></tr>
                   ))}</tbody></table>
               </div>
             </TabsContent>

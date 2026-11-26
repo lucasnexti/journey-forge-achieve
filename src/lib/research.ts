@@ -276,6 +276,7 @@ export type QuestionType = "scale" | "single" | "multiple" | "text";
 export interface QuestionDraft {
   id?: string; type: QuestionType; indicator: "nps" | "csat" | null; prompt: string; required: boolean;
   options: string[]; scale_min: number | null; scale_max: number | null; min_label: string; max_label: string;
+  allow_comment?: boolean; scale_display?: "numeric" | "stars" | "satisfaction";
 }
 export const QUESTION_TYPES: { value: QuestionType; label: string }[] = [
   { value: "scale", label: "Escala numérica" },
@@ -299,13 +300,17 @@ export function templateQuestions(kind: "nps" | "csat" | "custom"): QuestionDraf
 
 export function validateQuestion(q: QuestionDraft): string | null {
   if (!q.prompt.trim()) return "Escreva o enunciado da pergunta";
+  if (q.prompt.length > 500) return "Enunciado muito longo";
   if (q.type === "scale") {
     if (q.scale_min === null || q.scale_max === null || q.scale_max <= q.scale_min) return "A escala precisa de mínimo menor que o máximo";
     if (q.scale_min < 0 || q.scale_max - q.scale_min > 10) return "A escala pode ter no máximo 11 pontos, a partir de 0";
+    if (!Number.isInteger(q.scale_min) || !Number.isInteger(q.scale_max)) return "Use notas inteiras";
+    if (q.scale_display && q.scale_display !== "numeric" && (q.scale_min !== 1 || q.scale_max !== 5)) return "Estrelas e satisfação usam escala de 1 a 5";
   }
   if ((q.type === "single" || q.type === "multiple")) {
     const opts = q.options.map((o) => o.trim()).filter(Boolean);
     if (opts.length < 2) return "Inclua ao menos duas opções";
+    if (opts.length > 20 || opts.some(o => o.length > 200)) return "Use até 20 alternativas com até 200 caracteres";
     if (new Set(opts).size !== opts.length) return "As opções não podem se repetir";
   }
   return null;

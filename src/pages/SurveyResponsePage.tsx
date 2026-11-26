@@ -4,10 +4,11 @@ import { CheckCircle2, Clock, Link2Off, ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import SurveyForm, { type FormQuestion, type FormValue } from "@/components/research/SurveyForm";
-import { formatDateTimeBR } from "@/lib/research";
+import { formatDateTimeBR, formatDateBR } from "@/lib/research";
+import { packSurveyAnswers } from "@/lib/surveyBuilder";
 
 type State = "loading" | "open" | "invalid" | "closed" | "answered" | "submitted" | "error";
-interface Form { title: string; description: string; deadline_at: string; questions: FormQuestion[] }
+interface Form { title: string; description: string; deadline_at: string; questions: FormQuestion[]; presentation: string; anonymous: boolean; thank_you: string; training_name?: string; training_date?: string }
 
 /** Resposta sem login, pelo link individual do convite. */
 export default function SurveyResponsePage() {
@@ -16,6 +17,8 @@ export default function SurveyResponsePage() {
   const [form, setForm] = useState<Form | null>(null);
   const [title, setTitle] = useState("");
   const [values, setValues] = useState<Record<string, FormValue>>({});
+  const [comments, setComments] = useState<Record<string,string>>({});
+  const [thanks, setThanks] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [message, setMessage] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
@@ -27,7 +30,7 @@ export default function SurveyResponsePage() {
       if (error || !data) { setState("error"); return; }
       const d = data as unknown as { state: State; title?: string } & Partial<Form>;
       setTitle(d.title ?? "");
-      if (d.state === "open") setForm({ title: d.title!, description: d.description ?? "", deadline_at: d.deadline_at!, questions: d.questions ?? [] });
+      if (d.state === "open" && d.title && d.deadline_at) setForm({ title: d.title, description: d.description ?? "", deadline_at: d.deadline_at, questions: d.questions ?? [], presentation:d.presentation ?? "", anonymous:!!d.anonymous, thank_you:d.thank_you ?? "Obrigado pela participação!", training_name:d.training_name, training_date:d.training_date });
       setState(d.state);
     })();
   }, [token]);
@@ -43,13 +46,13 @@ export default function SurveyResponsePage() {
     setErrors(errs);
     if (Object.keys(errs).length) { setMessage("Responda às perguntas obrigatórias."); return; }
     setSending(true); setMessage(null);
-    const answers = Object.fromEntries(Object.entries(values).filter(([, v]) => v !== undefined).map(([k, v]) => [k, typeof v === "string" ? v.trim() : v]));
-    const { data, error } = await supabase.rpc("research_submit_response", { _token: token, _answers: answers });
+    const answers = packSurveyAnswers(values,comments);
+    const { data, error } = await supabase.rpc("research_submit_response", { _token: token, _answers: answers as import("@/integrations/supabase/types").Json });
     setSending(false);
     if (error) { setMessage("Não foi possível enviar agora. Tente novamente."); return; }
-    const r = data as { state: State; message?: string; question_id?: string };
+    const r = data as { state: State; message?: string; question_id?: string; thank_you?: string };
     if (r.state === "error") { setMessage(r.message ?? "Revise suas respostas."); if (r.question_id) setErrors({ [r.question_id]: r.message ?? "Revise" }); return; }
-    setState(r.state);
+    setThanks(r.thank_you ?? form.thank_you); setState(r.state);
   };
 
   return (
@@ -65,16 +68,18 @@ export default function SurveyResponsePage() {
           {state === "error" && <Status icon={Link2Off} title="Não foi possível abrir a pesquisa" text="Tente novamente em alguns instantes." />}
           {state === "closed" && <Status icon={Clock} title="Pesquisa encerrada" text={`${title ? `"${title}" ` : "Esta pesquisa "}não está mais recebendo respostas.`} />}
           {state === "answered" && <Status icon={CheckCircle2} title="Convite já respondido" text="Recebemos uma resposta para este convite. Cada convite aceita uma única resposta." />}
-          {state === "submitted" && <Status icon={CheckCircle2} title="Resposta enviada. Obrigado!" text="Sua participação ajuda a melhorar nossos treinamentos." />}
+          {state === "submitted" && <Status icon={CheckCircle2} title="Resposta enviada. Obrigado!" text={thanks} />}
           {state === "open" && form && (
             <div className="space-y-6">
               <div>
                 <h1 className="font-display text-2xl font-bold text-foreground">{form.title}</h1>
                 {form.description && <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">{form.description}</p>}
+                {form.training_name && <p className="mt-2 text-sm">{form.training_name}{form.training_date && ` · ${formatDateBR(form.training_date)}`}</p>}
+                {form.presentation && <p className="mt-3 whitespace-pre-wrap text-sm">{form.presentation}</p>}
                 <p className="mt-2 text-xs text-muted-foreground">Aberta até {formatDateTimeBR(form.deadline_at)} (horário de Brasília)</p>
               </div>
-              <p className="flex gap-2 rounded-lg border border-primary/30 bg-primary/5 p-3 text-sm"><ShieldCheck className="h-5 w-5 shrink-0 text-primary" />Esta pesquisa é identificada: suas respostas poderão ser consultadas pelos administradores autorizados.</p>
-              <SurveyForm questions={form.questions} values={values} errors={errors} onChange={(id, v) => { setValues((x) => ({ ...x, [id]: v })); setErrors((e) => { const n = { ...e }; delete n[id]; return n; }); }} />
+              <p className="flex gap-2 rounded-lg border border-primary/30 bg-primary/5 p-3 text-sm"><ShieldCheck className="h-5 w-5 shrink-0 text-primary" />{form.anonymous ? "Esta pesquisa é anônima: as respostas não ficam vinculadas ao seu convite. Não inclua nome, e-mail ou dados pessoais nos comentários." : "Esta pesquisa é identificada: suas respostas poderão ser consultadas pelos administradores autorizados."}</p>
+              <SurveyForm questions={form.questions} values={values} comments={comments} onComment={(id,v)=>setComments(x=>({...x,[id]:v}))} errors={errors} onChange={(id, v) => { setValues((x) => ({ ...x, [id]: v })); setErrors((e) => { const n = { ...e }; delete n[id]; return n; }); }} />
               {message && <p role="alert" className="text-sm text-destructive">{message}</p>}
               <Button size="lg" className="w-full sm:w-auto" disabled={sending} onClick={submit}>{sending ? "Enviando…" : "Enviar respostas"}</Button>
             </div>

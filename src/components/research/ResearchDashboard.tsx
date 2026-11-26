@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { csatPercent, formatDateBR, formatDateTimeBR, npsScore, participationRate, reachPercent, SEND_STATUS, showValue, type Audience } from "@/lib/research";
 import { downloadWorkbook } from "@/lib/spreadsheet";
+import SurveyResults from "./SurveyResults";
 
 interface Dist { score: number; count: number }
 interface Dash {
@@ -30,6 +31,7 @@ export default function ResearchDashboard({ audience }: { audience: Audience }) 
   const [f, setF] = useState({ survey_id: "", training: "", track_id: "", class_name: "", company: "", area: "", responded: "all", send_status: "", date_basis: "sent", from: "", to: "" });
   const [reachBase, setReachBase] = useState("");
   const [participants, setParticipants] = useState(false);
+  const [anonymousSurvey, setAnonymousSurvey] = useState("");
   const filters = { ...f, audience };
   const set = (k: keyof typeof f, v: string) => setF((x) => ({ ...x, [k]: v }));
 
@@ -74,8 +76,10 @@ export default function ResearchDashboard({ audience }: { audience: Audience }) 
 
   return (
     <div className="space-y-5">
+      <div className="space-y-2 border-b border-border pb-4"><Label htmlFor="anon-results">Resultados de pesquisas anônimas</Label><select id="anon-results" className={sel} value={anonymousSurvey} onChange={e=>setAnonymousSurvey(e.target.value)}><option value="">Indicadores de pesquisas identificadas</option>{(surveys.data ?? []).filter(s=>s.anonymous).map(s=><option key={s.id} value={s.id}>{s.title}</option>)}</select><p className="text-xs text-muted-foreground">Pesquisas anônimas são consultadas por pesquisa, sem recortes por pessoa, área, empresa ou horário de resposta.</p></div>
+      {anonymousSurvey ? <SurveyResults surveyId={anonymousSurvey} /> : <>
       <section className="grid gap-3 rounded-lg border border-border bg-card p-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="Filtros">
-        <div className="space-y-1"><Label htmlFor="f-survey">Pesquisa</Label><select id="f-survey" className={sel} value={f.survey_id} onChange={(e) => set("survey_id", e.target.value)}><option value="">Todas</option>{(surveys.data ?? []).map((s) => <option key={s.id} value={s.id}>{s.title}</option>)}</select></div>
+        <div className="space-y-1"><Label htmlFor="f-survey">Pesquisa</Label><select id="f-survey" className={sel} value={f.survey_id} onChange={(e) => set("survey_id", e.target.value)}><option value="">Todas as identificadas</option>{(surveys.data ?? []).filter(s=>!s.anonymous).map((s) => <option key={s.id} value={s.id}>{s.title}</option>)}</select></div>
         <div className="space-y-1"><Label htmlFor="f-training">Treinamento</Label><select id="f-training" className={sel} value={f.training} onChange={(e) => set("training", e.target.value)}><option value="">Todos</option>{(opts.data?.trainings ?? []).map((t) => <option key={t}>{t}</option>)}</select></div>
         <div className="space-y-1"><Label htmlFor="f-course">Curso</Label><select id="f-course" className={sel} value={f.track_id} onChange={(e) => set("track_id", e.target.value)}><option value="">Todos</option>{(opts.data?.courses ?? []).map((t) => <option key={t.id} value={t.id}>{t.title}</option>)}</select></div>
         <div className="space-y-1"><Label htmlFor="f-class">Turma</Label><select id="f-class" className={sel} value={f.class_name} onChange={(e) => set("class_name", e.target.value)}><option value="">Todas</option>{(opts.data?.classes ?? []).map((t) => <option key={t}>{t}</option>)}</select></div>
@@ -166,6 +170,7 @@ export default function ResearchDashboard({ audience }: { audience: Audience }) 
           )}
         </DialogContent>
       </Dialog>
+      </>}
     </div>
   );
 }

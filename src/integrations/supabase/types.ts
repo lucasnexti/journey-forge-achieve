@@ -1751,8 +1751,35 @@ export type Database = {
           },
         ]
       }
+      research_anonymous_submissions: {
+        Row: {
+          answers: Json
+          id: string
+          survey_id: string
+        }
+        Insert: {
+          answers: Json
+          id?: string
+          survey_id: string
+        }
+        Update: {
+          answers?: Json
+          id?: string
+          survey_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "research_anonymous_submissions_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
+            referencedRelation: "research_surveys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       research_answers: {
         Row: {
+          additional_comment: string | null
           choice_values: string[] | null
           id: string
           indicator: string | null
@@ -1763,6 +1790,7 @@ export type Database = {
           text_value: string | null
         }
         Insert: {
+          additional_comment?: string | null
           choice_values?: string[] | null
           id?: string
           indicator?: string | null
@@ -1773,6 +1801,7 @@ export type Database = {
           text_value?: string | null
         }
         Update: {
+          additional_comment?: string | null
           choice_values?: string[] | null
           id?: string
           indicator?: string | null
@@ -2377,6 +2406,7 @@ export type Database = {
       }
       research_questions: {
         Row: {
+          allow_comment: boolean
           created_at: string
           id: string
           indicator: string | null
@@ -2386,12 +2416,14 @@ export type Database = {
           position: number
           prompt: string
           required: boolean
+          scale_display: string
           scale_max: number | null
           scale_min: number | null
           survey_id: string
           type: string
         }
         Insert: {
+          allow_comment?: boolean
           created_at?: string
           id?: string
           indicator?: string | null
@@ -2401,12 +2433,14 @@ export type Database = {
           position?: number
           prompt: string
           required?: boolean
+          scale_display?: string
           scale_max?: number | null
           scale_min?: number | null
           survey_id: string
           type: string
         }
         Update: {
+          allow_comment?: boolean
           created_at?: string
           id?: string
           indicator?: string | null
@@ -2416,6 +2450,7 @@ export type Database = {
           position?: number
           prompt?: string
           required?: boolean
+          scale_display?: string
           scale_max?: number | null
           scale_min?: number | null
           survey_id?: string
@@ -2502,6 +2537,7 @@ export type Database = {
       }
       research_surveys: {
         Row: {
+          anonymous: boolean
           audience: string
           class_name: string | null
           closed_at: string | null
@@ -2515,18 +2551,23 @@ export type Database = {
           first_sent_at: string | null
           id: string
           kind: string
+          presentation: string
+          published_at: string | null
           reminder_after_days: number
           reminder_enabled: boolean
           source_survey_id: string | null
           standalone_reason: string | null
           status: string
+          thank_you: string
           title: string
           track_id: string | null
+          training_date: string | null
           training_name: string | null
           updated_at: string
           version: number
         }
         Insert: {
+          anonymous?: boolean
           audience: string
           class_name?: string | null
           closed_at?: string | null
@@ -2540,18 +2581,23 @@ export type Database = {
           first_sent_at?: string | null
           id?: string
           kind: string
+          presentation?: string
+          published_at?: string | null
           reminder_after_days?: number
           reminder_enabled?: boolean
           source_survey_id?: string | null
           standalone_reason?: string | null
           status?: string
+          thank_you?: string
           title: string
           track_id?: string | null
+          training_date?: string | null
           training_name?: string | null
           updated_at?: string
           version?: number
         }
         Update: {
+          anonymous?: boolean
           audience?: string
           class_name?: string | null
           closed_at?: string | null
@@ -2565,13 +2611,17 @@ export type Database = {
           first_sent_at?: string | null
           id?: string
           kind?: string
+          presentation?: string
+          published_at?: string | null
           reminder_after_days?: number
           reminder_enabled?: boolean
           source_survey_id?: string | null
           standalone_reason?: string | null
           status?: string
+          thank_you?: string
           title?: string
           track_id?: string | null
+          training_date?: string | null
           training_name?: string | null
           updated_at?: string
           version?: number
@@ -3317,6 +3367,7 @@ export type Database = {
         }
         Returns: number
       }
+      research_builder_results: { Args: { _survey: string }; Returns: Json }
       research_can: { Args: { _perm: string }; Returns: boolean }
       research_claim_email_jobs: { Args: { _limit: number }; Returns: Json }
       research_close_survey: { Args: { _id: string }; Returns: undefined }
@@ -3385,6 +3436,10 @@ export type Database = {
       research_notify_extension: { Args: { _id: string }; Returns: number }
       research_reach: { Args: { _f: Json }; Returns: Json }
       research_requeue_blocked: { Args: { _survey: string }; Returns: number }
+      research_save_builder: {
+        Args: { _data: Json; _id: string; _publish?: boolean; _questions: Json }
+        Returns: string
+      }
       research_scheduler_tick: { Args: never; Returns: Json }
       research_send_preview: {
         Args: { _list: string; _survey: string }
