@@ -3200,6 +3200,10 @@ export type Database = {
         Args: { _id: string; _reason: string }
         Returns: Json
       }
+      admin_td_report: {
+        Args: { _area?: string; _end: string; _start: string; _track?: string }
+        Returns: Json
+      }
       admin_update_redemption: {
         Args: { _id: string; _reason?: string; _status: string }
         Returns: Json

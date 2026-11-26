@@ -29,6 +29,7 @@ const routeLabels: Record<string, string> = {
   "/admin/avaliacoes": "Avaliações",
   "/admin/personalizacao": "Personalização",
   "/admin/relatorio-progresso": "Relatórios",
+  "/admin/relatorios-td": "Relatórios de T&D",
   "/admin/logs": "Logs",
 };
 
@@ -46,6 +47,7 @@ const routeGroups: Record<string, string> = {
   "/admin/avaliacoes": "Engajamento",
   "/admin/personalizacao": "Configuração",
   "/admin/relatorio-progresso": "Configuração",
+  "/admin/relatorios-td": "Configuração",
   "/admin/logs": "Configuração",
 };
 

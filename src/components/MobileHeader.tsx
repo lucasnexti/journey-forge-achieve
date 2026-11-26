@@ -20,6 +20,7 @@ const MobileHeader = () => {
     { to: "/dashboard", label: "Cursos", icon: BookOpen },
     { to: "/minhas-trilhas", label: "Minhas trilhas", icon: Library },
     ...(isAdmin ? [{ to: "/admin/trilhas", label: "Gerenciar trilhas", icon: Library }] : []),
+    ...(isAdmin ? [{ to: "/admin/relatorios-td", label: "Relatórios de T&D", icon: BarChart3 }] : []),
     { to: "/loja", label: "Loja", icon: Coins },
     { to: "/relatorios", label: "Relatórios", icon: BarChart3 },
     { to: "/base-conhecimento", label: "Base de Conhecimento", icon: Library },

@@ -46,6 +46,7 @@ const AdminMatriculas = lazy(() => import("./pages/admin/AdminMatriculas"));
 const AdminTreinamentos = lazy(() => import("./pages/admin/AdminTreinamentoPresencial"));
 const AdminTrilhasGestao = lazy(() => import("./pages/admin/AdminTrilhasGestao"));
 const AdminRelatorioProgresso = lazy(() => import("./pages/admin/AdminRelatorioProgresso"));
+const AdminRelatoriosTD = lazy(() => import("./pages/admin/AdminRelatoriosTD"));
 const AdminUsuarios = lazy(() => import("./pages/admin/AdminUsuarios"));
 const AdminLogs = lazy(() => import("./pages/admin/AdminLogs"));
 const AdminQuizzes = lazy(() => import("./pages/admin/AdminQuizzes"));
@@ -127,6 +128,7 @@ const App = () => (
               <Route path="/admin/notificacoes" element={<AdminRoute><AdminNotificacoes /></AdminRoute>} />
               <Route path="/admin/forum-gestao" element={<AdminRoute><AdminForumGestao /></AdminRoute>} />
               <Route path="/admin/relatorio-progresso" element={<AdminRoute><AdminRelatorioProgresso /></AdminRoute>} />
+              <Route path="/admin/relatorios-td" element={<AdminRoute><AdminRelatoriosTD /></AdminRoute>} />
               <Route path="/admin/usuarios" element={<AdminRoute><AdminUsuarios /></AdminRoute>} />
               <Route path="/admin/personalizacao" element={<AdminRoute><AdminPersonalizacao /></AdminRoute>} />
               <Route path="/admin/logs" element={<AdminRoute><AdminLogs /></AdminRoute>} />

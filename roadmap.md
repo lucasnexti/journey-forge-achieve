@@ -1,3 +1,10 @@
+# Roadmap — Relatórios de T&D
+- [x] Página única, filtros e consulta administrativa protegida por empresa
+- [x] Conclusão real, NPS/conteúdo preparados e demais indicadores com motivos de pendência
+- [x] 39 testes aprovados; sessão administrativa, filtros, importadores, celular e bloqueio anônimo verificados
+- [ ] Resultados de execução, presença e qualidade — aguardam planejamento, inscrições por sessão e notas vinculadas
+- [ ] Resultados de adesão, horas, cobertura e obrigatórios — aguardam base de ativos, vínculo obrigatório e validações de Daniela
+
 # Roadmap — Trilhas de aprendizagem
 - [x] Painel lateral: filtrar vídeos, materiais e prova pelo módulo atual; troca verificada no Preview autenticado do Nexti Talent no computador e celular; 10 testes aprovados
 - [x] Gestão administrativa, conteúdo ordenado, capa e validações

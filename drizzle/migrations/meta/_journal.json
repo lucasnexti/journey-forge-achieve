@@ -225,6 +225,13 @@
       "when": 1795553378490,
       "tag": "0031_module_complete_coins",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1795716447490,
+      "tag": "0032_admin_td_report",
+      "breakpoints": true
     }
   ]
 }
