@@ -68,8 +68,7 @@ const navGroups: NavGroup[] = [
     icon: Palette,
     items: [
       { to: "/admin/personalizacao", label: "Personalização", icon: Palette },
-      { to: "/admin/relatorio-progresso", label: "Relatórios", icon: BarChart3 },
-      { to: "/admin/relatorios-td", label: "Relatórios de T&D", icon: BarChart3 },
+      { to: "/admin/relatorios", label: "Relatórios", icon: BarChart3 },
       { to: "/admin/logs", label: "Logs", icon: FileText },
     ],
   },

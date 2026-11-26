@@ -1,4 +1,5 @@
 # Roadmap — Relatórios de T&D
+- [x] Menu e página “Relatórios”; T&D como primeiro tipo, progresso existente preservado, filtros por tipo, troca e links anteriores verificados; 20 testes aprovados
 - [x] Página única, filtros e consulta administrativa protegida por empresa
 - [x] Conclusão real, NPS/conteúdo preparados e demais indicadores com motivos de pendência
 - [x] 39 testes aprovados; sessão administrativa, filtros, importadores, celular e bloqueio anônimo verificados

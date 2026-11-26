@@ -1,7 +1,7 @@
 import { lazy, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -45,8 +45,7 @@ const AdminAvaliacoes = lazy(() => import("./pages/admin/AdminAvaliacoes"));
 const AdminMatriculas = lazy(() => import("./pages/admin/AdminMatriculas"));
 const AdminTreinamentos = lazy(() => import("./pages/admin/AdminTreinamentoPresencial"));
 const AdminTrilhasGestao = lazy(() => import("./pages/admin/AdminTrilhasGestao"));
-const AdminRelatorioProgresso = lazy(() => import("./pages/admin/AdminRelatorioProgresso"));
-const AdminRelatoriosTD = lazy(() => import("./pages/admin/AdminRelatoriosTD"));
+const AdminRelatorios = lazy(() => import("./pages/admin/AdminRelatorios"));
 const AdminUsuarios = lazy(() => import("./pages/admin/AdminUsuarios"));
 const AdminLogs = lazy(() => import("./pages/admin/AdminLogs"));
 const AdminQuizzes = lazy(() => import("./pages/admin/AdminQuizzes"));
@@ -127,8 +126,9 @@ const App = () => (
               <Route path="/admin/gamificacao" element={<AdminRoute><AdminGamificacao /></AdminRoute>} />
               <Route path="/admin/notificacoes" element={<AdminRoute><AdminNotificacoes /></AdminRoute>} />
               <Route path="/admin/forum-gestao" element={<AdminRoute><AdminForumGestao /></AdminRoute>} />
-              <Route path="/admin/relatorio-progresso" element={<AdminRoute><AdminRelatorioProgresso /></AdminRoute>} />
-              <Route path="/admin/relatorios-td" element={<AdminRoute><AdminRelatoriosTD /></AdminRoute>} />
+              <Route path="/admin/relatorios" element={<AdminRoute><AdminRelatorios /></AdminRoute>} />
+              <Route path="/admin/relatorio-progresso" element={<AdminRoute><Navigate to="/admin/relatorios?tipo=progress" replace /></AdminRoute>} />
+              <Route path="/admin/relatorios-td" element={<AdminRoute><Navigate to="/admin/relatorios?tipo=td" replace /></AdminRoute>} />
               <Route path="/admin/usuarios" element={<AdminRoute><AdminUsuarios /></AdminRoute>} />
               <Route path="/admin/personalizacao" element={<AdminRoute><AdminPersonalizacao /></AdminRoute>} />
               <Route path="/admin/logs" element={<AdminRoute><AdminLogs /></AdminRoute>} />

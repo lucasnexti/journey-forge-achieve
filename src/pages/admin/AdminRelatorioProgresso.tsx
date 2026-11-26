@@ -8,7 +8,7 @@ import { Users, BookOpen, GraduationCap, TrendingUp, Download, FileText } from "
 
 const COLORS = ["hsl(18, 100%, 55%)", "hsl(152, 60%, 45%)", "hsl(38, 92%, 50%)", "hsl(210, 40%, 60%)"];
 
-const AdminRelatorioProgresso = () => {
+const AdminRelatorioProgresso = ({ embedded = false }: { embedded?: boolean }) => {
   const [stats, setStats] = useState({ totalUsers: 0, totalTracks: 0, totalEnrollments: 0, activeEnrollments: 0, completedEnrollments: 0, certificates: 0 });
   const [enrollmentsByTrack, setEnrollmentsByTrack] = useState<{ name: string; value: number }[]>([]);
   const [enrollmentsByStatus, setEnrollmentsByStatus] = useState<{ name: string; value: number }[]>([]);
@@ -84,16 +84,17 @@ const AdminRelatorioProgresso = () => {
     { icon: TrendingUp, label: "Conclusões", value: stats.completedEnrollments },
   ];
 
+  const Layout = embedded ? "div" : AdminLayout;
   return (
-    <AdminLayout>
+    <Layout>
       <div className="flex items-center justify-between flex-wrap gap-4">
-        <div>
-          <h1 className="font-display text-xl font-bold text-primary">Relatório de Progresso</h1>
+        {!embedded && <div>
+          <h1 className="font-display text-xl font-bold text-primary">Relatórios</h1>
           <div className="mt-1 h-1 w-12 rounded-full bg-gradient-nexti" />
-        </div>
+        </div>}
         <div className="flex gap-2">
           <Select value={trackFilter} onValueChange={setTrackFilter}>
-            <SelectTrigger className="w-48"><SelectValue placeholder="Filtrar trilha" /></SelectTrigger>
+            <SelectTrigger aria-label="Treinamento" className="w-48"><SelectValue placeholder="Filtrar trilha" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todas as trilhas</SelectItem>
               {tracks.map(t => <SelectItem key={t.id} value={t.id}>{t.title}</SelectItem>)}
@@ -159,7 +160,7 @@ const AdminRelatorioProgresso = () => {
           </div>
         </>
       )}
-    </AdminLayout>
+    </Layout>
   );
 };
 

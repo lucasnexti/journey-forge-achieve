@@ -28,8 +28,7 @@ const routeLabels: Record<string, string> = {
   "/admin/notificacoes": "Notificações",
   "/admin/avaliacoes": "Avaliações",
   "/admin/personalizacao": "Personalização",
-  "/admin/relatorio-progresso": "Relatórios",
-  "/admin/relatorios-td": "Relatórios de T&D",
+  "/admin/relatorios": "Relatórios",
   "/admin/logs": "Logs",
 };
 
@@ -46,8 +45,7 @@ const routeGroups: Record<string, string> = {
   "/admin/notificacoes": "Engajamento",
   "/admin/avaliacoes": "Engajamento",
   "/admin/personalizacao": "Configuração",
-  "/admin/relatorio-progresso": "Configuração",
-  "/admin/relatorios-td": "Configuração",
+  "/admin/relatorios": "Configuração",
   "/admin/logs": "Configuração",
 };
 

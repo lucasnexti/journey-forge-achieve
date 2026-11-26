@@ -26,7 +26,7 @@ const dotClasses: Record<TDStatus, string> = { Verde: "bg-success", Amarelo: "bg
 const periodLabel = (period: string) => /^\d{4}-\d{2}-\d{2}$/.test(period)
   ? new Date(`${period}T12:00:00`).toLocaleDateString("pt-BR", { month: "long", year: "numeric" }) : period;
 
-export default function AdminRelatoriosTD() {
+export default function AdminRelatoriosTD({ embedded = false }: { embedded?: boolean }) {
   const today = todaySP();
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -46,11 +46,12 @@ export default function AdminRelatoriosTD() {
   const rows = useMemo(() => report.data ? tdRows(report.data, applied.start, applied.end, applied.area === "all" ? null : applied.area) : [], [report.data, applied]);
   const refresh = () => queryClient.invalidateQueries({ queryKey: ["admin-td-report"] });
   const update = (key: keyof typeof filters, value: string) => setFilters(f => ({...f, [key]: value}));
+  const Layout = embedded ? "div" : AdminLayout;
   return (
-    <AdminLayout>
+    <Layout>
       <div className="space-y-6">
         <header className="flex flex-wrap items-start justify-between gap-4">
-          <div><h1 className="font-display text-xl font-bold text-primary">Relatórios de T&D</h1><p className="mt-2 text-sm text-muted-foreground">Responsável pelos dados: <span className="font-medium text-foreground">Daniela</span>{report.data && ` · ${report.data.company}`}</p></div>
+          <div>{!embedded && <h1 className="font-display text-xl font-bold text-primary">Relatórios</h1>}<p className="mt-2 text-sm text-muted-foreground">Responsável pelos dados: <span className="font-medium text-foreground">Daniela</span>{report.data && ` · ${report.data.company}`}</p></div>
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" onClick={() => setImporting(true)}><Upload className="h-4 w-4" />Importar presença</Button>
             <Button variant="outline" onClick={() => setBaseOpen(true)}><Users className="h-4 w-4" />Base de colaboradores</Button>
@@ -92,6 +93,6 @@ export default function AdminRelatoriosTD() {
       </div>
       <ImportListWizard audience="interno" open={importing} onClose={()=>setImporting(false)} onImported={()=>{ setImporting(false); refresh(); }} />
       <Dialog open={baseOpen} onOpenChange={open=>{setBaseOpen(open); if(!open) refresh();}}><DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto"><DialogHeader><DialogTitle>Base de colaboradores · Interno Nexti</DialogTitle><DialogDescription>Importações versionadas com data de referência. Responsável pelos dados: Daniela.</DialogDescription></DialogHeader><EmployeeBaseTab audience="interno" canImport /></DialogContent></Dialog>
-    </AdminLayout>
+    </Layout>
   );
 }
