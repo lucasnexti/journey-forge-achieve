@@ -57,6 +57,7 @@
 - [x] Assistente: usar a Base de Conhecimento Octadesk como fonte e seguir o vídeo de referência (tom, passos, "Veja no manual", Trocar, sugestões)
 
 # Roadmap — Pesquisas e Indicadores
+- [ ] Construtor pós-treinamento: comentários por pergunta, escalas visuais, personalização, publicação, anonimato e resultados Excel/PDF — aguardando aprovação do plano
 - [x] Banco, permissões por pessoa, regras no servidor (envio, resposta única, lembretes, prorrogação, versões)
 - [x] Telas: Dashboard, Pesquisas, Listas de presença, Base de colaboradores, Configurações; resposta sem login
 - [x] Testes: cálculos e importação (21), fluxo completo na prévia, acesso restrito, dados de teste removidos

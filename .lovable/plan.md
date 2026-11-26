@@ -1,27 +1,62 @@
-# Preserve exam approvals and enforce module completion
+# Construtor de pesquisas pós-treinamento
 
-## Verified findings
-- Relinking changes the exam’s module, but historical attempts retain the old module. Current module queries exclude those attempts even though their exam ID still counts toward the attempt limit. No passed attempts currently match this historical mismatch in the live data; the defect remains reproducible in the current logic.
-- A course with only module exams is treated as having no final exam. The current completion function checks lessons but not module approvals, allowing completion and certificate creation before the last module exam is passed.
+## Objetivo
+Ampliar **Pesquisas e Indicadores → Pesquisas**, sem criar uma aplicação separada nem substituir pesquisas existentes. Reaproveitar modelos NPS/CSAT, públicos Interno Nexti e Clientes, permissões, importação de listas, convites individuais, prazos e lembretes.
 
-## Changes
-1. Recognize approval by the exam’s stable ID and current course/module association, not solely the module copied into the historical attempt. Preserve original attempts, scores, dates and attempt counts; do not fabricate approvals or transfer credit from unrelated exams.
-2. Apply the same association rule to module locks, best scores, next-step navigation, final-exam history and module reward evidence. Restrict reuse to attempts for the same exam and course; moving an exam to a different course must not grant credit automatically.
-3. Require all applicable active module exams to be passed before completing the course or creating a certificate. Apply this check on the server to both no-final-exam completion and final-exam completion paths.
-4. Keep the learner’s completion state pending after the last video when a module exam remains outstanding. After the final required approval, refresh eligibility and finish through the existing protected completion flow. Preserve courses without module exams and administrator previews.
+## 1. Construção de perguntas
+- Preservar adição, edição, exclusão, ordem e obrigatoriedade por pergunta.
+- Oferecer escolha única, várias respostas, escala 0–10, estrelas 1–5, satisfação com os cinco rótulos e texto livre.
+- Adicionar **Permitir comentário adicional?** independentemente em cada pergunta. O comentário é opcional, separado da resposta principal e identificado pela pergunta nos resultados.
+- Seguir o exemplo enviado: enunciado, formato, alternativas com exclusão individual, adicionar alternativa, controles de obrigatoriedade/comentário e prévia interativa da pergunta.
+- Manter a identidade visual Nexti e os controles existentes, com organização clara no computador e celular.
+- Não impor um limite arbitrário de perguntas; manter validação de alternativas, textos e escalas para evitar dados inválidos.
 
-## Technical approach
-- Add one canonical server-side module-approval predicate using exam ID, learner ID and matching course, with existing authorization restrictions.
-- Use an additive migration for function changes; leave historical migration files and attempts untouched.
-- Update the shared module-content query to include exam IDs and correctly associate legacy attempts. Fail closed if eligibility cannot be loaded.
-- Keep final-exam detection separate from overall course eligibility; merely making `track_has_exam` include module exams would incorrectly send learners to a nonexistent final exam.
-- Do not revoke existing certificates or reset already-completed enrollments in this change. Report any questionable existing completions separately.
+## 2. Personalização e prévia
+- Configurar título, descrição, mensagem de apresentação, nome do treinamento/reunião, data de realização e agradecimento após o envio da resposta.
+- Permitir **Identificada** ou **Anônima**, com aviso correspondente para o participante.
+- Usar o mesmo formulário na prévia e na página do participante. A prévia permite responder localmente, limpar respostas e conferir os comentários; não grava respostas nem dispara e-mails.
 
-## Verification
-- Regression tests: relinked same-course approval survives; unrelated/replaced exams do not approve a module; attempt counts do not change.
-- Server tests: all videos complete plus last module exam pending cannot complete or issue a certificate; failed module exam remains pending; all required approvals permit completion; courses without exams retain their existing behavior.
-- Verify the learner flow with isolated fixtures: last video → module exam → approval → completion, including reload and direct completion requests. Do not modify real learner progress for testing.
-- Resolve each monitoring finding as fixed only after its relevant verification passes; otherwise report the remaining blocker.
+## 3. Rascunho, publicação e envio
+- Disponibilizar **Visualizar**, **Salvar rascunho** e **Publicar pesquisa**.
+- Publicar valida e disponibiliza a pesquisa; não equivale a disparar e-mails. O envio continua pela seleção/importação da lista de destinatários e confirmação existente.
+- Preservar o início do prazo no primeiro envio e o bloqueio de alterações nas perguntas após distribuição. Alterações posteriores exigem nova versão, incluindo as novas configurações.
+- Salvar pesquisa e perguntas de forma indivisível: um erro não pode apagar as perguntas ou deixar um cadastro parcialmente salvo.
+- Manter os envios reais desativados. Configurar domínio e liberar envio não faz parte desta entrega.
 
-## Scope
-No layout changes, new exam features, automatic historical data corrections or certificate revocations.
+## 4. Anonimato e permissões
+Esta parte precisa de mudanças coordenadas: atualmente cada resposta é vinculada diretamente ao convite, que contém nome e e-mail. Apenas esconder o nome na tela não tornaria a pesquisa anônima.
+
+- Pesquisas existentes continuam identificadas; não converter respostas antigas.
+- Para novas pesquisas anônimas, separar o controle de convite respondido das respostas armazenadas, sem vínculo recuperável de identidade no conjunto de respostas.
+- Manter resposta única por convite e suprimir lembretes para quem respondeu, sem expor qual resposta pertence a essa pessoa.
+- Não mostrar nome, e-mail, horário individual exato ou recortes de área/empresa capazes de reidentificar respostas anônimas. Avisar que o texto livre não deve conter dados pessoais.
+- Fixar o modo de identificação antes da distribuição; não permitir alternância depois de enviados convites ou recebidas respostas.
+- Proteger anonimato também nas consultas, relatórios e exportações, não apenas na interface. Respostas identificadas continuam restritas às permissões existentes.
+
+## 5. Resultados
+- Adicionar **Resultados** nos detalhes de cada pesquisa, reaproveitando o Dashboard existente.
+- Mostrar convidados, respondentes únicos e respostas válidas de cada pergunta, sem confundir falta de resposta com nota zero.
+- Escolha única/várias respostas: contagem e percentual por alternativa, usando como denominador os participantes que responderam à pergunta. Em múltipla escolha, os percentuais podem somar mais de 100%.
+- Escalas: média e distribuição das notas; preservar as fórmulas oficiais de NPS e CSAT.
+- Texto e comentários adicionais: consulta individual por pergunta, respeitando identificação/anonimato.
+- Gráficos de barras por pergunta, com alternativa textual e estados de ausência de dados.
+- Exportar **Excel** com resumo e resultados por pergunta e **PDF** com resultados legíveis. Identidades aparecem somente em pesquisas identificadas e para quem tem permissão.
+- Preservar o agrupamento por público e não misturar Interno Nexti com Clientes.
+
+## Detalhes técnicos
+- Mudanças aditivas no armazenamento: apresentação, agradecimento, data, modo de identificação, publicação, apresentação da escala e comentário por pergunta/resposta. Preservar registros e histórico existentes.
+- Criar salvamento/publicação transacional, com validações no servidor e no formulário.
+- Atualizar leitura do formulário, envio de respostas, duplicação/versionamento, apuração e exportação para as novas configurações.
+- Separar armazenamento de respostas anônimas quando necessário, sem afrouxar restrições das respostas identificadas ou alterar tabelas gerenciadas de autenticação.
+- Usar a mesma renderização para prévia, resposta pública e apresentação das escalas; comentários nunca alteram o cálculo da nota.
+- Não substituir as regras atuais de prazos, remetentes, participação, presença ou alcance.
+
+## Verificação antes da entrega
+- Testar obrigatória/opcional, escolha única/múltipla, valores 0 e 10, estrelas 1 e 5, satisfação, texto, comentários independentes e ordem das perguntas.
+- Testar salvamento completo, reabertura, publicação sem envio, nova versão e prévia sem gravação.
+- Conferir um fluxo real com dados de teste isolados: criar → publicar → convite de teste sem envio externo → responder → consultar resultados → exportar Excel/PDF; remover somente os dados de teste.
+- Verificar resposta única, prazo e acesso não autorizado; comprovar que respostas anônimas não revelam identidade por consultas ou exportações.
+- Conferir computador e celular e preservar pesquisas já existentes.
+
+## Fora do escopo
+Disparo real de e-mails, integrações com Feedz/Google Agenda, alterações em cursos/provas e conversão de pesquisas antigas para anônimas.
