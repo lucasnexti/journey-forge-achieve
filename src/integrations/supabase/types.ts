@@ -3410,6 +3410,7 @@ export type Database = {
         Returns: boolean
       }
       is_company_admin: { Args: { _company: string }; Returns: boolean }
+      is_corporate_email: { Args: { _email: string }; Returns: boolean }
       is_master: { Args: never; Returns: boolean }
       is_same_company: { Args: { _user_id: string }; Returns: boolean }
       learning_course_access: {

@@ -274,6 +274,13 @@
       "when": 1795787215345,
       "tag": "0038_environments_revoke_anon",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1795787459068,
+      "tag": "0039_corporate_email_only",
+      "breakpoints": true
     }
   ]
 }

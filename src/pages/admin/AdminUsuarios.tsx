@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { isCorporateEmail, CORPORATE_EMAIL_MESSAGE } from "@/lib/corporateEmail";
 import { supabase } from "@/integrations/supabase/client";
 import AdminLayout from "@/components/admin/AdminLayout";
 import PaginationControls from "@/components/admin/PaginationControls";
@@ -32,7 +33,7 @@ const roleLabel: Record<string, string> = { admin: "Administrador", moderator: "
 
 const inviteSchema = z.object({
   nome: z.string().trim().min(2, "Nome deve ter ao menos 2 caracteres").max(100, "Nome muito longo"),
-  email: z.string().trim().email("E-mail inválido").max(255),
+  email: z.string().trim().email("E-mail inválido").max(255).refine(isCorporateEmail, CORPORATE_EMAIL_MESSAGE),
   empresa: z.string().trim().max(100),
   cargo: z.string().trim().max(100),
   role: z.enum(["user", "moderator", "admin"]),

@@ -55,6 +55,9 @@ Deno.serve(async (req) => {
   // Papel global "admin"/"moderator" (ferramentas da Nexti) só o Master concede
   if (!isMaster) body.role = "user";
 
+  const { data: corporate } = await admin.rpc("is_corporate_email", { _email: body.email });
+  if (corporate === false) return json({ error: "Cadastro permitido apenas com e-mail corporativo. E-mails pessoais (como Gmail, Hotmail, Outlook ou Yahoo) não são aceitos." }, 400);
+
   const { data: existing } = await admin.from("profiles").select("user_id").ilike("email", body.email).maybeSingle();
   if (existing) return json({ error: "Já existe um usuário com este e-mail" }, 400);
 

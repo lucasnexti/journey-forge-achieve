@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { isCorporateEmail, CORPORATE_EMAIL_MESSAGE } from "@/lib/corporateEmail";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -61,6 +62,7 @@ const AuthPage = () => {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!nome.trim()) { toast.error("Informe seu nome."); return; }
+    if (!isCorporateEmail(email)) { toast.error(CORPORATE_EMAIL_MESSAGE); return; }
     const cpfDigits = cpf.replace(/\D/g, "");
     if (!cpfDigits || !isValidCpf(cpfDigits)) { toast.error("Informe um CPF válido."); return; }
     setLoading(true);
@@ -81,7 +83,7 @@ const AuthPage = () => {
       email, password,
       options: { data: { nome, cpf: cpfDigits, empresa, cargo }, emailRedirectTo: window.location.origin },
     });
-    if (error) toast.error(error.message);
+    if (error) toast.error(/corporativo|database error saving/i.test(error.message) ? CORPORATE_EMAIL_MESSAGE : error.message);
     else toast.success("Conta criada! Verifique seu e-mail para confirmar.");
     setLoading(false);
   };

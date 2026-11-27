@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { isCorporateEmail, CORPORATE_EMAIL_MESSAGE } from "@/lib/corporateEmail";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -21,7 +22,7 @@ interface Member { user_id: string; nome: string | null; email: string | null; c
 
 const inviteSchema = z.object({
   nome: z.string().trim().min(2, "Informe o nome").max(100),
-  email: z.string().trim().toLowerCase().email("E-mail inválido").max(255),
+  email: z.string().trim().toLowerCase().email("E-mail inválido").max(255).refine(isCorporateEmail, CORPORATE_EMAIL_MESSAGE),
   cargo: z.string().trim().max(100).optional(),
   env_role: z.enum(["admin", "member"]),
 });

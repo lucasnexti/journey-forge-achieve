@@ -17,4 +17,4 @@
 - LinkedIn sharing rasterizes the issued certificate PDF to PNG in the browser for manual/native attach; post text has no app link. Why: LinkedIn can't attach images via share URL and must never post for the user.
 
 - Environments (multi-tenant): learning_companies = client environment, one active learning_company_memberships row per user with role admin|member; app_role master (user_roles) sees all. tracks.company_id owns content, track_company_access shares it; RESTRICTIVE RLS (track_visible/track_editable, can_see_user) blocks cross-environment reads/writes; membership/role changes only via master or SECURITY DEFINER RPCs and admin-create-user. Why: clients must never see each other's data and admins cannot self-escalate.
-- Nexti AI assistant rules live in supabase/functions/AGENTS.md.
+- Nexti AI assistant rules live in supabase/functions/AGENTS.md.- New accounts require a corporate e-mail: public.is_corporate_email (BEFORE INSERT trigger on auth.users) mirrors src/lib/corporateEmail.ts; keep both lists in sync. Why: the rule must hold even when the signup form is bypassed.
