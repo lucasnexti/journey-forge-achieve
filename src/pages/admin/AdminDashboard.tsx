@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
+import PlatformPerformance from "@/components/admin/dashboard/PlatformPerformance";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -331,6 +332,7 @@ const AdminDashboard = () => {
               <TabsTrigger value="geral" className="text-xs gap-1.5"><BarChart3 className="h-3.5 w-3.5" />Painel</TabsTrigger>
               <TabsTrigger value="overview" className="text-xs gap-1.5"><Gauge className="h-3.5 w-3.5" />Visão Geral</TabsTrigger>
               <TabsTrigger value="engagement" className="text-xs gap-1.5"><Zap className="h-3.5 w-3.5" />Engajamento</TabsTrigger>
+              <TabsTrigger value="performance" className="text-xs gap-1.5"><Gauge className="h-3.5 w-3.5" />Desempenho</TabsTrigger>
             </TabsList>
             {lastRefresh && (
               <div className="flex items-center gap-1.5">
@@ -714,6 +716,7 @@ const AdminDashboard = () => {
               </>
             )}
           </TabsContent>
+          <TabsContent value="performance" className="mt-0"><PlatformPerformance /></TabsContent>
         </Tabs>
       </div>
     </AdminLayout>
