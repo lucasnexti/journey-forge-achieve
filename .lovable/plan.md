@@ -28,10 +28,10 @@ Ambiente = Cliente (ex.: Nexti, Cliente A, Cliente B)
 - Os 4 admins atuais da Nexti passam a ser admins do ambiente Nexti. Robson e Aline também viram Master.
 
 ### 3. Conteúdo por ambiente
-- Cursos, trilhas e vídeos ganham um dono: **Global (Nexti, visível a todos)** ou **um ambiente específico**.
-- O conteúdo que já existe fica como Global, então nada some para ninguém.
-- O admin do ambiente cria e edita apenas o conteúdo do seu ambiente. O Global só pode ser alterado pelo Master.
-- O aluno vê o conteúdo Global mais o do seu ambiente.
+- Cada curso, trilha ou vídeo pertence a um ambiente. Os cursos que já existem passam a ser do ambiente **Nexti**.
+- Um ambiente novo começa vazio. O Master pode **liberar** um curso da Nexti para um ou mais ambientes, sem copiá-lo: o progresso e os certificados continuam no mesmo curso.
+- O admin do ambiente cria e edita só os cursos do seu ambiente. Os cursos liberados pela Nexti ele pode atribuir aos seus usuários, mas não pode alterá-los.
+- O aluno vê os cursos do seu ambiente e os que foram liberados para ele.
 
 ### 4. Colaboradores
 - Em **Usuários**, o admin vê somente as pessoas do seu ambiente. Ele pode convidar ou cadastrar colaboradores (por e-mail ou planilha), escolher entre Admin e Comum, e desativar alguém.
@@ -48,7 +48,7 @@ Ambiente = Cliente (ex.: Nexti, Cliente A, Cliente B)
 ## Ordem de construção
 1. Ambientes e papel Master, com a migração dos usuários atuais para Nexti.
 2. Regras de acesso no servidor para usuários, conteúdo, progresso e relatórios.
-3. Dono do conteúdo (Global/ambiente) nas telas de cursos e trilhas.
+3. Dono do conteúdo e liberação de cursos da Nexti para outros ambientes.
 4. Gestão de colaboradores pelo admin do ambiente.
 5. Seletor de ambiente e relatório consolidado do Master.
 6. Menu do usuário comum, e testes com um usuário de cada papel.
@@ -56,7 +56,7 @@ Ambiente = Cliente (ex.: Nexti, Cliente A, Cliente B)
 ## Detalhes técnicos
 - Reaproveitar `learning_companies` como ambiente (adicionar `slug`, `is_active`). Usar `learning_company_memberships` com uma nova coluna `role` ('admin' | 'member') como vínculo ambiente↔usuário, um ativo por usuário.
 - `app_role` ganha 'master'. `has_role(uid,'master')` fica em `user_roles`. Novas funções SECURITY DEFINER: `is_master()`, `current_company_id()`, `is_company_admin(_company)`.
-- `tracks` (e o que herda dele: módulos, aulas, materiais, provas) ganha `company_id uuid NULL` (NULL = Global). As políticas RLS passam a liberar a leitura quando `company_id IS NULL OR company_id = current_company_id() OR is_master()`, e a escrita para o admin do ambiente dono ou o Master.
+- `tracks` ganha `company_id uuid NOT NULL` (backfill = ambiente Nexti). Módulos, aulas, materiais e provas herdam esse dono pelo curso. Nova tabela `track_company_access(track_id, company_id)`, que só o Master altera, guarda as liberações. Leitura: `is_master() OR company_id = current_company_id() OR existe liberação para current_company_id()`. Escrita: admin do ambiente dono ou Master.
 - Ajustar as políticas que hoje usam `has_role(...,'admin')` global para `is_master() OR is_company_admin(alvo)`. Isso vale para profiles, enrollments, progresso, certificados, resgates e relatórios (`admin_td_report`, `admin_enrollment_report` recebem `_company` opcional, permitido só ao Master quando for diferente do próprio).
 - Nova RPC `master_environments_report(_start,_end)`, restrita ao Master.
 - Cadastro de colaborador por edge function admin-only (convite por e-mail via auth admin), validando que o ambiente alvo é o do chamador.
