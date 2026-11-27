@@ -1,5 +1,6 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import MasterMfaGate from "@/components/auth/MasterMfaGate";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 /** Páginas que o admin de um ambiente (cliente) pode abrir. */
@@ -25,7 +26,7 @@ const AdminRoute = ({ children, masterOnly = false }: { children: React.ReactNod
     return <Navigate to="/admin/trilhas-gestao" replace />;
   }
 
-  return <>{children}</>;
+  return <MasterMfaGate>{children}</MasterMfaGate>;
 };
 
 export default AdminRoute;

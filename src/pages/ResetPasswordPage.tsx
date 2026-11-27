@@ -1,3 +1,5 @@
+import { isStrongPassword, PASSWORD_POLICY_MESSAGE } from "@/lib/passwordPolicy";
+import PasswordChecklist from "@/components/auth/PasswordChecklist";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -48,8 +50,8 @@ const ResetPasswordPage = () => {
 
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password.length < 6) {
-      toast.error("A senha deve ter pelo menos 6 caracteres.");
+    if (!isStrongPassword(password)) {
+      toast.error(PASSWORD_POLICY_MESSAGE);
       return;
     }
     if (password !== confirmPassword) {
@@ -119,9 +121,9 @@ const ResetPasswordPage = () => {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Mínimo 6 caracteres"
+                  placeholder="Mínimo 8 caracteres"
                   required
-                  minLength={6}
+                  minLength={8}
                 />
                 <button
                   type="button"
@@ -131,6 +133,7 @@ const ResetPasswordPage = () => {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
+<PasswordChecklist password={password} />
             </div>
 
             <div className="space-y-1.5">
@@ -142,7 +145,7 @@ const ResetPasswordPage = () => {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Repita a nova senha"
                 required
-                minLength={6}
+                minLength={8}
               />
             </div>
 

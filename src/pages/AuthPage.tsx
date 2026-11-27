@@ -1,3 +1,5 @@
+import { isStrongPassword, PASSWORD_POLICY_MESSAGE } from "@/lib/passwordPolicy";
+import PasswordChecklist from "@/components/auth/PasswordChecklist";
 import { useState } from "react";
 import { isCorporateEmail, CORPORATE_EMAIL_MESSAGE } from "@/lib/corporateEmail";
 import { useNavigate, Link } from "react-router-dom";
@@ -65,6 +67,7 @@ const AuthPage = () => {
     if (!isCorporateEmail(email)) { toast.error(CORPORATE_EMAIL_MESSAGE); return; }
     const cpfDigits = cpf.replace(/\D/g, "");
     if (!cpfDigits || !isValidCpf(cpfDigits)) { toast.error("Informe um CPF válido."); return; }
+    if (!isStrongPassword(password)) { toast.error(PASSWORD_POLICY_MESSAGE); return; }
     setLoading(true);
 
     // Check CPF uniqueness
@@ -212,9 +215,9 @@ const AuthPage = () => {
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Mínimo 6 caracteres"
+                    placeholder="Mínimo 8 caracteres"
                     required
-                    minLength={6}
+                    minLength={8}
                   />
                   <button
                     type="button"
@@ -224,6 +227,7 @@ const AuthPage = () => {
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
+{!isLogin && <PasswordChecklist password={password} />}
               </div>
 
               {isLogin && (

@@ -1,3 +1,5 @@
+import { isStrongPassword, PASSWORD_POLICY_MESSAGE } from "@/lib/passwordPolicy";
+import PasswordChecklist from "@/components/auth/PasswordChecklist";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -133,8 +135,8 @@ const ProfilePage = () => {
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newPassword.length < 6) {
-      toast.error("A nova senha deve ter pelo menos 6 caracteres.");
+    if (!isStrongPassword(newPassword)) {
+      toast.error(PASSWORD_POLICY_MESSAGE);
       return;
     }
     if (newPassword !== confirmPassword) {
@@ -278,9 +280,9 @@ const ProfilePage = () => {
                         type={showPassword ? "text" : "password"}
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
-                        placeholder="Mínimo 6 caracteres"
+                        placeholder="Mínimo 8 caracteres"
                         required
-                        minLength={6}
+                        minLength={8}
                       />
                       <button
                         type="button"
@@ -290,6 +292,7 @@ const ProfilePage = () => {
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
+<PasswordChecklist password={newPassword} />
                   </div>
                   <div className="space-y-1.5">
                     <Label className="text-sm font-medium">Confirmar nova senha *</Label>
@@ -299,7 +302,7 @@ const ProfilePage = () => {
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Repita a nova senha"
                       required
-                      minLength={6}
+                      minLength={8}
                     />
                   </div>
                   <div className="flex gap-2">
