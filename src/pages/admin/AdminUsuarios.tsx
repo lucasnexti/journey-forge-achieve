@@ -39,7 +39,9 @@ const inviteSchema = z.object({
   cargo: z.string().trim().max(100),
   role: z.enum(["user", "moderator", "admin"]),
 });
-const emptyInvite = { nome: "", email: "", empresa: "", cargo: "", role: "user" as "user" | "moderator" | "admin", company_id: "", env_role: "member" as "admin" | "member" };
+const emptyInvite = { nome: "", email: "", empresa: "", cargo: "", role: "user" as "user" | "moderator" | "admin", company_id: "", env_role: "member" as "admin" | "member", new_company: "" };
+const NEW_COMPANY = "__new__";
+const slugify = (t: string) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 type Company = { id: string; name: string };
 type Membership = { company_id: string; role: "admin" | "member" };
 
@@ -96,8 +98,22 @@ const AdminUsuarios = () => {
     const r = inviteSchema.safeParse(invite);
     if (!r.success) { toast.error(r.error.errors[0].message); return; }
     if (isMaster && !invite.company_id) { toast.error("Selecione a empresa do usuário."); return; }
+    const newName = invite.new_company.trim();
+    if (isMaster && invite.company_id === NEW_COMPANY && newName.length < 2) { toast.error("Informe o nome da nova empresa."); return; }
     setInviting(true);
-    const companyBody = isMaster ? { company_id: invite.company_id, env_role: invite.env_role, empresa: companyName(invite.company_id) ?? r.data.empresa } : {};
+    let companyId = invite.company_id, companyLabel = companyName(invite.company_id);
+    if (isMaster && companyId === NEW_COMPANY) {
+      const existing = companies.find((c) => c.name.toLowerCase() === newName.toLowerCase());
+      if (existing) { companyId = existing.id; companyLabel = existing.name; }
+      else {
+        const { data: created, error: cErr } = await supabase.from("learning_companies").insert({ name: newName, slug: slugify(newName) }).select("id,name").single();
+        if (cErr || !created) { setInviting(false); toast.error(`Não foi possível criar a empresa: ${cErr?.message ?? ""}`); return; }
+        companyId = created.id; companyLabel = created.name;
+      }
+      fetchCompanies();
+      setInvite((v) => ({ ...v, company_id: companyId, new_company: "" }));
+    }
+    const companyBody = isMaster ? { company_id: companyId, env_role: invite.env_role, empresa: companyLabel ?? r.data.empresa } : {};
     const { data, error } = await supabase.functions.invoke("admin-create-user", {
       body: { ...r.data, ...companyBody, redirectTo: "https://journey-forge-achieve.lovable.app" },
     });
@@ -447,8 +463,14 @@ const AdminUsuarios = () => {
                 <div className="space-y-2"><Label>Empresa *</Label>
                   <Select value={invite.company_id} onValueChange={(v) => setInvite({ ...invite, company_id: v })}>
                     <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                    <SelectContent>{companies.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
+                    <SelectContent>
+                      <SelectItem value={NEW_COMPANY}>+ Cadastrar nova empresa</SelectItem>
+                      {companies.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                    </SelectContent>
                   </Select>
+                  {invite.company_id === NEW_COMPANY && (
+                    <Input autoFocus placeholder="Nome da nova empresa" maxLength={100} value={invite.new_company} onChange={(e) => setInvite({ ...invite, new_company: e.target.value })} />
+                  )}
                 </div>
               ) : (
                 <div className="space-y-2"><Label>Empresa</Label><Input value={invite.empresa} maxLength={100} onChange={e => setInvite({ ...invite, empresa: e.target.value })} /></div>
