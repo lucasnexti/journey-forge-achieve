@@ -11,6 +11,7 @@ import AppLayout from "@/components/AppLayout";
 import TrackCard from "@/components/TrackCard";
 import OnboardingWizard from "@/components/OnboardingWizard";
 import { shouldShowOnboarding } from "@/lib/onboarding";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { BookOpen, Clock, Trophy, Play, Search, Heart, TrendingUp, Target, Award, Coins, Flame, ArrowRight, Sparkles } from "lucide-react";
 import LinkedInShare from "@/components/LinkedInShare";
 import { motion } from "framer-motion";
@@ -174,18 +175,43 @@ const Dashboard = () => {
               transition={{ delay: 0.1 }}
               className="flex items-center gap-2 flex-wrap"
             >
-              <Link to="/loja" className="flex items-center gap-2 rounded-xl bg-white/15 backdrop-blur-md border border-white/20 px-4 py-2.5 hover:bg-white/20 transition-colors">
-                <Coins className="h-4 w-4 text-primary-foreground" />
-                <span className="text-sm font-bold text-primary-foreground tabular-nums">{gamification.coins.toLocaleString("pt-BR")}</span>
-              </Link>
-              <div className="flex items-center gap-2 rounded-xl bg-white/15 backdrop-blur-md border border-white/20 px-4 py-2.5">
-                <Flame className="h-4 w-4 text-primary-foreground" />
-                <span className="text-sm font-bold text-primary-foreground tabular-nums">{gamification.streak}d</span>
-              </div>
-              <div className="flex items-center gap-2 rounded-xl bg-white/15 backdrop-blur-md border border-white/20 px-4 py-2.5">
-                <TrendingUp className="h-4 w-4 text-primary-foreground" />
-                <span className="text-sm font-bold text-primary-foreground">Nv.{levelInfo.level}</span>
-              </div>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link to="/loja" aria-label="Nexti Coins" className="flex items-center gap-2 rounded-xl bg-white/15 backdrop-blur-md border border-white/20 px-4 py-2.5 hover:bg-white/20 transition-colors">
+                    <Coins className="h-4 w-4 text-primary-foreground" />
+                    <span className="text-sm font-bold text-primary-foreground tabular-nums">{gamification.coins.toLocaleString("pt-BR")}</span>
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p className="font-semibold">Nexti Coins</p>
+                  <p>Moedas que você ganha ao concluir aulas, provas e cursos. Troque por prêmios na Loja.</p>
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div tabIndex={0} aria-label="Sequência de dias" className="flex items-center gap-2 rounded-xl bg-white/15 backdrop-blur-md border border-white/20 px-4 py-2.5 cursor-help">
+                    <Flame className="h-4 w-4 text-primary-foreground" />
+                    <span className="text-sm font-bold text-primary-foreground tabular-nums">{gamification.streak}d</span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p className="font-semibold">Sequência de estudos</p>
+                  <p>Dias seguidos em que você acessou a plataforma. Seu recorde é de {gamification.longestStreak} dias.</p>
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div tabIndex={0} aria-label="Nível" className="flex items-center gap-2 rounded-xl bg-white/15 backdrop-blur-md border border-white/20 px-4 py-2.5 cursor-help">
+                    <TrendingUp className="h-4 w-4 text-primary-foreground" />
+                    <span className="text-sm font-bold text-primary-foreground">Nv.{levelInfo.level}</span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p className="font-semibold">Nível {levelInfo.level} · {levelInfo.title}</p>
+                  <p>Seu nível de maturidade na plataforma. Ele sobe com a experiência (XP) que você ganha ao estudar.</p>
+                  <p className="mt-1">{levelInfo.nextLevel ? `${levelInfo.totalXp} XP · faltam ${levelInfo.nextLevel.xp - levelInfo.totalXp} XP para ${levelInfo.nextLevel.title}` : `${levelInfo.totalXp} XP · nível máximo`}</p>
+                </TooltipContent>
+              </Tooltip>
             </motion.div>
           </div>
 
