@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Search, UserCircle, Pencil, Upload, Shield, UserX, UserCheck, Users, Eye, Plus } from "lucide-react";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { z } from "zod";
 import { motion } from "framer-motion";
 
@@ -38,7 +39,9 @@ const inviteSchema = z.object({
   cargo: z.string().trim().max(100),
   role: z.enum(["user", "moderator", "admin"]),
 });
-const emptyInvite = { nome: "", email: "", empresa: "", cargo: "", role: "user" as "user" | "moderator" | "admin" };
+const emptyInvite = { nome: "", email: "", empresa: "", cargo: "", role: "user" as "user" | "moderator" | "admin", company_id: "", env_role: "member" as "admin" | "member" };
+type Company = { id: string; name: string };
+type Membership = { company_id: string; role: "admin" | "member" };
 
 const profileSchema = z.object({
   nome: z.string().trim().min(2, "Nome deve ter ao menos 2 caracteres").max(100, "Nome muito longo"),
@@ -68,13 +71,35 @@ const AdminUsuarios = () => {
   const [inviteOpen, setInviteOpen] = useState(false);
   const [invite, setInvite] = useState(emptyInvite);
   const [inviting, setInviting] = useState(false);
+  const { isMaster } = useIsAdmin();
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [memberships, setMemberships] = useState<Record<string, Membership>>({});
+  const [editCompany, setEditCompany] = useState<Membership>({ company_id: "", role: "member" });
+  const companyName = (id?: string) => companies.find((c) => c.id === id)?.name;
+
+  const fetchCompanies = async () => {
+    const [{ data: c }, { data: m }] = await Promise.all([
+      supabase.from("learning_companies").select("id,name").eq("is_active", true).order("name"),
+      supabase.from("learning_company_memberships").select("user_id,company_id,role").is("revoked_at", null),
+    ]);
+    setCompanies((c as Company[]) ?? []);
+    const map: Record<string, Membership> = {};
+    for (const row of (m as any[]) ?? []) map[row.user_id] = { company_id: row.company_id, role: row.role };
+    setMemberships(map);
+  };
+  useEffect(() => { fetchCompanies(); }, []);
+  useEffect(() => {
+    if (editingProfile) setEditCompany(memberships[editingProfile.user_id] ?? { company_id: "", role: "member" });
+  }, [editingProfile?.id]);
 
   const handleInvite = async () => {
     const r = inviteSchema.safeParse(invite);
     if (!r.success) { toast.error(r.error.errors[0].message); return; }
+    if (isMaster && !invite.company_id) { toast.error("Selecione a empresa do usuário."); return; }
     setInviting(true);
+    const companyBody = isMaster ? { company_id: invite.company_id, env_role: invite.env_role, empresa: companyName(invite.company_id) ?? r.data.empresa } : {};
     const { data, error } = await supabase.functions.invoke("admin-create-user", {
-      body: { ...r.data, redirectTo: "https://journey-forge-achieve.lovable.app" },
+      body: { ...r.data, ...companyBody, redirectTo: "https://journey-forge-achieve.lovable.app" },
     });
     setInviting(false);
     const msg = (data as any)?.error || (error ? await (error as any).context?.json?.().then((j: any) => j?.error).catch(() => null) || error.message : null);
@@ -172,6 +197,13 @@ const AdminUsuarios = () => {
     }).eq("id", editingProfile.id);
 
     if (error) { toast.error(error.message); return; }
+    const current = memberships[editingProfile.user_id];
+    if (isMaster && editCompany.company_id && (current?.company_id !== editCompany.company_id || current?.role !== editCompany.role)) {
+      const { error: mErr } = await supabase.rpc("master_move_user" as never, { _user: editingProfile.user_id, _company: editCompany.company_id, _role: editCompany.role } as never);
+      if (mErr) { toast.error(`Perfil salvo, mas a empresa não foi vinculada: ${mErr.message}`); return; }
+      await supabase.from("profiles").update({ empresa: companyName(editCompany.company_id) ?? null }).eq("id", editingProfile.id);
+      fetchCompanies();
+    }
     toast.success("Perfil atualizado!");
     setEditingProfile(null);
     fetchProfiles();
@@ -356,7 +388,7 @@ const AdminUsuarios = () => {
                       </div>
                     </div>
                   </td>
-                  <td className="px-5 py-4 text-sm text-foreground">{p.empresa || "—"}</td>
+                  <td className="px-5 py-4 text-sm text-foreground">{companyName(memberships[p.user_id]?.company_id) || <span className="text-muted-foreground">Sem empresa vinculada</span>}</td>
                   <td className="px-5 py-4 text-sm text-foreground">{p.cargo || "—"}</td>
                   <td className="px-5 py-4">
                     <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
@@ -411,9 +443,26 @@ const AdminUsuarios = () => {
             <div className="space-y-2"><Label>Nome *</Label><Input value={invite.nome} maxLength={100} onChange={e => setInvite({ ...invite, nome: e.target.value })} /></div>
             <div className="space-y-2"><Label>E-mail *</Label><Input type="email" value={invite.email} maxLength={255} onChange={e => setInvite({ ...invite, email: e.target.value })} /></div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2"><Label>Empresa</Label><Input value={invite.empresa} maxLength={100} onChange={e => setInvite({ ...invite, empresa: e.target.value })} /></div>
+              {isMaster ? (
+                <div className="space-y-2"><Label>Empresa *</Label>
+                  <Select value={invite.company_id} onValueChange={(v) => setInvite({ ...invite, company_id: v })}>
+                    <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                    <SelectContent>{companies.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
+              ) : (
+                <div className="space-y-2"><Label>Empresa</Label><Input value={invite.empresa} maxLength={100} onChange={e => setInvite({ ...invite, empresa: e.target.value })} /></div>
+              )}
               <div className="space-y-2"><Label>Cargo</Label><Input value={invite.cargo} maxLength={100} onChange={e => setInvite({ ...invite, cargo: e.target.value })} /></div>
             </div>
+            {isMaster && (
+              <div className="space-y-2"><Label>Perfil na empresa *</Label>
+                <Select value={invite.env_role} onValueChange={(v) => setInvite({ ...invite, env_role: v as any })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent><SelectItem value="member">Usuário comum</SelectItem><SelectItem value="admin">Administrador da empresa</SelectItem></SelectContent>
+                </Select>
+              </div>
+            )}
             <div className="space-y-2">
               <Label>Perfil de acesso *</Label>
               <Select value={invite.role} onValueChange={(v) => setInvite({ ...invite, role: v as any })}>
@@ -444,7 +493,7 @@ const AdminUsuarios = () => {
               {[
                 ["Nome", viewing.nome],
                 ["E-mail", viewing.email],
-                ["Empresa", viewing.empresa],
+                ["Empresa", companyName(memberships[viewing.user_id]?.company_id) ?? "Sem empresa vinculada"],
                 ["Cargo", viewing.cargo],
                 ["CPF", viewing.cpf],
                 ["Perfil", roleLabel[roles[viewing.user_id] || "user"]],
@@ -474,7 +523,24 @@ const AdminUsuarios = () => {
             <div className="space-y-4">
               <div className="space-y-2"><Label>Nome *</Label><Input value={editingProfile.nome} onChange={e => setEditingProfile({ ...editingProfile, nome: e.target.value })} /></div>
               <div className="space-y-2"><Label>CPF</Label><Input value={editingProfile.cpf || ""} onChange={e => setEditingProfile({ ...editingProfile, cpf: e.target.value })} maxLength={14} /></div>
-              <div className="space-y-2"><Label>Empresa</Label><Input value={editingProfile.empresa || ""} onChange={e => setEditingProfile({ ...editingProfile, empresa: e.target.value })} maxLength={100} /></div>
+              {isMaster ? (
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2"><Label>Empresa</Label>
+                    <Select value={editCompany.company_id} onValueChange={(v) => setEditCompany({ ...editCompany, company_id: v })}>
+                      <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                      <SelectContent>{companies.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2"><Label>Perfil na empresa</Label>
+                    <Select value={editCompany.role} onValueChange={(v) => setEditCompany({ ...editCompany, role: v as any })}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent><SelectItem value="member">Usuário comum</SelectItem><SelectItem value="admin">Administrador da empresa</SelectItem></SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2"><Label>Empresa</Label><Input value={companyName(memberships[editingProfile.user_id]?.company_id) ?? "Sem empresa vinculada"} disabled /></div>
+              )}
               <div className="space-y-2"><Label>Cargo</Label><Input value={editingProfile.cargo || ""} onChange={e => setEditingProfile({ ...editingProfile, cargo: e.target.value })} maxLength={100} /></div>
             </div>
           )}
