@@ -1,40 +1,51 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 
+export interface MyEnvironment {
+  company_id: string | null;
+  company_name: string | null;
+  role: "admin" | "member" | null;
+  is_master: boolean;
+}
+
+/**
+ * Papéis do usuário logado.
+ * - isAdmin: administrador Nexti (papel global "admin", mantém as ferramentas da Nexti)
+ * - isMaster: vê e gerencia todos os ambientes
+ * - isCompanyAdmin: administrador do próprio ambiente (cliente)
+ * - canAccessAdmin: pode abrir a área administrativa
+ * O servidor sempre revalida essas permissões; aqui é só para a interface.
+ */
 export const useIsAdmin = () => {
   const { user } = useAuth();
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [checkedUserId, setCheckedUserId] = useState<string | null>(null);
+  const query = useQuery({
+    queryKey: ["my-access", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const [roles, env] = await Promise.all([
+        supabase.from("user_roles").select("role").eq("user_id", user!.id),
+        supabase.rpc("my_environment" as never),
+      ]);
+      const list = (roles.data ?? []).map((r) => r.role as string);
+      const environment = (env.data ?? null) as MyEnvironment | null;
+      return { roles: list, environment };
+    },
+  });
 
-  useEffect(() => {
-    if (!user) {
-      setIsAdmin(false);
-      setCheckedUserId(null);
-      return;
-    }
+  const roles = query.data?.roles ?? [];
+  const environment = query.data?.environment ?? null;
+  const isAdmin = roles.includes("admin");
+  const isMaster = roles.includes("master") || !!environment?.is_master;
+  const isCompanyAdmin = environment?.role === "admin";
+  const loading = user ? query.isLoading : false;
 
-    let cancelled = false;
-
-    const checkAdmin = async () => {
-      const { data, error } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id)
-        .eq("role", "admin")
-        .maybeSingle();
-
-      if (cancelled) return;
-      setIsAdmin(!!data && !error);
-      setCheckedUserId(user.id);
-    };
-
-    checkAdmin();
-    return () => { cancelled = true; };
-  }, [user]);
-
-  // Enquanto o papel do usuário logado ainda não foi verificado, seguimos carregando
-  const loading = user ? checkedUserId !== user.id : false;
-
-  return { isAdmin, loading };
+  return {
+    isAdmin,
+    isMaster,
+    isCompanyAdmin,
+    canAccessAdmin: isAdmin || isMaster || isCompanyAdmin,
+    environment,
+    loading,
+  };
 };

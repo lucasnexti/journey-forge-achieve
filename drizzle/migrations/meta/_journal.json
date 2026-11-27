@@ -253,6 +253,27 @@
       "when": 1795718282651,
       "tag": "0035_research_anonymous_reporting_scope",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1795786710755,
+      "tag": "0036_add_master_role",
+      "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1795786825065,
+      "tag": "0037_environments_multi_tenant",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1795787215345,
+      "tag": "0038_environments_revoke_anon",
+      "breakpoints": true
     }
   ]
 }

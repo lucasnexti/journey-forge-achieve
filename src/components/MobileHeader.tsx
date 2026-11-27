@@ -12,7 +12,7 @@ const MobileHeader = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut, user } = useAuth();
-  const { isAdmin } = useIsAdmin();
+  const { canAccessAdmin: isAdmin } = useIsAdmin();
   const { theme, toggleTheme } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -22,7 +22,7 @@ const MobileHeader = () => {
     ...(isAdmin ? [{ to: "/admin/trilhas", label: "Gerenciar trilhas", icon: Library }] : []),
     ...(isAdmin && location.pathname.startsWith("/admin") ? [{ to: "/admin/relatorios", label: "Relatórios", icon: BarChart3 }] : []),
     { to: "/loja", label: "Loja", icon: Coins },
-    ...(!isAdmin || !location.pathname.startsWith("/admin") ? [{ to: "/relatorios", label: "Relatórios", icon: BarChart3 }] : []),
+    ...(isAdmin && !location.pathname.startsWith("/admin") ? [{ to: "/relatorios", label: "Relatórios", icon: BarChart3 }] : []),
     { to: "/base-conhecimento", label: "Base de Conhecimento", icon: Library },
     { to: "/nexti-na-pratica", label: "Nexti na Prática", icon: BookMarked },
     { to: "/quiz-nexti", label: "Quiz Nexti", icon: Zap },

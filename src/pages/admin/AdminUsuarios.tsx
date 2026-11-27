@@ -205,7 +205,7 @@ const AdminUsuarios = () => {
 
   const handleAssignRole = async () => {
     if (!roleDialog) return;
-    await supabase.from("user_roles").delete().eq("user_id", roleDialog.userId);
+    await supabase.from("user_roles").delete().eq("user_id", roleDialog.userId).in("role", ["admin", "moderator", "user"]);
     const { error } = await supabase.from("user_roles").insert({
       user_id: roleDialog.userId,
       role: selectedRole as any,

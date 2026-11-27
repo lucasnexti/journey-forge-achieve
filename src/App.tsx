@@ -28,6 +28,8 @@ const QuizHistoryPage = lazy(() => import("./pages/QuizHistoryPage"));
 const KnowledgeBasePage = lazy(() => import("./pages/KnowledgeBasePage"));
 const NextiNaPraticaPage = lazy(() => import("./pages/NextiNaPraticaPage"));
 const QuizNextiPage = lazy(() => import("./pages/QuizNextiPage"));
+const AdminColaboradores = lazy(() => import("./pages/admin/AdminColaboradores"));
+const AdminAmbientes = lazy(() => import("./pages/admin/AdminAmbientes"));
 const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
 import VerifyCertificatePage from "./pages/VerifyCertificatePage";
 const RewardsStorePage = lazy(() => import("./pages/RewardsStorePage"));
@@ -99,7 +101,7 @@ const App = () => (
               <Route path="/minhas-trilhas" element={<ProtectedRoute><LearningPathsPage /></ProtectedRoute>} />
               <Route path="/minhas-trilhas/:pathId" element={<ProtectedRoute><LearningPathsPage /></ProtectedRoute>} />
               <Route path="/trilha/:trackId" element={<ProtectedRoute><TrackPage /></ProtectedRoute>} />
-              <Route path="/relatorios" element={<ProtectedRoute><ReportPage /></ProtectedRoute>} />
+              <Route path="/relatorios" element={<AdminRoute><ReportPage /></AdminRoute>} />
               <Route path="/perfil" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
               <Route path="/ranking" element={<ProtectedRoute><LeaderboardPage /></ProtectedRoute>} />
               <Route path="/historico-avaliacoes" element={<ProtectedRoute><QuizHistoryPage /></ProtectedRoute>} />
@@ -108,7 +110,7 @@ const App = () => (
               <Route path="/quiz-nexti" element={<ProtectedRoute><QuizNextiPage /></ProtectedRoute>} />
               <Route path="/loja" element={<ProtectedRoute><RewardsStorePage /></ProtectedRoute>} />
               <Route path="/insignias" element={<ProtectedRoute><BadgesPage /></ProtectedRoute>} />
-              <Route path="/treinamento-presencial" element={<ProtectedRoute><TrainingPage /></ProtectedRoute>} />
+              <Route path="/treinamento-presencial" element={<AdminRoute><TrainingPage /></AdminRoute>} />
 
               {/* Admin routes */}
               <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
@@ -129,6 +131,8 @@ const App = () => (
               <Route path="/admin/relatorios" element={<AdminRoute><AdminRelatorios /></AdminRoute>} />
               <Route path="/admin/relatorio-progresso" element={<AdminRoute><Navigate to="/admin/relatorios?tipo=progress" replace /></AdminRoute>} />
               <Route path="/admin/relatorios-td" element={<AdminRoute><Navigate to="/admin/relatorios?tipo=td" replace /></AdminRoute>} />
+              <Route path="/admin/colaboradores" element={<AdminRoute><AdminColaboradores /></AdminRoute>} />
+              <Route path="/admin/ambientes" element={<AdminRoute masterOnly><AdminAmbientes /></AdminRoute>} />
               <Route path="/admin/usuarios" element={<AdminRoute><AdminUsuarios /></AdminRoute>} />
               <Route path="/admin/personalizacao" element={<AdminRoute><AdminPersonalizacao /></AdminRoute>} />
               <Route path="/admin/logs" element={<AdminRoute><AdminLogs /></AdminRoute>} />

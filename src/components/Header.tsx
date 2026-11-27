@@ -16,14 +16,14 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut, user } = useAuth();
-  const { isAdmin } = useIsAdmin();
+  const { canAccessAdmin: isAdmin } = useIsAdmin();
   const { theme, toggleTheme } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const links = [
     { to: "/dashboard", label: "Trilhas", icon: BookOpen },
     { to: "/loja", label: "Loja", icon: Coins },
-    { to: "/relatorios", label: "Relatórios", icon: BarChart3 },
+    ...(isAdmin ? [{ to: "/relatorios", label: "Relatórios", icon: BarChart3 }] : []),
     { to: "/base-conhecimento", label: "Base de Conhecimento", icon: Library },
     { to: "/nexti-na-pratica", label: "Nexti na Prática", icon: BookMarked },
     { to: "/quiz-nexti", label: "Quiz Nexti", icon: Zap },

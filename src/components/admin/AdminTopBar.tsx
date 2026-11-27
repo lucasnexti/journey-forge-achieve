@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/hooks/useTheme";
+import { EnvironmentSwitcher } from "@/components/environments/EnvironmentSwitcher";
 
 const routeLabels: Record<string, string> = {
   "/admin": "Dashboard",
@@ -30,6 +31,8 @@ const routeLabels: Record<string, string> = {
   "/admin/personalizacao": "Personalização",
   "/admin/relatorios": "Relatórios",
   "/admin/logs": "Logs",
+  "/admin/colaboradores": "Colaboradores",
+  "/admin/ambientes": "Ambientes",
 };
 
 const routeGroups: Record<string, string> = {
@@ -125,6 +128,8 @@ const AdminTopBar = ({ onMenuClick, collapsed, onToggleCollapse }: AdminTopBarPr
       </span>
 
       <div className="flex-1" />
+
+      <EnvironmentSwitcher />
 
       {/* Search */}
       <div className="relative">

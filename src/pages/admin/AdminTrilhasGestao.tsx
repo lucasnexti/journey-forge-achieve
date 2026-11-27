@@ -16,6 +16,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { parseDurationHHMM, hoursToHHMM, formatDuration } from "@/lib/duration";
 import { motion, AnimatePresence } from "framer-motion";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { useSelectedEnvironment } from "@/hooks/useSelectedEnvironment";
 import {
   Plus, Pencil, Trash2, Save, Search, BookOpen, Clock, Users, BarChart3,
   Video, GripVertical, Eye, EyeOff, ChevronRight, Layers, ArrowUpDown,
@@ -77,6 +79,10 @@ const isVimeoUrl = (url: string) => url.includes("vimeo.com");
 
 const AdminTrilhasGestao = () => {
   const [tracks, setTracks] = useState<Track[]>([]);
+  // Ambiente: o Master escolhe no topo; os demais admins veem só os cursos do próprio ambiente
+  const { isMaster, environment } = useIsAdmin();
+  const [selectedEnv] = useSelectedEnvironment();
+  const envFilter = isMaster ? (selectedEnv === "all" ? null : selectedEnv) : environment?.company_id ?? null;
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
@@ -165,12 +171,13 @@ const AdminTrilhasGestao = () => {
   // Filtered tracks
   const filteredTracks = useMemo(() => {
     return tracks.filter((t) => {
+      if (envFilter && (t as Track & { company_id?: string }).company_id !== envFilter) return false;
       const matchSearch = !search || t.title.toLowerCase().includes(search.toLowerCase()) || (t.category || "").toLowerCase().includes(search.toLowerCase());
       const matchStatus = statusFilter === "all" || (statusFilter === "active" ? t.is_active : !t.is_active);
       const matchCategory = categoryFilter === "all" || t.category === categoryFilter;
       return matchSearch && matchStatus && matchCategory;
     });
-  }, [tracks, search, statusFilter, categoryFilter]);
+  }, [tracks, search, statusFilter, categoryFilter, envFilter]);
 
   const selectedTrack = tracks.find((t) => t.id === selectedTrackId);
 
@@ -244,6 +251,7 @@ const AdminTrilhasGestao = () => {
         prerequisite_track_id: trackForm.prerequisite_track_id || null,
         instructor: trackForm.instructor || null,
         cover_image_url: trackForm.cover_image_url || null,
+        ...(isMaster && envFilter ? { company_id: envFilter } : {}),
       });
       if (error) { toast.error(error.message); return; }
       toast.success("Trilha criada!");

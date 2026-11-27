@@ -3,6 +3,7 @@ import { AdminAppSidebar } from "./AdminAppSidebar";
 import NotificationBell from "@/components/NotificationBell";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileHeader from "@/components/MobileHeader";
+import { EnvironmentSwitcher } from "@/components/environments/EnvironmentSwitcher";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -15,7 +16,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     return (
       <div className="min-h-screen min-h-dvh bg-background">
         <MobileHeader />
-        <main className="px-4 py-5 sm:px-6 overflow-x-hidden">{children}</main>
+        <main className="px-4 py-5 sm:px-6 overflow-x-hidden"><div className="mb-4 flex justify-end"><EnvironmentSwitcher /></div>{children}</main>
       </div>
     );
   }
@@ -28,6 +29,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
           <header className="sticky top-0 z-40 flex h-12 items-center gap-2 border-b border-border/50 bg-card/80 backdrop-blur-lg px-4">
             <SidebarTrigger />
             <div className="flex-1" />
+            <EnvironmentSwitcher />
             <NotificationBell />
           </header>
           <main className="flex-1 min-w-0 overflow-x-hidden px-4 py-6 sm:px-6 lg:px-8"><div className="mx-auto w-full max-w-[1600px]">{children}</div></main>

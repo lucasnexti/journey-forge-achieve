@@ -40,6 +40,9 @@ const navItems = [
   { to: "/treinamento-presencial", label: "Treinamento Presencial", icon: GraduationCap },
 ];
 
+/** Usuário comum vê só Cursos, Minhas trilhas, Loja, Base de Conhecimento, Nexti na Prática, Quiz e Insígnias. */
+export const ADMIN_ONLY_STUDENT_ROUTES = ["/relatorios", "/treinamento-presencial"];
+
 const iconMap: Record<string, string> = {
   award: "🏆",
   star: "⭐",
@@ -66,7 +69,7 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const { signOut, user } = useAuth();
   const { data: profile } = useProfile();
-  const { isAdmin } = useIsAdmin();
+  const { canAccessAdmin: isAdmin } = useIsAdmin();
   const research = useResearchPermissions();
   const { theme, toggleTheme } = useTheme();
   const { state } = useSidebar();
@@ -120,7 +123,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navItems.map((item) => {
+              {navItems.filter((item) => isAdmin || !ADMIN_ONLY_STUDENT_ROUTES.includes(item.to)).map((item) => {
                 const isActive = location.pathname === item.to || (item.to === "/dashboard" && location.pathname.startsWith("/trilha/")) || (item.to === "/minhas-trilhas" && location.pathname.startsWith("/minhas-trilhas/"));
                 return (
                   <SidebarMenuItem key={item.to}>

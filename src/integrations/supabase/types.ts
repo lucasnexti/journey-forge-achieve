@@ -865,17 +865,23 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          is_active: boolean
           name: string
+          slug: string | null
         }
         Insert: {
           created_at?: string
           id?: string
+          is_active?: boolean
           name: string
+          slug?: string | null
         }
         Update: {
           created_at?: string
           id?: string
+          is_active?: boolean
           name?: string
+          slug?: string | null
         }
         Relationships: []
       }
@@ -883,6 +889,7 @@ export type Database = {
         Row: {
           company_id: string
           revoked_at: string | null
+          role: string
           user_id: string
           validated_at: string
           validated_by: string
@@ -890,6 +897,7 @@ export type Database = {
         Insert: {
           company_id: string
           revoked_at?: string | null
+          role?: string
           user_id: string
           validated_at?: string
           validated_by: string
@@ -897,6 +905,7 @@ export type Database = {
         Update: {
           company_id?: string
           revoked_at?: string | null
+          role?: string
           user_id?: string
           validated_at?: string
           validated_by?: string
@@ -2815,6 +2824,39 @@ export type Database = {
         }
         Relationships: []
       }
+      track_company_access: {
+        Row: {
+          company_id: string
+          created_at: string
+          track_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          track_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          track_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "track_company_access_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "learning_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "track_company_access_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       track_favorites: {
         Row: {
           created_at: string | null
@@ -2882,6 +2924,7 @@ export type Database = {
       tracks: {
         Row: {
           category: string | null
+          company_id: string
           cover_image_url: string | null
           created_at: string | null
           description: string | null
@@ -2898,6 +2941,7 @@ export type Database = {
         }
         Insert: {
           category?: string | null
+          company_id?: string
           cover_image_url?: string | null
           created_at?: string | null
           description?: string | null
@@ -2914,6 +2958,7 @@ export type Database = {
         }
         Update: {
           category?: string | null
+          company_id?: string
           cover_image_url?: string | null
           created_at?: string | null
           description?: string | null
@@ -2929,6 +2974,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "tracks_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "learning_companies"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "tracks_prerequisite_track_id_fkey"
             columns: ["prerequisite_track_id"]
@@ -3271,6 +3323,8 @@ export type Database = {
       award_xp: { Args: { _user_id: string; _xp: number }; Returns: undefined }
       can_access_learning_course: { Args: { _track: string }; Returns: boolean }
       can_access_learning_path: { Args: { _path: string }; Returns: boolean }
+      can_admin_user: { Args: { _user: string }; Returns: boolean }
+      can_see_user: { Args: { _user: string }; Returns: boolean }
       claim_coin_reward: {
         Args: { _key: string; _reference_id: string }
         Returns: Json
@@ -3278,6 +3332,19 @@ export type Database = {
       coin_evidence_ok: {
         Args: { _key: string; _reference_id: string; _user_id: string }
         Returns: boolean
+      }
+      company_members: {
+        Args: { _company: string }
+        Returns: {
+          active: boolean
+          cargo: string
+          email: string
+          is_master: boolean
+          joined_at: string
+          nome: string
+          role: string
+          user_id: string
+        }[]
       }
       complete_onboarding: {
         Args: {
@@ -3292,11 +3359,14 @@ export type Database = {
         Args: { _track_id: string }
         Returns: Json
       }
+      current_company_id: { Args: never; Returns: string }
+      default_company_id: { Args: never; Returns: string }
       evaluate_user_badges: { Args: never; Returns: Json }
       exam_current_cycle: {
         Args: { _exam_id: string; _max_attempts: number; _user_id: string }
         Returns: number
       }
+      exam_track: { Args: { _e: string }; Returns: string }
       gamification_fraud_report: { Args: { _days?: number }; Returns: Json }
       get_kb_quiz_questions: {
         Args: { _module_ids: string[] }
@@ -3339,6 +3409,8 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_company_admin: { Args: { _company: string }; Returns: boolean }
+      is_master: { Args: never; Returns: boolean }
       is_same_company: { Args: { _user_id: string }; Returns: boolean }
       learning_course_access: {
         Args: { _track: string; _user: string }
@@ -3357,6 +3429,22 @@ export type Database = {
       learning_path_report: { Args: { _path: string }; Returns: Json }
       learning_path_snapshot: { Args: { _path: string }; Returns: Json }
       learning_quiz_access: { Args: { _quiz: string }; Returns: boolean }
+      lesson_track: { Args: { _l: string }; Returns: string }
+      master_environments_report: {
+        Args: { _end: string; _start: string }
+        Returns: Json
+      }
+      master_move_user: {
+        Args: { _company: string; _role: string; _user: string }
+        Returns: undefined
+      }
+      master_set_track_access: {
+        Args: { _company: string; _tracks: string[] }
+        Returns: undefined
+      }
+      module_track: { Args: { _m: string }; Returns: string }
+      my_environment: { Args: never; Returns: Json }
+      quiz_track: { Args: { _q: string }; Returns: string }
       redeem_reward: { Args: { _reward_id: string }; Returns: Json }
       replace_notion_chunks: {
         Args: {
@@ -3511,6 +3599,15 @@ export type Database = {
         }
         Returns: undefined
       }
+      set_member_access: {
+        Args: {
+          _active: boolean
+          _company: string
+          _role: string
+          _user: string
+        }
+        Returns: undefined
+      }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
       start_exam_attempt: {
@@ -3522,8 +3619,11 @@ export type Database = {
         Returns: Json
       }
       touch_my_streak: { Args: never; Returns: Json }
+      track_editable: { Args: { _track: string }; Returns: boolean }
       track_has_exam: { Args: { _track_id: string }; Returns: boolean }
+      track_visible: { Args: { _track: string }; Returns: boolean }
       update_user_streak: { Args: { _user_id: string }; Returns: undefined }
+      user_company_id: { Args: { _user: string }; Returns: string }
       validate_kb_quiz_attempt: {
         Args: { _answers: Json; _module_ids: string[]; _user_id: string }
         Returns: Json
@@ -3539,7 +3639,7 @@ export type Database = {
       verify_certificate: { Args: { _code: string }; Returns: Json }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user"
+      app_role: "admin" | "moderator" | "user" | "master"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -3667,7 +3767,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user"],
+      app_role: ["admin", "moderator", "user", "master"],
     },
   },
 } as const

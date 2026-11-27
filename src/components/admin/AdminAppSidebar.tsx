@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutGrid, Route, BookOpen, Star, GraduationCap, Users as UsersIcon,
   Layers, BarChart3, FileText, LogOut, Award, ShieldCheck, Bell, Palette,
-  ClipboardCheck, ClipboardList, MessageSquare, Sun, Moon, ChevronDown, User, Zap, Gift, Activity, BookMarked, Bot } from "lucide-react";
+  ClipboardCheck, ClipboardList, MessageSquare, Building2, UserPlus, Sun, Moon, ChevronDown, User, Zap, Gift, Activity, BookMarked, Bot } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/hooks/useTheme";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -63,6 +63,7 @@ const navGroups: NavGroup[] = [
     label: "Pessoas",
     items: [
       { to: "/admin/usuarios", label: "Usuários", icon: UsersIcon },
+      { to: "/admin/colaboradores", label: "Colaboradores", icon: UserPlus },
       { to: "/admin/matriculas", label: "Matrículas", icon: GraduationCap },
       { to: "/admin/certificados", label: "Certificados", icon: ShieldCheck },
     ],
@@ -89,6 +90,11 @@ const navGroups: NavGroup[] = [
   },
 ];
 
+const COMPANY_ADMIN_GROUPS: NavGroup[] = [
+  { label: "Conteúdo", items: [{ to: "/admin/trilhas-gestao", label: "Gestão de cursos", icon: BookOpen }] },
+  { label: "Pessoas", items: [{ to: "/admin/colaboradores", label: "Colaboradores", icon: UserPlus }] },
+];
+
 export function AdminAppSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -97,10 +103,15 @@ export function AdminAppSidebar() {
   const { theme, toggleTheme } = useTheme();
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const { isAdmin } = useIsAdmin();
+  const { isAdmin, isMaster, isCompanyAdmin } = useIsAdmin();
   const research = useResearchPermissions();
+  // Master: tudo + Ambientes. Admin Nexti: tudo. Admin de ambiente (cliente): só cursos e colaboradores.
   // Quem tem só acesso a Pesquisas (sem ser administrador) vê apenas esse menu
-  const groups = isAdmin ? navGroups : research.hasAny
+  const groups = isMaster
+    ? navGroups.map((g) => g.label === "Configuração" ? { ...g, items: [{ to: "/admin/ambientes", label: "Ambientes", icon: Building2 }, ...g.items] } : g)
+    : isAdmin ? navGroups
+    : isCompanyAdmin ? COMPANY_ADMIN_GROUPS
+    : research.hasAny
     ? [{ label: "Pesquisas", items: [{ to: "/admin/pesquisas", label: "Pesquisas e Indicadores", icon: ClipboardList }] }]
     : [];
 
