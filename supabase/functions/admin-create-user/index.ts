@@ -59,7 +59,21 @@ Deno.serve(async (req) => {
   if (corporate === false) return json({ error: "Cadastro permitido apenas com e-mail corporativo. E-mails pessoais (como Gmail, Hotmail, Outlook ou Yahoo) não são aceitos." }, 400);
 
   const { data: existing } = await admin.from("profiles").select("user_id").ilike("email", body.email).maybeSingle();
-  if (existing) return json({ error: "Já existe um usuário com este e-mail" }, 400);
+  if (existing) {
+    // Colaborador que mudou de empresa: vale sempre o cadastro mais recente.
+    if (existing.user_id === callerId) return json({ error: "Você não pode alterar o seu próprio ambiente" }, 400);
+    const { data: isTargetMaster } = await admin.from("user_roles").select("role").eq("user_id", existing.user_id).eq("role", "master").maybeSingle();
+    if (isTargetMaster && !isMaster) return json({ error: "Sem permissão para alterar este usuário" }, 403);
+    const { error: moveErr } = await admin.from("learning_company_memberships").upsert({
+      user_id: existing.user_id, company_id: companyId, role: body.env_role, revoked_at: null,
+      validated_by: callerId, validated_at: new Date().toISOString(),
+    }, { onConflict: "user_id,company_id" });
+    if (moveErr) return json({ error: "Não foi possível vincular o usuário à nova empresa" }, 500);
+    await admin.from("profiles").update({ empresa: body.empresa || null, cargo: body.cargo || null, is_active: true }).eq("user_id", existing.user_id);
+    await admin.from("audit_logs").insert({ user_id: callerId, action: "move_user_company", entity_type: "profile", entity_id: existing.user_id,
+      details: { email: body.email, company_id: companyId, env_role: body.env_role } });
+    return json({ user: { id: existing.user_id, email: body.email }, moved: true });
+  }
 
   const { data, error } = await admin.auth.admin.inviteUserByEmail(body.email, {
     data: { nome: body.nome, empresa: body.empresa ?? "", cargo: body.cargo ?? "" },

@@ -120,7 +120,7 @@ const AdminUsuarios = () => {
     setInviting(false);
     const msg = (data as any)?.error || (error ? await (error as any).context?.json?.().then((j: any) => j?.error).catch(() => null) || error.message : null);
     if (msg) { toast.error(msg); return; }
-    toast.success(`Convite enviado para ${r.data.email}`);
+    toast.success((data as any)?.moved ? `${r.data.email} já tinha cadastro e agora está vinculado à nova empresa (o vínculo anterior foi encerrado).` : `Convite enviado para ${r.data.email}`);
     setInviteOpen(false);
     fetchProfiles(); fetchRoles(); fetchStats();
   };

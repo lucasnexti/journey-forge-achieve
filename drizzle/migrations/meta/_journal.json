@@ -288,6 +288,13 @@
       "when": 1795787713353,
       "tag": "0040_master_requires_mfa",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1795788991880,
+      "tag": "0041_latest_membership_wins",
+      "breakpoints": true
     }
   ]
 }
