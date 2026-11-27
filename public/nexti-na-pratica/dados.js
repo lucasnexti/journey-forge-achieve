@@ -404,8 +404,34 @@ window.DADOS = {
     {
       "id": "nexti-plus",
       "nome": "Nexti Plus",
-      "descricao": "",
-      "submodulos": []
+      "descricao": "Benefícios no Nexti Plus: VA/VR/VC, vale-transporte, gratificação e vale-combustível.",
+      "submodulos": [
+        {
+          "id": "visao-geral",
+          "nome": "Visão geral",
+          "descricao": "Todos os benefícios: VA/VR/VC, VT, gratificação e combustível."
+        },
+        {
+          "id": "va-vr-vc",
+          "nome": "VA, VR e VC",
+          "descricao": "Vale alimentação, refeição e cesta: modelos, perfil, período e lançamentos."
+        },
+        {
+          "id": "vale-transporte",
+          "nome": "Vale-transporte",
+          "descricao": "Linhas de transporte, itinerário, perfil, período e lançamentos."
+        },
+        {
+          "id": "gratificacao",
+          "nome": "Gratificação",
+          "descricao": "Perfil, período e lançamentos de gratificação."
+        },
+        {
+          "id": "vale-combustivel",
+          "nome": "Vale-combustível",
+          "descricao": "Perfil, período e lançamentos de vale-combustível."
+        }
+      ]
     },
     {
       "id": "talent",
@@ -10347,6 +10373,1014 @@ window.DADOS = {
         "ori-0050",
         "ori-0051",
         "ori-0052"
+      ]
+    },
+    {
+      "id": "ori-0054",
+      "slug": "nexti-plus-guia-pratico",
+      "titulo": "Como usar o Nexti Plus? (Guia prático)",
+      "modulo": "nexti-plus",
+      "submodulos": [
+        "visao-geral"
+      ],
+      "status": "publicado",
+      "revisao": "2026-11-27",
+      "resumo": "Guia Prático Nexti Plus, apresentado página a página (70 páginas), como no material original.",
+      "palavrasChave": [
+        "nexti plus",
+        "benefícios",
+        "guia prático",
+        "benefícios"
+      ],
+      "finalidade": "",
+      "preparacao": [],
+      "resumoProcedimento": [],
+      "passos": [],
+      "telas": [
+        {
+          "aba": "Visão geral",
+          "imagens": [
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-1.jpg",
+              "legenda": "Página 1 de 70. Guia Prático Nexti Plus",
+              "alt": "Página 1 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-2.jpg",
+              "legenda": "Página 2 de 70. Menu VA/VR/VC VT GRATIFICAÇÃO COMBUSTÍVEL Modelos de Vale Modelos de Vale Cadastro Modelos de Vale Perﬁl Linha de transporte Período Perﬁl Período Itinerário Lançamentos Período Lançamentos Perﬁl Período Lançamentos Lançamentos",
+              "alt": "Página 2 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-3.jpg",
+              "legenda": "Página 3 de 70. MENU Nexti Plus O que é? Pontos Positivos Como Conﬁgurar?",
+              "alt": "Página 3 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-4.jpg",
+              "legenda": "Página 4 de 70. MENU O que é o Nexti Plus? O Nexti Plus pode facilitar a compra e distribuição de benefícios, você consegue organizar todas as informações no mesmo módulo. O controle de seus benefícios organizados, calculados e distribuídos corretamente.",
+              "alt": "Página 4 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-5.jpg",
+              "legenda": "Página 5 de 70. MENU Pontos Positivos Controle de benefícios Facilidade na parametrização Organização",
+              "alt": "Página 5 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-6.jpg",
+              "legenda": "Página 6 de 70. VA/VR/VC - Modelos de Vale MENU Clique para criar um novo Aqui ﬁca toda parte de conﬁgurações do Nexti Plus",
+              "alt": "Página 6 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-7.jpg",
+              "legenda": "Página 7 de 70. MENU VA/VR/VC - Modelos de Vale Deﬁnir nome Tipo do benefício se será, vale refeição, alimentação ou cesta Número do contrato com a empresa de benefícios Selecionar o fornecedor onde já possuímos alguns cadastrados Escolher a forma de pagamento que é utilizada (dinheiro, papel, cartão ou ﬁcha) O modelo de exportação será deﬁnido conforme o tipo de benefício que for selecionado.",
+              "alt": "Página 7 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-8.jpg",
+              "legenda": "Página 8 de 70. MENU VA/VR/VC - Perﬁl Deﬁnir o nome do perﬁl Selecionar o modelo do vale criado no slide anterior. Tipo do benefício se será, vale refeição, alimentação ou cesta Quando irá iniciar a vigência deste perﬁl criado Se será dia ou período o tipo do cálculo Não é obrigatório cadastrar uma data ﬁm",
+              "alt": "Página 8 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-9.jpg",
+              "legenda": "Página 9 de 70. VA/VR/VC - Perﬁl MENU Quando ativo, serão gerados somente em dias de “Folga, Dsr ou Compensado”, quando não existir crédito regular. Se desabilitado, irá gerar os extras em conjunto com os créditos regulares, ou seja, o colaborador receberá 1 crédito regular de acordo com a parametrização do extra. Será gerado 1 Crédito Regular + 1 Crédito Extra. Aparecerá uma nova aba “Horas Trabalhadas” e assim podendo parametrizar a quantidade mínima de horas trabalhadas para gerar o benefícios. Caso não seja habilitado, irá considerar a escala do colaborador",
+              "alt": "Página 9 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-10.jpg",
+              "legenda": "Página 10 de 70. MENU VA/VR/VC - Perﬁl Deﬁnir quantidade de horas mínimas para gerar o benefícios Agora deverá selecionar qual o evento irá considerar as horas que foram deﬁnidas",
+              "alt": "Página 10 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-11.jpg",
+              "legenda": "Página 11 de 70. MENU VA/VR/VC - Perﬁl O benefício será gerado de acordo com as horas trabalhadas, podendo assim, o preço variar de acordo com a conﬁguração. Caso não seja habilitado, irá considerar a escala do colaborador Se o colaborador não receber o benefício e ﬁzer uma cobertura em um posto que recebe, ele terá direito ao mesmo. (somente quando lançado cobertura) Poderá ser parametrizado a quantidade de benefícios que será pago para o colaborador, podendo ser Fixo ou deﬁnir dia por dia na Semana. Caso habilitado, sempre que houver um lançamento manual de débito, será debitado do “Total a Pagar” Só irá receber o benefícios caso esteja em Horas Extras",
+              "alt": "Página 11 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-12.jpg",
+              "legenda": "Página 12 de 70. MENU VA/VR/VC - Perﬁl Data que irá iniciar o valor cadastrado do benefício. Valor que será pago por benefício O Campo está desabilitado, pois existe uma aba para esta demanda.",
+              "alt": "Página 12 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-13.jpg",
+              "legenda": "Página 13 de 70. MENU VA/VR/VC - Perﬁl Deﬁnir quantidade de horas mínimas para gerar o benefícios de hora extras Agora deverá selecionar qual o evento irá considerar as horas que foram deﬁnidas",
+              "alt": "Página 13 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-14.jpg",
+              "legenda": "Página 14 de 70. MENU VA/VR/VC - Perﬁl Data que irá iniciar o valor cadastrado do benefício. Valor que será pago por benefício",
+              "alt": "Página 14 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-15.jpg",
+              "legenda": "Página 15 de 70. VA/VR/VC - Perﬁl MENU Deﬁnir se o desconto será por dia ou percentual Selecionar se é Justiﬁcado ou Não Justiﬁcado Quando deverá ser descontado esta ausência, se será na data de apuração, de projeção ou de ambos Selecionar a situação de ausência que seja levado em consideração a aplicação do desconto",
+              "alt": "Página 15 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-16.jpg",
+              "legenda": "Página 16 de 70. VA/VR/VC - Perﬁl MENU Deﬁnir se o desconto será por dia ou percentual Deﬁnir quantidade de dias que será necessário para “perder” o benefícios, caso seja cadastrado 2 dias e houver duas \"ausências\" lançadas, irá perder o beneﬁcios total Selecionar se é Justiﬁcado ou Não Justiﬁcado Selecionar a situação de ausência que seja levado em consideração a aplicação do desconto",
+              "alt": "Página 16 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-17.jpg",
+              "legenda": "Página 17 de 70. MENU VA/VR/VC - Perﬁl Selecionar o tipo de layout para lançamento do desconto",
+              "alt": "Página 17 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-18.jpg",
+              "legenda": "Página 18 de 70. VA/VR/VC - Perﬁl MENU Tipo de desconto Percentual ou Valor Deﬁnir se será descontado do crédito total do vale ou do salário. Valor do desconto ﬁxo ou percentual",
+              "alt": "Página 18 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-19.jpg",
+              "legenda": "Página 19 de 70. MENU VA/VR/VC - Períodos Todos os colaboradores cadastrados na plataforma serão vinculados a este perﬁl, de forma automática e obrigatória. Mesmo com o Perﬁl Global cadastrado, podemos criar um perﬁl de exceção para que em determinado posto haja um cálculo diferenciado.",
+              "alt": "Página 19 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-20.jpg",
+              "legenda": "Página 20 de 70. VA/VR/VC - Períodos MENU Deﬁnir nome Se está aberta, fechado ou cancelado Tipo do benefício se será, vale refeição, alimentação ou cesta Para onde o sistema irá olhar para considerar os dias de escala/horas trabalhas para pagamento do benefícios Para onde o sistema irá olhar para descontar/pagar extra",
+              "alt": "Página 20 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-21.jpg",
+              "legenda": "Página 21 de 70. VA/VR/VC - Períodos MENU Pode deﬁnir uma data de entrega para o fornecedor Data que deverá ser creditado no cartão do colaborador",
+              "alt": "Página 21 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-22.jpg",
+              "legenda": "Página 22 de 70. VA/VR/VC - Lançamentos MENU Informe o nome do Colaborador. Analisar marcações de ponto. Analisar lançamentos de Ausência do período. Lançamento Manual. E qual período de apuração você irá realizar o lançamento.",
+              "alt": "Página 22 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-23.jpg",
+              "legenda": "Página 23 de 70. VA/VR/VC - Lançamentos MENU Data de referência que será feito o lançamento. Quantidade de benefícios que será creditado. Valor que será creditado Informe o motivo no qual está realizando a ação. Se será Crédito ou Débito",
+              "alt": "Página 23 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-24.jpg",
+              "legenda": "Página 24 de 70. MENU VT - Modelos de Vale Clique em “Novo”",
+              "alt": "Página 24 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-25.jpg",
+              "legenda": "Página 25 de 70. VT - Modelos de Vale MENU Deﬁnir nome Tipo do benefício se será, vale refeição, alimentação ou cesta Número do contrato com a empresa de benefícios Selecionar o fornecedor onde já possuímos alguns cadastrados Escolher a forma de pagamento que é utilizada (dinheiro, papel, cartão ou ﬁcha) O modelo de exportação será deﬁnido conforme o tipo de benefício que for selecionado.",
+              "alt": "Página 25 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-26.jpg",
+              "legenda": "Página 26 de 70. MENU VT - Linhas de Transportes Clique em “Novo”",
+              "alt": "Página 26 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-27.jpg",
+              "legenda": "Página 27 de 70. MENU VT - Linhas de Transportes Deﬁnir nome da linha Tipo da linha, se será Aquaviário, Rodoviário, ferroviário ou aéreo Selecionar o modelo do vale que foi criado no slide anterior.",
+              "alt": "Página 27 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-28.jpg",
+              "legenda": "Página 28 de 70. VT - Linhas de Transportes MENU Data que irá iniciar o valor cadastrado do benefício. Valor que será pago por benefício E clique em “adicionar” para que seja parametrizado",
+              "alt": "Página 28 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-29.jpg",
+              "legenda": "Página 29 de 70. MENU VT - Itinerários Clique em “novo” para criar um novo Itinerário",
+              "alt": "Página 29 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-30.jpg",
+              "legenda": "Página 30 de 70. MENU VT - Itinerários Deﬁnir o nome do novo Itinerário",
+              "alt": "Página 30 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-31.jpg",
+              "legenda": "Página 31 de 70. MENU VT - Itinerários Depois que for criado, volte na tela de início e clique no que foi criado",
+              "alt": "Página 31 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-32.jpg",
+              "legenda": "Página 32 de 70. MENU VT - Itinerários Inserir a linha que foi cadastrado anteriormente Poderá ser parametrizado a quantidade de benefícios que será pago para o colaborador, podendo ser Fixo ou deﬁnir dia por dia na Semana.",
+              "alt": "Página 32 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-33.jpg",
+              "legenda": "Página 33 de 70. VT - Perﬁl MENU Deﬁnir o nome do perﬁl Quando irá iniciar a vigência deste perﬁl criado Não é obrigatório cadastrar uma data ﬁm",
+              "alt": "Página 33 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-34.jpg",
+              "legenda": "Página 34 de 70. MENU VT - Perﬁl Aparecerá uma nova aba “Horas Trabalhadas” e assim podendo parametrizar a quantidade mínima de horas trabalhadas para gerar o benefícios. Caso não seja habilitado, irá considerar a escala do colaborador",
+              "alt": "Página 34 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-35.jpg",
+              "legenda": "Página 35 de 70. MENU VT - Perﬁl Deﬁnir quantidade de horas mínimas para gerar o benefícios Agora deverá selecionar qual o evento irá considerar as horas que foram deﬁnidas",
+              "alt": "Página 35 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-36.jpg",
+              "legenda": "Página 36 de 70. MENU VT - Perﬁl O benefício será gerado de acordo com as horas trabalhadas, podendo assim, o preço variar de acordo com a conﬁguração. Caso não seja habilitado, irá considerar a escala do colaborador Se o colaborador não receber o benefício e ﬁzer uma cobertura em um posto que recebe, ele terá direito ao mesmo. (somente quando lançado cobertura) Caso habilitado, sempre que houver um lançamento manual de débito, será debitado do “Total a Pagar”",
+              "alt": "Página 36 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-37.jpg",
+              "legenda": "Página 37 de 70. MENU VT - Perﬁl Deﬁnir quantidade de horas mínimas para gerar o benefícios de hora extras Agora deverá selecionar qual o evento irá considerar as horas que foram deﬁnidas",
+              "alt": "Página 37 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-38.jpg",
+              "legenda": "Página 38 de 70. MENU VT - Perﬁl Data que irá iniciar o valor cadastrado do benefício. Valor que será pago por benefício",
+              "alt": "Página 38 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-39.jpg",
+              "legenda": "Página 39 de 70. VT - Perﬁl MENU Deﬁnir se o desconto será por dia ou percentual Selecionar se é Justiﬁcado ou Não Justiﬁcado Quando deverá ser descontado esta ausência, se será na data de apuração, de projeção ou de ambos Selecionar a situação de ausência que seja levado em consideração a aplicação do desconto",
+              "alt": "Página 39 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-40.jpg",
+              "legenda": "Página 40 de 70. MENU VT - Perﬁl Selecionar o tipo de layout para lançamento do desconto",
+              "alt": "Página 40 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-41.jpg",
+              "legenda": "Página 41 de 70. MENU VT - Períodos Todos os colaboradores cadastrados na plataforma serão vinculados a este perﬁl, de forma automática e obrigatória. Mesmo com o Perﬁl Global cadastrado, podemos criar um perﬁl de exceção para que em determinado posto haja um cálculo diferenciado.",
+              "alt": "Página 41 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-42.jpg",
+              "legenda": "Página 42 de 70. VT - Períodos MENU Deﬁnir nome Se está aberta, fechado ou cancelado Para onde o sistema irá olhar para considerar os dias de escala/horas trabalhas para pagamento do benefícios Para onde o sistema irá olhar para descontar/pagar extra",
+              "alt": "Página 42 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-43.jpg",
+              "legenda": "Página 43 de 70. VT - Períodos MENU Pode deﬁnir uma data de entrega para o fornecedor Data que deverá ser creditado no cartão do colaborador",
+              "alt": "Página 43 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-44.jpg",
+              "legenda": "Página 44 de 70. VT - Lançamentos MENU Informe o nome do Colaborador. Analisar marcações de ponto. Analisar lançamentos de Ausência do período. Lançamento Manual. E qual período de apuração você irá realizar o lançamento.",
+              "alt": "Página 44 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-45.jpg",
+              "legenda": "Página 45 de 70. VT - Lançamentos MENU Data de referência que será feito o lançamento. Quantidade de benefícios que será creditado. Selecione o tipo de se é Crédito, extra, débito ou desconto apuração de ponto",
+              "alt": "Página 45 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-46.jpg",
+              "legenda": "Página 46 de 70. VT - Lançamentos MENU Selecione o itinerário já criado Informe o motivo no qual está realizando a ação.",
+              "alt": "Página 46 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-47.jpg",
+              "legenda": "Página 47 de 70. MENU Gratiﬁcações Para criar uma nova gratiﬁcação, clique em “novo”",
+              "alt": "Página 47 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-48.jpg",
+              "legenda": "Página 48 de 70. Gratiﬁcações MENU Deﬁnir nome da gratiﬁcação Código do evento “ERP” Se será em “Percentual ou Valor” Tipo do cálculo dias trabalhados x dias de escala",
+              "alt": "Página 48 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-49.jpg",
+              "legenda": "Página 49 de 70. MENU Gratiﬁcações Caso seja mensal, será preciso cadastrar o valor e dias trabalhados. Deﬁnir valor da gratiﬁcação Quantos dias o colaborador precisa trabalhar para receber o benefícios;",
+              "alt": "Página 49 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-50.jpg",
+              "legenda": "Página 50 de 70. MENU Gratiﬁcações Deﬁnir as ausências que “poderá” ter no mês e assim que não desconte a gratiﬁcação Após feito a conﬁguração, precisará ir em cadastro->posto->gratiﬁc ação e atribuir a gratiﬁcação cadastrada",
+              "alt": "Página 50 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-51.jpg",
+              "legenda": "Página 51 de 70. Gratiﬁcações MENU Deﬁnir a data de início e término para o cadastro da gratiﬁcação. Insira a gratiﬁcação que foi criada.",
+              "alt": "Página 51 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-52.jpg",
+              "legenda": "Página 52 de 70. MENU Gratiﬁcações Períodos Todos os colaboradores cadastrados na plataforma serão vinculados a este perﬁl, de forma automática e obrigatória. Mesmo com o Perﬁl Global cadastrado, podemos criar um perﬁl de exceção para que em determinado posto haja um cálculo diferenciado.",
+              "alt": "Página 52 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-53.jpg",
+              "legenda": "Página 53 de 70. Gratiﬁcações Períodos MENU Para onde o sistema irá olhar para considerar os dias de escala/horas trabalhas para pagamento do benefícios Deﬁnir nome Se está aberta, fechado ou cancelado Para onde o sistema irá olhar para descontar/pagar extra",
+              "alt": "Página 53 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-54.jpg",
+              "legenda": "Página 54 de 70. Gratiﬁcações Períodos MENU Pode deﬁnir uma data de entrega para o fornecedor Data que deverá ser creditado no cartão do colaborador",
+              "alt": "Página 54 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-55.jpg",
+              "legenda": "Página 55 de 70. Gratiﬁcações Lançamentos MENU Informe o nome do Colaborador. Analisar marcações de ponto. Analisar lançamentos de Ausência do período. Lançamento Manual. E qual período de apuração você irá realizar o lançamento.",
+              "alt": "Página 55 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-56.jpg",
+              "legenda": "Página 56 de 70. Gratiﬁcações Lançamentos MENU Data de referência que será feito o lançamento. Deﬁnir quantidade de gratiﬁcações Selecione qual será a gratiﬁcação Informe o motivo no qual está realizando a ação.",
+              "alt": "Página 56 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-57.jpg",
+              "legenda": "Página 57 de 70. MENU Vale Combustível - Modelos de Vale Para criar um modelo de vale clique em “novo”",
+              "alt": "Página 57 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-58.jpg",
+              "legenda": "Página 58 de 70. MENU Vale Combustível - Modelos de Vale Deﬁnir nome Número do contrato com a empresa de benefícios Selecionar o fornecedor onde já possuímos alguns cadastrados Escolher a forma de pagamento que é utilizada (dinheiro, papel, cartão ou ﬁcha) O modelo de exportação será deﬁnido conforme o tipo de benefício que for selecionado.",
+              "alt": "Página 58 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-59.jpg",
+              "legenda": "Página 59 de 70. MENU Vale Combustível - Perﬁl Todos os colaboradores cadastrados na plataforma serão vinculados a este perﬁl, de forma automática e obrigatória. Mesmo com o Perﬁl Global cadastrado, podemos criar um perﬁl de exceção para que em determinado posto haja um cálculo diferenciado.",
+              "alt": "Página 59 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-60.jpg",
+              "legenda": "Página 60 de 70. MENU Vale Combustível - Perﬁl Deﬁnir o nome do perﬁl Quando ativo, serão gerados somente em dias de “Folga, Dsr ou Compensado”, quando não existir crédito regular. Se desabilitado, irá gerar os extras em conjunto com os créditos regulares, ou seja, o colaborador receberá 1 crédito regular de acordo com a parametrização do extra. Será gerado 1 Crédito Regular + 1 Crédito Extra. Selecionar o modelo do vale criado no slide anterior. Quando irá iniciar a vigência deste perﬁl criado Não é obrigatório cadastrar uma data ﬁm",
+              "alt": "Página 60 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-61.jpg",
+              "legenda": "Página 61 de 70. MENU Vale Combustível - Perﬁl Data que irá iniciar o valor cadastrado do benefício. Valor que será pago por benefício O Campo está desabilitado, pois existe uma aba para esta demanda.",
+              "alt": "Página 61 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-62.jpg",
+              "legenda": "Página 62 de 70. MENU Vale Combustível - Perﬁl Deﬁnir quantidade de horas mínimas para gerar o benefícios de hora extras Agora deverá selecionar qual o evento irá considerar as horas que foram deﬁnidas",
+              "alt": "Página 62 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-63.jpg",
+              "legenda": "Página 63 de 70. MENU Vale Combustível - Perﬁl Data que irá iniciar o valor cadastrado do benefício. Valor que será pago por benefício",
+              "alt": "Página 63 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-64.jpg",
+              "legenda": "Página 64 de 70. MENU Vale Combustível - Perﬁl Deﬁnir se o desconto será por dia ou percentual Selecionar se é Justiﬁcado ou Não Justiﬁcado Selecionar a situação de ausência que seja levado em consideração a aplicação do desconto",
+              "alt": "Página 64 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-65.jpg",
+              "legenda": "Página 65 de 70. MENU Vale Combustível - Período Todos os colaboradores cadastrados na plataforma serão vinculados a este perﬁl, de forma automática e obrigatória. Mesmo com o Perﬁl Global cadastrado, podemos criar um perﬁl de exceção para que em determinado posto haja um cálculo diferenciado.",
+              "alt": "Página 65 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-66.jpg",
+              "legenda": "Página 66 de 70. MENU Vale Combustível - Período Para onde o sistema irá olhar para considerar os dias de escala/horas trabalhas para pagamento do benefícios Deﬁnir nome Se está aberta, fechado ou cancelado Para onde o sistema irá olhar para descontar/paga r extra",
+              "alt": "Página 66 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-67.jpg",
+              "legenda": "Página 67 de 70. MENU Vale Combustível - Período Pode deﬁnir uma data de entrega para o fornecedor Data que deverá ser creditado no cartão do colaborador",
+              "alt": "Página 67 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-68.jpg",
+              "legenda": "Página 68 de 70. Vale Combustível - Lançamentos MENU Informe o nome do Colaborador. Analisar marcações de ponto. Analisar lançamentos de Ausência do período. Lançamento Manual. E qual período de apuração você irá realizar o lançamento.",
+              "alt": "Página 68 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-69.jpg",
+              "legenda": "Página 69 de 70. MENU Vale Combustível - Lançamentos Data de referência que será feito o lançamento. Quantidade de benefícios que será creditado. Informe o motivo no qual está realizando a ação. Valor que será creditado Se será Crédito ou Débito",
+              "alt": "Página 69 do guia Como usar o Nexti Plus? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-plus-guia-pratico-70.jpg",
+              "legenda": "Página 70 de 70. Obrigado! nexti.com",
+              "alt": "Página 70 do guia Como usar o Nexti Plus? (Guia prático)"
+            }
+          ]
+        }
+      ],
+      "fonteTelas": "Guia Prático Nexti Plus",
+      "atencao": [],
+      "campos": [],
+      "checklist": [],
+      "faq": [],
+      "materiais": [
+        {
+          "titulo": "Guia Prático Nexti Plus: Visão geral",
+          "url": "materiais/nexti-plus-guia-pratico.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "relacionadas": [
+        "ori-0055",
+        "ori-0056",
+        "ori-0057",
+        "ori-0058"
+      ]
+    },
+    {
+      "id": "ori-0055",
+      "slug": "nexti-plus-va-vr-vc",
+      "titulo": "Como configurar VA, VR e VC no Nexti Plus?",
+      "modulo": "nexti-plus",
+      "submodulos": [
+        "va-vr-vc"
+      ],
+      "status": "publicado",
+      "revisao": "2026-11-27",
+      "resumo": "Guia Prático Nexti Plus, apresentado página a página (23 páginas), como no material original.",
+      "palavrasChave": [
+        "nexti plus",
+        "benefícios",
+        "vale alimentação",
+        "vale refeição",
+        "va",
+        "vr",
+        "vc"
+      ],
+      "finalidade": "",
+      "preparacao": [],
+      "resumoProcedimento": [],
+      "passos": [],
+      "telas": [
+        {
+          "aba": "VA, VR e VC",
+          "imagens": [
+            {
+              "src": "assets/telas/nexti-plus-va-vr-vc-1.jpg",
+              "legenda": "Página 1 de 23. Guia Prático Nexti Plus",
+              "alt": "Página 1 do guia Como configurar VA, VR e VC no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-va-vr-vc-2.jpg",
+              "legenda": "Página 2 de 23. MENU Nexti Plus O que é? Pontos Positivos Como Conﬁgurar?",
+              "alt": "Página 2 do guia Como configurar VA, VR e VC no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-va-vr-vc-3.jpg",
+              "legenda": "Página 3 de 23. MENU O que é o Nexti Plus? O Nexti Plus pode facilitar a compra e distribuição de benefícios, você consegue organizar todas as informações no mesmo módulo. O controle de seus benefícios organizados, calculados e distribuídos corretamente.",
+              "alt": "Página 3 do guia Como configurar VA, VR e VC no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-va-vr-vc-4.jpg",
+              "legenda": "Página 4 de 23. MENU Pontos Positivos Controle de benefícios Facilidade na parametrização Organização",
+              "alt": "Página 4 do guia Como configurar VA, VR e VC no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-va-vr-vc-5.jpg",
+              "legenda": "Página 5 de 23. VA/VR/VC - Modelos de Vale MENU Clique para criar um novo Aqui ﬁca toda parte de conﬁgurações do Nexti Plus",
+              "alt": "Página 5 do guia Como configurar VA, VR e VC no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-va-vr-vc-6.jpg",
+              "legenda": "Página 6 de 23. MENU VA/VR/VC - Modelos de Vale Deﬁnir nome Tipo do benefício se será, vale refeição, alimentação ou cesta Número do contrato com a empresa de benefícios Selecionar o fornecedor onde já possuímos alguns cadastrados Escolher a forma de pagamento que é utilizada (dinheiro, papel, cartão ou ﬁcha) O modelo de exportação será deﬁnido conforme o tipo de benefício que for selecionado.",
+              "alt": "Página 6 do guia Como configurar VA, VR e VC no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-va-vr-vc-7.jpg",
+              "legenda": "Página 7 de 23. MENU VA/VR/VC - Perﬁl Deﬁnir o nome do perﬁl Selecionar o modelo do vale criado no slide anterior. Tipo do benefício se será, vale refeição, alimentação ou cesta Quando irá iniciar a vigência deste perﬁl criado Se será dia ou período o tipo do cálculo Não é obrigatório cadastrar uma data ﬁm",
+              "alt": "Página 7 do guia Como configurar VA, VR e VC no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-va-vr-vc-8.jpg",
+              "legenda": "Página 8 de 23. VA/VR/VC - Perﬁl MENU Quando ativo, serão gerados somente em dias de “Folga, Dsr ou Compensado”, quando não existir crédito regular. Se desabilitado, irá gerar os extras em conjunto com os créditos regulares, ou seja, o colaborador receberá 1 crédito regular de acordo com a parametrização do extra. Será gerado 1 Crédito Regular + 1 Crédito Extra. Aparecerá uma nova aba “Horas Trabalhadas” e assim podendo parametrizar a quantidade mínima de horas trabalhadas para gerar o benefícios. Caso não seja habilitado, irá considerar a escala do colaborador",
+              "alt": "Página 8 do guia Como configurar VA, VR e VC no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-va-vr-vc-9.jpg",
+              "legenda": "Página 9 de 23. MENU VA/VR/VC - Perﬁl Deﬁnir quantidade de horas mínimas para gerar o benefícios Agora deverá selecionar qual o evento irá considerar as horas que foram deﬁnidas",
+              "alt": "Página 9 do guia Como configurar VA, VR e VC no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-va-vr-vc-10.jpg",
+              "legenda": "Página 10 de 23. MENU VA/VR/VC - Perﬁl O benefício será gerado de acordo com as horas trabalhadas, podendo assim, o preço variar de acordo com a conﬁguração. Caso não seja habilitado, irá considerar a escala do colaborador Se o colaborador não receber o benefício e ﬁzer uma cobertura em um posto que recebe, ele terá direito ao mesmo. (somente quando lançado cobertura) Poderá ser parametrizado a quantidade de benefícios que será pago para o colaborador, podendo ser Fixo ou deﬁnir dia por dia na Semana. Caso habilitado, sempre que houver um lançamento manual de débito, será debitado do “Total a Pagar” Só irá receber o benefícios caso esteja em Horas Extras",
+              "alt": "Página 10 do guia Como configurar VA, VR e VC no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-va-vr-vc-11.jpg",
+              "legenda": "Página 11 de 23. MENU VA/VR/VC - Perﬁl Data que irá iniciar o valor cadastrado do benefício. Valor que será pago por benefício O Campo está desabilitado, pois existe uma aba para esta demanda.",
+              "alt": "Página 11 do guia Como configurar VA, VR e VC no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-va-vr-vc-12.jpg",
+              "legenda": "Página 12 de 23. MENU VA/VR/VC - Perﬁl Deﬁnir quantidade de horas mínimas para gerar o benefícios de hora extras Agora deverá selecionar qual o evento irá considerar as horas que foram deﬁnidas",
+              "alt": "Página 12 do guia Como configurar VA, VR e VC no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-va-vr-vc-13.jpg",
+              "legenda": "Página 13 de 23. MENU VA/VR/VC - Perﬁl Data que irá iniciar o valor cadastrado do benefício. Valor que será pago por benefício",
+              "alt": "Página 13 do guia Como configurar VA, VR e VC no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-va-vr-vc-14.jpg",
+              "legenda": "Página 14 de 23. VA/VR/VC - Perﬁl MENU Deﬁnir se o desconto será por dia ou percentual Selecionar se é Justiﬁcado ou Não Justiﬁcado Quando deverá ser descontado esta ausência, se será na data de apuração, de projeção ou de ambos Selecionar a situação de ausência que seja levado em consideração a aplicação do desconto",
+              "alt": "Página 14 do guia Como configurar VA, VR e VC no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-va-vr-vc-15.jpg",
+              "legenda": "Página 15 de 23. VA/VR/VC - Perﬁl MENU Deﬁnir se o desconto será por dia ou percentual Deﬁnir quantidade de dias que será necessário para “perder” o benefícios, caso seja cadastrado 2 dias e houver duas \"ausências\" lançadas, irá perder o beneﬁcios total Selecionar se é Justiﬁcado ou Não Justiﬁcado Selecionar a situação de ausência que seja levado em consideração a aplicação do desconto",
+              "alt": "Página 15 do guia Como configurar VA, VR e VC no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-va-vr-vc-16.jpg",
+              "legenda": "Página 16 de 23. MENU VA/VR/VC - Perﬁl Selecionar o tipo de layout para lançamento do desconto",
+              "alt": "Página 16 do guia Como configurar VA, VR e VC no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-va-vr-vc-17.jpg",
+              "legenda": "Página 17 de 23. VA/VR/VC - Perﬁl MENU Tipo de desconto Percentual ou Valor Deﬁnir se será descontado do crédito total do vale ou do salário. Valor do desconto ﬁxo ou percentual",
+              "alt": "Página 17 do guia Como configurar VA, VR e VC no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-va-vr-vc-18.jpg",
+              "legenda": "Página 18 de 23. MENU VA/VR/VC - Períodos Todos os colaboradores cadastrados na plataforma serão vinculados a este perﬁl, de forma automática e obrigatória. Mesmo com o Perﬁl Global cadastrado, podemos criar um perﬁl de exceção para que em determinado posto haja um cálculo diferenciado.",
+              "alt": "Página 18 do guia Como configurar VA, VR e VC no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-va-vr-vc-19.jpg",
+              "legenda": "Página 19 de 23. VA/VR/VC - Períodos MENU Deﬁnir nome Se está aberta, fechado ou cancelado Tipo do benefício se será, vale refeição, alimentação ou cesta Para onde o sistema irá olhar para considerar os dias de escala/horas trabalhas para pagamento do benefícios Para onde o sistema irá olhar para descontar/pagar extra",
+              "alt": "Página 19 do guia Como configurar VA, VR e VC no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-va-vr-vc-20.jpg",
+              "legenda": "Página 20 de 23. VA/VR/VC - Períodos MENU Pode deﬁnir uma data de entrega para o fornecedor Data que deverá ser creditado no cartão do colaborador",
+              "alt": "Página 20 do guia Como configurar VA, VR e VC no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-va-vr-vc-21.jpg",
+              "legenda": "Página 21 de 23. VA/VR/VC - Lançamentos MENU Informe o nome do Colaborador. Analisar marcações de ponto. Analisar lançamentos de Ausência do período. Lançamento Manual. E qual período de apuração você irá realizar o lançamento.",
+              "alt": "Página 21 do guia Como configurar VA, VR e VC no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-va-vr-vc-22.jpg",
+              "legenda": "Página 22 de 23. VA/VR/VC - Lançamentos MENU Data de referência que será feito o lançamento. Quantidade de benefícios que será creditado. Valor que será creditado Informe o motivo no qual está realizando a ação. Se será Crédito ou Débito",
+              "alt": "Página 22 do guia Como configurar VA, VR e VC no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-va-vr-vc-23.jpg",
+              "legenda": "Página 23 de 23. Obrigado! nexti.com",
+              "alt": "Página 23 do guia Como configurar VA, VR e VC no Nexti Plus?"
+            }
+          ]
+        }
+      ],
+      "fonteTelas": "Guia Prático Nexti Plus",
+      "atencao": [],
+      "campos": [],
+      "checklist": [],
+      "faq": [],
+      "materiais": [
+        {
+          "titulo": "Guia Prático Nexti Plus: VA, VR e VC",
+          "url": "materiais/nexti-plus-va-vr-vc.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "relacionadas": [
+        "ori-0054",
+        "ori-0056",
+        "ori-0057",
+        "ori-0058"
+      ]
+    },
+    {
+      "id": "ori-0056",
+      "slug": "nexti-plus-vt",
+      "titulo": "Como configurar o vale-transporte no Nexti Plus?",
+      "modulo": "nexti-plus",
+      "submodulos": [
+        "vale-transporte"
+      ],
+      "status": "publicado",
+      "revisao": "2026-11-27",
+      "resumo": "Guia Prático Nexti Plus, apresentado página a página (28 páginas), como no material original.",
+      "palavrasChave": [
+        "nexti plus",
+        "benefícios",
+        "vale transporte",
+        "vt",
+        "itinerário"
+      ],
+      "finalidade": "",
+      "preparacao": [],
+      "resumoProcedimento": [],
+      "passos": [],
+      "telas": [
+        {
+          "aba": "Vale-transporte",
+          "imagens": [
+            {
+              "src": "assets/telas/nexti-plus-vt-1.jpg",
+              "legenda": "Página 1 de 28. Guia Prático Nexti Plus",
+              "alt": "Página 1 do guia Como configurar o vale-transporte no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vt-2.jpg",
+              "legenda": "Página 2 de 28. MENU Nexti Plus O que é? Pontos Positivos Como Conﬁgurar?",
+              "alt": "Página 2 do guia Como configurar o vale-transporte no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vt-3.jpg",
+              "legenda": "Página 3 de 28. MENU O que é o Nexti Plus? O Nexti Plus pode facilitar a compra e distribuição de benefícios, você consegue organizar todas as informações no mesmo módulo. O controle de seus benefícios organizados, calculados e distribuídos corretamente.",
+              "alt": "Página 3 do guia Como configurar o vale-transporte no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vt-4.jpg",
+              "legenda": "Página 4 de 28. MENU Pontos Positivos Controle de benefícios Facilidade na parametrização Organização",
+              "alt": "Página 4 do guia Como configurar o vale-transporte no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vt-5.jpg",
+              "legenda": "Página 5 de 28. MENU VT - Modelos de Vale Clique em “Novo”",
+              "alt": "Página 5 do guia Como configurar o vale-transporte no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vt-6.jpg",
+              "legenda": "Página 6 de 28. VT - Modelos de Vale MENU Deﬁnir nome Tipo do benefício se será, vale refeição, alimentação ou cesta Número do contrato com a empresa de benefícios Selecionar o fornecedor onde já possuímos alguns cadastrados Escolher a forma de pagamento que é utilizada (dinheiro, papel, cartão ou ﬁcha) O modelo de exportação será deﬁnido conforme o tipo de benefício que for selecionado.",
+              "alt": "Página 6 do guia Como configurar o vale-transporte no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vt-7.jpg",
+              "legenda": "Página 7 de 28. MENU VT - Linhas de Transportes Clique em “Novo”",
+              "alt": "Página 7 do guia Como configurar o vale-transporte no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vt-8.jpg",
+              "legenda": "Página 8 de 28. MENU VT - Linhas de Transportes Deﬁnir nome da linha Tipo da linha, se será Aquaviário, Rodoviário, ferroviário ou aéreo Selecionar o modelo do vale que foi criado no slide anterior.",
+              "alt": "Página 8 do guia Como configurar o vale-transporte no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vt-9.jpg",
+              "legenda": "Página 9 de 28. VT - Linhas de Transportes MENU Data que irá iniciar o valor cadastrado do benefício. Valor que será pago por benefício E clique em “adicionar” para que seja parametrizado",
+              "alt": "Página 9 do guia Como configurar o vale-transporte no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vt-10.jpg",
+              "legenda": "Página 10 de 28. MENU VT - Itinerários Clique em “novo” para criar um novo Itinerário",
+              "alt": "Página 10 do guia Como configurar o vale-transporte no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vt-11.jpg",
+              "legenda": "Página 11 de 28. MENU VT - Itinerários Deﬁnir o nome do novo Itinerário",
+              "alt": "Página 11 do guia Como configurar o vale-transporte no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vt-12.jpg",
+              "legenda": "Página 12 de 28. MENU VT - Itinerários Depois que for criado, volte na tela de início e clique no que foi criado",
+              "alt": "Página 12 do guia Como configurar o vale-transporte no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vt-13.jpg",
+              "legenda": "Página 13 de 28. MENU VT - Itinerários Inserir a linha que foi cadastrado anteriormente Poderá ser parametrizado a quantidade de benefícios que será pago para o colaborador, podendo ser Fixo ou deﬁnir dia por dia na Semana.",
+              "alt": "Página 13 do guia Como configurar o vale-transporte no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vt-14.jpg",
+              "legenda": "Página 14 de 28. VT - Perﬁl MENU Deﬁnir o nome do perﬁl Quando irá iniciar a vigência deste perﬁl criado Não é obrigatório cadastrar uma data ﬁm",
+              "alt": "Página 14 do guia Como configurar o vale-transporte no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vt-15.jpg",
+              "legenda": "Página 15 de 28. MENU VT - Perﬁl Aparecerá uma nova aba “Horas Trabalhadas” e assim podendo parametrizar a quantidade mínima de horas trabalhadas para gerar o benefícios. Caso não seja habilitado, irá considerar a escala do colaborador",
+              "alt": "Página 15 do guia Como configurar o vale-transporte no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vt-16.jpg",
+              "legenda": "Página 16 de 28. MENU VT - Perﬁl Deﬁnir quantidade de horas mínimas para gerar o benefícios Agora deverá selecionar qual o evento irá considerar as horas que foram deﬁnidas",
+              "alt": "Página 16 do guia Como configurar o vale-transporte no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vt-17.jpg",
+              "legenda": "Página 17 de 28. MENU VT - Perﬁl O benefício será gerado de acordo com as horas trabalhadas, podendo assim, o preço variar de acordo com a conﬁguração. Caso não seja habilitado, irá considerar a escala do colaborador Se o colaborador não receber o benefício e ﬁzer uma cobertura em um posto que recebe, ele terá direito ao mesmo. (somente quando lançado cobertura) Caso habilitado, sempre que houver um lançamento manual de débito, será debitado do “Total a Pagar”",
+              "alt": "Página 17 do guia Como configurar o vale-transporte no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vt-18.jpg",
+              "legenda": "Página 18 de 28. MENU VT - Perﬁl Deﬁnir quantidade de horas mínimas para gerar o benefícios de hora extras Agora deverá selecionar qual o evento irá considerar as horas que foram deﬁnidas",
+              "alt": "Página 18 do guia Como configurar o vale-transporte no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vt-19.jpg",
+              "legenda": "Página 19 de 28. MENU VT - Perﬁl Data que irá iniciar o valor cadastrado do benefício. Valor que será pago por benefício",
+              "alt": "Página 19 do guia Como configurar o vale-transporte no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vt-20.jpg",
+              "legenda": "Página 20 de 28. VT - Perﬁl MENU Deﬁnir se o desconto será por dia ou percentual Selecionar se é Justiﬁcado ou Não Justiﬁcado Quando deverá ser descontado esta ausência, se será na data de apuração, de projeção ou de ambos Selecionar a situação de ausência que seja levado em consideração a aplicação do desconto",
+              "alt": "Página 20 do guia Como configurar o vale-transporte no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vt-21.jpg",
+              "legenda": "Página 21 de 28. MENU VT - Perﬁl Selecionar o tipo de layout para lançamento do desconto",
+              "alt": "Página 21 do guia Como configurar o vale-transporte no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vt-22.jpg",
+              "legenda": "Página 22 de 28. MENU VT - Períodos Todos os colaboradores cadastrados na plataforma serão vinculados a este perﬁl, de forma automática e obrigatória. Mesmo com o Perﬁl Global cadastrado, podemos criar um perﬁl de exceção para que em determinado posto haja um cálculo diferenciado.",
+              "alt": "Página 22 do guia Como configurar o vale-transporte no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vt-23.jpg",
+              "legenda": "Página 23 de 28. VT - Períodos MENU Deﬁnir nome Se está aberta, fechado ou cancelado Para onde o sistema irá olhar para considerar os dias de escala/horas trabalhas para pagamento do benefícios Para onde o sistema irá olhar para descontar/pagar extra",
+              "alt": "Página 23 do guia Como configurar o vale-transporte no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vt-24.jpg",
+              "legenda": "Página 24 de 28. VT - Períodos MENU Pode deﬁnir uma data de entrega para o fornecedor Data que deverá ser creditado no cartão do colaborador",
+              "alt": "Página 24 do guia Como configurar o vale-transporte no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vt-25.jpg",
+              "legenda": "Página 25 de 28. VT - Lançamentos MENU Informe o nome do Colaborador. Analisar marcações de ponto. Analisar lançamentos de Ausência do período. Lançamento Manual. E qual período de apuração você irá realizar o lançamento.",
+              "alt": "Página 25 do guia Como configurar o vale-transporte no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vt-26.jpg",
+              "legenda": "Página 26 de 28. VT - Lançamentos MENU Data de referência que será feito o lançamento. Quantidade de benefícios que será creditado. Selecione o tipo de se é Crédito, extra, débito ou desconto apuração de ponto",
+              "alt": "Página 26 do guia Como configurar o vale-transporte no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vt-27.jpg",
+              "legenda": "Página 27 de 28. VT - Lançamentos MENU Selecione o itinerário já criado Informe o motivo no qual está realizando a ação.",
+              "alt": "Página 27 do guia Como configurar o vale-transporte no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vt-28.jpg",
+              "legenda": "Página 28 de 28. Obrigado! nexti.com",
+              "alt": "Página 28 do guia Como configurar o vale-transporte no Nexti Plus?"
+            }
+          ]
+        }
+      ],
+      "fonteTelas": "Guia Prático Nexti Plus",
+      "atencao": [],
+      "campos": [],
+      "checklist": [],
+      "faq": [],
+      "materiais": [
+        {
+          "titulo": "Guia Prático Nexti Plus: Vale-transporte",
+          "url": "materiais/nexti-plus-vt.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "relacionadas": [
+        "ori-0054",
+        "ori-0055",
+        "ori-0057",
+        "ori-0058"
+      ]
+    },
+    {
+      "id": "ori-0057",
+      "slug": "nexti-plus-gratificacao",
+      "titulo": "Como configurar gratificação no Nexti Plus?",
+      "modulo": "nexti-plus",
+      "submodulos": [
+        "gratificacao"
+      ],
+      "status": "publicado",
+      "revisao": "2026-11-27",
+      "resumo": "Guia Prático Nexti Plus, apresentado página a página (15 páginas), como no material original.",
+      "palavrasChave": [
+        "nexti plus",
+        "benefícios",
+        "gratificação"
+      ],
+      "finalidade": "",
+      "preparacao": [],
+      "resumoProcedimento": [],
+      "passos": [],
+      "telas": [
+        {
+          "aba": "Gratificação",
+          "imagens": [
+            {
+              "src": "assets/telas/nexti-plus-gratificacao-1.jpg",
+              "legenda": "Página 1 de 15. Guia Prático Nexti Plus",
+              "alt": "Página 1 do guia Como configurar gratificação no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-gratificacao-2.jpg",
+              "legenda": "Página 2 de 15. MENU Nexti Plus O que é? Pontos Positivos Como Conﬁgurar?",
+              "alt": "Página 2 do guia Como configurar gratificação no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-gratificacao-3.jpg",
+              "legenda": "Página 3 de 15. MENU O que é o Nexti Plus? O Nexti Plus pode facilitar a compra e distribuição de benefícios, você consegue organizar todas as informações no mesmo módulo. O controle de seus benefícios organizados, calculados e distribuídos corretamente.",
+              "alt": "Página 3 do guia Como configurar gratificação no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-gratificacao-4.jpg",
+              "legenda": "Página 4 de 15. MENU Pontos Positivos Controle de benefícios Facilidade na parametrização Organização",
+              "alt": "Página 4 do guia Como configurar gratificação no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-gratificacao-5.jpg",
+              "legenda": "Página 5 de 15. MENU Gratiﬁcações Para criar uma nova gratiﬁcação, clique em “novo”",
+              "alt": "Página 5 do guia Como configurar gratificação no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-gratificacao-6.jpg",
+              "legenda": "Página 6 de 15. Gratiﬁcações MENU Deﬁnir nome da gratiﬁcação Código do evento “ERP” Se será em “Percentual ou Valor” Tipo do cálculo dias trabalhados x dias de escala",
+              "alt": "Página 6 do guia Como configurar gratificação no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-gratificacao-7.jpg",
+              "legenda": "Página 7 de 15. MENU Gratiﬁcações Caso seja mensal, será preciso cadastrar o valor e dias trabalhados. Deﬁnir valor da gratiﬁcação Quantos dias o colaborador precisa trabalhar para receber o benefícios;",
+              "alt": "Página 7 do guia Como configurar gratificação no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-gratificacao-8.jpg",
+              "legenda": "Página 8 de 15. MENU Gratiﬁcações Deﬁnir as ausências que “poderá” ter no mês e assim que não desconte a gratiﬁcação Após feito a conﬁguração, precisará ir em cadastro->posto->gratiﬁc ação e atribuir a gratiﬁcação cadastrada",
+              "alt": "Página 8 do guia Como configurar gratificação no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-gratificacao-9.jpg",
+              "legenda": "Página 9 de 15. Gratiﬁcações MENU Deﬁnir a data de início e término para o cadastro da gratiﬁcação. Insira a gratiﬁcação que foi criada.",
+              "alt": "Página 9 do guia Como configurar gratificação no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-gratificacao-10.jpg",
+              "legenda": "Página 10 de 15. MENU Gratiﬁcações Períodos Todos os colaboradores cadastrados na plataforma serão vinculados a este perﬁl, de forma automática e obrigatória. Mesmo com o Perﬁl Global cadastrado, podemos criar um perﬁl de exceção para que em determinado posto haja um cálculo diferenciado.",
+              "alt": "Página 10 do guia Como configurar gratificação no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-gratificacao-11.jpg",
+              "legenda": "Página 11 de 15. Gratiﬁcações Períodos MENU Para onde o sistema irá olhar para considerar os dias de escala/horas trabalhas para pagamento do benefícios Deﬁnir nome Se está aberta, fechado ou cancelado Para onde o sistema irá olhar para descontar/pagar extra",
+              "alt": "Página 11 do guia Como configurar gratificação no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-gratificacao-12.jpg",
+              "legenda": "Página 12 de 15. Gratiﬁcações Períodos MENU Pode deﬁnir uma data de entrega para o fornecedor Data que deverá ser creditado no cartão do colaborador",
+              "alt": "Página 12 do guia Como configurar gratificação no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-gratificacao-13.jpg",
+              "legenda": "Página 13 de 15. Gratiﬁcações Lançamentos MENU Informe o nome do Colaborador. Analisar marcações de ponto. Analisar lançamentos de Ausência do período. Lançamento Manual. E qual período de apuração você irá realizar o lançamento.",
+              "alt": "Página 13 do guia Como configurar gratificação no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-gratificacao-14.jpg",
+              "legenda": "Página 14 de 15. Gratiﬁcações Lançamentos MENU Data de referência que será feito o lançamento. Deﬁnir quantidade de gratiﬁcações Selecione qual será a gratiﬁcação Informe o motivo no qual está realizando a ação.",
+              "alt": "Página 14 do guia Como configurar gratificação no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-gratificacao-15.jpg",
+              "legenda": "Página 15 de 15. Obrigado! nexti.com",
+              "alt": "Página 15 do guia Como configurar gratificação no Nexti Plus?"
+            }
+          ]
+        }
+      ],
+      "fonteTelas": "Guia Prático Nexti Plus",
+      "atencao": [],
+      "campos": [],
+      "checklist": [],
+      "faq": [],
+      "materiais": [
+        {
+          "titulo": "Guia Prático Nexti Plus: Gratificação",
+          "url": "materiais/nexti-plus-gratificacao.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "relacionadas": [
+        "ori-0054",
+        "ori-0055",
+        "ori-0056",
+        "ori-0058"
+      ]
+    },
+    {
+      "id": "ori-0058",
+      "slug": "nexti-plus-vale-combustivel",
+      "titulo": "Como configurar o vale-combustível no Nexti Plus?",
+      "modulo": "nexti-plus",
+      "submodulos": [
+        "vale-combustivel"
+      ],
+      "status": "publicado",
+      "revisao": "2026-11-27",
+      "resumo": "Guia Prático Nexti Plus, apresentado página a página (18 páginas), como no material original.",
+      "palavrasChave": [
+        "nexti plus",
+        "benefícios",
+        "vale combustível",
+        "combustível"
+      ],
+      "finalidade": "",
+      "preparacao": [],
+      "resumoProcedimento": [],
+      "passos": [],
+      "telas": [
+        {
+          "aba": "Vale-combustível",
+          "imagens": [
+            {
+              "src": "assets/telas/nexti-plus-vale-combustivel-1.jpg",
+              "legenda": "Página 1 de 18. Guia Prático Nexti Plus",
+              "alt": "Página 1 do guia Como configurar o vale-combustível no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vale-combustivel-2.jpg",
+              "legenda": "Página 2 de 18. MENU Nexti Plus O que é? Pontos Positivos Como Conﬁgurar?",
+              "alt": "Página 2 do guia Como configurar o vale-combustível no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vale-combustivel-3.jpg",
+              "legenda": "Página 3 de 18. MENU O que é o Nexti Plus? O Nexti Plus pode facilitar a compra e distribuição de benefícios, você consegue organizar todas as informações no mesmo módulo. O controle de seus benefícios organizados, calculados e distribuídos corretamente.",
+              "alt": "Página 3 do guia Como configurar o vale-combustível no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vale-combustivel-4.jpg",
+              "legenda": "Página 4 de 18. MENU Pontos Positivos Controle de benefícios Facilidade na parametrização Organização",
+              "alt": "Página 4 do guia Como configurar o vale-combustível no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vale-combustivel-5.jpg",
+              "legenda": "Página 5 de 18. MENU Vale Combustível - Modelos de Vale Para criar um modelo de vale clique em “novo”",
+              "alt": "Página 5 do guia Como configurar o vale-combustível no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vale-combustivel-6.jpg",
+              "legenda": "Página 6 de 18. MENU Vale Combustível - Modelos de Vale Deﬁnir nome Número do contrato com a empresa de benefícios Selecionar o fornecedor onde já possuímos alguns cadastrados Escolher a forma de pagamento que é utilizada (dinheiro, papel, cartão ou ﬁcha) O modelo de exportação será deﬁnido conforme o tipo de benefício que for selecionado.",
+              "alt": "Página 6 do guia Como configurar o vale-combustível no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vale-combustivel-7.jpg",
+              "legenda": "Página 7 de 18. MENU Vale Combustível - Perﬁl Todos os colaboradores cadastrados na plataforma serão vinculados a este perﬁl, de forma automática e obrigatória. Mesmo com o Perﬁl Global cadastrado, podemos criar um perﬁl de exceção para que em determinado posto haja um cálculo diferenciado.",
+              "alt": "Página 7 do guia Como configurar o vale-combustível no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vale-combustivel-8.jpg",
+              "legenda": "Página 8 de 18. MENU Vale Combustível - Perﬁl Deﬁnir o nome do perﬁl Quando ativo, serão gerados somente em dias de “Folga, Dsr ou Compensado”, quando não existir crédito regular. Se desabilitado, irá gerar os extras em conjunto com os créditos regulares, ou seja, o colaborador receberá 1 crédito regular de acordo com a parametrização do extra. Será gerado 1 Crédito Regular + 1 Crédito Extra. Selecionar o modelo do vale criado no slide anterior. Quando irá iniciar a vigência deste perﬁl criado Não é obrigatório cadastrar uma data ﬁm",
+              "alt": "Página 8 do guia Como configurar o vale-combustível no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vale-combustivel-9.jpg",
+              "legenda": "Página 9 de 18. MENU Vale Combustível - Perﬁl Data que irá iniciar o valor cadastrado do benefício. Valor que será pago por benefício O Campo está desabilitado, pois existe uma aba para esta demanda.",
+              "alt": "Página 9 do guia Como configurar o vale-combustível no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vale-combustivel-10.jpg",
+              "legenda": "Página 10 de 18. MENU Vale Combustível - Perﬁl Deﬁnir quantidade de horas mínimas para gerar o benefícios de hora extras Agora deverá selecionar qual o evento irá considerar as horas que foram deﬁnidas",
+              "alt": "Página 10 do guia Como configurar o vale-combustível no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vale-combustivel-11.jpg",
+              "legenda": "Página 11 de 18. MENU Vale Combustível - Perﬁl Data que irá iniciar o valor cadastrado do benefício. Valor que será pago por benefício",
+              "alt": "Página 11 do guia Como configurar o vale-combustível no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vale-combustivel-12.jpg",
+              "legenda": "Página 12 de 18. MENU Vale Combustível - Perﬁl Deﬁnir se o desconto será por dia ou percentual Selecionar se é Justiﬁcado ou Não Justiﬁcado Selecionar a situação de ausência que seja levado em consideração a aplicação do desconto",
+              "alt": "Página 12 do guia Como configurar o vale-combustível no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vale-combustivel-13.jpg",
+              "legenda": "Página 13 de 18. MENU Vale Combustível - Período Todos os colaboradores cadastrados na plataforma serão vinculados a este perﬁl, de forma automática e obrigatória. Mesmo com o Perﬁl Global cadastrado, podemos criar um perﬁl de exceção para que em determinado posto haja um cálculo diferenciado.",
+              "alt": "Página 13 do guia Como configurar o vale-combustível no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vale-combustivel-14.jpg",
+              "legenda": "Página 14 de 18. MENU Vale Combustível - Período Para onde o sistema irá olhar para considerar os dias de escala/horas trabalhas para pagamento do benefícios Deﬁnir nome Se está aberta, fechado ou cancelado Para onde o sistema irá olhar para descontar/paga r extra",
+              "alt": "Página 14 do guia Como configurar o vale-combustível no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vale-combustivel-15.jpg",
+              "legenda": "Página 15 de 18. MENU Vale Combustível - Período Pode deﬁnir uma data de entrega para o fornecedor Data que deverá ser creditado no cartão do colaborador",
+              "alt": "Página 15 do guia Como configurar o vale-combustível no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vale-combustivel-16.jpg",
+              "legenda": "Página 16 de 18. Vale Combustível - Lançamentos MENU Informe o nome do Colaborador. Analisar marcações de ponto. Analisar lançamentos de Ausência do período. Lançamento Manual. E qual período de apuração você irá realizar o lançamento.",
+              "alt": "Página 16 do guia Como configurar o vale-combustível no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vale-combustivel-17.jpg",
+              "legenda": "Página 17 de 18. MENU Vale Combustível - Lançamentos Data de referência que será feito o lançamento. Quantidade de benefícios que será creditado. Informe o motivo no qual está realizando a ação. Valor que será creditado Se será Crédito ou Débito",
+              "alt": "Página 17 do guia Como configurar o vale-combustível no Nexti Plus?"
+            },
+            {
+              "src": "assets/telas/nexti-plus-vale-combustivel-18.jpg",
+              "legenda": "Página 18 de 18. Obrigado! nexti.com",
+              "alt": "Página 18 do guia Como configurar o vale-combustível no Nexti Plus?"
+            }
+          ]
+        }
+      ],
+      "fonteTelas": "Guia Prático Nexti Plus",
+      "atencao": [],
+      "campos": [],
+      "checklist": [],
+      "faq": [],
+      "materiais": [
+        {
+          "titulo": "Guia Prático Nexti Plus: Vale-combustível",
+          "url": "materiais/nexti-plus-vale-combustivel.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "relacionadas": [
+        "ori-0054",
+        "ori-0055",
+        "ori-0056",
+        "ori-0057"
       ]
     }
   ],
