@@ -241,7 +241,13 @@ window.DADOS = {
       "id": "modelos-de-importacao",
       "nome": "Modelos de Importação",
       "descricao": "",
-      "submodulos": []
+      "submodulos": [
+        {
+          "id": "ausencia-em-lote",
+          "nome": "Ausência em lote",
+          "descricao": "Modelo de planilha para lançar ausências em lote."
+        }
+      ]
     },
     {
       "id": "modelo-de-exportacao",
@@ -3546,7 +3552,94 @@ window.DADOS = {
           "tipo": "PDF"
         }
       ],
-      "relacionadas": []
+      "relacionadas": [
+        "ori-0047"
+      ]
+    },
+    {
+      "id": "ori-0047",
+      "slug": "modelos-de-importacao-ausencia-em-lote",
+      "titulo": "Como gerar o modelo de lançamento de ausência em lote?",
+      "modulo": "modelos-de-importacao",
+      "submodulos": [
+        "ausencia-em-lote"
+      ],
+      "status": "publicado",
+      "revisao": "2026-11-13",
+      "resumo": "Guia Rápido Ausência em lote, apresentado página a página, como no material original.",
+      "palavrasChave": [
+        "ausência",
+        "lote",
+        "modelos de importação",
+        "planilha",
+        "xlsx"
+      ],
+      "finalidade": "",
+      "preparacao": [],
+      "resumoProcedimento": [],
+      "passos": [],
+      "telas": [
+        {
+          "aba": "Ausência em lote",
+          "imagens": [
+            {
+              "src": "assets/telas/manual-ausencia-em-lote-1.jpg",
+              "legenda": "Página 1 de 8. Guia Rápido Módulo de ausência",
+              "alt": "Página 1 do Guia Rápido Ausência em lote."
+            },
+            {
+              "src": "assets/telas/manual-ausencia-em-lote-2.jpg",
+              "legenda": "Página 2 de 8. SOBRE O MÓDULO O módulo AUSÊNCIA, localizado dentro de MOVIMENTAÇÕES EM LOTE, foi desenvolvido para simpliﬁcar o processo de lançamento de ausências, com ele, você pode registrar ausências para vários colaboradores de uma só vez, sem precisar realizar o lançamento manual individualmente para cada um.",
+              "alt": "Página 2 do Guia Rápido Ausência em lote."
+            },
+            {
+              "src": "assets/telas/manual-ausencia-em-lote-3.jpg",
+              "legenda": "Página 3 de 8. Criação da planilha XLSX 1. Acesse o módulo Modelos de Importação > Clique na opção Modelo lançamento de ausência em lote. 2. Nessa tela será possível: - Aplicar ﬁltros, como: Área, Posto, Colaboradores, entre outros. - Informar o tipo de ausência, a data de início e ﬁm, e também um período de horário (quando aplicável). 3. Após conﬁgurar todas as informações, clique em XLSX para gerar a planilha, ela ﬁcará disponível em seus arquivos. Passe para o lado para ter acesso a imagem que poderá te auxiliar:",
+              "alt": "Página 3 do Guia Rápido Ausência em lote."
+            },
+            {
+              "src": "assets/telas/manual-ausencia-em-lote-4.jpg",
+              "legenda": "Página 4 de 8. Modelos de Importação tdite modelos personalizados Segmentos Modelo lançamento de ausência em lote O",
+              "alt": "Página 4 do Guia Rápido Ausência em lote."
+            },
+            {
+              "src": "assets/telas/manual-ausencia-em-lote-5.jpg",
+              "legenda": "Página 5 de 8. Importação da planilha 1. Após baixar a planilha em seus arquivos, acesse o módulo Movimentaçõs em Lote > Clique em Ausência 2. Dentro da tela de ausência, selecione a opção Importar ausências em lote > Clique em Anexar arquivo e vincule a planilha gerada no passo anterior.",
+              "alt": "Página 5 do Guia Rápido Ausência em lote."
+            },
+            {
+              "src": "assets/telas/manual-ausencia-em-lote-6.jpg",
+              "legenda": "Página 6 de 8. Envio do arquivo de importação o upload do arqui a de ausência ,A",
+              "alt": "Página 6 do Guia Rápido Ausência em lote."
+            },
+            {
+              "src": "assets/telas/manual-ausencia-em-lote-7.jpg",
+              "legenda": "Página 7 de 8. Resultado da Importação O sistema exibirá um resumo da operação, informando a quantidade de dados importados com sucesso.",
+              "alt": "Página 7 do Guia Rápido Ausência em lote."
+            },
+            {
+              "src": "assets/telas/manual-ausencia-em-lote-8.jpg",
+              "legenda": "Página 8 de 8. á Obrigado!",
+              "alt": "Página 8 do Guia Rápido Ausência em lote."
+            }
+          ]
+        }
+      ],
+      "fonteTelas": "Guia Rápido Nexti “Ausência em lote”",
+      "atencao": [],
+      "campos": [],
+      "checklist": [],
+      "faq": [],
+      "materiais": [
+        {
+          "titulo": "Guia Rápido: Ausência em lote",
+          "url": "materiais/guia-rapido-manual-ausencia-em-lote.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "relacionadas": [
+        "ori-0014"
+      ]
     },
     {
       "id": "ori-0015",
