@@ -367,8 +367,39 @@ window.DADOS = {
     {
       "id": "nexti-time",
       "nome": "Nexti Time",
-      "descricao": "",
-      "submodulos": []
+      "descricao": "Apuração de horas com o Nexti Time: perfil de apuração, horas noturnas, banco de horas, DSR, hora extra, exportação Fopag, ausências, horistas, período e gestão de apuração.",
+      "submodulos": [
+        {
+          "id": "visao-geral",
+          "nome": "Visão geral",
+          "descricao": "Guia prático completo do Nexti Time: perfil de apuração, dados gerais, horas noturnas, banco de horas, DSR, hora extra, Fopag, ausências e horistas."
+        },
+        {
+          "id": "perfil-de-apuracao",
+          "nome": "Perfil de apuração",
+          "descricao": "Configuração completa do perfil de apuração."
+        },
+        {
+          "id": "adicional-noturno-banco-de-horas-dsr",
+          "nome": "Adicional noturno, banco de horas e DSR",
+          "descricao": "Horas noturnas, banco de horas e DSR no perfil de apuração."
+        },
+        {
+          "id": "hora-extra-exportacao-fopag",
+          "nome": "Hora extra e exportação Fopag",
+          "descricao": "Regras de hora extra e exportação para a folha de pagamento."
+        },
+        {
+          "id": "ausencias-e-horistas",
+          "nome": "Ausências e horistas",
+          "descricao": "Ausência justificada, ausência e regras para horistas."
+        },
+        {
+          "id": "periodo-lancamento-gestao",
+          "nome": "Período, lançamento manual e gestão de apuração",
+          "descricao": "Período de apuração, lançamento manual e gestão de apuração."
+        }
+      ]
     },
     {
       "id": "nexti-plus",
@@ -8829,6 +8860,1493 @@ window.DADOS = {
       "relacionadas": [
         "ori-0035",
         "ori-0032"
+      ]
+    },
+    {
+      "id": "ori-0048",
+      "slug": "nexti-time-guia-pratico-nexti-time",
+      "titulo": "Como usar o Nexti Time? (Guia prático)",
+      "modulo": "nexti-time",
+      "submodulos": [
+        "visao-geral"
+      ],
+      "status": "publicado",
+      "revisao": "2026-11-27",
+      "resumo": "Guia Prático Nexti Time, apresentado página a página (84 páginas), como no material original.",
+      "palavrasChave": [
+        "nexti time",
+        "nexti time",
+        "apuração",
+        "guia prático"
+      ],
+      "finalidade": "",
+      "preparacao": [],
+      "resumoProcedimento": [],
+      "passos": [],
+      "telas": [
+        {
+          "aba": "Visão geral",
+          "imagens": [
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-1.jpg",
+              "legenda": "Página 1 de 84. Guia Prático Nexti Time",
+              "alt": "Página 1 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-2.jpg",
+              "legenda": "Página 2 de 84. Menu Perﬁl de Apuração Dados Gerais Horas Noturnas Banco de Horas Dsr Hora Extra Exportação Fopag Ausência Justiﬁcada Ausência Banco de horas - Não Agrupar Horista Horista Período de Apuração Lançamento Manual Gestão de Apuração",
+              "alt": "Página 2 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-3.jpg",
+              "legenda": "Página 3 de 84. MENU Nexti Time O que é? Pontos Positivos Como Conﬁgurar?",
+              "alt": "Página 3 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-4.jpg",
+              "legenda": "Página 4 de 84. MENU O que é Nexti Time? É um módulo que pode-se realizar cálculo de horas trabalhadas a partir das marcações do cartão ponto, integrando com o seu sistema de folha! Hora Extra ou Banco de Horas? Na Nexti você pode calcular os dois, tudo em um só lugar!",
+              "alt": "Página 4 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-5.jpg",
+              "legenda": "Página 5 de 84. MENU Pontos Positivos Integra com Softwares de Folha de Pagamento Controle de Banco de Horas Cálculo de Horas Trabalhadas Relatórios Simpliﬁcados",
+              "alt": "Página 5 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-6.jpg",
+              "legenda": "Página 6 de 84. MENU Nexti Time O Nexti Time é dividido em 4 partes; Perﬁl de Apuração - Responsável por toda conﬁguração dos eventos da folha de pagamento Período de Apuração - Responsável pela criação dos períodos Lançamento Manual - Possibilita a inserção de Crédito ou Débito para um determinado colaborador Gestão de Apuração - Possibilidade de substituição de eventos Crédito para Hora Extra ou visse e versa.",
+              "alt": "Página 6 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-7.jpg",
+              "legenda": "Página 7 de 84. MENU Perﬁl de Apuração Todos os colaboradores cadastrados na plataforma serão vinculados a este perﬁl, de forma automática e obrigatória. Mesmo com o Perﬁl Global cadastrado, podemos criar um perﬁl de exceção para que em determinado posto haja um cálculo diferenciado.",
+              "alt": "Página 7 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-8.jpg",
+              "legenda": "Página 8 de 84. Dados Gerais MENU Deﬁnir data início e ﬁm da vigência. Obs: Não é obrigatório informar a data ﬁm Deﬁnir nome do perﬁl de apuração Parametrizar início da semana, irá inﬂuenciar diretamente no DSR Realizar o rateio das horas do colaborador, ou seja, vincular ao \"posto\" que ele iniciou e ﬁnalizou o plantão no dia.",
+              "alt": "Página 8 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-9.jpg",
+              "legenda": "Página 9 de 84. Dados Gerais MENU Quando habilitado esta ﬂag a apuração irá diferenciar os dias trabalhados em feriado e também dois novos campos irão aparecer. Conseguimos conﬁgurar se queremos considerar o feriado até o ﬁm da jornada, ou seja, colaboradores que iniciam em um dia e terminam no outro. As horas de intrajornada serão reduzidas das horas extras quando em feriado. Exemplo - Reduz o valor de intrajornada das horas extra geradas.",
+              "alt": "Página 9 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-10.jpg",
+              "legenda": "Página 10 de 84. MENU Dados Gerais Caso o colaborador inicie o plantão em um Sábado e o feriado seja no Domingo, sem a ﬂag o colaborador irá receber o feriado após 00:00 e com a ﬂag ativa irá desconsiderar.",
+              "alt": "Página 10 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-11.jpg",
+              "legenda": "Página 11 de 84. MENU Dados Gerais A forma de cálculo será alterada para o tipo ﬂexível, englobando todos os colaboradores vinculados ao perﬁl considerando apenas a Carga Horária Diária na apuração.",
+              "alt": "Página 11 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-12.jpg",
+              "legenda": "Página 12 de 84. MENU Dados Gerais Com a ﬂag ativa irá considerar a Carga Diária sem intervalo na apuração ignorando o intervalo realizado.",
+              "alt": "Página 12 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-13.jpg",
+              "legenda": "Página 13 de 84. Dados Gerais MENU Em casos de colaborador possuir uma ausência justiﬁcada e seja realizado hora extra, irá descontar as horas da ausência. (Flexível, Intermitente e Horista).",
+              "alt": "Página 13 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-14.jpg",
+              "legenda": "Página 14 de 84. MENU Dados Gerais Quando habilitado desconsidera a tolerância cadastrada no sistema.",
+              "alt": "Página 14 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-15.jpg",
+              "legenda": "Página 15 de 84. MENU Dados Gerais Regra criada para gerar um relatório especíﬁco e apresentar a quantidade de dias trabalhados.",
+              "alt": "Página 15 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-16.jpg",
+              "legenda": "Página 16 de 84. MENU Dados Gerais Quando ativa os dias de folga vão gerar o evento de folga compensada.",
+              "alt": "Página 16 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-17.jpg",
+              "legenda": "Página 17 de 84. Dados Gerais MENU Por padrão do sistema a apuração é feita com base nas marcações pares, ou seja, as marcações que estão tratadas para que seja feita a apuração. E com a ﬂag ativa possibilita realizar a apuração com marcações ímpares, você irá deﬁnir se quer desconsiderar marcação Inicial ou Final e assim realizando a apuração de um período. Exemplo Colaborador possui marcação às 08:00-12:00/13:00 não possuindo a saída as 18:00, se for selecionado para desconsiderar marcação “Final” ele irá apurar somente os dois primeiros registros 08:00-12:00 e assim gerando possíveis descontos de meio perío",
+              "alt": "Página 17 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-18.jpg",
+              "legenda": "Página 18 de 84. MENU Dados Gerais Controlar um possível atraso diferenciado onde não há necessidade de descontar do colaborador, podendo ser parametrizado para que seja descontado também.",
+              "alt": "Página 18 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-19.jpg",
+              "legenda": "Página 19 de 84. MENU Dados Gerais Será aberto um novo campo onde deverá ser preenchido as horas necessárias de descanso para que não seja gerado a interjornada.",
+              "alt": "Página 19 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-20.jpg",
+              "legenda": "Página 20 de 84. Dados Gerais MENU Aqui podemos deﬁnir o horário mínimo trabalhado que será gerado o evento de intrajornada.",
+              "alt": "Página 20 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-21.jpg",
+              "legenda": "Página 21 de 84. MENU Dados Gerais Irá transformar o evento de desconto quando há marcação ímpar para “Evento Marcação Ímpar\", ou seja, uma forma de controle que também pode ser parametrizado para desconto.",
+              "alt": "Página 21 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-22.jpg",
+              "legenda": "Página 22 de 84. MENU Dados Gerais Quando é feito o cadastro na escala no campo Carga Horária Diária e ativamos esta ﬂag, mesmo que trabalhado um período menor, o sistema irá considerar o que está cadastrado na Carga Horária Diária na escala.",
+              "alt": "Página 22 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-23.jpg",
+              "legenda": "Página 23 de 84. MENU Dados Gerais Em caso de banco de horas onde o colaborador não possui registro de marcação ele irá converter o Débito de Banco em Falta e assim não descontado do saldo de Banco de Horas, descontado a Falta diretamente na folha.",
+              "alt": "Página 23 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-24.jpg",
+              "legenda": "Página 24 de 84. Dados Gerais MENU Quando for lançada uma \"Ausência\" em um dia de folga e a flag estiver ativa, será considerado os eventos que foram lançados mesmo que seja dia de folga.",
+              "alt": "Página 24 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-25.jpg",
+              "legenda": "Página 25 de 84. Horas Noturnas MENU Ativar a regra de Adicional Noturno.",
+              "alt": "Página 25 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-26.jpg",
+              "legenda": "Página 26 de 84. MENU Horas Noturnas Ativar a regra de Horas Noturnas Reduzidas.",
+              "alt": "Página 26 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-27.jpg",
+              "legenda": "Página 27 de 84. MENU Horas Noturnas Quando ativa contabiliza o intervalo como Adicional Noturno, por regra o adicional noturno paga apenas as horas trabalhadas, porém existem empresas que pagam o Intervalo também como Adicional Noturno, irá depender de empresa para empresa.",
+              "alt": "Página 27 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-28.jpg",
+              "legenda": "Página 28 de 84. MENU Horas Noturnas Quando realizado hora extra e a ﬂag estiver ativa, não será calculado Adicional Noturno nas horas extras.",
+              "alt": "Página 28 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-29.jpg",
+              "legenda": "Página 29 de 84. Horas Noturnas MENU Diferenciar o intervalo de Diurno ou Noturno.",
+              "alt": "Página 29 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-30.jpg",
+              "legenda": "Página 30 de 84. MENU Horas Noturnas Quando ativa a ﬂag, além das Horas Noturnas Reduzidas, será acrescentado o valor do Adicional Noturno mas horas.",
+              "alt": "Página 30 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-31.jpg",
+              "legenda": "Página 31 de 84. MENU Horas Noturnas Exclusivo para registros que forem realizados em Horas Regulares Noturnas, irá desconsiderar a tolerância do sistema.",
+              "alt": "Página 31 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-32.jpg",
+              "legenda": "Página 32 de 84. Horas Noturnas MENU Deﬁnir o Início e Final do Adicional Noturno. Exemplo Início do Adicional Noturno - 22:00 Final do Adicional Noturno - 05:00",
+              "alt": "Página 32 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-33.jpg",
+              "legenda": "Página 33 de 84. Horas Noturnas MENU Será desconsiderado o horário ﬁnal que foi cadastrado em \"Diferenciar Horas Noturnas\" e irá considerar horas noturnas até o ﬁm da jornada do colaborador.",
+              "alt": "Página 33 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-34.jpg",
+              "legenda": "Página 34 de 84. Horas Noturnas MENU Deﬁnir a quantidade de horas que será preciso trabalhar para que seja gerado Intrajornada Noturna. Exemplo 11:00 O sistema só irá considerar Intrajornada Noturna após 11 horas trabalhadas.",
+              "alt": "Página 34 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-35.jpg",
+              "legenda": "Página 35 de 84. Banco de Horas MENU Os dias trabalhados no Feriado serão creditados como Banco de Horas.",
+              "alt": "Página 35 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-36.jpg",
+              "legenda": "Página 36 de 84. MENU Banco de Horas Você poderá selecionar uma ausência que será convertida a um evento de apuração. Exemplo Foi feita a parametrização para que sempre que lançado uma Ausência de Falta que converta em Débito Falta Diurna e assim irá contabilizar no banco de horas.",
+              "alt": "Página 36 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-37.jpg",
+              "legenda": "Página 37 de 84. MENU Banco de Horas Exemplo Parametrizado para os dias da semana determinando que o cálculo de apuração de banco de horas aos Sábados seja de 50%, Domingo e Feriado 100%. Possibilita parametrizar o percentual de Crédito de Banco, por dia da semana e aplicar percentuais diferentes.",
+              "alt": "Página 37 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-38.jpg",
+              "legenda": "Página 38 de 84. Banco de Horas MENU A intrajornada será desconsiderada e irá virar banco de horas.",
+              "alt": "Página 38 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-39.jpg",
+              "legenda": "Página 39 de 84. Banco de Horas MENU Parametrizar a tolerância diária para registro de ponto do banco de horas.",
+              "alt": "Página 39 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-40.jpg",
+              "legenda": "Página 40 de 84. DSR MENU Quando trabalhar em horário do tipo \"DSR\", serão gerados eventos diferenciados onde possibilitará uma exportação com código de evento diferente.",
+              "alt": "Página 40 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-41.jpg",
+              "legenda": "Página 41 de 84. DSR MENU Será descontado o DSR em caso de falta.",
+              "alt": "Página 41 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-42.jpg",
+              "legenda": "Página 42 de 84. DSR MENU Quando o colaborador possuir uma Ausência Parcial irá realizar o desconto do DSR. Aqui será possível parametrizar a partir de quantas horas deverá ser descontado o DSR e qual formato, semanal ou mensal.",
+              "alt": "Página 42 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-43.jpg",
+              "legenda": "Página 43 de 84. DSR MENU Quando o colaborador possuir uma ausência justiﬁcada lançada, será descontado o DSR.",
+              "alt": "Página 43 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-44.jpg",
+              "legenda": "Página 44 de 84. DSR MENU Ativa a regra para descontar o DSR em feriados.",
+              "alt": "Página 44 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-45.jpg",
+              "legenda": "Página 45 de 84. DSR MENU Sempre que um colaborador vinculado a este perﬁl de apuração trabalhar em horário do tipo \"DSR\" ou \"FOLGA\", será gerado intrajornada desde que realize a quantidade mínima de horas trabalhadas.",
+              "alt": "Página 45 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-46.jpg",
+              "legenda": "Página 46 de 84. MENU Hora Extra Código do Evento do sistema ERP. Hora Extra por via de regra é sempre em \"Horas\", o \"Dias\" é utilizado geralmente para desconto de DSR e os demais eventos em \"Horas\".",
+              "alt": "Página 46 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-47.jpg",
+              "legenda": "Página 47 de 84. Hora Extra MENU Ativa a regra para diferenciar os eventos de Intrajornada. Desconsidera a tolerância cadastrada no sistema para a intrajornada.",
+              "alt": "Página 47 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-48.jpg",
+              "legenda": "Página 48 de 84. MENU Hora Extra Os eventos são gerados com o nome de FT nos dias de folga ao invés de Hora Extra.",
+              "alt": "Página 48 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-49.jpg",
+              "legenda": "Página 49 de 84. MENU Hora Extra Quando o colaborador trabalhar 8 horas, sem a ﬂag, o sistema irá contabilizar as 8 horas, após ativar a ﬂag, será contabilizado como 7 horas trabalhadas e 1 hora de intrajornada.",
+              "alt": "Página 49 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-50.jpg",
+              "legenda": "Página 50 de 84. MENU Hora Extra Quando a folga do colaborador cai no domingo e porventura o mesmo trabalhe, poderá ser parametrizado para ser pago um valor diferente.",
+              "alt": "Página 50 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-51.jpg",
+              "legenda": "Página 51 de 84. Hora Extra MENU Irá gerar um evento de hora extra diferenciado para as horas em dias de folga no domingo.",
+              "alt": "Página 51 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-52.jpg",
+              "legenda": "Página 52 de 84. MENU Hora Extra Irá gerar um evento de hora extra diferenciado para as horas em dias de folga no sábado.",
+              "alt": "Página 52 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-53.jpg",
+              "legenda": "Página 53 de 84. MENU Hora Extra Caso colaborador realize um período menor de intervalo, com a ﬂag ativa será desmembrado o que é Intervalo da Intrajornada.",
+              "alt": "Página 53 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-54.jpg",
+              "legenda": "Página 54 de 84. MENU Hora Extra Quando ativa, ele separa as Horas Trabalhadas da Intrajornada.",
+              "alt": "Página 54 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-55.jpg",
+              "legenda": "Página 55 de 84. MENU Hora Extra Será gerado um evento de folga trabalhada com o valor proporcional de intervalo realizado. Exemplo Quando realizado o intervalo será gerado o evento de Folga Trabalhada.",
+              "alt": "Página 55 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-56.jpg",
+              "legenda": "Página 56 de 84. Hora Extra MENU Ativa a regra de diferenciar domingo trabalhando gerando um novo evento. Quando ativado irá considerar domingo trabalhado até o ﬁnal da jornada. Exemplo 12x36 inicia seu horário no Domingo às 18h e termina a jornada na Segunda às 06h.",
+              "alt": "Página 56 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-57.jpg",
+              "legenda": "Página 57 de 84. MENU Hora Extra Quando ativar o sistema irá separar as Horas Extras da Intrajornada.",
+              "alt": "Página 57 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-58.jpg",
+              "legenda": "Página 58 de 84. MENU Hora Extra Quando feito uma troca de horário em feriado tudo que ultrapassar o horário ﬁnal esperado será contabilizado como hora extra em feriado.",
+              "alt": "Página 58 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-59.jpg",
+              "legenda": "Página 59 de 84. Hora Extra MENU Quando ativa conseguimos parametrizar um código de evento para hora extra diferenciada em algum dia da semana.",
+              "alt": "Página 59 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-60.jpg",
+              "legenda": "Página 60 de 84. MENU Hora Extra Caso seja trabalhado em dia de DSR em horário noturno (iniciando em um dia e saindo no outro), será considerado o DSR até o ﬁnal da jornada.",
+              "alt": "Página 60 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-61.jpg",
+              "legenda": "Página 61 de 84. Hora Extra MENU Diária, Semanal Mensal. Possibilidade de parametrizar a quantidade de horas a serem pagas por dia, semana ou no mês. Quando habilitada irá disponibilizar dois novos campos para parametrização.",
+              "alt": "Página 61 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-62.jpg",
+              "legenda": "Página 62 de 84. MENU Hora Extra Parametrizar quantidade de horas mínimas que serão necessárias para adicionar a intrajornada.",
+              "alt": "Página 62 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-63.jpg",
+              "legenda": "Página 63 de 84. Hora Extra MENU Quando há necessidade de pagar a FT com valores diferenciados. Aqui faço a divisão do dia em percentual, por exemplo, eu posso informar 50% ou outro valor em “Percentual” (que é o equivalente a metade do dia) e em evento FOPAG código no qual equivale este valor para pagamento.",
+              "alt": "Página 63 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-64.jpg",
+              "legenda": "Página 64 de 84. MENU Exportação FOPAG Informação para vínculo com integração entre ERP.",
+              "alt": "Página 64 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-65.jpg",
+              "legenda": "Página 65 de 84. Exportação FOPAG MENU Se o formato que é utilizado no sistema ERP é Sexagesimal ou Centesimal.",
+              "alt": "Página 65 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-66.jpg",
+              "legenda": "Página 66 de 84. MENU Exportação FOPAG Layout da folha de pagamento do sistema ERP, já possuímos alguns cadastros no sistema.",
+              "alt": "Página 66 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-67.jpg",
+              "legenda": "Página 67 de 84. MENU Exportação FOPAG Se será dia, semanal ou mensal.",
+              "alt": "Página 67 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-68.jpg",
+              "legenda": "Página 68 de 84. MENU Exportação FOPAG Código do Evento do sistema ERP.",
+              "alt": "Página 68 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-69.jpg",
+              "legenda": "Página 69 de 84. MENU Ausência Justiﬁcada Código do Evento do sistema ERP. Selecionar o tipo de ausência no qual deseja cadastrar. Selecionar se será levado em Horas ou Dias, para o Dias deverá ser preenchido a quantidade de horas para considerar um dia.",
+              "alt": "Página 69 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-70.jpg",
+              "legenda": "Página 70 de 84. Ausência MENU Neste campo podemos selecionar quais eventos desejamos cadastrar. E com base no evento cadastrado precisamos selecionar a qual situação de ausência pertence aquele evento.",
+              "alt": "Página 70 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-71.jpg",
+              "legenda": "Página 71 de 84. MENU Banco de Horas - Não Agrupar Utilizado para fazer a separação dos eventos de banco de horas.",
+              "alt": "Página 71 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-72.jpg",
+              "legenda": "Página 72 de 84. Horista MENU Podemos deﬁnir qual a carga horária será necessária para receber a intrajornada.",
+              "alt": "Página 72 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-73.jpg",
+              "legenda": "Página 73 de 84. MENU Horista Deﬁnir carga horária diária para pagamento da intrajornada. Exemplo 4 a 8 horas deverá ser pago o valor de 1 hora de Intrajornada.",
+              "alt": "Página 73 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-74.jpg",
+              "legenda": "Página 74 de 84. Horista MENU O evento de intervalo realizado será gerado para o horista. Os minutos de intervalo para os horistas irão abater os eventos de intrajornada.",
+              "alt": "Página 74 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-75.jpg",
+              "legenda": "Página 75 de 84. MENU Período de Apuração Todos os colaboradores cadastrados na plataforma serão vinculados a este período, de forma automática e obrigatória. Mesmo com o Perﬁl Global cadastrado, podemos criar um período de exceção para que em determinado posto haja um cálculo diferenciado.",
+              "alt": "Página 75 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-76.jpg",
+              "legenda": "Página 76 de 84. Período de Apuração MENU Código da folha do sistema ERP. Utilizado para o deixar o Período de Apuração Aberto, Fechado ou Cancelar. Nome do período de apuração, exemplo JULHO 2022. Com essa ﬂag será possível visualizar o Saldo Acumulado de banco de horas na mesa de operações. Será cadastro a data início e ﬁm do período de apuração, exemplo 16/11/2022 a 15/11/2022. Faz com que os dias trabalhados nas folgas não calculam Crédito de Banco e sim como Horas Trabalhadas.",
+              "alt": "Página 76 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-77.jpg",
+              "legenda": "Página 77 de 84. Período de Apuração MENU Em casos de exceções, o que deve ser cadastrado é somente o ﬁltro. Você irá selecionar o tipo de ﬁltro que você irá cadastrar, caso seja por Posto. Irá digitar o nome do posto e em seguida selecionando “clicando”.",
+              "alt": "Página 77 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-78.jpg",
+              "legenda": "Página 78 de 84. MENU Lançamento Manual Informe o nome do Colaborador. E qual período de apuração você irá realizar o lançamento.",
+              "alt": "Página 78 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-79.jpg",
+              "legenda": "Página 79 de 84. Lançamento Manual MENU Analisar marcações de ponto. Analisar lançamentos de Ausência do período. Lançamento Manual.",
+              "alt": "Página 79 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-80.jpg",
+              "legenda": "Página 80 de 84. Lançamento Manual MENU Data de referência que será feito o lançamento. Quantidade em horas que será Creditado ou Debitado. Tipo do evento do lançamento manual “Crédito ou Débito”. Selecionar o posto no qual o colaborador está lotado naquele período. Informe o motivo no qual está realizando a ação.",
+              "alt": "Página 80 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-81.jpg",
+              "legenda": "Página 81 de 84. Gestão de Apuração MENU Campo de pesquisa para selecionar um posto, colaborador entre outros. Selecionar o Período de Apuração. Selecionar a ação.",
+              "alt": "Página 81 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-82.jpg",
+              "legenda": "Página 82 de 84. MENU Gestão de Apuração Neste exemplo estou usando “Colaborador” você irá digitar o nome e “clicar”.",
+              "alt": "Página 82 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-83.jpg",
+              "legenda": "Página 83 de 84. Gestão de Apuração MENU Selecione o Evento de origem “Banco de Horas Crédito. Agora o Evento de Destino “Hora Extra Diurna”. O período ou dia que for selecionado o sistema irá fazer a substituição Aqui você irá informar o motivo no qual você está realizando esta ação e após clique em Substituir Evento.",
+              "alt": "Página 83 do guia Como usar o Nexti Time? (Guia prático)"
+            },
+            {
+              "src": "assets/telas/nexti-time-guia-pratico-nexti-time-84.jpg",
+              "legenda": "Página 84 de 84. Obrigado! nexti.com",
+              "alt": "Página 84 do guia Como usar o Nexti Time? (Guia prático)"
+            }
+          ]
+        }
+      ],
+      "fonteTelas": "Guia Prático Nexti Time",
+      "atencao": [],
+      "campos": [],
+      "checklist": [],
+      "faq": [],
+      "materiais": [
+        {
+          "titulo": "Guia Prático Nexti Time: Visão geral",
+          "url": "materiais/nexti-time-guia-pratico-nexti-time.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "relacionadas": [
+        "ori-0049",
+        "ori-0050",
+        "ori-0051",
+        "ori-0052",
+        "ori-0053"
+      ]
+    },
+    {
+      "id": "ori-0049",
+      "slug": "nexti-time-perfil-de-apuracao-completo",
+      "titulo": "Como configurar o perfil de apuração completo?",
+      "modulo": "nexti-time",
+      "submodulos": [
+        "perfil-de-apuracao"
+      ],
+      "status": "publicado",
+      "revisao": "2026-11-27",
+      "resumo": "Guia Prático Nexti Time, apresentado página a página (73 páginas), como no material original.",
+      "palavrasChave": [
+        "nexti time",
+        "perfil de apuração",
+        "configuração"
+      ],
+      "finalidade": "",
+      "preparacao": [],
+      "resumoProcedimento": [],
+      "passos": [],
+      "telas": [
+        {
+          "aba": "Perfil de apuração",
+          "imagens": [
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-1.jpg",
+              "legenda": "Página 1 de 73. Guia Prático Nexti Time",
+              "alt": "Página 1 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-2.jpg",
+              "legenda": "Página 2 de 73. MENU Nexti Time O que é? Pontos Positivos Como Conﬁgurar?",
+              "alt": "Página 2 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-3.jpg",
+              "legenda": "Página 3 de 73. MENU O que é Nexti Time? É um módulo que pode-se realizar cálculo de horas trabalhadas a partir das marcações do cartão ponto, integrando com o seu sistema de folha! Hora Extra ou Banco de Horas? Na Nexti você pode calcular os dois, tudo em um só lugar!",
+              "alt": "Página 3 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-4.jpg",
+              "legenda": "Página 4 de 73. MENU Pontos Positivos Integra com Softwares de Folha de Pagamento Controle de Banco de Horas Cálculo de Horas Trabalhadas Relatórios Simpliﬁcados",
+              "alt": "Página 4 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-5.jpg",
+              "legenda": "Página 5 de 73. MENU Nexti Time O Nexti Time é dividido em 4 partes; Perﬁl de Apuração - Responsável por toda conﬁguração dos eventos da folha de pagamento Período de Apuração - Responsável pela criação dos períodos Lançamento Manual - Possibilita a inserção de Crédito ou Débito para um determinado colaborador Gestão de Apuração - Possibilidade de substituição de eventos Crédito para Hora Extra ou visse e versa.",
+              "alt": "Página 5 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-6.jpg",
+              "legenda": "Página 6 de 73. MENU Perﬁl de Apuração Todos os colaboradores cadastrados na plataforma serão vinculados a este perﬁl, de forma automática e obrigatória. Mesmo com o Perﬁl Global cadastrado, podemos criar um perﬁl de exceção para que em determinado posto haja um cálculo diferenciado.",
+              "alt": "Página 6 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-7.jpg",
+              "legenda": "Página 7 de 73. Dados Gerais MENU Deﬁnir data início e ﬁm da vigência. Obs: Não é obrigatório informar a data ﬁm Deﬁnir nome do perﬁl de apuração Parametrizar início da semana, irá inﬂuenciar diretamente no DSR Realizar o rateio das horas do colaborador, ou seja, vincular ao \"posto\" que ele iniciou e ﬁnalizou o plantão no dia.",
+              "alt": "Página 7 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-8.jpg",
+              "legenda": "Página 8 de 73. Dados Gerais MENU Quando habilitado esta ﬂag a apuração irá diferenciar os dias trabalhados em feriado e também dois novos campos irão aparecer. Conseguimos conﬁgurar se queremos considerar o feriado até o ﬁm da jornada, ou seja, colaboradores que iniciam em um dia e terminam no outro. As horas de intrajornada serão reduzidas das horas extras quando em feriado. Exemplo - Reduz o valor de intrajornada das horas extra geradas.",
+              "alt": "Página 8 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-9.jpg",
+              "legenda": "Página 9 de 73. MENU Dados Gerais Caso o colaborador inicie o plantão em um Sábado e o feriado seja no Domingo, sem a ﬂag o colaborador irá receber o feriado após 00:00 e com a ﬂag ativa irá desconsiderar.",
+              "alt": "Página 9 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-10.jpg",
+              "legenda": "Página 10 de 73. MENU Dados Gerais A forma de cálculo será alterada para o tipo ﬂexível, englobando todos os colaboradores vinculados ao perﬁl considerando apenas a Carga Horária Diária na apuração.",
+              "alt": "Página 10 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-11.jpg",
+              "legenda": "Página 11 de 73. MENU Dados Gerais Com a ﬂag ativa irá considerar a Carga Diária sem intervalo na apuração ignorando o intervalo realizado.",
+              "alt": "Página 11 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-12.jpg",
+              "legenda": "Página 12 de 73. Dados Gerais MENU Em casos de colaborador possuir uma ausência justiﬁcada e seja realizado hora extra, irá descontar as horas da ausência. (Flexível, Intermitente e Horista).",
+              "alt": "Página 12 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-13.jpg",
+              "legenda": "Página 13 de 73. MENU Dados Gerais Quando habilitado desconsidera a tolerância cadastrada no sistema.",
+              "alt": "Página 13 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-14.jpg",
+              "legenda": "Página 14 de 73. MENU Dados Gerais Regra criada para gerar um relatório especíﬁco e apresentar a quantidade de dias trabalhados.",
+              "alt": "Página 14 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-15.jpg",
+              "legenda": "Página 15 de 73. MENU Dados Gerais Quando ativa os dias de folga vão gerar o evento de folga compensada.",
+              "alt": "Página 15 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-16.jpg",
+              "legenda": "Página 16 de 73. Dados Gerais MENU Por padrão do sistema a apuração é feita com base nas marcações pares, ou seja, as marcações que estão tratadas para que seja feita a apuração. E com a ﬂag ativa possibilita realizar a apuração com marcações ímpares, você irá deﬁnir se quer desconsiderar marcação Inicial ou Final e assim realizando a apuração de um período. Exemplo Colaborador possui marcação às 08:00-12:00/13:00 não possuindo a saída as 18:00, se for selecionado para desconsiderar marcação “Final” ele irá apurar somente os dois primeiros registros 08:00-12:00 e assim gerando possíveis descontos de meio perío",
+              "alt": "Página 16 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-17.jpg",
+              "legenda": "Página 17 de 73. MENU Dados Gerais Controlar um possível atraso diferenciado onde não há necessidade de descontar do colaborador, podendo ser parametrizado para que seja descontado também.",
+              "alt": "Página 17 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-18.jpg",
+              "legenda": "Página 18 de 73. MENU Dados Gerais Será aberto um novo campo onde deverá ser preenchido as horas necessárias de descanso para que não seja gerado a interjornada.",
+              "alt": "Página 18 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-19.jpg",
+              "legenda": "Página 19 de 73. Dados Gerais MENU Aqui podemos deﬁnir o horário mínimo trabalhado que será gerado o evento de intrajornada.",
+              "alt": "Página 19 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-20.jpg",
+              "legenda": "Página 20 de 73. MENU Dados Gerais Irá transformar o evento de desconto quando há marcação ímpar para “Evento Marcação Ímpar\", ou seja, uma forma de controle que também pode ser parametrizado para desconto.",
+              "alt": "Página 20 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-21.jpg",
+              "legenda": "Página 21 de 73. MENU Dados Gerais Quando é feito o cadastro na escala no campo Carga Horária Diária e ativamos esta ﬂag, mesmo que trabalhado um período menor, o sistema irá considerar o que está cadastrado na Carga Horária Diária na escala.",
+              "alt": "Página 21 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-22.jpg",
+              "legenda": "Página 22 de 73. MENU Dados Gerais Em caso de banco de horas onde o colaborador não possui registro de marcação ele irá converter o Débito de Banco em Falta e assim não descontado do saldo de Banco de Horas, descontado a Falta diretamente na folha.",
+              "alt": "Página 22 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-23.jpg",
+              "legenda": "Página 23 de 73. Dados Gerais MENU Quando for lançada uma \"Ausência\" em um dia de folga e a flag estiver ativa, será considerado os eventos que foram lançados mesmo que seja dia de folga.",
+              "alt": "Página 23 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-24.jpg",
+              "legenda": "Página 24 de 73. Horas Noturnas MENU Ativar a regra de Adicional Noturno.",
+              "alt": "Página 24 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-25.jpg",
+              "legenda": "Página 25 de 73. MENU Horas Noturnas Ativar a regra de Horas Noturnas Reduzidas.",
+              "alt": "Página 25 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-26.jpg",
+              "legenda": "Página 26 de 73. MENU Horas Noturnas Quando ativa contabiliza o intervalo como Adicional Noturno, por regra o adicional noturno paga apenas as horas trabalhadas, porém existem empresas que pagam o Intervalo também como Adicional Noturno, irá depender de empresa para empresa.",
+              "alt": "Página 26 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-27.jpg",
+              "legenda": "Página 27 de 73. MENU Horas Noturnas Quando realizado hora extra e a ﬂag estiver ativa, não será calculado Adicional Noturno nas horas extras.",
+              "alt": "Página 27 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-28.jpg",
+              "legenda": "Página 28 de 73. Horas Noturnas MENU Diferenciar o intervalo de Diurno ou Noturno.",
+              "alt": "Página 28 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-29.jpg",
+              "legenda": "Página 29 de 73. MENU Horas Noturnas Quando ativa a ﬂag, além das Horas Noturnas Reduzidas, será acrescentado o valor do Adicional Noturno mas horas.",
+              "alt": "Página 29 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-30.jpg",
+              "legenda": "Página 30 de 73. MENU Horas Noturnas Exclusivo para registros que forem realizados em Horas Regulares Noturnas, irá desconsiderar a tolerância do sistema.",
+              "alt": "Página 30 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-31.jpg",
+              "legenda": "Página 31 de 73. Horas Noturnas MENU Deﬁnir o Início e Final do Adicional Noturno. Exemplo Início do Adicional Noturno - 22:00 Final do Adicional Noturno - 05:00",
+              "alt": "Página 31 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-32.jpg",
+              "legenda": "Página 32 de 73. Horas Noturnas MENU Será desconsiderado o horário ﬁnal que foi cadastrado em \"Diferenciar Horas Noturnas\" e irá considerar horas noturnas até o ﬁm da jornada do colaborador.",
+              "alt": "Página 32 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-33.jpg",
+              "legenda": "Página 33 de 73. Horas Noturnas MENU Deﬁnir a quantidade de horas que será preciso trabalhar para que seja gerado Intrajornada Noturna. Exemplo 11:00 O sistema só irá considerar Intrajornada Noturna após 11 horas trabalhadas.",
+              "alt": "Página 33 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-34.jpg",
+              "legenda": "Página 34 de 73. Banco de Horas MENU Os dias trabalhados no Feriado serão creditados como Banco de Horas.",
+              "alt": "Página 34 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-35.jpg",
+              "legenda": "Página 35 de 73. MENU Banco de Horas Você poderá selecionar uma ausência que será convertida a um evento de apuração. Exemplo Foi feita a parametrização para que sempre que lançado uma Ausência de Falta que converta em Débito Falta Diurna e assim irá contabilizar no banco de horas.",
+              "alt": "Página 35 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-36.jpg",
+              "legenda": "Página 36 de 73. MENU Banco de Horas Exemplo Parametrizado para os dias da semana determinando que o cálculo de apuração de banco de horas aos Sábados seja de 50%, Domingo e Feriado 100%. Possibilita parametrizar o percentual de Crédito de Banco, por dia da semana e aplicar percentuais diferentes.",
+              "alt": "Página 36 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-37.jpg",
+              "legenda": "Página 37 de 73. Banco de Horas MENU A intrajornada será desconsiderada e irá virar banco de horas.",
+              "alt": "Página 37 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-38.jpg",
+              "legenda": "Página 38 de 73. Banco de Horas MENU Parametrizar a tolerância diária para registro de ponto do banco de horas.",
+              "alt": "Página 38 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-39.jpg",
+              "legenda": "Página 39 de 73. DSR MENU Quando trabalhar em horário do tipo \"DSR\", serão gerados eventos diferenciados onde possibilitará uma exportação com código de evento diferente.",
+              "alt": "Página 39 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-40.jpg",
+              "legenda": "Página 40 de 73. DSR MENU Será descontado o DSR em caso de falta.",
+              "alt": "Página 40 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-41.jpg",
+              "legenda": "Página 41 de 73. DSR MENU Quando o colaborador possuir uma Ausência Parcial irá realizar o desconto do DSR. Aqui será possível parametrizar a partir de quantas horas deverá ser descontado o DSR e qual formato, semanal ou mensal.",
+              "alt": "Página 41 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-42.jpg",
+              "legenda": "Página 42 de 73. DSR MENU Quando o colaborador possuir uma ausência justiﬁcada lançada, será descontado o DSR.",
+              "alt": "Página 42 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-43.jpg",
+              "legenda": "Página 43 de 73. DSR MENU Ativa a regra para descontar o DSR em feriados.",
+              "alt": "Página 43 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-44.jpg",
+              "legenda": "Página 44 de 73. DSR MENU Sempre que um colaborador vinculado a este perﬁl de apuração trabalhar em horário do tipo \"DSR\" ou \"FOLGA\", será gerado intrajornada desde que realize a quantidade mínima de horas trabalhadas.",
+              "alt": "Página 44 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-45.jpg",
+              "legenda": "Página 45 de 73. MENU Hora Extra Código do Evento do sistema ERP. Hora Extra por via de regra é sempre em \"Horas\", o \"Dias\" é utilizado geralmente para desconto de DSR e os demais eventos em \"Horas\".",
+              "alt": "Página 45 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-46.jpg",
+              "legenda": "Página 46 de 73. Hora Extra MENU Ativa a regra para diferenciar os eventos de Intrajornada. Desconsidera a tolerância cadastrada no sistema para a intrajornada.",
+              "alt": "Página 46 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-47.jpg",
+              "legenda": "Página 47 de 73. MENU Hora Extra Os eventos são gerados com o nome de FT nos dias de folga ao invés de Hora Extra.",
+              "alt": "Página 47 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-48.jpg",
+              "legenda": "Página 48 de 73. MENU Hora Extra Quando o colaborador trabalhar 8 horas, sem a ﬂag, o sistema irá contabilizar as 8 horas, após ativar a ﬂag, será contabilizado como 7 horas trabalhadas e 1 hora de intrajornada.",
+              "alt": "Página 48 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-49.jpg",
+              "legenda": "Página 49 de 73. MENU Hora Extra Quando a folga do colaborador cai no domingo e porventura o mesmo trabalhe, poderá ser parametrizado para ser pago um valor diferente.",
+              "alt": "Página 49 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-50.jpg",
+              "legenda": "Página 50 de 73. Hora Extra MENU Irá gerar um evento de hora extra diferenciado para as horas em dias de folga no domingo.",
+              "alt": "Página 50 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-51.jpg",
+              "legenda": "Página 51 de 73. MENU Hora Extra Irá gerar um evento de hora extra diferenciado para as horas em dias de folga no sábado.",
+              "alt": "Página 51 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-52.jpg",
+              "legenda": "Página 52 de 73. MENU Hora Extra Caso colaborador realize um período menor de intervalo, com a ﬂag ativa será desmembrado o que é Intervalo da Intrajornada.",
+              "alt": "Página 52 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-53.jpg",
+              "legenda": "Página 53 de 73. MENU Hora Extra Quando ativa, ele separa as Horas Trabalhadas da Intrajornada.",
+              "alt": "Página 53 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-54.jpg",
+              "legenda": "Página 54 de 73. MENU Hora Extra Será gerado um evento de folga trabalhada com o valor proporcional de intervalo realizado. Exemplo Quando realizado o intervalo será gerado o evento de Folga Trabalhada.",
+              "alt": "Página 54 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-55.jpg",
+              "legenda": "Página 55 de 73. Hora Extra MENU Ativa a regra de diferenciar domingo trabalhando gerando um novo evento. Quando ativado irá considerar domingo trabalhado até o ﬁnal da jornada. Exemplo 12x36 inicia seu horário no Domingo às 18h e termina a jornada na Segunda às 06h.",
+              "alt": "Página 55 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-56.jpg",
+              "legenda": "Página 56 de 73. MENU Hora Extra Quando ativar o sistema irá separar as Horas Extras da Intrajornada.",
+              "alt": "Página 56 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-57.jpg",
+              "legenda": "Página 57 de 73. MENU Hora Extra Quando feito uma troca de horário em feriado tudo que ultrapassar o horário ﬁnal esperado será contabilizado como hora extra em feriado.",
+              "alt": "Página 57 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-58.jpg",
+              "legenda": "Página 58 de 73. Hora Extra MENU Quando ativa conseguimos parametrizar um código de evento para hora extra diferenciada em algum dia da semana.",
+              "alt": "Página 58 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-59.jpg",
+              "legenda": "Página 59 de 73. MENU Hora Extra Caso seja trabalhado em dia de DSR em horário noturno (iniciando em um dia e saindo no outro), será considerado o DSR até o ﬁnal da jornada.",
+              "alt": "Página 59 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-60.jpg",
+              "legenda": "Página 60 de 73. Hora Extra MENU Diária, Semanal Mensal. Possibilidade de parametrizar a quantidade de horas a serem pagas por dia, semana ou no mês. Quando habilitada irá disponibilizar dois novos campos para parametrização.",
+              "alt": "Página 60 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-61.jpg",
+              "legenda": "Página 61 de 73. MENU Hora Extra Parametrizar quantidade de horas mínimas que serão necessárias para adicionar a intrajornada.",
+              "alt": "Página 61 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-62.jpg",
+              "legenda": "Página 62 de 73. Hora Extra MENU Quando há necessidade de pagar a FT com valores diferenciados. Aqui faço a divisão do dia em percentual, por exemplo, eu posso informar 50% ou outro valor em “Percentual” (que é o equivalente a metade do dia) e em evento FOPAG código no qual equivale este valor para pagamento.",
+              "alt": "Página 62 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-63.jpg",
+              "legenda": "Página 63 de 73. MENU Exportação FOPAG Informação para vínculo com integração entre ERP.",
+              "alt": "Página 63 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-64.jpg",
+              "legenda": "Página 64 de 73. Exportação FOPAG MENU Se o formato que é utilizado no sistema ERP é Sexagesimal ou Centesimal.",
+              "alt": "Página 64 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-65.jpg",
+              "legenda": "Página 65 de 73. MENU Exportação FOPAG Layout da folha de pagamento do sistema ERP, já possuímos alguns cadastros no sistema.",
+              "alt": "Página 65 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-66.jpg",
+              "legenda": "Página 66 de 73. MENU Exportação FOPAG Se será dia, semanal ou mensal.",
+              "alt": "Página 66 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-67.jpg",
+              "legenda": "Página 67 de 73. MENU Exportação FOPAG Código do Evento do sistema ERP.",
+              "alt": "Página 67 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-68.jpg",
+              "legenda": "Página 68 de 73. MENU Ausência Justiﬁcada Código do Evento do sistema ERP. Selecionar o tipo de ausência no qual deseja cadastrar. Selecionar se será levado em Horas ou Dias, para o Dias deverá ser preenchido a quantidade de horas para considerar um dia.",
+              "alt": "Página 68 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-69.jpg",
+              "legenda": "Página 69 de 73. Ausência MENU Neste campo podemos selecionar quais eventos desejamos cadastrar. E com base no evento cadastrado precisamos selecionar a qual situação de ausência pertence aquele evento.",
+              "alt": "Página 69 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-70.jpg",
+              "legenda": "Página 70 de 73. MENU Banco de Horas - Não Agrupar Utilizado para fazer a separação dos eventos de banco de horas.",
+              "alt": "Página 70 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-71.jpg",
+              "legenda": "Página 71 de 73. Horista MENU Podemos deﬁnir qual a carga horária será necessária para receber a intrajornada.",
+              "alt": "Página 71 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-72.jpg",
+              "legenda": "Página 72 de 73. MENU Horista Deﬁnir carga horária diária para pagamento da intrajornada. Exemplo 4 a 8 horas deverá ser pago o valor de 1 hora de Intrajornada.",
+              "alt": "Página 72 do guia Como configurar o perfil de apuração completo?"
+            },
+            {
+              "src": "assets/telas/nexti-time-perfil-de-apuracao-completo-73.jpg",
+              "legenda": "Página 73 de 73. Obrigado! nexti.com",
+              "alt": "Página 73 do guia Como configurar o perfil de apuração completo?"
+            }
+          ]
+        }
+      ],
+      "fonteTelas": "Guia Prático Nexti Time",
+      "atencao": [],
+      "campos": [],
+      "checklist": [],
+      "faq": [],
+      "materiais": [
+        {
+          "titulo": "Guia Prático Nexti Time: Perfil de apuração",
+          "url": "materiais/nexti-time-perfil-de-apuracao-completo.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "relacionadas": [
+        "ori-0048",
+        "ori-0050",
+        "ori-0051",
+        "ori-0052",
+        "ori-0053"
+      ]
+    },
+    {
+      "id": "ori-0050",
+      "slug": "nexti-time-adicional-noturno-banco-de-horas-dsr",
+      "titulo": "Como configurar adicional noturno, banco de horas e DSR?",
+      "modulo": "nexti-time",
+      "submodulos": [
+        "adicional-noturno-banco-de-horas-dsr"
+      ],
+      "status": "publicado",
+      "revisao": "2026-11-27",
+      "resumo": "Guia Prático Nexti Time, apresentado página a página (27 páginas), como no material original.",
+      "palavrasChave": [
+        "nexti time",
+        "adicional noturno",
+        "banco de horas",
+        "dsr"
+      ],
+      "finalidade": "",
+      "preparacao": [],
+      "resumoProcedimento": [],
+      "passos": [],
+      "telas": [
+        {
+          "aba": "Adicional noturno, banco de horas e DSR",
+          "imagens": [
+            {
+              "src": "assets/telas/nexti-time-adicional-noturno-banco-de-horas-dsr-1.jpg",
+              "legenda": "Página 1 de 27. Guia Prático Nexti Time",
+              "alt": "Página 1 do guia Como configurar adicional noturno, banco de horas e DSR?"
+            },
+            {
+              "src": "assets/telas/nexti-time-adicional-noturno-banco-de-horas-dsr-2.jpg",
+              "legenda": "Página 2 de 27. MENU Nexti Time O que é? Pontos Positivos Como Conﬁgurar?",
+              "alt": "Página 2 do guia Como configurar adicional noturno, banco de horas e DSR?"
+            },
+            {
+              "src": "assets/telas/nexti-time-adicional-noturno-banco-de-horas-dsr-3.jpg",
+              "legenda": "Página 3 de 27. MENU O que é Nexti Time? É um módulo que pode-se realizar cálculo de horas trabalhadas a partir das marcações do cartão ponto, integrando com o seu sistema de folha! Hora Extra ou Banco de Horas? Na Nexti você pode calcular os dois, tudo em um só lugar!",
+              "alt": "Página 3 do guia Como configurar adicional noturno, banco de horas e DSR?"
+            },
+            {
+              "src": "assets/telas/nexti-time-adicional-noturno-banco-de-horas-dsr-4.jpg",
+              "legenda": "Página 4 de 27. MENU Pontos Positivos Integra com Softwares de Folha de Pagamento Controle de Banco de Horas Cálculo de Horas Trabalhadas Relatórios Simpliﬁcados",
+              "alt": "Página 4 do guia Como configurar adicional noturno, banco de horas e DSR?"
+            },
+            {
+              "src": "assets/telas/nexti-time-adicional-noturno-banco-de-horas-dsr-5.jpg",
+              "legenda": "Página 5 de 27. MENU Nexti Time O Nexti Time é dividido em 4 partes; Perﬁl de Apuração - Responsável por toda conﬁguração dos eventos da folha de pagamento Período de Apuração - Responsável pela criação dos períodos Lançamento Manual - Possibilita a inserção de Crédito ou Débito para um determinado colaborador Gestão de Apuração - Possibilidade de substituição de eventos Crédito para Hora Extra ou visse e versa.",
+              "alt": "Página 5 do guia Como configurar adicional noturno, banco de horas e DSR?"
+            },
+            {
+              "src": "assets/telas/nexti-time-adicional-noturno-banco-de-horas-dsr-6.jpg",
+              "legenda": "Página 6 de 27. Horas Noturnas MENU Ativar a regra de Adicional Noturno.",
+              "alt": "Página 6 do guia Como configurar adicional noturno, banco de horas e DSR?"
+            },
+            {
+              "src": "assets/telas/nexti-time-adicional-noturno-banco-de-horas-dsr-7.jpg",
+              "legenda": "Página 7 de 27. MENU Horas Noturnas Ativar a regra de Horas Noturnas Reduzidas.",
+              "alt": "Página 7 do guia Como configurar adicional noturno, banco de horas e DSR?"
+            },
+            {
+              "src": "assets/telas/nexti-time-adicional-noturno-banco-de-horas-dsr-8.jpg",
+              "legenda": "Página 8 de 27. MENU Horas Noturnas Quando ativa contabiliza o intervalo como Adicional Noturno, por regra o adicional noturno paga apenas as horas trabalhadas, porém existem empresas que pagam o Intervalo também como Adicional Noturno, irá depender de empresa para empresa.",
+              "alt": "Página 8 do guia Como configurar adicional noturno, banco de horas e DSR?"
+            },
+            {
+              "src": "assets/telas/nexti-time-adicional-noturno-banco-de-horas-dsr-9.jpg",
+              "legenda": "Página 9 de 27. MENU Horas Noturnas Quando realizado hora extra e a ﬂag estiver ativa, não será calculado Adicional Noturno nas horas extras.",
+              "alt": "Página 9 do guia Como configurar adicional noturno, banco de horas e DSR?"
+            },
+            {
+              "src": "assets/telas/nexti-time-adicional-noturno-banco-de-horas-dsr-10.jpg",
+              "legenda": "Página 10 de 27. Horas Noturnas MENU Diferenciar o intervalo de Diurno ou Noturno.",
+              "alt": "Página 10 do guia Como configurar adicional noturno, banco de horas e DSR?"
+            },
+            {
+              "src": "assets/telas/nexti-time-adicional-noturno-banco-de-horas-dsr-11.jpg",
+              "legenda": "Página 11 de 27. MENU Horas Noturnas Quando ativa a ﬂag, além das Horas Noturnas Reduzidas, será acrescentado o valor do Adicional Noturno mas horas.",
+              "alt": "Página 11 do guia Como configurar adicional noturno, banco de horas e DSR?"
+            },
+            {
+              "src": "assets/telas/nexti-time-adicional-noturno-banco-de-horas-dsr-12.jpg",
+              "legenda": "Página 12 de 27. MENU Horas Noturnas Exclusivo para registros que forem realizados em Horas Regulares Noturnas, irá desconsiderar a tolerância do sistema.",
+              "alt": "Página 12 do guia Como configurar adicional noturno, banco de horas e DSR?"
+            },
+            {
+              "src": "assets/telas/nexti-time-adicional-noturno-banco-de-horas-dsr-13.jpg",
+              "legenda": "Página 13 de 27. Horas Noturnas MENU Deﬁnir o Início e Final do Adicional Noturno. Exemplo Início do Adicional Noturno - 22:00 Final do Adicional Noturno - 05:00",
+              "alt": "Página 13 do guia Como configurar adicional noturno, banco de horas e DSR?"
+            },
+            {
+              "src": "assets/telas/nexti-time-adicional-noturno-banco-de-horas-dsr-14.jpg",
+              "legenda": "Página 14 de 27. Horas Noturnas MENU Será desconsiderado o horário ﬁnal que foi cadastrado em \"Diferenciar Horas Noturnas\" e irá considerar horas noturnas até o ﬁm da jornada do colaborador.",
+              "alt": "Página 14 do guia Como configurar adicional noturno, banco de horas e DSR?"
+            },
+            {
+              "src": "assets/telas/nexti-time-adicional-noturno-banco-de-horas-dsr-15.jpg",
+              "legenda": "Página 15 de 27. Horas Noturnas MENU Deﬁnir a quantidade de horas que será preciso trabalhar para que seja gerado Intrajornada Noturna. Exemplo 11:00 O sistema só irá considerar Intrajornada Noturna após 11 horas trabalhadas.",
+              "alt": "Página 15 do guia Como configurar adicional noturno, banco de horas e DSR?"
+            },
+            {
+              "src": "assets/telas/nexti-time-adicional-noturno-banco-de-horas-dsr-16.jpg",
+              "legenda": "Página 16 de 27. Banco de Horas MENU Os dias trabalhados no Feriado serão creditados como Banco de Horas.",
+              "alt": "Página 16 do guia Como configurar adicional noturno, banco de horas e DSR?"
+            },
+            {
+              "src": "assets/telas/nexti-time-adicional-noturno-banco-de-horas-dsr-17.jpg",
+              "legenda": "Página 17 de 27. MENU Banco de Horas Você poderá selecionar uma ausência que será convertida a um evento de apuração. Exemplo Foi feita a parametrização para que sempre que lançado uma Ausência de Falta que converta em Débito Falta Diurna e assim irá contabilizar no banco de horas.",
+              "alt": "Página 17 do guia Como configurar adicional noturno, banco de horas e DSR?"
+            },
+            {
+              "src": "assets/telas/nexti-time-adicional-noturno-banco-de-horas-dsr-18.jpg",
+              "legenda": "Página 18 de 27. MENU Banco de Horas Exemplo Parametrizado para os dias da semana determinando que o cálculo de apuração de banco de horas aos Sábados seja de 50%, Domingo e Feriado 100%. Possibilita parametrizar o percentual de Crédito de Banco, por dia da semana e aplicar percentuais diferentes.",
+              "alt": "Página 18 do guia Como configurar adicional noturno, banco de horas e DSR?"
+            },
+            {
+              "src": "assets/telas/nexti-time-adicional-noturno-banco-de-horas-dsr-19.jpg",
+              "legenda": "Página 19 de 27. Banco de Horas MENU A intrajornada será desconsiderada e irá virar banco de horas.",
+              "alt": "Página 19 do guia Como configurar adicional noturno, banco de horas e DSR?"
+            },
+            {
+              "src": "assets/telas/nexti-time-adicional-noturno-banco-de-horas-dsr-20.jpg",
+              "legenda": "Página 20 de 27. Banco de Horas MENU Parametrizar a tolerância diária para registro de ponto do banco de horas.",
+              "alt": "Página 20 do guia Como configurar adicional noturno, banco de horas e DSR?"
+            },
+            {
+              "src": "assets/telas/nexti-time-adicional-noturno-banco-de-horas-dsr-21.jpg",
+              "legenda": "Página 21 de 27. DSR MENU Quando trabalhar em horário do tipo \"DSR\", serão gerados eventos diferenciados onde possibilitará uma exportação com código de evento diferente.",
+              "alt": "Página 21 do guia Como configurar adicional noturno, banco de horas e DSR?"
+            },
+            {
+              "src": "assets/telas/nexti-time-adicional-noturno-banco-de-horas-dsr-22.jpg",
+              "legenda": "Página 22 de 27. DSR MENU Será descontado o DSR em caso de falta.",
+              "alt": "Página 22 do guia Como configurar adicional noturno, banco de horas e DSR?"
+            },
+            {
+              "src": "assets/telas/nexti-time-adicional-noturno-banco-de-horas-dsr-23.jpg",
+              "legenda": "Página 23 de 27. DSR MENU Quando o colaborador possuir uma Ausência Parcial irá realizar o desconto do DSR. Aqui será possível parametrizar a partir de quantas horas deverá ser descontado o DSR e qual formato, semanal ou mensal.",
+              "alt": "Página 23 do guia Como configurar adicional noturno, banco de horas e DSR?"
+            },
+            {
+              "src": "assets/telas/nexti-time-adicional-noturno-banco-de-horas-dsr-24.jpg",
+              "legenda": "Página 24 de 27. DSR MENU Quando o colaborador possuir uma ausência justiﬁcada lançada, será descontado o DSR.",
+              "alt": "Página 24 do guia Como configurar adicional noturno, banco de horas e DSR?"
+            },
+            {
+              "src": "assets/telas/nexti-time-adicional-noturno-banco-de-horas-dsr-25.jpg",
+              "legenda": "Página 25 de 27. DSR MENU Ativa a regra para descontar o DSR em feriados.",
+              "alt": "Página 25 do guia Como configurar adicional noturno, banco de horas e DSR?"
+            },
+            {
+              "src": "assets/telas/nexti-time-adicional-noturno-banco-de-horas-dsr-26.jpg",
+              "legenda": "Página 26 de 27. DSR MENU Sempre que um colaborador vinculado a este perﬁl de apuração trabalhar em horário do tipo \"DSR\" ou \"FOLGA\", será gerado intrajornada desde que realize a quantidade mínima de horas trabalhadas.",
+              "alt": "Página 26 do guia Como configurar adicional noturno, banco de horas e DSR?"
+            },
+            {
+              "src": "assets/telas/nexti-time-adicional-noturno-banco-de-horas-dsr-27.jpg",
+              "legenda": "Página 27 de 27. Obrigado! nexti.com",
+              "alt": "Página 27 do guia Como configurar adicional noturno, banco de horas e DSR?"
+            }
+          ]
+        }
+      ],
+      "fonteTelas": "Guia Prático Nexti Time",
+      "atencao": [],
+      "campos": [],
+      "checklist": [],
+      "faq": [],
+      "materiais": [
+        {
+          "titulo": "Guia Prático Nexti Time: Adicional noturno, banco de horas e DSR",
+          "url": "materiais/nexti-time-adicional-noturno-banco-de-horas-dsr.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "relacionadas": [
+        "ori-0048",
+        "ori-0049",
+        "ori-0051",
+        "ori-0052",
+        "ori-0053"
+      ]
+    },
+    {
+      "id": "ori-0051",
+      "slug": "nexti-time-hora-extra-exportacao-fopag",
+      "titulo": "Como configurar hora extra e exportação Fopag?",
+      "modulo": "nexti-time",
+      "submodulos": [
+        "hora-extra-exportacao-fopag"
+      ],
+      "status": "publicado",
+      "revisao": "2026-11-27",
+      "resumo": "Guia Prático Nexti Time, apresentado página a página (29 páginas), como no material original.",
+      "palavrasChave": [
+        "nexti time",
+        "hora extra",
+        "fopag",
+        "folha",
+        "exportação"
+      ],
+      "finalidade": "",
+      "preparacao": [],
+      "resumoProcedimento": [],
+      "passos": [],
+      "telas": [
+        {
+          "aba": "Hora extra e exportação Fopag",
+          "imagens": [
+            {
+              "src": "assets/telas/nexti-time-hora-extra-exportacao-fopag-1.jpg",
+              "legenda": "Página 1 de 29. Guia Prático Nexti Time",
+              "alt": "Página 1 do guia Como configurar hora extra e exportação Fopag?"
+            },
+            {
+              "src": "assets/telas/nexti-time-hora-extra-exportacao-fopag-2.jpg",
+              "legenda": "Página 2 de 29. MENU Nexti Time O que é? Pontos Positivos Como Conﬁgurar?",
+              "alt": "Página 2 do guia Como configurar hora extra e exportação Fopag?"
+            },
+            {
+              "src": "assets/telas/nexti-time-hora-extra-exportacao-fopag-3.jpg",
+              "legenda": "Página 3 de 29. MENU O que é Nexti Time? É um módulo que pode-se realizar cálculo de horas trabalhadas a partir das marcações do cartão ponto, integrando com o seu sistema de folha! Hora Extra ou Banco de Horas? Na Nexti você pode calcular os dois, tudo em um só lugar!",
+              "alt": "Página 3 do guia Como configurar hora extra e exportação Fopag?"
+            },
+            {
+              "src": "assets/telas/nexti-time-hora-extra-exportacao-fopag-4.jpg",
+              "legenda": "Página 4 de 29. MENU Pontos Positivos Integra com Softwares de Folha de Pagamento Controle de Banco de Horas Cálculo de Horas Trabalhadas Relatórios Simpliﬁcados",
+              "alt": "Página 4 do guia Como configurar hora extra e exportação Fopag?"
+            },
+            {
+              "src": "assets/telas/nexti-time-hora-extra-exportacao-fopag-5.jpg",
+              "legenda": "Página 5 de 29. MENU Nexti Time O Nexti Time é dividido em 4 partes; Perﬁl de Apuração - Responsável por toda conﬁguração dos eventos da folha de pagamento Período de Apuração - Responsável pela criação dos períodos Lançamento Manual - Possibilita a inserção de Crédito ou Débito para um determinado colaborador Gestão de Apuração - Possibilidade de substituição de eventos Crédito para Hora Extra ou visse e versa.",
+              "alt": "Página 5 do guia Como configurar hora extra e exportação Fopag?"
+            },
+            {
+              "src": "assets/telas/nexti-time-hora-extra-exportacao-fopag-6.jpg",
+              "legenda": "Página 6 de 29. MENU Hora Extra Código do Evento do sistema ERP. Hora Extra por via de regra é sempre em \"Horas\", o \"Dias\" é utilizado geralmente para desconto de DSR e os demais eventos em \"Horas\".",
+              "alt": "Página 6 do guia Como configurar hora extra e exportação Fopag?"
+            },
+            {
+              "src": "assets/telas/nexti-time-hora-extra-exportacao-fopag-7.jpg",
+              "legenda": "Página 7 de 29. Hora Extra MENU Ativa a regra para diferenciar os eventos de Intrajornada. Desconsidera a tolerância cadastrada no sistema para a intrajornada.",
+              "alt": "Página 7 do guia Como configurar hora extra e exportação Fopag?"
+            },
+            {
+              "src": "assets/telas/nexti-time-hora-extra-exportacao-fopag-8.jpg",
+              "legenda": "Página 8 de 29. MENU Hora Extra Os eventos são gerados com o nome de FT nos dias de folga ao invés de Hora Extra.",
+              "alt": "Página 8 do guia Como configurar hora extra e exportação Fopag?"
+            },
+            {
+              "src": "assets/telas/nexti-time-hora-extra-exportacao-fopag-9.jpg",
+              "legenda": "Página 9 de 29. MENU Hora Extra Quando o colaborador trabalhar 8 horas, sem a ﬂag, o sistema irá contabilizar as 8 horas, após ativar a ﬂag, será contabilizado como 7 horas trabalhadas e 1 hora de intrajornada.",
+              "alt": "Página 9 do guia Como configurar hora extra e exportação Fopag?"
+            },
+            {
+              "src": "assets/telas/nexti-time-hora-extra-exportacao-fopag-10.jpg",
+              "legenda": "Página 10 de 29. MENU Hora Extra Quando a folga do colaborador cai no domingo e porventura o mesmo trabalhe, poderá ser parametrizado para ser pago um valor diferente.",
+              "alt": "Página 10 do guia Como configurar hora extra e exportação Fopag?"
+            },
+            {
+              "src": "assets/telas/nexti-time-hora-extra-exportacao-fopag-11.jpg",
+              "legenda": "Página 11 de 29. Hora Extra MENU Irá gerar um evento de hora extra diferenciado para as horas em dias de folga no domingo.",
+              "alt": "Página 11 do guia Como configurar hora extra e exportação Fopag?"
+            },
+            {
+              "src": "assets/telas/nexti-time-hora-extra-exportacao-fopag-12.jpg",
+              "legenda": "Página 12 de 29. MENU Hora Extra Irá gerar um evento de hora extra diferenciado para as horas em dias de folga no sábado.",
+              "alt": "Página 12 do guia Como configurar hora extra e exportação Fopag?"
+            },
+            {
+              "src": "assets/telas/nexti-time-hora-extra-exportacao-fopag-13.jpg",
+              "legenda": "Página 13 de 29. MENU Hora Extra Caso colaborador realize um período menor de intervalo, com a ﬂag ativa será desmembrado o que é Intervalo da Intrajornada.",
+              "alt": "Página 13 do guia Como configurar hora extra e exportação Fopag?"
+            },
+            {
+              "src": "assets/telas/nexti-time-hora-extra-exportacao-fopag-14.jpg",
+              "legenda": "Página 14 de 29. MENU Hora Extra Quando ativa, ele separa as Horas Trabalhadas da Intrajornada.",
+              "alt": "Página 14 do guia Como configurar hora extra e exportação Fopag?"
+            },
+            {
+              "src": "assets/telas/nexti-time-hora-extra-exportacao-fopag-15.jpg",
+              "legenda": "Página 15 de 29. MENU Hora Extra Será gerado um evento de folga trabalhada com o valor proporcional de intervalo realizado. Exemplo Quando realizado o intervalo será gerado o evento de Folga Trabalhada.",
+              "alt": "Página 15 do guia Como configurar hora extra e exportação Fopag?"
+            },
+            {
+              "src": "assets/telas/nexti-time-hora-extra-exportacao-fopag-16.jpg",
+              "legenda": "Página 16 de 29. Hora Extra MENU Ativa a regra de diferenciar domingo trabalhando gerando um novo evento. Quando ativado irá considerar domingo trabalhado até o ﬁnal da jornada. Exemplo 12x36 inicia seu horário no Domingo às 18h e termina a jornada na Segunda às 06h.",
+              "alt": "Página 16 do guia Como configurar hora extra e exportação Fopag?"
+            },
+            {
+              "src": "assets/telas/nexti-time-hora-extra-exportacao-fopag-17.jpg",
+              "legenda": "Página 17 de 29. MENU Hora Extra Quando ativar o sistema irá separar as Horas Extras da Intrajornada.",
+              "alt": "Página 17 do guia Como configurar hora extra e exportação Fopag?"
+            },
+            {
+              "src": "assets/telas/nexti-time-hora-extra-exportacao-fopag-18.jpg",
+              "legenda": "Página 18 de 29. MENU Hora Extra Quando feito uma troca de horário em feriado tudo que ultrapassar o horário ﬁnal esperado será contabilizado como hora extra em feriado.",
+              "alt": "Página 18 do guia Como configurar hora extra e exportação Fopag?"
+            },
+            {
+              "src": "assets/telas/nexti-time-hora-extra-exportacao-fopag-19.jpg",
+              "legenda": "Página 19 de 29. Hora Extra MENU Quando ativa conseguimos parametrizar um código de evento para hora extra diferenciada em algum dia da semana.",
+              "alt": "Página 19 do guia Como configurar hora extra e exportação Fopag?"
+            },
+            {
+              "src": "assets/telas/nexti-time-hora-extra-exportacao-fopag-20.jpg",
+              "legenda": "Página 20 de 29. MENU Hora Extra Caso seja trabalhado em dia de DSR em horário noturno (iniciando em um dia e saindo no outro), será considerado o DSR até o ﬁnal da jornada.",
+              "alt": "Página 20 do guia Como configurar hora extra e exportação Fopag?"
+            },
+            {
+              "src": "assets/telas/nexti-time-hora-extra-exportacao-fopag-21.jpg",
+              "legenda": "Página 21 de 29. Hora Extra MENU Diária, Semanal Mensal. Possibilidade de parametrizar a quantidade de horas a serem pagas por dia, semana ou no mês. Quando habilitada irá disponibilizar dois novos campos para parametrização.",
+              "alt": "Página 21 do guia Como configurar hora extra e exportação Fopag?"
+            },
+            {
+              "src": "assets/telas/nexti-time-hora-extra-exportacao-fopag-22.jpg",
+              "legenda": "Página 22 de 29. MENU Hora Extra Parametrizar quantidade de horas mínimas que serão necessárias para adicionar a intrajornada.",
+              "alt": "Página 22 do guia Como configurar hora extra e exportação Fopag?"
+            },
+            {
+              "src": "assets/telas/nexti-time-hora-extra-exportacao-fopag-23.jpg",
+              "legenda": "Página 23 de 29. Hora Extra MENU Quando há necessidade de pagar a FT com valores diferenciados. Aqui faço a divisão do dia em percentual, por exemplo, eu posso informar 50% ou outro valor em “Percentual” (que é o equivalente a metade do dia) e em evento FOPAG código no qual equivale este valor para pagamento.",
+              "alt": "Página 23 do guia Como configurar hora extra e exportação Fopag?"
+            },
+            {
+              "src": "assets/telas/nexti-time-hora-extra-exportacao-fopag-24.jpg",
+              "legenda": "Página 24 de 29. MENU Exportação FOPAG Informação para vínculo com integração entre ERP.",
+              "alt": "Página 24 do guia Como configurar hora extra e exportação Fopag?"
+            },
+            {
+              "src": "assets/telas/nexti-time-hora-extra-exportacao-fopag-25.jpg",
+              "legenda": "Página 25 de 29. Exportação FOPAG MENU Se o formato que é utilizado no sistema ERP é Sexagesimal ou Centesimal.",
+              "alt": "Página 25 do guia Como configurar hora extra e exportação Fopag?"
+            },
+            {
+              "src": "assets/telas/nexti-time-hora-extra-exportacao-fopag-26.jpg",
+              "legenda": "Página 26 de 29. MENU Exportação FOPAG Layout da folha de pagamento do sistema ERP, já possuímos alguns cadastros no sistema.",
+              "alt": "Página 26 do guia Como configurar hora extra e exportação Fopag?"
+            },
+            {
+              "src": "assets/telas/nexti-time-hora-extra-exportacao-fopag-27.jpg",
+              "legenda": "Página 27 de 29. MENU Exportação FOPAG Se será dia, semanal ou mensal.",
+              "alt": "Página 27 do guia Como configurar hora extra e exportação Fopag?"
+            },
+            {
+              "src": "assets/telas/nexti-time-hora-extra-exportacao-fopag-28.jpg",
+              "legenda": "Página 28 de 29. MENU Exportação FOPAG Código do Evento do sistema ERP.",
+              "alt": "Página 28 do guia Como configurar hora extra e exportação Fopag?"
+            },
+            {
+              "src": "assets/telas/nexti-time-hora-extra-exportacao-fopag-29.jpg",
+              "legenda": "Página 29 de 29. Obrigado! nexti.com",
+              "alt": "Página 29 do guia Como configurar hora extra e exportação Fopag?"
+            }
+          ]
+        }
+      ],
+      "fonteTelas": "Guia Prático Nexti Time",
+      "atencao": [],
+      "campos": [],
+      "checklist": [],
+      "faq": [],
+      "materiais": [
+        {
+          "titulo": "Guia Prático Nexti Time: Hora extra e exportação Fopag",
+          "url": "materiais/nexti-time-hora-extra-exportacao-fopag.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "relacionadas": [
+        "ori-0048",
+        "ori-0049",
+        "ori-0050",
+        "ori-0052",
+        "ori-0053"
+      ]
+    },
+    {
+      "id": "ori-0052",
+      "slug": "nexti-time-ausencias-e-horistas",
+      "titulo": "Como configurar ausências e horistas na apuração?",
+      "modulo": "nexti-time",
+      "submodulos": [
+        "ausencias-e-horistas"
+      ],
+      "status": "publicado",
+      "revisao": "2026-11-27",
+      "resumo": "Guia Prático Nexti Time, apresentado página a página (11 páginas), como no material original.",
+      "palavrasChave": [
+        "nexti time",
+        "ausência",
+        "horista"
+      ],
+      "finalidade": "",
+      "preparacao": [],
+      "resumoProcedimento": [],
+      "passos": [],
+      "telas": [
+        {
+          "aba": "Ausências e horistas",
+          "imagens": [
+            {
+              "src": "assets/telas/nexti-time-ausencias-e-horistas-1.jpg",
+              "legenda": "Página 1 de 11. Guia Prático Nexti Time",
+              "alt": "Página 1 do guia Como configurar ausências e horistas na apuração?"
+            },
+            {
+              "src": "assets/telas/nexti-time-ausencias-e-horistas-2.jpg",
+              "legenda": "Página 2 de 11. MENU Nexti Time O que é? Pontos Positivos Como Conﬁgurar?",
+              "alt": "Página 2 do guia Como configurar ausências e horistas na apuração?"
+            },
+            {
+              "src": "assets/telas/nexti-time-ausencias-e-horistas-3.jpg",
+              "legenda": "Página 3 de 11. MENU O que é Nexti Time? É um módulo que pode-se realizar cálculo de horas trabalhadas a partir das marcações do cartão ponto, integrando com o seu sistema de folha! Hora Extra ou Banco de Horas? Na Nexti você pode calcular os dois, tudo em um só lugar!",
+              "alt": "Página 3 do guia Como configurar ausências e horistas na apuração?"
+            },
+            {
+              "src": "assets/telas/nexti-time-ausencias-e-horistas-4.jpg",
+              "legenda": "Página 4 de 11. MENU Pontos Positivos Integra com Softwares de Folha de Pagamento Controle de Banco de Horas Cálculo de Horas Trabalhadas Relatórios Simpliﬁcados",
+              "alt": "Página 4 do guia Como configurar ausências e horistas na apuração?"
+            },
+            {
+              "src": "assets/telas/nexti-time-ausencias-e-horistas-5.jpg",
+              "legenda": "Página 5 de 11. MENU Nexti Time O Nexti Time é dividido em 4 partes; Perﬁl de Apuração - Responsável por toda conﬁguração dos eventos da folha de pagamento Período de Apuração - Responsável pela criação dos períodos Lançamento Manual - Possibilita a inserção de Crédito ou Débito para um determinado colaborador Gestão de Apuração - Possibilidade de substituição de eventos Crédito para Hora Extra ou visse e versa.",
+              "alt": "Página 5 do guia Como configurar ausências e horistas na apuração?"
+            },
+            {
+              "src": "assets/telas/nexti-time-ausencias-e-horistas-6.jpg",
+              "legenda": "Página 6 de 11. MENU Ausência Justiﬁcada Código do Evento do sistema ERP. Selecionar o tipo de ausência no qual deseja cadastrar. Selecionar se será levado em Horas ou Dias, para o Dias deverá ser preenchido a quantidade de horas para considerar um dia.",
+              "alt": "Página 6 do guia Como configurar ausências e horistas na apuração?"
+            },
+            {
+              "src": "assets/telas/nexti-time-ausencias-e-horistas-7.jpg",
+              "legenda": "Página 7 de 11. Ausência MENU Neste campo podemos selecionar quais eventos desejamos cadastrar. E com base no evento cadastrado precisamos selecionar a qual situação de ausência pertence aquele evento.",
+              "alt": "Página 7 do guia Como configurar ausências e horistas na apuração?"
+            },
+            {
+              "src": "assets/telas/nexti-time-ausencias-e-horistas-8.jpg",
+              "legenda": "Página 8 de 11. MENU Banco de Horas - Não Agrupar Utilizado para fazer a separação dos eventos de banco de horas.",
+              "alt": "Página 8 do guia Como configurar ausências e horistas na apuração?"
+            },
+            {
+              "src": "assets/telas/nexti-time-ausencias-e-horistas-9.jpg",
+              "legenda": "Página 9 de 11. Horista MENU Podemos deﬁnir qual a carga horária será necessária para receber a intrajornada.",
+              "alt": "Página 9 do guia Como configurar ausências e horistas na apuração?"
+            },
+            {
+              "src": "assets/telas/nexti-time-ausencias-e-horistas-10.jpg",
+              "legenda": "Página 10 de 11. MENU Horista Deﬁnir carga horária diária para pagamento da intrajornada. Exemplo 4 a 8 horas deverá ser pago o valor de 1 hora de Intrajornada.",
+              "alt": "Página 10 do guia Como configurar ausências e horistas na apuração?"
+            },
+            {
+              "src": "assets/telas/nexti-time-ausencias-e-horistas-11.jpg",
+              "legenda": "Página 11 de 11. Obrigado! nexti.com",
+              "alt": "Página 11 do guia Como configurar ausências e horistas na apuração?"
+            }
+          ]
+        }
+      ],
+      "fonteTelas": "Guia Prático Nexti Time",
+      "atencao": [],
+      "campos": [],
+      "checklist": [],
+      "faq": [],
+      "materiais": [
+        {
+          "titulo": "Guia Prático Nexti Time: Ausências e horistas",
+          "url": "materiais/nexti-time-ausencias-e-horistas.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "relacionadas": [
+        "ori-0048",
+        "ori-0049",
+        "ori-0050",
+        "ori-0051",
+        "ori-0053"
+      ]
+    },
+    {
+      "id": "ori-0053",
+      "slug": "nexti-time-periodo-lancamento-gestao-de-apuracao",
+      "titulo": "Como usar período de apuração, lançamento manual e gestão de apuração?",
+      "modulo": "nexti-time",
+      "submodulos": [
+        "periodo-lancamento-gestao"
+      ],
+      "status": "publicado",
+      "revisao": "2026-11-27",
+      "resumo": "Guia Prático Nexti Time, apresentado página a página (16 páginas), como no material original.",
+      "palavrasChave": [
+        "nexti time",
+        "período de apuração",
+        "lançamento manual",
+        "gestão de apuração"
+      ],
+      "finalidade": "",
+      "preparacao": [],
+      "resumoProcedimento": [],
+      "passos": [],
+      "telas": [
+        {
+          "aba": "Período, lançamento manual e gestão de apuração",
+          "imagens": [
+            {
+              "src": "assets/telas/nexti-time-periodo-lancamento-gestao-de-apuracao-1.jpg",
+              "legenda": "Página 1 de 16. Guia Prático Nexti Time",
+              "alt": "Página 1 do guia Como usar período de apuração, lançamento manual e gestão de apuração?"
+            },
+            {
+              "src": "assets/telas/nexti-time-periodo-lancamento-gestao-de-apuracao-2.jpg",
+              "legenda": "Página 2 de 16. MENU Nexti Time O que é? Pontos Positivos Como Conﬁgurar?",
+              "alt": "Página 2 do guia Como usar período de apuração, lançamento manual e gestão de apuração?"
+            },
+            {
+              "src": "assets/telas/nexti-time-periodo-lancamento-gestao-de-apuracao-3.jpg",
+              "legenda": "Página 3 de 16. MENU O que é Nexti Time? É um módulo que pode-se realizar cálculo de horas trabalhadas a partir das marcações do cartão ponto, integrando com o seu sistema de folha! Hora Extra ou Banco de Horas? Na Nexti você pode calcular os dois, tudo em um só lugar!",
+              "alt": "Página 3 do guia Como usar período de apuração, lançamento manual e gestão de apuração?"
+            },
+            {
+              "src": "assets/telas/nexti-time-periodo-lancamento-gestao-de-apuracao-4.jpg",
+              "legenda": "Página 4 de 16. MENU Pontos Positivos Integra com Softwares de Folha de Pagamento Controle de Banco de Horas Cálculo de Horas Trabalhadas Relatórios Simpliﬁcados",
+              "alt": "Página 4 do guia Como usar período de apuração, lançamento manual e gestão de apuração?"
+            },
+            {
+              "src": "assets/telas/nexti-time-periodo-lancamento-gestao-de-apuracao-5.jpg",
+              "legenda": "Página 5 de 16. MENU Nexti Time O Nexti Time é dividido em 4 partes; Perﬁl de Apuração - Responsável por toda conﬁguração dos eventos da folha de pagamento Período de Apuração - Responsável pela criação dos períodos Lançamento Manual - Possibilita a inserção de Crédito ou Débito para um determinado colaborador Gestão de Apuração - Possibilidade de substituição de eventos Crédito para Hora Extra ou visse e versa.",
+              "alt": "Página 5 do guia Como usar período de apuração, lançamento manual e gestão de apuração?"
+            },
+            {
+              "src": "assets/telas/nexti-time-periodo-lancamento-gestao-de-apuracao-6.jpg",
+              "legenda": "Página 6 de 16. Horista MENU O evento de intervalo realizado será gerado para o horista. Os minutos de intervalo para os horistas irão abater os eventos de intrajornada.",
+              "alt": "Página 6 do guia Como usar período de apuração, lançamento manual e gestão de apuração?"
+            },
+            {
+              "src": "assets/telas/nexti-time-periodo-lancamento-gestao-de-apuracao-7.jpg",
+              "legenda": "Página 7 de 16. MENU Período de Apuração Todos os colaboradores cadastrados na plataforma serão vinculados a este período, de forma automática e obrigatória. Mesmo com o Perﬁl Global cadastrado, podemos criar um período de exceção para que em determinado posto haja um cálculo diferenciado.",
+              "alt": "Página 7 do guia Como usar período de apuração, lançamento manual e gestão de apuração?"
+            },
+            {
+              "src": "assets/telas/nexti-time-periodo-lancamento-gestao-de-apuracao-8.jpg",
+              "legenda": "Página 8 de 16. Período de Apuração MENU Código da folha do sistema ERP. Utilizado para o deixar o Período de Apuração Aberto, Fechado ou Cancelar. Nome do período de apuração, exemplo JULHO 2022. Com essa ﬂag será possível visualizar o Saldo Acumulado de banco de horas na mesa de operações. Será cadastro a data início e ﬁm do período de apuração, exemplo 16/11/2022 a 15/11/2022. Faz com que os dias trabalhados nas folgas não calculam Crédito de Banco e sim como Horas Trabalhadas.",
+              "alt": "Página 8 do guia Como usar período de apuração, lançamento manual e gestão de apuração?"
+            },
+            {
+              "src": "assets/telas/nexti-time-periodo-lancamento-gestao-de-apuracao-9.jpg",
+              "legenda": "Página 9 de 16. Período de Apuração MENU Em casos de exceções, o que deve ser cadastrado é somente o ﬁltro. Você irá selecionar o tipo de ﬁltro que você irá cadastrar, caso seja por Posto. Irá digitar o nome do posto e em seguida selecionando “clicando”.",
+              "alt": "Página 9 do guia Como usar período de apuração, lançamento manual e gestão de apuração?"
+            },
+            {
+              "src": "assets/telas/nexti-time-periodo-lancamento-gestao-de-apuracao-10.jpg",
+              "legenda": "Página 10 de 16. MENU Lançamento Manual Informe o nome do Colaborador. E qual período de apuração você irá realizar o lançamento.",
+              "alt": "Página 10 do guia Como usar período de apuração, lançamento manual e gestão de apuração?"
+            },
+            {
+              "src": "assets/telas/nexti-time-periodo-lancamento-gestao-de-apuracao-11.jpg",
+              "legenda": "Página 11 de 16. Lançamento Manual MENU Analisar marcações de ponto. Analisar lançamentos de Ausência do período. Lançamento Manual.",
+              "alt": "Página 11 do guia Como usar período de apuração, lançamento manual e gestão de apuração?"
+            },
+            {
+              "src": "assets/telas/nexti-time-periodo-lancamento-gestao-de-apuracao-12.jpg",
+              "legenda": "Página 12 de 16. Lançamento Manual MENU Data de referência que será feito o lançamento. Quantidade em horas que será Creditado ou Debitado. Tipo do evento do lançamento manual “Crédito ou Débito”. Selecionar o posto no qual o colaborador está lotado naquele período. Informe o motivo no qual está realizando a ação.",
+              "alt": "Página 12 do guia Como usar período de apuração, lançamento manual e gestão de apuração?"
+            },
+            {
+              "src": "assets/telas/nexti-time-periodo-lancamento-gestao-de-apuracao-13.jpg",
+              "legenda": "Página 13 de 16. Gestão de Apuração MENU Campo de pesquisa para selecionar um posto, colaborador entre outros. Selecionar o Período de Apuração. Selecionar a ação.",
+              "alt": "Página 13 do guia Como usar período de apuração, lançamento manual e gestão de apuração?"
+            },
+            {
+              "src": "assets/telas/nexti-time-periodo-lancamento-gestao-de-apuracao-14.jpg",
+              "legenda": "Página 14 de 16. MENU Gestão de Apuração Neste exemplo estou usando “Colaborador” você irá digitar o nome e “clicar”.",
+              "alt": "Página 14 do guia Como usar período de apuração, lançamento manual e gestão de apuração?"
+            },
+            {
+              "src": "assets/telas/nexti-time-periodo-lancamento-gestao-de-apuracao-15.jpg",
+              "legenda": "Página 15 de 16. Gestão de Apuração MENU Selecione o Evento de origem “Banco de Horas Crédito. Agora o Evento de Destino “Hora Extra Diurna”. O período ou dia que for selecionado o sistema irá fazer a substituição Aqui você irá informar o motivo no qual você está realizando esta ação e após clique em Substituir Evento.",
+              "alt": "Página 15 do guia Como usar período de apuração, lançamento manual e gestão de apuração?"
+            },
+            {
+              "src": "assets/telas/nexti-time-periodo-lancamento-gestao-de-apuracao-16.jpg",
+              "legenda": "Página 16 de 16. Obrigado! nexti.com",
+              "alt": "Página 16 do guia Como usar período de apuração, lançamento manual e gestão de apuração?"
+            }
+          ]
+        }
+      ],
+      "fonteTelas": "Guia Prático Nexti Time",
+      "atencao": [],
+      "campos": [],
+      "checklist": [],
+      "faq": [],
+      "materiais": [
+        {
+          "titulo": "Guia Prático Nexti Time: Período, lançamento manual e gestão de apuração",
+          "url": "materiais/nexti-time-periodo-lancamento-gestao-de-apuracao.pdf",
+          "tipo": "PDF"
+        }
+      ],
+      "relacionadas": [
+        "ori-0048",
+        "ori-0049",
+        "ori-0050",
+        "ori-0051",
+        "ori-0052"
       ]
     }
   ],
